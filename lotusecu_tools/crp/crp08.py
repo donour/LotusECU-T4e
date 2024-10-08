@@ -19,13 +19,13 @@ class BinData:
         raise NotImplementedError
 
 
-class CRP08_exception(Exception):
+class CRP08Exception(Exception):
     pass
 
 
 # Encryption algorithm:
 #
-# Standard XTEA. XTEA data size needs to be a mulitple of 8 bytes. So padding
+# Standard XTEA. XTEA app_data size needs to be a multiple of 8 bytes. So padding
 # is required.
 #
 class CRP08_xtea:
@@ -99,7 +99,7 @@ class CRP08_xtea:
         return size
 
 
-# The first chunk of a CRP data contains a kind of "Table of Content" for the
+# The first chunk of a CRP app_data contains a kind of "Table of Content" for the
 # next chunks.
 #
 # Chunk TOC format:
@@ -130,7 +130,7 @@ class CRP08_chunk_toc(BinData):
             offset = int.from_bytes(data[x : x + 4], BO_LE)
             size = int.from_bytes(data[x + 4 : x + 8], BO_LE)
             if int.from_bytes(data[offset : offset + 4], BO_LE) != i + 1:
-                raise CRP08_exception("Index chunk!")
+                raise CRP08Exception("Index chunk!")
             self.toc_values[i] = [None] * ((size - 4) // self.ENS)
             for j in range(0, len(self.toc_values[i])):
                 x = offset + 4 + (self.ENS * j)
@@ -189,7 +189,7 @@ CRP08 TOC Chunk:
 # Encryption header format:
 #
 #   8 Bytes    - XTEA Salt or Initialization Vector (Random values)
-#   4 Bytes BE - XTEA Size of data before padding
+#   4 Bytes BE - XTEA Size of app_data before padding
 #
 # ECU header format:
 #
@@ -249,7 +249,7 @@ class CRP08_data_ecu(BinData):
         self.ecu_maxversion = 0
         self.ecu_minversion = 0
 
-        # Binary data
+        # Binary app_data
         self.ecu_data = None
 
     def parse(self, data):
@@ -270,9 +270,9 @@ class CRP08_data_ecu(BinData):
 
         # Check sizes
         if xtea_plainsize != ecu_binsize + 64:
-            raise CRP08_exception("Size mismatch!")
+            raise CRP08Exception("Size mismatch!")
 
-        # Binary data
+        # Binary app_data
         self.ecu_data = plain[76 : 76 + ecu_binsize]
 
     def get_size(self):
@@ -292,7 +292,7 @@ class CRP08_data_ecu(BinData):
         plain[52:56] = self.ecu_maxversion.to_bytes(4, BO_BE)
         plain[56:60] = self.ecu_minversion.to_bytes(4, BO_BE)
 
-        # Binary data
+        # Binary app_data
         plain[76 : 76 + len(self.ecu_data)] = self.ecu_data
 
         # Encrypt
@@ -331,7 +331,7 @@ CRP08 ECU Data:
         )
 
 
-# The following chunks of a CRP data contains data to flash through CAN-Bus.
+# The following chunks of a CRP app_data contains app_data to flash through CAN-Bus.
 #
 # Chunk CAN format:
 #
@@ -342,7 +342,7 @@ CRP08 ECU Data:
 #   4 Bytes LE - CAN Remote ID 2
 #   4 Bytes LE - CAN Local ID 2
 #  40 Bytes    - Filled with 0x00
-#   x Bytes    - XTEA Encrypted data (see Data ECU format)
+#   x Bytes    - XTEA Encrypted app_data (see Data ECU format)
 #
 class CRP08_chunk_can(BinData):
     SIGNATURE_EMS = 0x0001010A  # EMS
@@ -357,7 +357,7 @@ class CRP08_chunk_can(BinData):
         self.can_remote_id2 = 0x51
         self.can_local_id2 = 0x7A1
 
-        # Encrypted data
+        # Encrypted app_data
         self.is_encrypted = key == None
         if self.is_encrypted:
             self.data = None
@@ -380,9 +380,9 @@ class CRP08_chunk_can(BinData):
         self.can_remote_id2 = int.from_bytes(data[16:20], BO_LE)
         self.can_local_id2 = int.from_bytes(data[20:24], BO_LE)
 
-        # TODO: T6 CRP have a value in data[60:64]... A CRC for the data?
+        # TODO: T6 CRP have a value in app_data[60:64]... A CRC for the app_data?
 
-        # Encrypted data
+        # Encrypted app_data
         if self.is_encrypted:
             self.data = data[64:]
         else:
@@ -403,7 +403,7 @@ class CRP08_chunk_can(BinData):
         data[16:20] = self.can_remote_id2.to_bytes(4, BO_LE)
         data[20:24] = self.can_local_id2.to_bytes(4, BO_LE)
 
-        # Encrypted data
+        # Encrypted app_data
         if self.is_encrypted:
             data[64:] = self.data
         else:
@@ -482,7 +482,7 @@ class CRP08(BinData):
         # Check the sum
         cksum = sum(data[:-2]) & 0xFFFF
         if cksum != int.from_bytes(data[-2:], BO_LE):
-            raise CRP08_exception("Wrong sum!")
+            raise CRP08Exception("Wrong sum!")
 
         # Parse the chunks
         self.chunks = [None] * int.from_bytes(data[0:4], BO_LE)

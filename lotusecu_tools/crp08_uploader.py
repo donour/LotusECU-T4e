@@ -1,11 +1,10 @@
 import argparse
-import sys
 
 import can
 
-from lib.crc import CRC8Normal
-from lib.crp08 import CRP08, CRP08_exception
-from lib.fileprogress import Progress
+from utils.crc import CRC8Normal
+from crp.crp08 import CRP08, CRP08Exception
+from utils.fileprogress import Progress
 
 # Some constants
 BO_BE = "big"
@@ -27,7 +26,7 @@ class CRP08_uploader:
         0x8B: "ECU information error (T4E/T6 not matching)",
         0x8C: "Serial number error (Version 0xA00 is not between Min and Max)",
         0x8D: "Device information error (Invalid destination address and/or size)",
-        0x8E: "Max unanswered request data",
+        0x8E: "Max unanswered request app_data",
         0x8F: "Device not blank (For addresses: 0xA00, 0xA2C, 0xA4C, 0x7C0)",
         0x90: "Wrong HC908 passphrase (8 bytes)",
         0x96: "Rx buffer overflow error (>0x400 bytes)",
@@ -109,16 +108,16 @@ class CRP08_uploader:
             if msg != None:
                 break
         if msg == None:
-            raise CRP08_exception("No answer!")
+            raise CRP08Exception("No answer!")
         self.crc.reset()
         self.crc.update(msg.data[0:-1])
         if self.crc.get() != msg.data[-1]:
-            raise CRP08_exception("Wrong CRC!")
+            raise CRP08Exception("Wrong CRC!")
         return (msg.data[0], msg.data[1:-1])
 
     def bootstrap(self, crp, timeout=60, ui_cb=lambda: None):
         if len(crp.chunks) < 2:
-            raise CRP08_exception("CRP file is empty!")
+            raise CRP08Exception("CRP file is empty!")
         crp_chunk_i = 1
         self.open_can(crp.chunks[crp_chunk_i])
         self.p.log(f"Power On ECU, please! (within {timeout:d} seconds)")
@@ -161,7 +160,7 @@ class CRP08_uploader:
             # Error
             if cmd == 0x04 or cmd == 0x05:
                 error = data[4]
-                raise CRP08_exception(
+                raise CRP08Exception(
                     f"ECU: Error {error:02X} " + self.errors.get(error, "Unknown")
                 )
         self.close_can()

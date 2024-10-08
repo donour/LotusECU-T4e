@@ -1,16 +1,15 @@
 #!/usr/bin/python3
 
 import configparser
-import os
 import tkinter as tk
 from tkinter import messagebox
 
 try:
-    from lib.gui_calibration import CAL_editor_win
-    from lib.gui_crp01 import CRP01_editor_win, CRP01_uploader_win
-    from lib.gui_crp08 import CRP08_editor_win, CRP08_uploader_win
-    from lib.gui_flasher import Flasher_win
-    from lib.gui_ltacc import LiveTuningAccess_win
+    from gui_tk.gui_calibration import CAL_editor_win
+    from gui_tk.gui_crp01 import CRP01_editor_win, CRP01_uploader_win
+    from gui_tk.gui_crp08 import CRP08_editor_win, CRP08_uploader_win
+    from gui_tk.gui_flasher import Flasher_win
+    from gui_tk.gui_ltacc import LiveTuningAccess_win
 except ImportError as e:
     messagebox.showerror(
         master=None, title="Python Installation Error!", message=str(e)
@@ -19,14 +18,14 @@ except ImportError as e:
 
 
 class main_window:
-    PREFS_FILE = "prefs.cfg"
+    PREFS_FILE = "../prefs.cfg"
 
     def __init__(self, master):
         self.master = master
         master.title("Lotus Tools")
         master.resizable(0, 0)
         master.protocol("WM_DELETE_WINDOW", self.on_close)
-        master.iconphoto(True, tk.PhotoImage(file="lib/app.png"))
+        master.iconphoto(True, tk.PhotoImage(file="../app_data/app.png"))
         tk.Button(
             master,
             text="CRP01 Editor",

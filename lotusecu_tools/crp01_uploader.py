@@ -2,8 +2,8 @@ import argparse
 
 import serial
 
-from lib.crp01 import CRP01, CRP01_exception
-from lib.fileprogress import Progress
+from crp.crp01 import CRP01, CRP01Exception
+from utils.fileprogress import Progress
 
 # Some constants
 BO_BE = "big"
@@ -31,7 +31,7 @@ class CRP01_uploader:
     # A packet to the ECU is:
     # 	1 byte length (excluding checksum)
     # 	1 byte command
-    # 	x bytes data
+    # 	x bytes app_data
     # 	1 byte sum
     #
     # The ECU acknowlegde the reception by sending the inverted of the sum.
@@ -39,10 +39,10 @@ class CRP01_uploader:
     # Raise an Exception if the ECU does not acknowledge
     #
     # Cmd:
-    # 	0x71: Enter stage II at speed 29761 (no data)
-    # 	0x81: Enter stage II at speed 29069 (no data)
+    # 	0x71: Enter stage II at speed 29761 (no app_data)
+    # 	0x81: Enter stage II at speed 29069 (no app_data)
     # 	0x70: CRP Data
-    # 	0x73: Exit (no data)
+    # 	0x73: Exit (no app_data)
     def send(self, cmd, payload=b""):
         # Send
         length = len(payload) + 1  # +1 for the cmd byte
@@ -52,16 +52,16 @@ class CRP01_uploader:
         self.ser.write(data)
         # Receive the echo
         if self.ser.read(len(data)) != data:
-            raise CRP01_exception("No echo!")
+            raise CRP01Exception("No echo!")
         # Receive the acknowledgement
         ack = self.ser.read(1)
         if len(ack) == 0 or ack[0] != (~cksum & 0xFF):
-            raise CRP01_exception("No acknowledgement!")
+            raise CRP01Exception("No acknowledgement!")
 
     # A packet from the ECU follows the same structure.
     #
     # Cmd:
-    # 	0x72: Ok, next frame (1 byte data, error code)
+    # 	0x72: Ok, next frame (1 byte app_data, error code)
     def recv(self, timeout=10.0):
         # Recv
         for _ in range(0, int(timeout / self.ser.timeout)):
@@ -69,15 +69,15 @@ class CRP01_uploader:
             if len(data) > 0:
                 break
         if len(data) == 0:
-            raise CRP01_exception("No answer!")
+            raise CRP01Exception("No answer!")
         length = data[0]
         data += self.ser.read(length + 1)  # +1 for the sum byte
         if len(data) != length + 2:  # +2 for the length and the sum bytes
-            raise CRP01_exception("Missing bytes!")
+            raise CRP01Exception("Missing bytes!")
         cmd, payload, cksum = data[1], data[2:-1], data[-1]
         # Check the checksum
         if cksum != (sum(data[:-1]) & 0xFF):
-            raise CRP01_exception("Wrong checksum!")
+            raise CRP01Exception("Wrong checksum!")
         # Send the acknowledgement
         ack = (~cksum & 0xFF).to_bytes(1, BO_BE)
         self.ser.write(ack)
@@ -90,8 +90,8 @@ class CRP01_uploader:
         if cmd == 0x72 and len(payload) == 1:
             if payload[0] == 0:
                 return
-            raise CRP01_exception(f"ECU: Error {payload[0]:d}")
-        raise CRP01_exception(f"ECU: Unexcepted command {cmd:02X}")
+            raise CRP01Exception(f"ECU: Error {payload[0]:d}")
+        raise CRP01Exception(f"ECU: Unexcepted command {cmd:02X}")
 
     # Wait the ECU to be turned on and automatically flash it!
     def bootstrap(self, crp, timeout=60, ui_cb=lambda: None):
@@ -102,11 +102,11 @@ class CRP01_uploader:
             try:
                 self.send(0x71)
                 break
-            except CRP01_exception:
+            except CRP01Exception:
                 self.ser.reset_input_buffer()
             timeout -= self.ser.timeout
             if timeout <= 0:
-                raise CRP01_exception("Time out!")
+                raise CRP01Exception("Time out!")
         self.p.log("ECU: In stage II")
         # Send the CRP
         self.p.progress_start(len(crp.file_data))

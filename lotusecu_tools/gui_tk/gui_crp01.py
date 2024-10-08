@@ -2,10 +2,10 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
-from lib.crp01 import CRP01
-from lib.crp01_uploader import CRP01_uploader
-from lib.gui_common import *
-from lib.gui_fileprogress import FileProgress_widget
+from crp.crp01 import CRP01
+from crp01_uploader import CRP01_uploader
+from gui_tk.gui_common import *
+from gui_tk.gui_fileprogress import FileProgress_widget
 
 crp01_file = [("Lotus CRP 01 file", "*.CRP *.crp")]
 srec_file = [("Motorola S-Record file", "*.SREC *.srec")]

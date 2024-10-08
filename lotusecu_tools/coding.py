@@ -1,7 +1,7 @@
 import os
 import sys
 
-from lib.crc import CRC16Reflect
+from utils.crc import CRC16Reflect
 
 # Mode 0x22 PID 0x0263 return 0x1C004 in little endian
 # Mode 0x22 PID 0x0264 return 0x1C000 in little endian

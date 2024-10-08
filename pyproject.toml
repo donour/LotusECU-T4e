@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lotusecu-tools"
+name = "lotusecu_tools"
 version = "0.0.1"
 description = "Lotus ECU Tools"
 authors = ["alcantor <alcantor@hotmail.com>"]

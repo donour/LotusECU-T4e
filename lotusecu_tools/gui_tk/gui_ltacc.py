@@ -1,11 +1,11 @@
 import os
 import tkinter as tk
-from tkinter import filedialog, simpledialog
+from tkinter import filedialog
 
-from lib.flasher import Flasher
-from lib.gui_common import *
-from lib.gui_fileprogress import FileProgress_widget
-from lib.ltacc import LiveTuningAccess
+from flasher import Flasher
+from gui_tk.gui_common import *
+from gui_tk.gui_fileprogress import FileProgress_widget
+from ltacc import LiveTuningAccess
 
 # Some constants
 BO_BE = "big"

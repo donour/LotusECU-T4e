@@ -19,7 +19,7 @@ class BinData:
         raise NotImplementedError
 
 
-class CRP01_exception(Exception):
+class CRP01Exception(Exception):
     pass
 
 
@@ -130,21 +130,21 @@ class CRP01_3by2enc:
                     w_sum -= self.key_table[j]
                     w_bit_flag |= 1 << j
             if w_sum != 0:
-                raise CRP01_exception("Wrong Key! @ " + hex(x))
+                raise CRP01Exception("Wrong Key! @ " + hex(x))
             w_plain = (w_bit_flag - self.K) & 0xFFFF
             x = i * 2
             buf_out[x : x + 2] = w_plain.to_bytes(2, BO_LE)
 
-    # Compute the needed space for cipher data
+    # Compute the needed space for cipher app_data
     def calc_size_encrypted(size):
         if size % 2 != 0:
-            raise CRP01_exception("Plain size is not 16 bits aligned!")
+            raise CRP01Exception("Plain size is not 16 bits aligned!")
         return size // 2 * 3
 
-    # Compute the needed space for plain data
+    # Compute the needed space for plain app_data
     def calc_size_decrypted(size):
         if size % 3 != 0:
-            raise CRP01_exception("Cipher size is not 24 bits aligned!")
+            raise CRP01Exception("Cipher size is not 24 bits aligned!")
         return size // 3 * 2
 
 
@@ -332,7 +332,7 @@ class CRP01_subpackets(BinData):
                 # Extract the Sub-Packet (Very similar to a S-Record line but binary)
                 size = data[i + 1]
                 if sum(data[i : i + size]) & 0xFF != data[i + size]:
-                    raise CRP01_exception("Checksum error of sub-packet")
+                    raise CRP01Exception("Checksum error of sub-packet")
                 addr = int.from_bytes(data[i + 2 : i + 5], BO_BE)
                 data2 = data[i + 5 : i + size]
                 i += size + 1
@@ -391,7 +391,7 @@ class CRP01_subpackets(BinData):
             )
             length = srec_bin[0]
             if ~sum(srec_bin[:length]) & 0xFF != srec_bin[length]:
-                raise CRP01_exception("S-Record checksum error")
+                raise CRP01Exception("S-Record checksum error")
             if line[1] == "0":
                 desc = str(srec_bin[3:length], CHARSET)
                 continue
@@ -426,7 +426,7 @@ class CRP01_subpackets(BinData):
         with open(file, "wb") as f:
             f.write(buf)
 
-    # 246 is the maximal size of data in a subpacket.
+    # 246 is the maximal size of app_data in a subpacket.
     def import_bin(self, file, offset, spsize=246):
         with open(file, "rb") as f:
             buf = f.read()
@@ -445,7 +445,7 @@ Subpackets:
         return fmt.format(len(self.subpackets))
 
 
-# Unencrypted data format:
+# Unencrypted app_data format:
 #
 #  16 Bytes    - Header
 #   x Bytes    - Multiple sub-packets
@@ -453,7 +453,7 @@ Subpackets:
 #
 class CRP01_data_ecu(BinData):
     def __init__(self, hdr, key):
-        # Binary data
+        # Binary app_data
         self.header = hdr()
         self.key = key
         self.subpackets = CRP01_subpackets()
@@ -468,7 +468,7 @@ class CRP01_data_ecu(BinData):
 
         # Global Checksum
         if cksum != sum(plain[:-2]) & 0xFFFF:
-            raise CRP01_exception("Wrong Checksum!")
+            raise CRP01Exception("Wrong Checksum!")
 
     def get_size(self):
         return CRP01_3by2enc.calc_size_encrypted(18 + self.subpackets.get_size())
@@ -497,7 +497,7 @@ class CRP01_data_ecu(BinData):
 #
 #   4 Bytes BE - Total length of CRP file.
 #  12 Bytes    - Description (NULL-Terminated + padded with 0xFF)
-#   x Bytes    - Encrypted data
+#   x Bytes    - Encrypted app_data
 #   4 Bytes    - Signature " EFi"
 #
 class CRP01(BinData):
@@ -554,7 +554,7 @@ class CRP01(BinData):
 
         # Checks
         if crp_size != len(data):
-            raise CRP01_exception("Header length mismatch")
+            raise CRP01Exception("Header length mismatch")
         if signature != self.SIGNATURE:
             raise Exception("Wrong Signature")
 
@@ -566,6 +566,7 @@ class CRP01(BinData):
             return 20 + len(self.data)
         else:
             return 20 + self.data.get_size()
+
 
     def compose(self, data):
         # Compose the CRP

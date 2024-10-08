@@ -2,9 +2,9 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
-from lib.flasher import Flasher
-from lib.gui_common import *
-from lib.gui_fileprogress import FileProgress_widget
+from flasher import Flasher
+from gui_tk.gui_common import *
+from gui_tk.gui_fileprogress import FileProgress_widget
 
 
 class Flasher_win(tk.Toplevel):

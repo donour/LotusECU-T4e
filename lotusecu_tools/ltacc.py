@@ -3,8 +3,8 @@ import sys
 
 import can
 
-from lib.fileprogress import FileProgress
-from lib.flasher import Flasher
+from utils.fileprogress import FileProgress
+from flasher import Flasher
 
 # Some constants
 BO_LE = "little"
@@ -181,7 +181,7 @@ class LiveTuningAccess:
         if verify and data != self.read_memory(address, len(data)):
             raise ECUException("ECU Write failed!")
 
-    # This retrieve a list of pointers to access common data. For example
+    # This retrieve a list of pointers to access common app_data. For example
     # the pointer to RPM is always at index 31. P138E0009, A129E0002 and
     # B117M0039F have respectively 753, 494 and 313 items.
     def read_ptrmap(self):

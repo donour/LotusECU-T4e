@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from lib.fileprogress import FileProgress
+from utils.fileprogress import FileProgress
 
 
 class FileProgress_widget(tk.Frame, FileProgress):

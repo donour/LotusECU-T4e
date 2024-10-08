@@ -5,7 +5,7 @@ import re
 import sys
 
 sys.path.insert(0, "..")
-from lib.ppc32 import PPC32
+from lotus_ecu.utils.ppc32 import PPC32
 
 # Some constants
 BO_BE = "big"
@@ -20,11 +20,11 @@ class Patcher:
     def check(self, addr, data):
         addr -= self.offset
         if self.data[addr : addr + len(data)] != data:
-            raise Exception("Unexpected data!")
+            raise Exception("Unexpected app_data!")
 
     def replace(self, addr, data, size, blank=0xFF):
         if size < len(data):
-            raise Exception("Too much data!")
+            raise Exception("Too much app_data!")
         addr -= self.offset
         self.data[addr : addr + len(data)] = data
         for i in range(addr + len(data), addr + size):
@@ -95,10 +95,10 @@ class Patcher_Prog(Patcher):
         # Search opcode which point to i.
         j = self.data.tobytes().find(self.instText(i))
         if j == -1:
-            raise Exception(".text/.data opcode not found!")
+            raise Exception(".text/.app_data opcode not found!")
         self.opcode1_offset = j
 
-        # Initialized data
+        # Initialized app_data
         while True:
             s = (
                 int.from_bytes(self.data[i : i + 4], BO_BE),
@@ -120,7 +120,7 @@ class Patcher_Prog(Patcher):
             raise Exception(".bss opcode not found!")
         self.opcode2_offset = j
 
-        # Uninitialized data
+        # Uninitialized app_data
         while True:
             s = (
                 None,
@@ -144,7 +144,7 @@ class Patcher_Prog(Patcher):
         j = self.opcode1_offset
         self.data[j : j + 4] = self.instText(i)
 
-        # Initialized data
+        # Initialized app_data
         for s in self.segments:
             if s[0] == None:
                 continue
@@ -153,7 +153,7 @@ class Patcher_Prog(Patcher):
             self.data[i + 8 : i + 12] = s[2].to_bytes(4, BO_BE)
             i += 12
 
-        # End of initizialized data
+        # End of initizialized app_data
         self.data[i : i + 12] = bytes([0] * 12)
         i += 12
 
@@ -161,7 +161,7 @@ class Patcher_Prog(Patcher):
         j = self.opcode2_offset
         self.data[j : j + 4] = self.instBss(i)
 
-        # Uninitialized data
+        # Uninitialized app_data
         for s in self.segments:
             if s[0] != None:
                 continue
@@ -169,7 +169,7 @@ class Patcher_Prog(Patcher):
             self.data[i + 4 : i + 8] = s[2].to_bytes(4, BO_BE)
             i += 8
 
-        # End of uninitizialized data
+        # End of uninitizialized app_data
         self.data[i : i + 8] = bytes([0] * 8)
         i += 8
 
@@ -220,7 +220,7 @@ class Patcher_Prog(Patcher):
         print("Free ROM space 0x{:06X}".format(self.get_free_rom()))
         print("Free RAM space 0x{:06X}".format(self.get_free_ram()))
         print(
-            "Opcode to .text/.data segments list 0x{:06X}".format(self.opcode1_offset)
+            "Opcode to .text/.app_data segments list 0x{:06X}".format(self.opcode1_offset)
         )
         print("Opcode to .bss segments list 0x{:06X}".format(self.opcode2_offset))
 
@@ -379,7 +379,7 @@ def build_accusump():
     p.merge_file(acis, "t4e/accusump/accusump.text.bin", size=0x100)
 
     # Default accusump calibration
-    c.add_cal("t4e/accusump/accusump.data.bin", m.get_seg_addr(".data"))
+    c.add_cal("t4e/accusump/accusump.app_data.bin", m.get_seg_addr(".app_data"))
 
     # Save
     p.save("t4e/accusump/prog.bin")
@@ -414,7 +414,7 @@ def build_obdoil():
 
     # Merge and save.
     p.add_text("t4e/obdoil/obdoil.text.bin", m.get_seg_addr(".text"))
-    c.add_cal("t4e/obdoil/obdoil.data.bin", m.get_seg_addr(".data"))
+    c.add_cal("t4e/obdoil/obdoil.app_data.bin", m.get_seg_addr(".app_data"))
     p.add_bss(
         m.get_seg_size(".bss"), m.get_seg_addr(".bss")
     )  # TODO: Why 0x10, so much fill?
@@ -478,7 +478,7 @@ def build_accusump2():
 
     # Merge and save.
     p.add_text("t4e/accusump2/accusump2.text.bin", m.get_seg_addr(".text"))
-    c.add_cal("t4e/accusump2/accusump2.data.bin", m.get_seg_addr(".data"))
+    c.add_cal("t4e/accusump2/accusump2.app_data.bin", m.get_seg_addr(".app_data"))
     p.add_bss(
         m.get_seg_size(".bss"), m.get_seg_addr(".bss")
     )  # TODO: Why 8, so much fill?
@@ -588,7 +588,7 @@ def build_flexfuel():
 
     # Merge and save.
     p.add_text("t4e/flexfuel/flexfuel.text.bin", m.get_seg_addr(".text"))
-    c.add_cal("t4e/flexfuel/flexfuel.data.bin", m.get_seg_addr(".data"))
+    c.add_cal("t4e/flexfuel/flexfuel.app_data.bin", m.get_seg_addr(".app_data"))
     p.add_bss(
         m.get_seg_size(".bss"), m.get_seg_addr(".bss")
     )  # TODO: Why 0x18, so much fill?
@@ -687,7 +687,7 @@ def build_wideband():
 
     # Merge and save.
     p.add_text("t4e/wideband/wideband.text.bin", m.get_seg_addr(".text"))
-    c.add_cal("t4e/wideband/wideband.data.bin", m.get_seg_addr(".data"))
+    c.add_cal("t4e/wideband/wideband.app_data.bin", m.get_seg_addr(".app_data"))
     p.add_bss(m.get_seg_size(".bss"), m.get_seg_addr(".bss"))
     p.write_segments()
     p.save("t4e/wideband/prog.bin")
@@ -759,7 +759,7 @@ def build_t6_flexfuel():
 
     # Merge and save.
     p.add_text("t6/flexfuel/flexfuel.text.bin", m.get_seg_addr(".text"))
-    c.add_cal("t6/flexfuel/flexfuel.data.bin", m.get_seg_addr(".data"))
+    c.add_cal("t6/flexfuel/flexfuel.app_data.bin", m.get_seg_addr(".app_data"))
     p.add_bss(m.get_seg_size(".bss"), m.get_seg_addr(".bss"))
     # p.write_segments()
     p.save("t6/flexfuel/prog.bin")

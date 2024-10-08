@@ -3,8 +3,8 @@ import os
 import string
 import sys
 
-from lib.crc import CRC16Reflect
-from lib.ppc32 import PPC32
+from utils.crc import CRC16Reflect
+from utils.ppc32 import PPC32
 
 # Some constants
 BO_LE = "little"
@@ -125,7 +125,7 @@ class Calibration:
 
     def match_crc(self, desc, crc):
         if self.desc != self.crc_data[:32]:
-            raise Exception("The signature is not in CRC data.")
+            raise Exception("The signature is not in CRC app_data.")
         # Compute CRC backward
         crc = CRC16Reflect(0x8005, initvalue=crc)
         crc.update_reverse(self.crc_data[32:])

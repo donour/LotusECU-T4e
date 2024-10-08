@@ -2,8 +2,8 @@ import os
 import tkinter as tk
 from tkinter import filedialog, simpledialog
 
-from lib.calibration import Calibration
-from lib.gui_common import *
+from utils.calibration import Calibration
+from gui_tk.gui_common import *
 
 
 class CAL_editor_win(tk.Toplevel):

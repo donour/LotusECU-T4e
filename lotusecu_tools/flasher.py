@@ -4,8 +4,8 @@ import sys
 
 import can
 
-from lib.crc import CRC32Reflect
-from lib.fileprogress import FileProgress
+from utils.crc import CRC32Reflect
+from utils.fileprogress import FileProgress
 
 # Some constants
 BO_BE = "big"

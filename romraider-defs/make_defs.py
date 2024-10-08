@@ -103,7 +103,7 @@ def xml_add_2D_static(rom, lut, xv=None, xv_name="", xv_scaling=None):
         table, "table", type="Static X Axis", name=xv_name, sizex=str(len(xv))
     )
     for v in xv:
-        ET.SubElement(xaxis, "data").text = v
+        ET.SubElement(xaxis, "app_data").text = v
     if xv_scaling:
         xml_add_scaling(xaxis, xv_scaling)
 
@@ -317,7 +317,7 @@ def do(symbols, units, xaxis, calrom, decram):
             symbols[s][2].replace("\\,", ","),
         ]
 
-        # print(data)
+        # print(app_data)
         if data[3] == "u8_obd2level":
             xml_add_switch(rom, data, OBD2LEVEL)
         elif s == "CAL_obd2_monitors":
