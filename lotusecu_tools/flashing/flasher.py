@@ -180,7 +180,7 @@ class Flasher:
         self.fp.log("Upload CRC lookup table...")
         for i in range(0, len(crc.table)):
             self.write_word(0x3F8000 + (i * 4), crc.table[i].to_bytes(4, BO_BE))
-        self.upload(0x3FF400, "flasher/t4e/plugin_crc.bin")
+        self.upload(0x3FF400, "../../flasher/t4e/plugin_crc.bin")
         self.plugin(0x3FF400)
         return crc
 
@@ -190,8 +190,8 @@ class Flasher:
         self.write_word(freeram_address, test)
         if test != self.read_word(freeram_address):
             raise FlasherException("Word readback failed!")
-        self.upload(freeram_address, "flasher/t4e/func_test.bin")
-        self.verify(freeram_address, "flasher/t4e/func_test.bin")
+        self.upload(freeram_address, "../../flasher/t4e/func_test.bin")
+        self.verify(freeram_address, "../../flasher/t4e/func_test.bin")
         self.branch(freeram_address, b"Helo")
         msg = self.bus.recv(timeout=1.0)
         if msg == None:
@@ -297,10 +297,10 @@ if __name__ == "__main__":
     ecu_blocks = args["block"]
     if args["speed"] == "black":
         can_br = 500000
-        canstrap_file = "flasher/t4e/canstrap-black.bin"
+        canstrap_file = "../../flasher/t4e/canstrap-black.bin"
     else:
         can_br = 1000000
-        canstrap_file = "flasher/t4e/canstrap-white.bin"
+        canstrap_file = "../../flasher/t4e/canstrap-white.bin"
     if args["listblock"]:
         print("Blocks ECU")
         for i in range(0, len(Flasher.blocks)):

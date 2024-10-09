@@ -1,9 +1,8 @@
 import os
-import tkinter as tk
 from tkinter import filedialog
 
 from crp.crp08 import CRP08
-from crp08_uploader import CRP08_uploader
+from flashing.crp08_uploader import CRP08_uploader
 from gui_tk.gui_common import *
 from gui_tk.gui_fileprogress import FileProgress_widget
 

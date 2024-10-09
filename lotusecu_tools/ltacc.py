@@ -4,7 +4,7 @@ import sys
 import can
 
 from utils.fileprogress import FileProgress
-from flasher import Flasher
+from flashing.flasher import Flasher
 
 # Some constants
 BO_LE = "little"

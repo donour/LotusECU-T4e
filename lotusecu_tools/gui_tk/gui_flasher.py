@@ -1,8 +1,7 @@
 import os
-import tkinter as tk
 from tkinter import filedialog
 
-from flasher import Flasher
+from flashing.flasher import Flasher
 from gui_tk.gui_common import *
 from gui_tk.gui_fileprogress import FileProgress_widget
 
