@@ -18,14 +18,14 @@ except ImportError as e:
 
 
 class main_window:
-    PREFS_FILE = "../prefs.cfg"
+    PREFS_FILE = "prefs.cfg"
 
-    def __init__(self, master):
+    def __init__(self, master, app_data_location="app_data"):
         self.master = master
         master.title("Lotus Tools")
         master.resizable(0, 0)
         master.protocol("WM_DELETE_WINDOW", self.on_close)
-        master.iconphoto(True, tk.PhotoImage(file="../app_data/app.png"))
+        master.iconphoto(True, tk.PhotoImage(file=f"{app_data_location}/app.png"))
         tk.Button(
             master,
             text="CRP01 Editor",

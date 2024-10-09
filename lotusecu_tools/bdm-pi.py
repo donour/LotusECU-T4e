@@ -5,8 +5,8 @@ import time
 
 import RPi.GPIO as GPIO
 
-from lotus_ecu.utils.fileprogress import FileProgress
-from lotus_ecu.utils.ppc32 import PPC32
+from utils.fileprogress import FileProgress
+from utils.ppc32 import PPC32
 
 # DSCK -> GPIO4  - PIN7 with a 5.6 kOhm resistor
 # GND  -> GND    - PIN9
