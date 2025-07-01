@@ -101,7 +101,6 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			return new String [] {"high","low"};
 		if (n.equals("CAL_sensor_coolant_voltage_threshold"))
 			return new String [] {"high","low"};
-
 		if (n.equals("CAL_sensor_intake_air_temp_voltage_threshold"))
 			return new String [] {"high","low"};
 		if (n.equals("CAL_sensor_fuel_level_sensor_voltage_threshold"))
@@ -114,20 +113,10 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			return new String [] {"high","low"};
 		if (
 			n.equals("CAL_sensor_accel_pedal_pos_d_threshold") ||
-  		    n.equals("CAL_sensor_accel_pedal_pos_e_threshold") ||
+			n.equals("CAL_sensor_accel_pedal_pos_e_threshold") ||
 			n.equals("CAL_sensoraccel_pedal_speed_threshold_unknown")
 		)
 			return new String [] {"low","high"};
-
-		if (
-			n.equals("CAL_sensor_trans_temp_scaling") ||
-			n.equals("CAL_sensor_coolant_temp_sensor_engine_off_scaling") ||
-			n.equals("CAL_sensor_engine_air_scaling") ||
-			n.equals("CAL_sensor_intake_air_scaling")
-		)
-		// TODO: it's not clear that these scalings are correct. They are based on a u16_voltage_5/1023v scaled as (x>>5)*5/1024
-			return new String [] {"0.0","0.3125","0.625","0.9375","1.25","1.5625","1.875","2.1875","2.5","2.8125","3.125","3.4375","3.75","4.0625","4.375","4.6875","5.0","5.3125","5.625","5.9375","6.25","6.5625","6.875","7.1875","7.5","7.8125","8.125","8.4375","8.75","9.0625","9.375","9.6875"};
-
 		if (
 			n.equals("CAL_inj_closedloop_activate_engine_timer")
 		)
@@ -156,10 +145,6 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		if (n.equals("CAL_cruise_speed_limit"))
 			return new String [] {"high","low"};
 
-
-		if (n.equals("CAL_inj_closedloop_activate_engine_timer"))
-			return new String [] {"0","16","32","48"};
-
 		if (n.equals("CAL_ecu_engine_running_threshold_unknown"))
 			return new String [] {"high","low"};
 
@@ -167,13 +152,13 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		if (
 			n.equals("CAL_traction_gear_speed_ratios_ips") ||
 			n.equals("CAL_traction_gear_speed_ratios_long") ||
-			n.equals("CAL_traction_gear_speed_ratios_cr")	
+			n.equals("CAL_traction_gear_speed_ratios_cr")
 		)
 			return new String [] {"1st","2nd","3rd","4th","5th","6th"};
 
 		if (
 			n.equals("CAL_traction_slip_threshold_per_gear_manual") ||
-			n.equals("CAL_traction_slip_threshold_per_gear_ips")			
+			n.equals("CAL_traction_slip_threshold_per_gear_ips")
 		)
 			return new String [] {"1st","2nd","3rd","4th","5th"};
 
@@ -648,7 +633,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			e.appendChild(ey);
 		}
 		createTextChild(doc, e, "description", s.comment);
-	    sortedAdd(parent, e);
+		sortedAdd(parent, e);
 	}
 
 	private void addXml2DFixed(Document doc, Element parent, SymRec s, String namex, DF dataformatx) throws Exception {
@@ -676,7 +661,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.appendChild(ex);
 
 		createTextChild(doc, e, "description", s.comment);
-	    sortedAdd(parent, e);
+		sortedAdd(parent, e);
 	}
 
 	private void addXml2DStatic(Document doc, Element parent, SymRec s) throws Exception {
@@ -709,7 +694,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.appendChild(ex);
 
 		createTextChild(doc, e, "description", s.comment);
-	    sortedAdd(parent, e);
+		sortedAdd(parent, e);
 	}
 
 	private void addXml2D(Document doc, Element parent, SymRec s, SymRec sx) throws Exception {
@@ -738,7 +723,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.appendChild(ex);
 
 		createTextChild(doc, e, "description", s.comment);
-	    sortedAdd(parent, e);
+		sortedAdd(parent, e);
 	}
 
 	private void addXml3D(Document doc, Element parent, SymRec s, SymRec sx, SymRec sy) throws Exception {
@@ -778,14 +763,14 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.appendChild(ey);
 
 		createTextChild(doc, e, "description", s.comment);
-	    sortedAdd(parent, e);
+		sortedAdd(parent, e);
 	}
 
 	private void doDefs(Document doc, Element parent, List<SymRec> syms) throws Exception {
 		int  dim = 1;
 		SymRec sx = null;
 		SymRec sy = null;
-		
+
 		for (SymRec s : syms) {
 			if (s.datatype.equals("u8_obd2level"))
 				addXmlSwitch(doc, parent, s, OBD2LEVEL);
