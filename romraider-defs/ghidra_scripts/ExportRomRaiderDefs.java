@@ -11,6 +11,7 @@ import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.Symbol;
 import ghidra.program.model.symbol.SymbolIterator;
 import ghidra.program.model.symbol.SymbolTable;
+import ghidra.sleigh.grammar.SleighParser.key_as_id_return;
 
 import java.io.File;
 import java.util.*;
@@ -876,11 +877,20 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		Document doc;
 		Element root;
 
-		
+	
 		for (DF df : formats) {
 			formatMap.computeIfAbsent(df.name, k -> new ArrayList<>()).add(df);
 		}
-		// TODO: assert that all data formats are the same
+    	// assert that all dataformats storagetype values are the same
+		for (final String k : formatMap.keySet()) {
+			List<DF> dfList = formatMap.get(k);
+			String storagetype = dfList.get(0).storageType;
+			for (final DF df : dfList) {
+				if (!df.storageType.equals(storagetype)) {
+					throw new Exception("Data format "+k+" has mixed storage types: "+storagetype+" vs "+df.storageType);
+				}
+			}
+		}
 
 		Syms all = getSymbols();
 
