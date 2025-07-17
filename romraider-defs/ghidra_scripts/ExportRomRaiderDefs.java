@@ -116,7 +116,6 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			n.equals("CAL_cluster_range_to_empty_limit"))
 			return new String [] {"on","off"};
 
-
 		if (
 			n.equals("CAL_traction_gear_speed_ratios_ips") ||
 			n.equals("CAL_traction_gear_speed_ratios_long") ||
@@ -131,7 +130,6 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			n.equals("CAL_traction_per_gear3_manual") ||
 			n.equals("CAL_traction_per_gear3_ips"))
 			return new String[] {"1st","2nd","3rd","4th","5th"};
-
 
 		return null;
 	};
@@ -755,7 +753,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				addXmlSwitch(doc, parent, s, OBD2MONITORS);
 			else if ("CAL_ecu_unlock_magic".equals(s.name))
 				addXmlSwitch(doc, parent, s, UNLOCK_MAGIC);
-			else if ("CAL_misc_use_tmap".equals(s.name))
+			else if ("CAL_ecu_use_tmap".equals(s.name))
 				addXmlSwitch(doc, parent, s, USE_TMAP);
 			else if ("CAL_misc_use_tpms".equals(s.name))
 				addXmlSwitch(doc, parent, s, USE_TPMS);
