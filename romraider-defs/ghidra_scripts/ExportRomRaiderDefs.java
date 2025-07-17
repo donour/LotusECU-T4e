@@ -141,6 +141,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	private static final Map<String, List<DF>> formatMap = new HashMap<>();
 	
 	private static final DF[] formats = new DF[] {
+		new DF("bool","uint8","#","x","x","0","1","10","Number"),
 		new DF("uint8_t","uint8","#","x","x","0","1","10","Number"),
 		new DF("int16_t","int16","#","x","x","0","1","10","Number"),
 		new DF("uint32_t","uint32","#","x","x","0","1","10","Number"),
