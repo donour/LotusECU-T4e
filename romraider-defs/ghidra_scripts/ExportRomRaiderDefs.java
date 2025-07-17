@@ -138,6 +138,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	/* Datatype formatting        */
 	/******************************/
 
+	private static final Map<String, List<DF>> formatMap = new HashMap<>();
+	
 	private static final DF[] formats = new DF[] {
 		new DF("uint8_t","uint8","#","x","x","0","1","10","Number"),
 		new DF("int16_t","int16","#","x","x","0","1","10","Number"),
@@ -278,6 +280,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_pressure_mbar","uint16","mbar","x","x","0","10","50","Millibar"),
 		new DF("u8_lambda_1/100","uint8","λ","x/100","x*100","0.00","0.5","0.1","Lambda"),
 		new DF("u8_afr_1/20+5","uint8","A/F","(x/20)+5","(x-5)*20","0.0","0.5","0.1","AFR"),
+		new DF("u8_afr_1/20+5","uint8","lambda","((x/20)+5)/14.6","((x14.6)-5)*20","0.00","0.5","0.1","Lambda"),
 		new DF("u8_afr_1/100","uint8","A/F","x/100","x*100","0.0","0.5","0.1","AFR"),
 		new DF("u16_afr_1/100","uint16","A/F","x/100","x*100","0.0","0.5","0.1","AFR"),
 		new DF("u16_torque_nm","uint16","Newton meter","x","x","0","1","8","nm"),
@@ -388,11 +391,15 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		}
 	}
 
-	private static DF getDataformat(String datatype) {
-		for (int i = 0; i < formats.length; i++) {
-			if (formats[i].name.equals(datatype))
-				return formats[i];
+	private static List<DF> getDataformat(String datatype) {
+		
+		if (formatMap.containsKey(datatype)) {
+			return formatMap.get(datatype);
 		}
+		// for (int i = 0; i < formats.length; i++) {
+		// 	if (formats[i].name.equals(datatype))
+		// 		return Collections.singletonList(formats[i]);
+		// }
 		return null;
 	}
 
@@ -467,7 +474,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		long   offset;
 		String datatype;
 		int    size;
-		DF     dataformat;
+		List<DF> dataformats;
 		String comment;
 
 		public String getCategory(){return category;}
@@ -497,7 +504,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				datatype = dt;
 				size = 1;
 			}
-			dataformat = getDataformat(datatype);
+			dataformats = getDataformat(datatype);
 			comment = c;
 		}
 
@@ -619,19 +626,21 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		sortedAdd(parent, e);
 	}
 
-	private void addXml2DFixed(Document doc, Element parent, SymRec s, String namex, DF dataformatx) throws Exception {
+	private void addXml2DFixed(Document doc, Element parent, SymRec s, String namex, List<DF> dataformatx) throws Exception {
 		int sizex = s.size / 2;
 
 		Element e = doc.createElement("table");
 		e.setAttribute("type", "2D");
 		e.setAttribute("name", s.prettyName());
 		e.setAttribute("category", s.category);
-		e.setAttribute("storagetype", s.dataformat.storageType);
+		e.setAttribute("storagetype", s.dataformats.get(0).storageType);
 		e.setAttribute("endian", "big");
 		e.setAttribute("sizex", String.valueOf(sizex));
 		e.setAttribute("userlevel", "1");
 		e.setAttribute("storageaddress", String.format("0x%04X", s.offset+sizex));
-		s.dataformat.addXmlScaling(doc, e);
+
+		for (DF df : s.dataformats)
+			df.addXmlScaling(doc, e);
 
 		Element ex = doc.createElement("table");
 		ex.setAttribute("type", "X Axis");
@@ -640,7 +649,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		ex.setAttribute("endian", "big");
 		ex.setAttribute("sizex", String.valueOf(sizex));
 		ex.setAttribute("storageaddress", String.format("0x%04X", s.offset));
-		dataformatx.addXmlScaling(doc, ex);
+		dataformatx.get(0).addXmlScaling(doc, ex);
 		e.appendChild(ex);
 
 		createTextChild(doc, e, "description", s.comment);
@@ -651,7 +660,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		addXml2DStatic(doc, parent, s, new String[] {s.item}, "", null);
 	}
 
-	private void addXml2DStatic(Document doc, Element parent, SymRec s, String [] valuex, String namex, DF dataformatx) throws Exception {
+	private void addXml2DStatic(Document doc, Element parent, SymRec s, String [] valuex, String namex, List<DF> dataformatx) throws Exception {
 		if (s.size > valuex.length)
 			throw new Exception("Invalid axis size: "+s.name + " (" + s.size + ">" + valuex.length + ")");
 
@@ -659,12 +668,13 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.setAttribute("type", "2D");
 		e.setAttribute("name", s.prettyName());
 		e.setAttribute("category", s.category);
-		e.setAttribute("storagetype", s.dataformat.storageType);
+		e.setAttribute("storagetype", s.dataformats.get(0).storageType);
 		e.setAttribute("endian", "big");
 		e.setAttribute("sizex", String.valueOf(s.size));
 		e.setAttribute("userlevel", "1");
 		e.setAttribute("storageaddress", String.format("0x%04X", s.offset));
-		s.dataformat.addXmlScaling(doc, e);
+		for (DF df : s.dataformats)
+			df.addXmlScaling(doc, e);
 
 		Element ex = doc.createElement("table");
 		ex.setAttribute("type", "Static X Axis");
@@ -673,7 +683,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		for(int i=0; i<s.size; ++i)
 			createTextChild(doc, ex, "data", valuex[i]);
 		if (dataformatx != null)
-			dataformatx.addXmlScaling(doc, ex);
+			dataformatx.get(0).addXmlScaling(doc, ex);
 		e.appendChild(ex);
 
 		createTextChild(doc, e, "description", s.comment);
@@ -688,21 +698,22 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.setAttribute("type", "2D");
 		e.setAttribute("name", s.prettyName());
 		e.setAttribute("category", s.category);
-		e.setAttribute("storagetype", s.dataformat.storageType);
+		e.setAttribute("storagetype", s.dataformats.get(0).storageType);
 		e.setAttribute("endian", "big");
 		e.setAttribute("sizex", String.valueOf(sx.size));
 		e.setAttribute("userlevel", "1");
 		e.setAttribute("storageaddress", String.format("0x%04X", s.offset));
-		s.dataformat.addXmlScaling(doc, e);
+		for (DF df : s.dataformats)
+			df.addXmlScaling(doc, e);
 
 		Element ex = doc.createElement("table");
 		ex.setAttribute("type", "X Axis");
 		ex.setAttribute("name", sx.item);
-		ex.setAttribute("storagetype", sx.dataformat.storageType);
+		ex.setAttribute("storagetype", sx.dataformats.get(0).storageType);
 		ex.setAttribute("endian", "big");
 		ex.setAttribute("sizex", String.valueOf(sx.size));
 		ex.setAttribute("storageaddress", String.format("0x%04X", sx.offset));
-		sx.dataformat.addXmlScaling(doc, ex);
+		sx.dataformats.get(0).addXmlScaling(doc, ex);
 		e.appendChild(ex);
 
 		createTextChild(doc, e, "description", s.comment);
@@ -717,32 +728,33 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		e.setAttribute("type", "3D");
 		e.setAttribute("name", s.prettyName());
 		e.setAttribute("category", s.category);
-		e.setAttribute("storagetype", s.dataformat.storageType);
+		e.setAttribute("storagetype", s.dataformats.get(0).storageType);
 		e.setAttribute("endian", "big");
 		e.setAttribute("sizex", String.valueOf(sx.size));
 		e.setAttribute("sizey", String.valueOf(sy.size));
 		e.setAttribute("userlevel", "1");
 		e.setAttribute("storageaddress", String.format("0x%04X", s.offset));
-		s.dataformat.addXmlScaling(doc, e);
+		for (DF df : s.dataformats)
+			df.addXmlScaling(doc, e);
 
 		Element ex = doc.createElement("table");
 		ex.setAttribute("type", "X Axis");
 		ex.setAttribute("name", sx.item);
-		ex.setAttribute("storagetype", sx.dataformat.storageType);
+		ex.setAttribute("storagetype", sx.dataformats.get(0).storageType);
 		ex.setAttribute("endian", "big");
 		ex.setAttribute("sizex", String.valueOf(sx.size));
 		ex.setAttribute("storageaddress", String.format("0x%04X", sx.offset));
-		sx.dataformat.addXmlScaling(doc, ex);
+		sx.dataformats.get(0).addXmlScaling(doc, ex);
 		e.appendChild(ex);
 
 		Element ey = doc.createElement("table");
 		ey.setAttribute("type", "Y Axis");
 		ey.setAttribute("name", sy.item);
-		ey.setAttribute("storagetype", sy.dataformat.storageType);
+		ey.setAttribute("storagetype", sy.dataformats.get(0).storageType);
 		ey.setAttribute("endian", "big");
 		ey.setAttribute("sizey", String.valueOf(sy.size));
 		ey.setAttribute("storageaddress", String.format("0x%04X", sy.offset));
-		sy.dataformat.addXmlScaling(doc, ey);
+		sy.dataformats.get(0).addXmlScaling(doc, ey);
 		e.appendChild(ey);
 
 		createTextChild(doc, e, "description", s.comment);
@@ -789,7 +801,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 					addXml2DFixed(doc, parent, s, "Gear Number", getDataformat("uint8_t"));
 					break;
 				default:
-					if (s.dataformat == null) {
+					if (s.dataformats == null || s.dataformats.isEmpty()) {
 						println("WARNING - Ignoring unknown data format: "+s.name+" ("+s.datatype+")");
 						dim = 1;
 					} else if (s.isXaxis) { 
@@ -805,7 +817,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 							int shift;
 							String[] valuex = getCustomAxis(s.name);
 							String namex = "";
-							DF dataformatx = null;
+							List<DF> dataformatx = null;
 							if (valuex != null)
 								addXml2DStatic(doc, parent, s, valuex, namex, dataformatx);
 							else if (s.size > 1) {
@@ -862,6 +874,12 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc;
 		Element root;
+
+		
+		for (DF df : formats) {
+			formatMap.computeIfAbsent(df.name, k -> new ArrayList<>()).add(df);
+		}
+		// TODO: assert that all data formats are the same
 
 		Syms all = getSymbols();
 
