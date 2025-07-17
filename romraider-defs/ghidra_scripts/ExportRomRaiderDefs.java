@@ -144,6 +144,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	private static final DF[] formats = new DF[] {
 		new DF("bool","uint8","#","x","x","0","1","10","Number"),
 		new DF("uint8_t","uint8","#","x","x","0","1","10","Number"),
+		new DF("int8_t","int8","#","x","x","0","1","10","Number"),
 		new DF("int16_t","int16","#","x","x","0","1","10","Number"),
 		new DF("uint32_t","uint32","#","x","x","0","1","10","Number"),
 		new DF("u8_count","uint8","#","x","x","0","1","10","Number"),
@@ -177,6 +178,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("i16_factor_1/2000","int16","%","x*100/2000","x*2000/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/2000-2048/125","uint16","%","(x-32768)*100/2000","(x*2000/100)+32768","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/2048","uint16","%","x*100/2048","x*2048/100","0.00","0.1","1","Percent"),
+		new DF("u16_factor_1/10000","uint16","%","x/100","x*100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/65536","uint16","%","x*100/65536","x*65536/100","0.00","0.1","1","Percent"),
 		new DF("u8_voltage_5/255v","uint8","v","x*5/255","x*255/5","0.0","0.1","0.5","Volt"),
 		new DF("u8_voltage_5/1023v","uint8","v","x*5/1023","x*1023/5","0.00","0.05","0.2","Volt"),
@@ -331,6 +333,11 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	private static final String[][] USE_TPMS = {
 		{"No TPMS", "00"},
 		{"Use TPMS module", "01"}
+	};
+
+	private static final String[][] USE_LEA_KNOCK_RETARD = {
+		{"Ignore learned knock retard", "00"},
+		{"Apply learned knock retard", "01"}
 	};
 
 	private static final String[][] TC_MODE = {
@@ -783,6 +790,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				addXmlSwitch(doc, parent, s, USE_TMAP);
 			else if ("CAL_misc_use_tpms".equals(s.name))
 				addXmlSwitch(doc, parent, s, USE_TPMS);
+			else if ("CAL_ign_enable_lea_knock_retard".equals(s.name))
+				addXmlSwitch(doc, parent, s, USE_LEA_KNOCK_RETARD);
 			else if ("CAL_tc_mode".equals(s.name))
 				addXmlSwitch(doc, parent, s, TC_MODE);
 			else if ("CAL_load_use_speed_density".equals(s.name))
