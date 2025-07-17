@@ -339,6 +339,14 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		{"Compute load from MAP", "01"}
 	};
 
+	private static final String[][] O2_SENSOR_PRESENCE_MODE = {
+		{"Bank 1: 2, Bank 2: 2", "33"},
+		{"Bank 1: 1, Bank 2: 1", "11"},
+		{"Bank 1: 2, Bank 2: 0", "30"},
+		{"Bank 1: 0, Bank 2: 0", "00"},
+	};
+
+
 	/******************************/
 	/* Program code               */
 	/******************************/
@@ -747,67 +755,92 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		SymRec sy = null;
 
 		for (SymRec s : syms) {
-			if (s.datatype.equals("u8_obd2level"))
+			// First handle based on datatype
+			if (s.datatype.equals("u8_obd2level")) {
 				addXmlSwitch(doc, parent, s, OBD2LEVEL);
-			else if ("CAL_obd2_monitors".equals(s.name))
-				addXmlSwitch(doc, parent, s, OBD2MONITORS);
-			else if ("CAL_ecu_unlock_magic".equals(s.name))
-				addXmlSwitch(doc, parent, s, UNLOCK_MAGIC);
-			else if ("CAL_ecu_use_tmap".equals(s.name))
-				addXmlSwitch(doc, parent, s, USE_TMAP);
-			else if ("CAL_misc_use_tpms".equals(s.name))
-				addXmlSwitch(doc, parent, s, USE_TPMS);
-			else if ("CAL_tc_mode".equals(s.name))
-				addXmlSwitch(doc, parent, s, TC_MODE);
-			else if ("CAL_load_use_speed_density".equals(s.name))
-				addXmlSwitch(doc, parent, s, LOAD_MODE);
-			else if (s.dataformat == null){
-				println("WARNING - Ignoring unknown data format: "+s.name+" ("+s.datatype+")");
-				dim = 1;
-			}else if (s.name.startsWith("CAL_misc_shift_lights_before_rev_limit"))
-				addXml2DFixed(doc, parent, s, "Gear Number", getDataformat("uint8_t"));
-			else if (s.isXaxis) { dim++; sx = s; continue; }
-			else if (s.isYaxis) { dim++; sy = s; continue; }
-			else {
-				if (dim == 1) {
-					int shift;
-					String [] valuex = getCustomAxis(s.name);
-					String namex = "";
-					DF dataformatx = null;
-					if (valuex != null)
-						addXml2DStatic(doc, parent, s, valuex, namex, dataformatx);
-					else if (s.size > 1) {
-						String datatype;
-						if (s.name.equals("CAL_closedloop_min_runtime")) {
-							shift = 4;
-							namex = "stop coolant";
-							datatype = "u8_temp_5/8-40c";
-						}else if (s.name.equals("CAL_injtip_catalyst_adj")) {
-							shift = 1;
-							namex = "dfso_count";
-							datatype = "uint8_t";
-						}else if (s.name.equals("CAL_sensor_fuel_scaling")) {
-							shift = 1;
-							namex = "signal";
-							datatype = "u8_voltage_5/1023v";
-						}else if (s.name.equals("CAL_obd2_P0128_wait_air_mass")) {
-							shift = 4;
-							namex = "stop coolant";
-							datatype = "u8_temp_5/8-40c";
-						}else{
-							println("WARNING - Using a fixed voltage scale for: "+s.name);
-							shift = 3;
-							namex = "signal";
-							datatype = "u8_voltage_5/1023v";
-						}
-						valuex = new String[s.size];
-						for (int i = 0; i < s.size; i++) valuex[i] = String.valueOf(i << (8 - shift));
-						dataformatx = getDataformat(datatype);
-						addXml2DStatic(doc, parent, s, valuex, namex, dataformatx);
-					} else addXml2DStatic(doc, parent, s);
-				}else if (dim == 2) addXml2D(doc, parent, s, sx);
-				else if (dim == 3) addXml3D(doc, parent, s, sx, sy);
-				dim = 1;
+				return;
+			}
+
+			// Then handle specific named switches
+			switch (s.name) {
+				case "CAL_obd2_monitors":
+					addXmlSwitch(doc, parent, s, OBD2MONITORS);
+					break;
+				case "CAL_ecu_unlock_magic":
+					addXmlSwitch(doc, parent, s, UNLOCK_MAGIC);
+					break;
+				case "CAL_load_has_tmap":
+				case "CAL_ecu_use_tmap":
+					addXmlSwitch(doc, parent, s, USE_TMAP);
+					break;
+				case "CAL_misc_use_tpms":
+					addXmlSwitch(doc, parent, s, USE_TPMS);
+					break;
+				case "CAL_obd_ii_o2_sensors_present":
+					addXmlSwitch(doc, parent, s, O2_SENSOR_PRESENCE_MODE);
+					break;
+				case "CAL_tc_mode":
+					addXmlSwitch(doc, parent, s, TC_MODE);
+					break;
+				case "CAL_load_use_speed_density":
+					addXmlSwitch(doc, parent, s, LOAD_MODE);
+					break;
+				case "CAL_misc_shift_lights_before_rev_limit":
+					addXml2DFixed(doc, parent, s, "Gear Number", getDataformat("uint8_t"));
+					break;
+				default:
+					if (s.dataformat == null) {
+						println("WARNING - Ignoring unknown data format: "+s.name+" ("+s.datatype+")");
+						dim = 1;
+					} else if (s.isXaxis) { 
+						dim++; 
+						sx = s; 
+						continue; 
+					} else if (s.isYaxis) { 
+						dim++; 
+						sy = s; 
+						continue; 
+					} else {
+						if (dim == 1) {
+							int shift;
+							String[] valuex = getCustomAxis(s.name);
+							String namex = "";
+							DF dataformatx = null;
+							if (valuex != null)
+								addXml2DStatic(doc, parent, s, valuex, namex, dataformatx);
+							else if (s.size > 1) {
+								String datatype;
+								if (s.name.equals("CAL_closedloop_min_runtime")) {
+									shift = 4;
+									namex = "stop coolant";
+									datatype = "u8_temp_5/8-40c";
+								} else if (s.name.equals("CAL_injtip_catalyst_adj")) {
+									shift = 1;
+									namex = "dfso_count";
+									datatype = "uint8_t";
+								} else if (s.name.equals("CAL_sensor_fuel_scaling")) {
+									shift = 1;
+									namex = "signal";
+									datatype = "u8_voltage_5/1023v";
+								} else if (s.name.equals("CAL_obd2_P0128_wait_air_mass")) {
+									shift = 4;
+									namex = "stop coolant";
+									datatype = "u8_temp_5/8-40c";
+								} else {
+									println("WARNING - Using a fixed voltage scale for: "+s.name);
+									shift = 3;
+									namex = "signal";
+									datatype = "u8_voltage_5/1023v";
+								}
+								valuex = new String[s.size];
+								for (int i = 0; i < s.size; i++) valuex[i] = String.valueOf(i << (8 - shift));
+								dataformatx = getDataformat(datatype);
+								addXml2DStatic(doc, parent, s, valuex, namex, dataformatx);
+							} else addXml2DStatic(doc, parent, s);
+						} else if (dim == 2) addXml2D(doc, parent, s, sx);
+						else if (dim == 3) addXml3D(doc, parent, s, sx, sy);
+						dim = 1;
+					}
 			}
 		}
 	}
