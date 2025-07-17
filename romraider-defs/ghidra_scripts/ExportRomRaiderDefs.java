@@ -66,87 +66,55 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			return new String [] {"Min 6th gear","Max 6th gear"};
 		if (n.equals("CAL_misc_gears_?b"))
 			return new String [] {"Min 1st gear","Max 1st gear","Min 2nd gear","Max 2nd gear","Min 3rd gear","Max 3rd gear","Min 4th gear","Max 4th gear","Min 5th gear","Max 5th gear","Min 6th gear","Max 6th gear"};
-		if (n.equals("CAL_inj_tip_in_adj_gears"))
+
+		if (n.equals("CAL_inj_tip_in_adj_gears") ||
+			n.equals("CAL_tpssmooth_decrement_adj1_a?") ||
+			n.equals("CAL_tpssmooth_decrement_adj1_b?") ||
+			n.equals("CAL_tpssmooth_decrement_adj_by_gears_ips") ||
+			n.equals("CAL_tpssmooth_decrement_adj_by_gears_manual"))
 			return new String [] {"N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_tpssmooth_decrement_adj1_a?"))
-			return new String [] {"N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_tpssmooth_decrement_adj1_b?"))
-			return new String [] {"N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_tpssmooth_decrement_adj_by_gears_ips"))
-			return new String [] {"N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_tpssmooth_decrement_adj_by_gears_manual"))
-			return new String [] {"N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_tpssmooth_increment_adj1_b?"))
-			return new String [] {"1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_cluster_gear_lookup_ips"))
+
+		if (n.equals("CAL_cluster_gear_lookup_ips") || n.equals("CAL_cluster_gear_lookup_manual"))
 			return new String [] {"R","N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_cluster_gear_lookup_manual"))
-			return new String [] {"R","N","1st","2nd","3rd","4th","5th","6th"};
-		if (n.equals("CAL_misc_pps_1_range"))
-			return new String [] {"low","high"};
-		if (n.equals("CAL_misc_pps_2_range"))
-			return new String [] {"low","high"};
-		if (n.equals("CAL_misc_tps_1_range"))
-			return new String [] {"low","high"};
-		if (n.equals("CAL_misc_tps_2_range"))
+
+		if (n.equals("CAL_misc_pps_1_range") ||
+			n.equals("CAL_misc_pps_2_range") ||
+			n.equals("CAL_misc_tps_1_range") ||
+			n.equals("CAL_misc_tps_2_range") ||
+			n.equals("CAL_tps_voltage_theshold???"))
 			return new String [] {"low","high"};
 
-		if (n.equals("CAL_tps_voltage_theshold???"))
-			return new String [] {"low","high"};
-		if (n.equals("CAL_ecu_system_voltage_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_sensor_knock_voltage_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_sensor_iat_voltage_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_sensor_coolant_voltage_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_sensor_intake_air_temp_voltage_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_sensor_fuel_level_sensor_voltage_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_sensor_adc37_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_ac_compressor_deactivate_car_speed"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_ac_compressor_engine_speed2"))
-			return new String [] {"high","low"};
-		if (
+		if (n.equals("CAL_ecu_system_voltage_threshold") ||
+			n.equals("CAL_sensor_knock_voltage_threshold") ||
+			n.equals("CAL_sensor_iat_voltage_threshold") ||
+			n.equals("CAL_sensor_coolant_voltage_threshold") ||
+			n.equals("CAL_sensor_intake_air_temp_voltage_threshold") ||
+			n.equals("CAL_sensor_fuel_level_sensor_voltage_threshold") ||
+			n.equals("CAL_sensor_adc37_threshold") ||
+			n.equals("CAL_trans_pump_car_speed_threshold") || 
+			n.equals("CAL_trans_temp_voltage_threshold") ||
+			n.equals("CAL_ac_compressor_deactivate_car_speed") ||
+			n.equals("CAL_cluster_coolant_warning") ||
+			n.equals("CAL_ac_compressor_engine_speed2") ||
+			n.equals("CAL_cruise_speed_limit") ||
+			n.equals("CAL_ecu_engine_running_threshold_unknown"))
+			return new String[] {"high", "low"};
+
+  		if (
 			n.equals("CAL_sensor_accel_pedal_pos_d_threshold") ||
 			n.equals("CAL_sensor_accel_pedal_pos_e_threshold") ||
 			n.equals("CAL_sensoraccel_pedal_speed_threshold_unknown")
 		)
 			return new String [] {"low","high"};
-		if (
+
+			if (
 			n.equals("CAL_inj_closedloop_activate_engine_timer")
 		)
 			return new String [] {"-40.0","-30.0","-20.0","-10.0","0.0","10.0","20.0","30.0","40.0","50.0","60.0","70.0","80.0","90.0","100.0","110.0"};
 
-
-		if (n.equals("CAL_trans_pump_car_speed_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_trans_pump_fluid_temp_threshold"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_trans_temp_voltage_threshold"))
-			return new String [] {"high","low"};
-
-		if (n.equals("CAL_cluster_coolant_warning"))
-			return new String [] {"high","low"};
-		if (n.equals("CAL_cluster_fuel_level_warning_threshold"))
+		if (n.equals("CAL_cluster_fuel_level_warning_threshold") || 
+			n.equals("CAL_cluster_range_to_empty_limit"))
 			return new String [] {"on","off"};
-		if (n.equals("CAL_cluster_range_to_empty_limit"))
-			return new String [] {"on","off"};
-
-		if (n.equals("CAL_traction_per_gear3_manual"))
-			return new String [] {"1st","2nd","3rd","4th","5th"};
-		if (n.equals("CAL_traction_per_gear3_ips"))
-			return new String [] {"1st","2nd","3rd","4th","5th"};
-
-		if (n.equals("CAL_cruise_speed_limit"))
-			return new String [] {"high","low"};
-
-		if (n.equals("CAL_ecu_engine_running_threshold_unknown"))
-			return new String [] {"high","low"};
 
 
 		if (
@@ -155,12 +123,14 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			n.equals("CAL_traction_gear_speed_ratios_cr")
 		)
 			return new String [] {"1st","2nd","3rd","4th","5th","6th"};
+		if (n.equals("CAL_tpssmooth_increment_adj1_b?"))
+			return new String [] {"1st","2nd","3rd","4th","5th","6th"};
 
-		if (
-			n.equals("CAL_traction_slip_threshold_per_gear_manual") ||
-			n.equals("CAL_traction_slip_threshold_per_gear_ips")
-		)
-			return new String [] {"1st","2nd","3rd","4th","5th"};
+		if (n.equals("CAL_traction_slip_threshold_per_gear_manual") ||
+			n.equals("CAL_traction_slip_threshold_per_gear_ips") ||
+			n.equals("CAL_traction_per_gear3_manual") ||
+			n.equals("CAL_traction_per_gear3_ips"))
+			return new String[] {"1st","2nd","3rd","4th","5th"};
 
 
 		return null;
