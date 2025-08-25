@@ -88,7 +88,48 @@ lotus diagnostic tool. If your tuner don't know what you talking about, avoid it
 
 ### Data Analysis
 
-## Direct Memory Access
+## Remote Memory Access
+
+This ECU has a feature to read and write memory data directly, via the CAN bus. Unforunately, this is a development feature on the ECU and is only available if the unit is unlocked. It is not possible to do direct memory reads from a factory-stock firmware.
+
+## ECU Unlock
+
+TODO
+
+### T4E
+
+TODO
+
+### T6E
+
+The ECU exposes a simple, unlock‑gated raw memory R/W service over CAN. When the ECU is unlocked, it accepts standard CAN frames on IDs 0x50–0x57 that encode an address (and sometimes a length/value). Because the calibration data is copied to from flash to RAM, writes to memory are not persisted to flash. Furthermore, arbitrary writes to flash addresses are not possible.
+
+#### Reads
+
+0x50/0x51/0x52 return 32/16/8‑bit values at the 4‑byte address supplied (DLC=4), and 0x53 performs a block read with a 5‑byte header (addr+len8) or 6‑byte header (addr+len16), streaming up to 8 bytes per response frame until the requested length is sent. 
+
+```
+# Example code to read a 32bit value
+def ecu_mem_read32(addr: int) -> int:
+    # Send: ID 0x50, DLC=4, data = 32-bit address (big-endian)
+    tx = can.Message(arbitration_id=0x50, data=struct.pack(">I", addr))
+    bus.send(tx)
+    rx = bus.recv(timeout=timeout)
+    return struct.unpack(">I", rx.data)[0]
+```
+
+#### Writes
+
+0x54/0x55/0x56 write 32/16/8‑bit values (addr plus value in the same frame), while 0x57 does a block write with a 5‑byte header (addr+len) followed by one or more payload frames whose DLC indicates the number of bytes to copy. Every operation enforces strict address guards and addr+len checks, allowing only the low 1 MiB region (0x00000000:0x00100000) or a 64 KiB window at 0x40000000:0x40010000; requests outside these bounds are ignored. Responses contain the requested data and set DLC to the actual byte count; multi‑frame transfers continue until all bytes are sent or written.
+
+```
+# Example code to write a 32bit value
+def ecu_mem_write32(addr: int, value: int) -> None:
+    # Send: ID 0x54, DLC=8, data = addr(4) + value(4), big-endian
+    payload = struct.pack(">II", addr, value)
+    tx = can.Message(arbitration_id=0x54, data=payload)
+    bus.send(tx)
+```
 
 ## Load calculation
 
