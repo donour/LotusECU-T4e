@@ -344,6 +344,7 @@
 #define 11111111111111111111111111111011b 0xfffffffb
 #define 1500 0x5dc
 #define 70 0x46
+#define 9726 0x25fe
 
 typedef unsigned char   undefined;
 
@@ -601,6 +602,21 @@ typedef uint16_t u16_time_10ms;
 typedef uint8_t u8_speed_1/10kph;
 
 typedef uint8_t u8_time_20us;
+
+typedef enum enum_throttle_system_state {
+    THROTTLE_NORMAL0=0,
+    THROTTLE_NORMAL1=1,
+    THROTTLE_NORMAL2=2,
+    THROTTLE_NORMAL3=3,
+    THROTTLE_ESP_INTERVENTION=4,
+    THROTTLE_EXT_TRQLIMIT=5,
+    THROTTLE_CRUISE_ACTIVE=6,
+    THROTTLE_CRUISE_INACTIVE=7,
+    THROTTLE_TPS_FAULT=8,
+    THROTTLE_SEVERE_FAULT1=9,
+    THROTTLE_SEVERE_FAULT2=10,
+    THROTTLE_SEVERE_FAULT3=11
+} enum_throttle_system_state;
 
 typedef uint16_t u16_flow_mg/s;
 
@@ -3741,10 +3757,10 @@ undefined2 load_cylinder_efficiency;
 u8_factor_1/255[16] CAL_knock_inhibit_tps_max;
 u8_rspeed_125/4+500rpm[16] CAL_knock_inhibit_tps_max_X_rpm;
 uint8_t[16] CAL_load_unused1;
-u8_factor_1/255[16] CAL_load_tps_max;
+u8_factor_1/255[16] CAL_tps_scaling_factor_rpm;
 u8_rspeed_125/4+500rpm[16] CAL_load_unused1_X_rpm;
-u8_rspeed_125/4+500rpm[16] CAL_load_tps_max_X_rpm;
-u8_factor_1/255 load_tps_max;
+u8_rspeed_125/4+500rpm[16] CAL_tps_scaling_factor_rpm_X_rpm;
+u8_factor_1/255 load_tps_scaling_factor;
 u16_load_1173mg/255stroke load_alphaN_calc;
 u8_factor_1/100[256] CAL_load_efficiency1_unknown;
 u8_factor_1/255 obd_ii_calc_engine_load;
@@ -4120,22 +4136,22 @@ byte DAT_4000d41c;
 undefined1 DAT_40001e41;
 u32_load_mg/stroke load_delta_map;
 undefined1 DAT_40001e50;
-byte DAT_400050ea;
-byte DAT_40001f20;
 undefined1 DAT_40001e40;
 undefined1 DAT_40001e42;
-byte DAT_400050eb;
 short DAT_40001e4e;
 short DAT_400023e8;
 byte DAT_40001e44;
 undefined1 DAT_40001e49;
 byte DAT_4000d420;
 char DAT_400026bc;
+enum_throttle_system_state throttle_control_mode;
 char DAT_400026c3;
 char DAT_400026b8;
 undefined1 DAT_40001e43;
 char DAT_40001e45;
+undefined1 tps_actuator_flags_unknown;
 char DAT_40001e46;
+uint8_t throttle_actuator_state;
 char DAT_40001e47;
 char DAT_40001e48;
 byte DAT_40002900;
@@ -4547,17 +4563,15 @@ u8_time_100ms u8_time_100ms_40002330;
 undefined u16_afr_1/100_40001f04;
 undefined u16_afr_1/100_40001ef8;
 undefined1 DAT_40001f10;
-undefined1 DAT_40001f20;
-undefined1 DAT_40001f21;
-undefined2 DAT_400050e8;
 uint16_t siu_pcr[206];
 uint8_t uint8_t_ARRAY_c3f906d1;
 uint8_t uint8_t_ARRAY_c3f90616;
+byte throttle_control_flags;
+undefined2 tps_load_scale_param;
 uint16_t siu_pcr[22];
 uint16_t siu_pcr[198];
 uint8_t uint8_t_ARRAY_c3f906ce;
 uint16_t siu_pcr[209];
-ushort DAT_400050e8;
 undefined UNK_ffff25ff;
 short DAT_40001f14;
 short DAT_40001f12;
@@ -7115,7 +7129,6 @@ uint16_t DAT_4000268c;
 uint16_t DAT_4000268a;
 uint16_t DAT_40002688;
 int DAT_40002690;
-char DAT_40001f20;
 ushort DAT_4000873a;
 ushort DAT_4000874a;
 short DAT_400016e6;
@@ -7137,12 +7150,9 @@ undefined2 DAT_40002608;
 char DAT_40001e49;
 ushort DAT_4000894a;
 char DAT_400016ea;
-byte DAT_40001f21;
 byte DAT_400050f3;
 byte DAT_40004b8d;
 short DAT_400016e8;
-byte DAT_40002646;
-undefined1 DAT_40001f22;
 ushort DAT_40002642;
 ushort DAT_40002698;
 ushort DAT_4000269a;
@@ -7157,7 +7167,9 @@ ushort DAT_400026ac;
 undefined1 DAT_400081b9;
 undefined4 DAT_400081c0;
 undefined1 DAT_400016e1;
+undefined1 throttle_actuator_param_unknown;
 undefined1 DAT_40002648;
+uint8_t throttle_error_flags;
 undefined2 tps_3;
 undefined2 tps_unknown;
 uint16_t tps_absolute?;
@@ -7631,13 +7643,11 @@ byte DAT_400027c0;
 undefined1 DAT_40008110;
 byte DAT_40008111;
 undefined1 esci_seq_number;
-int DAT_400027d0;
-undefined1 DAT_40002646;
 char DAT_40008688;
+uint32_t throttle_tx_counter;
 char DAT_40008111;
-undefined1 DAT_40008112;
+uint8_t DAT_40008112;
 byte DAT_40008113;
-undefined1 DAT_400050ea;
 undefined1 DAT_40008114;
 undefined1 DAT_400050ec;
 undefined1 DAT_40008115;
@@ -7671,9 +7681,8 @@ byte DAT_40004bdb;
 byte DAT_40008124;
 byte DAT_40004bdc;
 int DAT_400027cc;
-undefined4 DAT_400027d0;
 short DAT_400027c8;
-undefined PTR_DAT_40001710;
+u8_time_5ms u8_time_5ms_40001710;
 u16_speed_1/100kph u16_speed_1/100kph_40002806;
 u16_speed_1/100kph u16_speed_1/100kph_400027f0;
 short DAT_400027e2;
@@ -8514,7 +8523,6 @@ byte DAT_40002a56;
 byte DAT_4000cb19;
 byte DAT_4000cb18;
 byte DAT_4000cb02;
-char DAT_400050ea;
 byte DAT_4000cb1d;
 byte DAT_40002a5b;
 byte DAT_4000cb9a;
@@ -8624,7 +8632,7 @@ int init(EVP_PKEY_CTX *ctx)
   init_spr();
   init_debug_unknown2();
   init_r2_and_r13();
-  FUN_00040538();
+  data_segment_setup___();
   init_siu_ebi_segment();
   uVar1 = main();
   uVar5 = uVar1 & 0xfffffffffffffff1;
@@ -8909,7 +8917,7 @@ void init_r2_and_r13(void)
 
 
 
-void FUN_00040538(void)
+void data_segment_setup___(void)
 
 {
   undefined1 *puVar1;
@@ -10149,7 +10157,7 @@ void init_devices(void)
   noop_3();
   init_emios1();
   FUN_000cc334((undefined4 *)&ips_rev_match_ctrl_);
-  FUN_00074190();
+  throttle_actuator_init();
   FUN_000b4dd0();
   init_intc();
   return;
@@ -22010,7 +22018,7 @@ void engine_load(void)
   int iVar3;
   int atmo_baro_scaled;
   u8_factor_1_255 _knock_inhibit_tps_max;
-  u8_factor_1_255 _load_tps_max;
+  u8_factor_1_255 _load_tps_scaling_factor;
   uint32_t _load_cylinder_efficiency;
   ulonglong uVar4;
   byte load_seed_alphaN;
@@ -22034,9 +22042,10 @@ void engine_load(void)
   knock_inhibit_tps_max = _knock_inhibit_tps_max;
   load_unused1 = lookup_2D_uint8_interpolated
                            (16,engine_speed_3,CAL_load_unused1,CAL_load_unused1_X_rpm);
-  _load_tps_max =
-       lookup_2D_uint8_interpolated(16,engine_speed_3,CAL_load_tps_max,CAL_load_tps_max_X_rpm);
-  load_tps_max = _load_tps_max;
+  _load_tps_scaling_factor =
+       lookup_2D_uint8_interpolated
+                 (16,engine_speed_3,CAL_tps_scaling_factor_rpm,CAL_tps_scaling_factor_rpm_X_rpm);
+  load_tps_scaling_factor = _load_tps_scaling_factor;
   _load_cylinder_efficiency =
        lookup_3D_uint32_interpolated
                  (16,16,(uint)obd_ii_engine_speed,(uint)map,CAL_load_cylinder_efficiency,
@@ -24868,7 +24877,7 @@ undefined8 obd_set_dtc_processing(void)
   
   switch(obd_ii_dtc_state) {
   case '\0':
-    FUN_000a005c('\x01');
+    obd_ii_readiness_monitor_init('\x01');
     obd_ii_dtc_state = obd_ii_dtc_state + '\x01';
     uVar1 = 0;
     break;
@@ -24957,12 +24966,12 @@ undefined8 obd_set_dtc_processing(void)
     uVar1 = 0;
     break;
   case '\x12':
-    FUN_0006ca60();
+    obdii_update_tps_and_throttle_dtcs();
     obd_ii_dtc_state = obd_ii_dtc_state + '\x01';
     uVar1 = 0;
     break;
   case '\x13':
-    FUN_000a005c('\0');
+    obd_ii_readiness_monitor_init('\0');
     obd_ii_dtc_state = obd_ii_dtc_state + '\x01';
     uVar1 = 0;
     break;
@@ -25400,7 +25409,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     }
   }
   if ((CAL_obd_ii_P2104 & 7) != 0) {
-    if ((DAT_400050ea < 9) && (DAT_40001f20 < 9)) {
+    if ((throttle_actuator_state < 9) && (throttle_control_mode < THROTTLE_SEVERE_FAULT1)) {
       obd_ii_monitor_pass(&CAL_obd_ii_P2104,&LEA_obd_ii_P2104_flags);
     }
     else {
@@ -25410,7 +25419,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     }
   }
   if ((CAL_obd_ii_P2105 & 7) != 0) {
-    if (DAT_400050ea == 10) {
+    if (throttle_actuator_state == '\n') {
       DAT_40001e42 = 0;
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2105,&LEA_obd_ii_P2105_flags,&DAT_40004e3e,&DAT_40004e3f,0x2105,0);
@@ -25420,7 +25429,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     }
   }
   if ((CAL_obd_ii_P2107 & 7) != 0) {
-    if (((DAT_400050eb & 0x40) == 0) && ((DAT_400050eb & 0x80) == 0)) {
+    if (((tps_actuator_flags_unknown & 0x40) == 0) && ((tps_actuator_flags_unknown & 0x80) == 0)) {
       DAT_40001e4e = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2107,&LEA_obd_ii_P2107_flags);
       if (DAT_40001e44 < DAT_4000d420) {
@@ -25491,7 +25500,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       }
     }
   }
-  if ((DAT_400050eb & 0x10) == 0) {
+  if ((tps_actuator_flags_unknown & 0x10) == 0) {
     DAT_40001e52 = 0;
   }
   else {
@@ -25600,8 +25609,8 @@ void obd_ii_throttle_actuator_monitor_200hz(void)
     uint16_t_40001668 = 20000;
   }
   DAT_40001e62 = uVar5 - uint16_t_40001668;
-  if (((((CAL_obd_ii_P0638 & 7) != 0) && (engine_is_running != false)) && (DAT_40001f20 < 8)) &&
-     (DAT_400050ea < 8)) {
+  if (((((CAL_obd_ii_P0638 & 7) != 0) && (engine_is_running != false)) &&
+      (throttle_control_mode < THROTTLE_TPS_FAULT)) && (throttle_actuator_state < 8)) {
     lVar7 = libc_abs((longlong)(short)tps_delta_rate);
     if ((int)(uint)DAT_4000cc5c < (int)lVar7) {
       DAT_40001e64 = DAT_4000cc5e;
@@ -25647,7 +25656,7 @@ void obd_ii_throttle_actuator_monitor_200hz(void)
 
 
 
-void FUN_0006ca60(void)
+void obdii_update_tps_and_throttle_dtcs(void)
 
 {
   latch_counter_p0122 = DAT_4000d3b4;
@@ -27677,17 +27686,17 @@ void FUN_00073f54(void)
 
 
 
-void FUN_00074190(void)
+void throttle_actuator_init(void)
 
 {
-  uint32_t uVar1;
   int i;
+  uint32_t eccr_tmp;
   
   DAT_40001f10 = 0;
   init_esci_a();
   siu_pcr[0xc6] = 0x100;
-  uVar1 = SIU_ECCR;
-  SIU_ECCR = uVar1 & 0xffffc0ff | 0x200;
+  eccr_tmp = SIU_ECCR;
+  SIU_ECCR = eccr_tmp & 0xffffc0ff | 0x200;
   siu_pcr[0xd6] = 0x2cc;
   siu_gpdo[0xd1] = '\x01';
   siu_pcr[0xd1] = 0x2cc;
@@ -27699,9 +27708,9 @@ void FUN_00074190(void)
     watchdog_retrigger();
   }
   siu_gpdo[0xce] = '\x01';
-  DAT_40001f20 = 0;
-  DAT_40001f21 = 0;
-  DAT_400050e8 = 0x25fe;
+  throttle_control_mode = THROTTLE_NORMAL0;
+  throttle_control_flags = 0;
+  tps_load_scale_param = 9726;
   return;
 }
 
@@ -27728,7 +27737,7 @@ void FUN_00074288(void)
 ulonglong calc_load_scale_unknown_tps___(void)
 
 {
-  return (ulonglong)(LZCOUNT(&UNK_ffff25ff + DAT_400050e8) << 32) >> 37;
+  return (ulonglong)(LZCOUNT(&UNK_ffff25ff + tps_load_scale_param) << 32) >> 37;
 }
 
 
@@ -27738,17 +27747,17 @@ void service_tick_unknown(void)
 {
   if (timer_unknown5 == 0) {
     timer_unknown5 = 20;
-    FUN_000be558();
+    throttle_actuator_tx();
     if (u8_time_5ms_400015b4 == 0) {
       if (DAT_40001f14 != -1) {
         DAT_40001f14 = DAT_40001f14 + 1;
       }
     }
-    else if (((DAT_400050eb & 0b10000000) != 0) && (DAT_40001f12 != -1)) {
+    else if (((tps_actuator_flags_unknown & 0b10000000) != 0) && (DAT_40001f12 != -1)) {
       DAT_40001f12 = DAT_40001f12 + 1;
     }
   }
-  FUN_000be608();
+  throttle_actuator_message_handler();
   return;
 }
 
@@ -37885,7 +37894,7 @@ void accel_pedal_200hz(void)
   uint _cruise_status2;
   ulonglong _cruise_tps_unknown;
   ulonglong _target_tps_factor1_255___;
-  u8_factor_1_255 _load_tps_max;
+  u8_factor_1_255 _load_tps_scaling_factor;
   enum_vehicle_mode _vehicle_mode;
   uint16_t _vehicle_mode_flags;
   
@@ -37905,7 +37914,7 @@ void accel_pedal_200hz(void)
   accel_pedal_position_from_voltage
             ((ushort)_accel_pedal_pos_d_voltage,(ushort)_accel_pedal_pos_e_voltage);
   accel_pedal_pos = get_accel_pedal_pos();
-  _load_tps_max = load_tps_max;
+  _load_tps_scaling_factor = load_tps_scaling_factor;
   _cruise_has_tps_control = (-((ulonglong)engine_operating_state_flags & 1) << 0x20) >> 0x3f;
   if (accel_pedal_pos < CAL_cruise_accel_pedal_override_threshold_exit) {
     cruise_has_control_of_pedal = 1;
@@ -38067,7 +38076,8 @@ void accel_pedal_200hz(void)
   }
   else {
     _target_tps_factor1_255___ =
-         (ulonglong)((longlong)(int)(uint)tps_target_by_pps * (longlong)(int)(uint)_load_tps_max) /
+         (ulonglong)
+         ((longlong)(int)(uint)tps_target_by_pps * (longlong)(int)(uint)_load_tps_scaling_factor) /
          255 & 0xffff;
   }
                     // CAL_launch_enable_untested is always false
@@ -40368,7 +40378,7 @@ void obd_ii_mode2f_200hz(void)
 
 
 
-void FUN_000a005c(char param_1)
+void obd_ii_readiness_monitor_init(char param_1)
 
 {
   byte j;
@@ -45426,7 +45436,7 @@ void throttle_command_actuator(short _tps_target,short param_2,uint16_t param_3,
   }
   DAT_40002688 = param_3;
   uVar4 = adc_smooth_lowpass(&struct_adc_smoothing_state_40006380,DAT_4000268e - param_3);
-  if (DAT_40001f20 == '\0') {
+  if (throttle_control_mode == THROTTLE_NORMAL0) {
     lVar10 = 0;
   }
   else {
@@ -45488,7 +45498,8 @@ void throttle_command_actuator(short _tps_target,short param_2,uint16_t param_3,
   }
   siu_gpdo[0xcc] = '\x01';
   if (DAT_40002901 == '\0') {
-    if ((((ignition_on_flags & 1) == 0) && (obd_ii_engine_speed == 0)) && (DAT_40001f20 != '\0')) {
+    if ((((ignition_on_flags & 1) == 0) && (obd_ii_engine_speed == 0)) &&
+       (throttle_control_mode != THROTTLE_NORMAL0)) {
       FUN_000af03c(0);
       siu_gpdo[0xbb] = '\x01';
       uVar8 = 0;
@@ -45564,7 +45575,7 @@ void tps_control_1000hz(void)
   tps_abs_smoothed = adc_smooth_lowpass(&tps_smooth_filter_state,tps_absolute_);
   tps_unknown_smooth_ = adc_smooth_lowpass(&tps_unknown_history,tps_unknown_smooth_);
   if (((((lbf_state_flags & 8) == 0) && ((engine_state_failure_flags & 0x10000) == 0)) &&
-      (DAT_40001e49 == '\0')) && (DAT_400050ea < 9)) {
+      (DAT_40001e49 == '\0')) && (throttle_actuator_state < 9)) {
     if (((int)tps_control_scheme___ - 2U < 3) && (sensor_adc_ecu_voltage < DAT_4000894a)) {
       if (DAT_400016ea == 0) {
         tps_control_scheme___ = 5;
@@ -45695,69 +45706,69 @@ void tps_control_1000hz(void)
   DAT_400031b9 = 0;
   cVar7 = FUN_000c70f0();
   if (cVar7 == '\x01') {
-    DAT_40001f21 = DAT_40001f21 | 1;
+    throttle_control_flags = throttle_control_flags | 1;
   }
   else {
-    DAT_40001f21 = DAT_40001f21 & 0xfe;
+    throttle_control_flags = throttle_control_flags & 0xfe;
   }
   _tps_sensor_track_d_preferred = get_tps_sensor_track_d_preferred();
   if (_tps_sensor_track_d_preferred) {
-    DAT_40001f21 = DAT_40001f21 | 2;
+    throttle_control_flags = throttle_control_flags | 2;
   }
   else {
-    DAT_40001f21 = DAT_40001f21 & 0xfd;
+    throttle_control_flags = throttle_control_flags & 0xfd;
   }
   if ((vehicle_mode_flags & 0x20) == 0) {
-    DAT_40001f21 = DAT_40001f21 & 0xf7;
+    throttle_control_flags = throttle_control_flags & 0xf7;
   }
   else {
-    DAT_40001f21 = DAT_40001f21 | 8;
+    throttle_control_flags = throttle_control_flags | 8;
   }
   if ((COD_base[1] >> 0x15 & 3) == 2) {
-    DAT_40001f21 = DAT_40001f21 & 0xef;
+    throttle_control_flags = throttle_control_flags & 0xef;
   }
   else {
-    DAT_40001f21 = DAT_40001f21 | 0x10;
+    throttle_control_flags = throttle_control_flags | 0x10;
   }
   if (tps_control_scheme___ < 6) {
-    DAT_40001f20 = 0;
+    throttle_control_mode = THROTTLE_NORMAL0;
   }
   else {
     if ((engine_state_failure_flags & 0x10) != 0) {
-      DAT_40001f21 = DAT_40001f21 | 4;
+      throttle_control_flags = throttle_control_flags | 4;
     }
-    if ((DAT_40001f20 < 9) && (8 < DAT_400050ea)) {
+    if ((throttle_control_mode < THROTTLE_SEVERE_FAULT1) && (8 < throttle_actuator_state)) {
       obd_ii_throttle_limp_mode_conditions = 1;
     }
     if (tps_control_scheme___ < 8) {
       _tps_system_state = get_tps_system_state();
       if (((_tps_system_state == 1) || (cVar7 = get_accel_pedal_diag_state(), cVar7 == 1)) ||
          (_accel_pedal_diag_state = get_accel_pedal_diag_state(), _accel_pedal_diag_state == 2)) {
-        DAT_40001f20 = '\b';
+        throttle_control_mode = THROTTLE_TPS_FAULT;
       }
       else if (((abs_esp_flags & 1) == 0) ||
               (((COD_base[0] >> 0x16 & 7) != 3 && ((COD_base[0] >> 0x16 & 7) != 2)))) {
         if (((COD_base[0] >> 0xd & 7) == 1) && ((trqlimit_external_request_flags___ & 0x10) != 0)) {
-          DAT_40001f20 = 5;
+          throttle_control_mode = THROTTLE_EXT_TRQLIMIT;
         }
         else if (((COD_base[0] >> 0x19 & 7) == 0) || ((obd_ii_cruise_status & 2) == 0)) {
-          DAT_40001f20 = 7;
+          throttle_control_mode = THROTTLE_CRUISE_INACTIVE;
         }
         else {
-          DAT_40001f20 = 6;
+          throttle_control_mode = THROTTLE_CRUISE_ACTIVE;
         }
       }
       else {
-        DAT_40001f20 = '\x04';
+        throttle_control_mode = THROTTLE_ESP_INTERVENTION;
       }
     }
     else {
-      DAT_40001f20 = '\t';
+      throttle_control_mode = THROTTLE_SEVERE_FAULT1;
     }
     if ((50 < ecu_run_timer) && (DAT_400050f3 < DAT_40004b8d)) {
       DAT_40004b8d = DAT_400050f3;
     }
-    if ((DAT_400050ea == 0) || (3 < DAT_400050ea)) {
+    if ((throttle_actuator_state == '\0') || (3 < throttle_actuator_state)) {
       DAT_400016e8 = 3000;
     }
     else {
@@ -45766,31 +45777,33 @@ void tps_control_1000hz(void)
       if (bVar6) {
         DAT_400016e8 = 0;
       }
-      if (((DAT_40002646 & 8) == 0) && (2 < (byte)(DAT_40001f20 - 1))) {
-        DAT_40002646 = DAT_40002646 | 8;
+      if (((throttle_error_flags & 8) == 0) &&
+         (2 < (byte)(throttle_control_mode - THROTTLE_NORMAL1))) {
+        throttle_error_flags = throttle_error_flags | 8;
       }
       if ((1 < (ulonglong)
-               ((-((longlong)(-((ulonglong)DAT_40002646 & 2) << 0x20) >> 0x3f) -
-                ((longlong)(-((ulonglong)DAT_40002646 & 1) << 0x20) >> 0x3f)) -
-               ((longlong)(-((ulonglong)DAT_40002646 & 4) << 0x20) >> 0x3f))) ||
-         ((DAT_400016e8 == 0 && ((DAT_40002646 & 8) != 0)))) {
-        DAT_40002646 = DAT_40002646 | 0x10;
+               ((-((longlong)(-((ulonglong)throttle_error_flags & 2) << 0x20) >> 0x3f) -
+                ((longlong)(-((ulonglong)throttle_error_flags & 1) << 0x20) >> 0x3f)) -
+               ((longlong)(-((ulonglong)throttle_error_flags & 4) << 0x20) >> 0x3f))) ||
+         ((DAT_400016e8 == 0 && ((throttle_error_flags & 8) != 0)))) {
+        throttle_error_flags = throttle_error_flags | 0x10;
       }
     }
   }
   if ((short)obd_ii_commanded_throttle_actuator >> 4 < 0x100) {
     if ((short)obd_ii_commanded_throttle_actuator < 0) {
-      DAT_40001f22 = 0;
+      throttle_actuator_param_unknown = 0;
     }
     else {
-      DAT_40001f22 = (undefined1)((short)obd_ii_commanded_throttle_actuator >> 4);
+      throttle_actuator_param_unknown = (undefined1)((short)obd_ii_commanded_throttle_actuator >> 4)
+      ;
     }
   }
   else {
-    DAT_40001f22 = 0xff;
+    throttle_actuator_param_unknown = 0xff;
   }
-  if (((((COD_base[0] >> 0x19 & 7) == 0) || (DAT_40001f20 != '\x06')) || (DAT_400050ea == 6)) ||
-     ((DAT_40002642 & 1) != 0)) {
+  if (((((COD_base[0] >> 0x19 & 7) == 0) || (throttle_control_mode != THROTTLE_CRUISE_ACTIVE)) ||
+      (throttle_actuator_state == '\x06')) || ((DAT_40002642 & 1) != 0)) {
     DAT_40002698 = 0;
   }
   else {
@@ -45800,14 +45813,14 @@ void tps_control_1000hz(void)
       DAT_40002642 = DAT_40002642 | 1;
     }
   }
-  if ((DAT_400050ea == 0) || (3 < DAT_400050ea)) {
+  if ((throttle_actuator_state == '\0') || (3 < throttle_actuator_state)) {
     DAT_4000269a = 0;
   }
   else if ((DAT_4000269a != 0xffff) &&
           (DAT_4000269a = DAT_4000269a + 1, DAT_40001f18 < DAT_4000269a)) {
     DAT_40001f18 = DAT_4000269a;
   }
-  if (DAT_400050ea == 5) {
+  if (throttle_actuator_state == '\x05') {
     if ((DAT_4000269c != 0xffff) && (DAT_4000269c = DAT_4000269c + 1, DAT_40001f16 < DAT_4000269c))
     {
       DAT_40001f16 = DAT_4000269c;
@@ -51567,7 +51580,7 @@ undefined8 FUN_000be320(byte param_1)
   char cVar1;
   
   if (DAT_400027c1 < 0x17) {
-    if (u8_time_5ms_40001881 == '\0') {
+    if (u8_time_5ms_40001881 == 0) {
       DAT_400027c1 = 0;
     }
     u8_time_5ms_40001881 = '\x06';
@@ -51641,28 +51654,31 @@ void esci_a_tx(byte *data,uint8_t len)
 
 
 
-void FUN_000be558(void)
+void throttle_actuator_tx(void)
 
 {
-  byte data [3];
-  undefined1 local_d;
+  byte data [2];
+  enum_throttle_system_state eStack_e;
+  byte local_d;
   undefined1 local_c;
   
-  DAT_400027d0 = DAT_400027d0 + 1;
-  if (2 < (byte)(DAT_40001f20 - 1)) {
-    DAT_40002646 = 0;
+  throttle_tx_counter = throttle_tx_counter + 1;
+  if (2 < (byte)(throttle_control_mode - THROTTLE_NORMAL1)) {
+    throttle_error_flags = '\0';
   }
-  data[2] = DAT_40001f20 | DAT_40008688 << 7;
+  eStack_e = throttle_control_mode | DAT_40008688 << 7;
   data[1] = 0b10000001;
-  local_d = DAT_40001f21;
-  local_c = DAT_40001f22;
+  local_d = throttle_control_flags;
+  local_c = throttle_actuator_param_unknown;
   esci_a_tx(data,4);
   return;
 }
 
 
 
-void FUN_000be608(void)
+// processes data from the electronic throttle actuator received via eSCI_A 
+
+void throttle_actuator_message_handler(void)
 
 {
   ulonglong i;
@@ -51676,10 +51692,10 @@ void FUN_000be608(void)
     if ((int)uVar1 != 0) {
       u8_time_5ms_400015b4 = 'd';
       if (DAT_40008111 == -0x80) {
-        DAT_400050e8 = CONCAT11(DAT_40008112,DAT_40008113);
+        tps_load_scale_param = CONCAT11(DAT_40008112,DAT_40008113);
       }
       else if (DAT_40008111 == -0x7f) {
-        DAT_400050ea = DAT_40008112;
+        throttle_actuator_state = DAT_40008112;
         DAT_400050ec = DAT_40008114;
         DAT_400050ed = DAT_40008115;
         DAT_400050ee = DAT_40008116;
@@ -51690,12 +51706,12 @@ void FUN_000be608(void)
         DAT_400050f3 = DAT_4000811b;
         DAT_400050f4 = DAT_4000811c;
         DAT_400050f5 = DAT_4000811d;
-        DAT_400050e8 = CONCAT11(DAT_4000811e,DAT_4000811f);
+        tps_load_scale_param = CONCAT11(DAT_4000811e,DAT_4000811f);
         uVar2 = calc_load_scale_unknown_tps___();
         if ((int)uVar2 == 0) {
           DAT_40008113 = DAT_40008113 | 0x40;
         }
-        DAT_400050eb = DAT_40008113;
+        tps_actuator_flags_unknown = DAT_40008113;
         if (DAT_40004bd8 < DAT_40008120) {
           DAT_40004bd8 = DAT_40008120;
         }
@@ -51712,15 +51728,15 @@ void FUN_000be608(void)
           DAT_40004bdc = DAT_40008124;
         }
         DAT_400027cc = DAT_400027cc + 1;
-        DAT_400027c8 = (short)DAT_400027d0 - (short)DAT_400027cc;
+        DAT_400027c8 = (short)throttle_tx_counter - (short)DAT_400027cc;
       }
     }
   }
-  if (u8_time_5ms_400015b4 < PTR_DAT_40001710._0_1_) {
-    PTR_DAT_40001710._0_1_ = u8_time_5ms_400015b4;
+  if (u8_time_5ms_400015b4 < u8_time_5ms_40001710) {
+    u8_time_5ms_40001710 = u8_time_5ms_400015b4;
   }
-  if (u8_time_5ms_400015b4 == '\0') {
-    DAT_400050eb = DAT_400050eb | 0x80;
+  if (u8_time_5ms_400015b4 == 0) {
+    tps_actuator_flags_unknown = tps_actuator_flags_unknown | 0x80;
     DAT_400027c5 = 0;
     DAT_400027c6 = 0;
     DAT_400027c7 = 0;
@@ -51855,7 +51871,7 @@ void cruise_control(void)
     }
     obd_ii_cruise_status = obd_ii_cruise_status | 0x100000;
     _tps_unknown = (u16_factor_1_1023)
-                   (((ulonglong)cruise_tps_unknown * 0xff) / (ulonglong)load_tps_max);
+                   (((ulonglong)cruise_tps_unknown * 0xff) / (ulonglong)load_tps_scaling_factor);
     if (0x3ff < _tps_unknown) {
       _tps_unknown = 0x3ff;
     }
@@ -54788,9 +54804,9 @@ void tps_control2_(uint16_t param_1,uint16_t param_2)
     DAT_40002918 = 0;
   }
   tps_signal_shaping_unknown((struct_tps_shaping_flags *)&DAT_400081a4);
-  if (((tps_system_state == '\x02') || (8 < DAT_400050ea)) ||
-     ((8 < DAT_40001f20 || (((obd_ii_relay_status & 0x10) != 0 || ((DAT_400031b9 & 0xbf) == 0))))))
-  {
+  if (((tps_system_state == '\x02') || (8 < throttle_actuator_state)) ||
+     ((THROTTLE_TPS_FAULT < throttle_control_mode ||
+      (((obd_ii_relay_status & 0x10) != 0 || ((DAT_400031b9 & 0xbf) == 0)))))) {
     if (DAT_400081b9 != '\x02') {
       DAT_400081b8 = 0;
       tps_signal_shaping_unknown((struct_tps_shaping_flags *)&DAT_400081b8);
@@ -55833,8 +55849,9 @@ void revlimit(void)
     revlimit_esclated_timer = 40;
   }
   else if (((((((ulonglong)
-                ((longlong)(int)(uint)tps_target_by_pps * (longlong)(int)(uint)load_tps_max) / 0xff
-               & 0xffff) <= (ulonglong)revlimit_tps_max) || (revlimit_esclated_timer != 0)) &&
+                ((longlong)(int)(uint)tps_target_by_pps *
+                (longlong)(int)(uint)load_tps_scaling_factor) / 0xff & 0xffff) <=
+               (ulonglong)revlimit_tps_max) || (revlimit_esclated_timer != 0)) &&
             ((int)((uint)u8_rspeed_10rpm_400088b2 * 10) < (int)(short)revlimit_engine_speed_delta))
            || (engine_speed_2 == 0)) ||
           ((((COD_base[0] >> 0xd & 7) == 1 && (gear_index_auto != enum_t6e_gear_400029cc)) &&
@@ -55918,7 +55935,7 @@ void revlimit(void)
     DAT_400029aa = sVar2;
     revlimit_state_flags = revlimit_state_flags & 0xffbf | 0x10;
   }
-  uVar3 = (ushort)(((ulonglong)revlimit_tps_max * 0xff) / (ulonglong)load_tps_max);
+  uVar3 = (ushort)(((ulonglong)revlimit_tps_max * 0xff) / (ulonglong)load_tps_scaling_factor);
   if (1023 < uVar3) {
     uVar3 = 1023;
   }
@@ -58455,7 +58472,7 @@ void fuel_pump_obd_monitors_update(void)
      (((((LEA_obd_ii_P0462_flags & 2) != 0 || ((LEA_obd_ii_P0463_flags & 2) != 0)) ||
        (fuel_level < DAT_4000cb02)) ||
       (((DAT_4000ca50 <= inj_flow_required_or_estimated___ || (DAT_40002a56 != 2)) ||
-       (((inj_flags & 1) != 0 || (DAT_400050ea == '\n')))))))) {
+       (((inj_flags & 1) != 0 || (throttle_actuator_state == '\n')))))))) {
     DAT_40002a5b = 0;
     DAT_40002a5c = 0;
   }
