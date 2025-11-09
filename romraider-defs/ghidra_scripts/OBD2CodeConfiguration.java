@@ -59,6 +59,25 @@ public class OBD2CodeConfiguration extends GhidraScript {
 			int opcode = def.getOpcode();
 			println(indent + "  -> Def op: " + def.getMnemonic() + " (inputs=" + def.getNumInputs() + ")");
 
+			// Special handling for PTRSUB - check both inputs to find the base address
+			if (opcode == PcodeOp.PTRSUB || opcode == PcodeOp.PTRADD) {
+				if (def.getNumInputs() >= 2) {
+					Varnode input0 = def.getInput(0);
+					Varnode input1 = def.getInput(1);
+					println(indent + "  -> PTRSUB/PTRADD: input[0]=" + input0 + ", input[1]=" + input1);
+
+					// Try input[1] first (it might be the constant address)
+					Address addr1 = resolveVarnodeToAddress(input1, depth + 1);
+					if (addr1 != null && 0 != addr1.getOffset()) {
+						return addr1;
+					}
+
+					// If input[1] is 0 or null, try input[0] (the base pointer)
+					println(indent + "  -> input[1] was 0 or null, trying input[0]");
+					return resolveVarnodeToAddress(input0, depth + 1);
+				}
+			}
+
 			// For most operations, input[1] contains the address we want
 			// (input[0] is typically the address space ID for LOAD/STORE operations)
 			if (def.getNumInputs() > 1) {
@@ -170,45 +189,11 @@ public class OBD2CodeConfiguration extends GhidraScript {
 				final Varnode config_node = pcodeOp.getInput(1);
 				final Varnode state_node = pcodeOp.getInput(2);
 
-				// Debug: Print varnode information
-				println("  Debug config_node:");
-				println("    Varnode: " + config_node);
-				println("    Address Space: " + config_node.getAddress().getAddressSpace().getName());
-				println("    Is Constant: " + config_node.isConstant());
-				println("    Is Address: " + config_node.isAddress());
-				println("    Offset: 0x" + Long.toHexString(config_node.getOffset()));
-				PcodeOp configDef = config_node.getDef();
-				if (configDef != null) {
-					println("    Def Operation: " + configDef.getMnemonic());
-					println("    Def Inputs: " + configDef.getNumInputs());
-					for (int i = 0; i < configDef.getNumInputs(); i++) {
-						Varnode input = configDef.getInput(i);
-						println("      Input[" + i + "]: " + input + " (constant=" + input.isConstant() + ", offset=0x" + Long.toHexString(input.getOffset()) + ")");
-					}
-				} else {
-					println("    Def Operation: null (function parameter or global)");
-				}
-
-				println("  Debug state_node:");
-				println("    Varnode: " + state_node);
-				println("    Address Space: " + state_node.getAddress().getAddressSpace().getName());
-				println("    Is Constant: " + state_node.isConstant());
-				println("    Is Address: " + state_node.isAddress());
-				println("    Offset: 0x" + Long.toHexString(state_node.getOffset()));
-				PcodeOp stateDef = state_node.getDef();
-				if (stateDef != null) {
-					println("    Def Operation: " + stateDef.getMnemonic());
-					println("    Def Inputs: " + stateDef.getNumInputs());
-					for (int i = 0; i < stateDef.getNumInputs(); i++) {
-						Varnode input = stateDef.getInput(i);
-						println("      Input[" + i + "]: " + input + " (constant=" + input.isConstant() + ", offset=0x" + Long.toHexString(input.getOffset()) + ")");
-					}
-				} else {
-					println("    Def Operation: null (function parameter or global)");
-				}
-
 				// Resolve varnodes to actual memory addresses
+				println("  Resolving config_node:");
 				Address configAddr = resolveVarnodeToAddress(config_node);
+
+				println("  Resolving state_node:");
 				Address stateAddr = resolveVarnodeToAddress(state_node);
 
 				if (configAddr != null) {
@@ -225,8 +210,11 @@ public class OBD2CodeConfiguration extends GhidraScript {
 					// Set data type to u8_obd2level
 					try {
 						DataTypeManager dtm = currentProgram.getDataTypeManager();
-						DataType u8Type = dtm.getDataType("/u8_obd2level");
+						DataType u8Type = dtm.getDataType("/ECU/u8_obd2level");
 						if (u8Type != null) {
+							// Clear existing data for the entire range
+							int typeSize = u8Type.getLength();
+							clearListing(configAddr, configAddr.add(typeSize - 1));
 							createData(configAddr, u8Type);
 							println("    Set type: u8_obd2level");
 						} else {
@@ -254,8 +242,11 @@ public class OBD2CodeConfiguration extends GhidraScript {
 					// Set data type to struct_dtc_state
 					try {
 						DataTypeManager dtm = currentProgram.getDataTypeManager();
-						DataType structType = dtm.getDataType("/struct_dtc_state");
+						DataType structType = dtm.getDataType("/ECU/struct_dtc_state");
 						if (structType != null) {
+							// Clear existing data for the entire range the struct occupies
+							int typeSize = structType.getLength();
+							clearListing(stateAddr, stateAddr.add(typeSize - 1));
 							createData(stateAddr, structType);
 							println("    Set type: struct_dtc_state");
 						} else {
