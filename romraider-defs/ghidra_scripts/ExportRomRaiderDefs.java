@@ -311,16 +311,23 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	/******************************/
 
 	private static final String[][] OBD2LEVEL = {
-		{"Level 0 DTC: off", "00"},
-		{"Level 0 DTC: off +self-heal", "40"},
-		{"Level 1 DTC: Permanent", "41"},
-		{"Level 1 DTC: Permanent, freeze frame (no overwrite)", "51"},
-		{"Level 2 DTC: Pending and Permanent", "42"},
-		{"Level 2 DTC: Pending and Permanent, freeze frame (overwrite level 1,3)", "52"},
-		{"Level 3 DTC: Pending and Permanent", "43"},
-		{"Level 3 DTC: Pending and Permanent, freeze frame (no overwrite)", "53"},
-		{"Level 4 DTC: Permanent", "44"},
-		{"Level 4 DTC: Permanent, freeze frame (overwrite level 1,3)", "54"}
+		{"Disabled", "00"},
+		{"Continous, no MIL", "01"},
+		{"One Trip, pending, perm, freeze frame", "11"},
+		{"Two Trip, pending, perm, freeze frame", "12"},
+		{"Two Trip 2, pending, perm, freeze frame", "13"},
+		{"Mode 8 monitor, no MIL", "21"},
+		{"Bit6, Disabled", "40"},
+		{"One Trip", "41"},
+		{"Two Trip, ", "42"},
+		{"Two Trip 2, ", "43"},
+		{"Comp test, MIL", "44"},
+		{"MIL One Trip, pending, perm, freeze frame", "51"},
+		{"MIL Two Trip, pending, perm, freeze frame", "52"},
+		{"MIL Two Trip 2, pending, perm, freeze frame", "53"},
+		{"Comp test, pending, perm, freeze frame, MIL", "54"},
+		{"Two-trip + MIL + Mode 08 + bit 6", "5B"},
+		{"Two-trip + MIL + HIGH FF priority", "92"}
 	};
 
 	private static final String[][] OBD2MONITORS = {
