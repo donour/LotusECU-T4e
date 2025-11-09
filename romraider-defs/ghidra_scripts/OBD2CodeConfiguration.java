@@ -1,6 +1,6 @@
 //@category OBD
 //@menupath Tools.OBD.OBD2 Code Configuration
-//@description Process OBD-II code configuration from the binary.
+//@description Analyzes all calls to obd_ii_monitor_fail_transition() and extracts OBD-II DTC codes from the function arguments. Automatically labels and types the configuration and state data structures for each DTC found.
 
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.listing.Function;
@@ -32,24 +32,17 @@ public class OBD2CodeConfiguration extends GhidraScript {
 	 */
 	private Address resolveVarnodeToAddress(Varnode vn, int depth) {
 		if (depth > 20) {
-			println("      [Recursion limit reached]");
 			return null;
 		}
-
-		String indent = "      " + "  ".repeat(depth);
-		println(indent + "Tracing: " + vn + " (space=" + vn.getAddress().getAddressSpace().getName() + ")");
 
 		// If it's a constant, the offset IS the address value
 		if (vn.isConstant()) {
 			long addressValue = vn.getOffset();
-			Address addr = currentProgram.getAddressFactory().getDefaultAddressSpace().getAddress(addressValue);
-			println(indent + "  -> Constant: " + addr);
-			return addr;
+			return currentProgram.getAddressFactory().getDefaultAddressSpace().getAddress(addressValue);
 		}
 
 		// If it's in RAM address space, use the address directly
 		if (vn.isAddress()) {
-			println(indent + "  -> RAM address: " + vn.getAddress());
 			return vn.getAddress();
 		}
 
@@ -57,14 +50,12 @@ public class OBD2CodeConfiguration extends GhidraScript {
 		PcodeOp def = vn.getDef();
 		if (def != null) {
 			int opcode = def.getOpcode();
-			println(indent + "  -> Def op: " + def.getMnemonic() + " (inputs=" + def.getNumInputs() + ")");
 
 			// Special handling for PTRSUB - check both inputs to find the base address
 			if (opcode == PcodeOp.PTRSUB || opcode == PcodeOp.PTRADD) {
 				if (def.getNumInputs() >= 2) {
 					Varnode input0 = def.getInput(0);
 					Varnode input1 = def.getInput(1);
-					println(indent + "  -> PTRSUB/PTRADD: input[0]=" + input0 + ", input[1]=" + input1);
 
 					// Try input[1] first (it might be the constant address)
 					Address addr1 = resolveVarnodeToAddress(input1, depth + 1);
@@ -73,7 +64,6 @@ public class OBD2CodeConfiguration extends GhidraScript {
 					}
 
 					// If input[1] is 0 or null, try input[0] (the base pointer)
-					println(indent + "  -> input[1] was 0 or null, trying input[0]");
 					return resolveVarnodeToAddress(input0, depth + 1);
 				}
 			}
@@ -81,7 +71,6 @@ public class OBD2CodeConfiguration extends GhidraScript {
 			// For most operations, input[1] contains the address we want
 			// (input[0] is typically the address space ID for LOAD/STORE operations)
 			if (def.getNumInputs() > 1) {
-				println(indent + "  -> Following input[1]");
 				return resolveVarnodeToAddress(def.getInput(1), depth + 1);
 			}
 
@@ -96,20 +85,8 @@ public class OBD2CodeConfiguration extends GhidraScript {
 
 				case PcodeOp.MULTIEQUAL:
 					// PHI node - try first input
-					println(indent + "  -> PHI node, following first input");
 					return resolveVarnodeToAddress(def.getInput(0), depth + 1);
-
-				default:
-					println(indent + "  -> Unhandled single-input op: " + def.getMnemonic());
-					// For debugging, show all inputs
-					for (int i = 0; i < def.getNumInputs(); i++) {
-						Varnode input = def.getInput(i);
-						println(indent + "    Input[" + i + "]: " + input);
-					}
-					break;
 			}
-		} else {
-			println(indent + "  -> No def (parameter or global)");
 		}
 
 		// Couldn't resolve - return null
@@ -189,11 +166,7 @@ public class OBD2CodeConfiguration extends GhidraScript {
 				final Varnode config_node = pcodeOp.getInput(1);
 				final Varnode state_node = pcodeOp.getInput(2);
 
-				// Resolve varnodes to actual memory addresses
-				println("  Resolving config_node:");
 				Address configAddr = resolveVarnodeToAddress(config_node);
-
-				println("  Resolving state_node:");
 				Address stateAddr = resolveVarnodeToAddress(state_node);
 
 				if (configAddr != null) {
@@ -296,7 +269,6 @@ public class OBD2CodeConfiguration extends GhidraScript {
 		while (refIter.hasNext()) {
 			final Reference ref = refIter.next();
 			extractArgInfo(funcManager, decompiler, ref);
-			return;
 		}
 
 		// Cleanup
