@@ -4,12 +4,12 @@ This document describes the rev limiter implementation in the Lotus T6e ECU firm
 
 ## Overview
 
-The T6e rev limiter uses a sophisticated multi-stage control system that combines:
+The T6e rev limiter uses a multi-stage control system that combines:
 - **Fuel cut** (hard limit) - Immediate injection disable above threshold
 - **Airflow reduction** (soft limit) - PID-controlled throttle/MAF reduction approaching limit
 - **Torque management** - Throttle clamping via torque model integration
 
-The system supports both manual transmission and IPS (Intelligent Precision Shift) automatic transmission vehicles, with different calibrations for Tour and Sport modes.
+The system supports both manual transmission (EA60) and IPS (U660E) automatic transmission vehicles, with different calibrations for Tour and Sport modes.
 
 ## System Architecture
 
