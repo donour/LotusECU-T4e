@@ -73,7 +73,7 @@ The system supports both manual transmission (EA60) and IPS (U660E) automatic tr
 
 | Function | Rate | Purpose |
 |----------|------|---------|
-| `revlimit()` | continous | Calculate rev limits, envelope selection, PID gains, escalation |
+| `revlimit()` | continuous | Calculate rev limits, envelope selection, PID gains, escalation |
 | `revlimit_200hz()` | 200Hz | MAF control, integrator updates, derivative calculation |
 | Injection ISR | Per-cylinder | Fuel cut decision based on `revlimit_hard` |
 
