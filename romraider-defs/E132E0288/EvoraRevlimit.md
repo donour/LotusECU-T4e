@@ -71,7 +71,7 @@ The system supports both manual transmission (EA60) and IPS (U660E) automatic tr
 
 ### Main Functions
 
-| Function | Rate | Purpose |
+| Function | Scheduling | Purpose |
 |----------|------|---------|
 | `revlimit()` | continuous | Calculate rev limits, envelope selection, PID gains, escalation |
 | `revlimit_200hz()` | 200Hz | MAF control, integrator updates, derivative calculation |
