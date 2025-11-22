@@ -161,29 +161,29 @@ torque_calc_net = obd_ii_engine_torque + engine_friction_torque
 
 The `torque_fact_base` accounts for ignition timing efficiency relative to MBT.
 
-## External Torque Requests (CAN)
+## External Torque Requests
 
-External systems can request torque limits via FlexCAN messages.
+Torque limiting can be triggered by external CAN requests or internal ECU functions.
 
 ### Request Sources
 
-| Source | CAN Message | Priority | Description |
-|--------|-------------|----------|-------------|
-| ABS/ESP | 0xB7 | High | Stability control intervention |
-| Cruise Control | 0xB7 | Medium | Speed maintenance |
-| TCU (IPS) | Various | Medium | Shift torque management |
+| Source | Origin | Priority | Description |
+|--------|--------|----------|-------------|
+| ABS/ESP | CAN 0xB7 | High | Stability control intervention |
+| Cruise Control | Internal ECU | Medium | Speed maintenance (calculated internally) |
+| TCU (IPS) | CAN | Medium | Shift torque management |
 
 ### Request Flags (trqlimit_external_request_flags___)
 
 | Bit | Value | Source |
 |-----|-------|--------|
-| 0 | 0x01 | Cruise control active |
-| 1 | 0x02 | ABS/ESP active |
+| 0 | 0x01 | Cruise control active (internal) |
+| 1 | 0x02 | ABS/ESP active (CAN 0xB7) |
 | 2 | 0x04 | TCU request active |
 | 3 | 0x08 | TCU torque cut |
 | 4 | 0x10 | Fast torque reduction mode |
 
-### FlexCAN Update Flow
+### Torque Request Update Flow
 
 ```
 trqlimit_flexcan_update()
@@ -197,10 +197,10 @@ trqlimit_flexcan_update()
         v                         v                         v
 +-----------------------------------------------------------------------+
 |                    Request Priority Arbitration                        |
-|   1. ABS/ESP (torque_limit_external_req2) - Highest                   |
-|   2. Cruise (torque_limit_external_req1)                              |
-|   3. Cruise TPS (torque_limit_external_req3)                          |
-|   4. TCU (u16_torque_nm_4000173c)                                     |
+|   1. ABS/ESP (torque_limit_external_req2) - CAN 0xB7 - Highest        |
+|   2. Cruise (torque_limit_external_req1) - Internal ECU               |
+|   3. Cruise TPS (torque_limit_external_req3) - Internal ECU           |
+|   4. TCU (u16_torque_nm_4000173c) - IPS CAN                           |
 +-----------------------------------------------------------------------+
         |
         v
@@ -209,6 +209,19 @@ trqlimit_flexcan_update()
 | intermediate_ign_ | (for ignition-based limiting)
 | intermediate_tps_ | (for throttle-based limiting)
 +-------------------+
+```
+
+### Cruise Control (Internal)
+
+Cruise control torque requests are calculated internally by the ECU, not received via CAN:
+
+```c
+// Cruise torque is computed from driver request and cruise target
+torque_cruise_request = f(cruise_speed_target, vehicle_speed, accel_pedal)
+
+// Applied when cruise is active and driver isn't overriding
+if (torque_cruise_request < torque_alphaN_net):
+    torque_limit = torque_cruise_request
 ```
 
 ## Internal Torque Limits
