@@ -136,6 +136,9 @@
 #define 0xF 0xf
 #define -0x1 -0x1
 #define 70 0x46
+#define 716 0x2cc
+#define 198 0xc6
+#define 10176 0x27c0
 
 typedef unsigned char   undefined;
 
@@ -785,9 +788,8 @@ undefined DAT_c3f80000;
 undefined DAT_c3f80004;
 undefined UNK_ffff8063;
 undefined DAT_c3f8801c;
-undefined4 bootload_flash_programm_mode;
-char[4] bootload_flash_platform;
-char[4] bootload_flash_cmd_signature;
+uint32_t hc08_program_mode;
+char[8] HC08CODE_base;
 undefined UNK_ffff802c;
 undefined UNK_ffff8028;
 uint32_t fca_buffer[15].arb_id;
@@ -856,7 +858,6 @@ undefined2 DAT_400020a2;
 undefined DAT_00000804;
 undefined1 DAT_0001c000;
 undefined DAT_0001c020;
-undefined1 DAT_40001c98;
 undefined DAT_40001c9c;
 undefined1 DAT_40001cb8;
 undefined1 DAT_400020ad;
@@ -871,6 +872,7 @@ undefined bootloader_download_region_id;
 char[31] ecu_type_string;
 undefined1 bootloader_flash_programming_addr;
 uint32_t bootload_download_address_region;
+uint32_t hc_prog_mode_mem;
 ushort DAT_400020a0;
 undefined DAT_40001c90;
 undefined DAT_40001888;
@@ -896,9 +898,6 @@ undefined UNK_ffff8064;
 short DAT_400020a2;
 undefined2 DAT_400020a0;
 undefined1 DAT_400020a4;
-undefined1 DAT_40001c99;
-undefined1 DAT_40001c9a;
-undefined1 DAT_40001c9b;
 uint32_t[4] bootloader_xtea_key;
 undefined UNK_ffff8078;
 undefined UNK_ffff807c;
@@ -935,12 +934,11 @@ undefined DAT_c3f908c6;
 uint8_t uint8_t_ARRAY_c3f906ce;
 undefined DAT_c3f901ec;
 undefined DAT_c3f90984;
-undefined *PTR_DAT_0004008c;
 undefined UNK_ffff80cc;
 uint8_t uint8_t_ARRAY_c3f906d1;
+byte *hc08_firmware_ptr;
 uint8_t uint8_t_ARRAY_c3f90616;
 undefined UNK_fffe800a;
-undefined DAT_0000c350;
 undefined DAT_0000dc00;
 undefined DAT_0000ffdc;
 undefined UNK_ffff2400;
@@ -3189,6 +3187,7 @@ undefined4 DAT_400018a0;
 undefined4 DAT_400018a4;
 undefined4 DAT_4000189c;
 undefined *PTR_FUN_40002584;
+undefined DAT_0000c350;
 undefined1 DAT_00010000;
 undefined DAT_c3f88000;
 short DAT_40008f76;
@@ -8469,12 +8468,10 @@ void FUN_000010c8(void)
     if (cVar2 == true) {
       bootloader_main2();
     }
-    if (((bootload_flash_platform == (char  [4])0x48433038) &&
-        (bootload_flash_cmd_signature == (char  [4])0x434f4445)) &&
-       ((bootload_flash_programm_mode == -0x55555556 ||
-        ((bootload_flash_programm_mode == -0x77777778 ||
-         (bootload_flash_programm_mode == -0x44444445)))))) {
-      FUN_00007324();
+    if (((HC08CODE_base._0_4_ == 0x48433038) && (HC08CODE_base._4_4_ == 0x434f4445)) &&
+       ((hc08_program_mode == 0xaaaaaaaa ||
+        ((hc08_program_mode == 0x88888888 || (hc08_program_mode == 0xbbbbbbbb)))))) {
+      bootloader_noop();
       bootloader_flash_update();
     }
     WriteExternalEnableImmediate(0);
@@ -9245,7 +9242,7 @@ undefined8 bootloader_download_handler_cleartext(void)
              (start_addr == end_addr)) && (0 < start_addr)) && (bootloader_rx_write_index == 70)) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) =
                *(undefined4 *)((int)&bootload_download_address_region + unaff_r13);
-          memmove(&DAT_40001c98,&DAT_400020d5,4);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_400020d5,4);
           memmove(&DAT_40001c9c,&DAT_00000804,4);
           DAT_400020a0 = 8;
           DAT_400020a2 = 0;
@@ -9284,7 +9281,7 @@ undefined8 bootloader_download_handler_cleartext(void)
           else {
             if (*(int *)((int)&bootloader_download_expected_data_size + unaff_r13) ==
                 bootloader_rx_write_index + -0x46) {
-              memmove(&DAT_40001c98,&DAT_400020ed,(int)bootloader_rx_write_index - 70);
+              memmove((byte *)&hc_prog_mode_mem,&DAT_400020ed,(int)bootloader_rx_write_index - 70);
               DAT_400020a0 = bootloader_rx_write_index + -0x46;
               uVar1 = *(int *)((int)&bootloader_download_expected_data_size + unaff_r13) >> 0x1f;
               if ((uVar1 * 8 |
@@ -9298,7 +9295,7 @@ undefined8 bootloader_download_handler_cleartext(void)
                         0x20000000 - uVar3;
                 for (lVar6 = ((uVar2 & 0x1fffffff) << 3 | (uVar2 << 0x20) >> 0x3d) + uVar3;
                     (int)lVar6 < 8; lVar6 = lVar6 + 1) {
-                  (&DAT_40001c98)[DAT_400020a0] = 0xff;
+                  *(undefined1 *)((int)&hc_prog_mode_mem + (int)DAT_400020a0) = 0xff;
                   DAT_400020a0 = DAT_400020a0 + 1;
                 }
               }
@@ -9306,7 +9303,7 @@ undefined8 bootloader_download_handler_cleartext(void)
             else {
               _data_buf_size = (longlong)bootloader_rx_write_index - 70;
               _data_buf_size2 = (size_t)(_data_buf_size & 0xfff8);
-              memmove(&DAT_40001c98,&DAT_400020ed,_data_buf_size2);
+              memmove((byte *)&hc_prog_mode_mem,&DAT_400020ed,_data_buf_size2);
               DAT_400020a0 = (short)(_data_buf_size & 0xfff8);
               uVar3 = (_data_buf_size & 7) * 0x20000000 +
                       ((longlong)(_data_buf_size << 0x20) >> 0x3f);
@@ -9332,8 +9329,8 @@ undefined8 bootloader_download_handler_cleartext(void)
                  (cVar5 = check_array_0xff(0x1c000,0x20), cVar5 == '\x01')))) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) =
                *(undefined4 *)((int)&bootload_download_address_region + unaff_r13);
-          memmove(&DAT_40001c98,&DAT_0001c000,0x40);
-          memmove(&DAT_40001c98,&DAT_400020ed,(int)bootloader_rx_write_index - 0x46);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_0001c000,0x40);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_400020ed,(int)bootloader_rx_write_index - 0x46);
           DAT_400020a0 = 0x40;
           DAT_400020a2 = 0;
           DAT_400024aa = 0;
@@ -9346,8 +9343,8 @@ undefined8 bootloader_download_handler_cleartext(void)
                 ((start_addr == end_addr && (start_addr == _bootloader_flash_programming_addr)))) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) =
                *(undefined4 *)((int)&bootload_download_address_region + unaff_r13);
-          memmove(&DAT_40001c98,&DAT_0001c000,0x40);
-          memmove(&DAT_40001c98,&DAT_400020ed,(int)bootloader_rx_write_index - 0x46);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_0001c000,0x40);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_400020ed,(int)bootloader_rx_write_index - 0x46);
           DAT_400020a0 = 0x40;
           DAT_400020a2 = 0;
           DAT_400024aa = 0;
@@ -9360,7 +9357,7 @@ undefined8 bootloader_download_handler_cleartext(void)
                   (start_addr == end_addr)) && (start_addr == _bootloader_flash_programming_addr))))
         {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) = 0x1c000;
-          memmove(&DAT_40001c98,&DAT_0001c000,0x40);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_0001c000,0x40);
           memmove(&DAT_40001cb8,&DAT_400020ed,(int)bootloader_rx_write_index - 0x46);
           DAT_400020a0 = 0x40;
           DAT_400020a2 = 0;
@@ -9414,7 +9411,8 @@ undefined8 bootloader_download_handler_cleartext(void)
   }
   else {
     if (*(int *)(&UNK_ffff8038 + unaff_r13) != 0) {
-      memmove(&DAT_40001c98,&UNK_ffff8030 + unaff_r13,*(size_t *)(&UNK_ffff8038 + unaff_r13));
+      memmove((byte *)&hc_prog_mode_mem,&UNK_ffff8030 + unaff_r13,
+              *(size_t *)(&UNK_ffff8038 + unaff_r13));
     }
     DAT_400020a0 = (short)*(undefined4 *)(&UNK_ffff8038 + unaff_r13);
     size = (((int)bootloader_rx_write_index + *(int *)(&UNK_ffff8038 + unaff_r13)) - 6U & 0xfff8) -
@@ -9423,7 +9421,7 @@ undefined8 bootloader_download_handler_cleartext(void)
       size = 0;
     }
     else {
-      memmove(&DAT_40001c98 + DAT_400020a0,&DAT_400020ad,size);
+      memmove((byte *)((int)&hc_prog_mode_mem + (int)DAT_400020a0),&DAT_400020ad,size);
       DAT_400020a0 = DAT_400020a0 + (short)size;
     }
     *(size_t *)(&UNK_ffff8038 + unaff_r13) = (bootloader_rx_write_index + -6) - size;
@@ -9434,7 +9432,7 @@ undefined8 bootloader_download_handler_cleartext(void)
     }
     if (*(int *)((int)&bootloader_download_expected_data_size + unaff_r13) ==
         (int)DAT_400020a0 + *(int *)(&UNK_ffff8038 + unaff_r13)) {
-      memmove(&DAT_40001c98 + DAT_400020a0,&UNK_ffff8030 + unaff_r13,
+      memmove((byte *)((int)&hc_prog_mode_mem + (int)DAT_400020a0),&UNK_ffff8030 + unaff_r13,
               *(size_t *)(&UNK_ffff8038 + unaff_r13));
       DAT_400020a0 = DAT_400020a0 + (short)*(undefined4 *)(&UNK_ffff8038 + unaff_r13);
       uVar3 = ((longlong)DAT_400020a0 & 7U) * 0x20000000 +
@@ -9444,7 +9442,7 @@ undefined8 bootloader_download_handler_cleartext(void)
         uVar3 = ((longlong)DAT_400020a0 & 7U) * 0x20000000 + lVar6;
         lVar6 = 8 - (((uVar3 & 0x1fffffff) << 3 | (uVar3 << 0x20) >> 0x3d) - lVar6);
         signature_difference = (int)lVar6;
-        memset(&DAT_40001c98 + DAT_400020a0,0xff,signature_difference);
+        memset((byte *)((int)&hc_prog_mode_mem + (int)DAT_400020a0),0xff,signature_difference);
         DAT_400020a0 = DAT_400020a0 + (short)lVar6;
         *(int *)((int)&bootloader_download_expected_data_size + unaff_r13) =
              *(int *)((int)&bootloader_download_expected_data_size + unaff_r13) +
@@ -9542,7 +9540,7 @@ undefined8 bootloader_download_handler_encrypted(void)
             *(int *)((int)&bootloader_download_padding_bytes + unaff_r13) + 0x52)) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) =
                *(undefined4 *)((int)&bootload_download_address_region + unaff_r13);
-          memmove(&DAT_40001c98,(byte *)&DAT_400018c0,4);
+          memmove((byte *)&hc_prog_mode_mem,(byte *)&DAT_400018c0,4);
           memmove(&DAT_40001c9c,&DAT_00000804,4);
           DAT_400020a0 = 8;
           DAT_400020a2 = 0;
@@ -9616,7 +9614,8 @@ undefined8 bootloader_download_handler_encrypted(void)
                      (short)*(undefined4 *)(&UNK_ffff8044 + unaff_r13) + (short)iVar3 + -0x40;
               }
             }
-            memmove(&DAT_40001c98,&acis_state,(uint)*(ushort *)(&UNK_ffff8042 + unaff_r13));
+            memmove((byte *)&hc_prog_mode_mem,&acis_state,
+                    (uint)*(ushort *)(&UNK_ffff8042 + unaff_r13));
             DAT_400020a0 = *(ushort *)(&UNK_ffff8042 + unaff_r13);
             DAT_400020a2 = 0;
             memmove(&DAT_40001888,
@@ -9637,8 +9636,8 @@ undefined8 bootloader_download_handler_encrypted(void)
                  (cVar7 = check_array_0xff(0x1c000,0x20), cVar7 == '\x01')))) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) =
                *(undefined4 *)((int)&bootload_download_address_region + unaff_r13);
-          memmove(&DAT_40001c98,&DAT_0001c000,0x40);
-          memmove(&DAT_40001c98,&acis_state,*(int *)(&UNK_ffff8044 + unaff_r13) - 0x40);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_0001c000,0x40);
+          memmove((byte *)&hc_prog_mode_mem,&acis_state,*(int *)(&UNK_ffff8044 + unaff_r13) - 0x40);
           DAT_400020a0 = 0x40;
           DAT_400020a2 = 0;
           DAT_400024aa = 0;
@@ -9651,8 +9650,8 @@ undefined8 bootloader_download_handler_encrypted(void)
                 ((iVar3 == iVar4 && (iVar3 == _bootloader_flash_programming_addr)))) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) =
                *(undefined4 *)((int)&bootload_download_address_region + unaff_r13);
-          memmove(&DAT_40001c98,&DAT_0001c000,0x40);
-          memmove(&DAT_40001c98,&acis_state,*(int *)(&UNK_ffff8044 + unaff_r13) - 0x40);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_0001c000,0x40);
+          memmove((byte *)&hc_prog_mode_mem,&acis_state,*(int *)(&UNK_ffff8044 + unaff_r13) - 0x40);
           DAT_400020a0 = 0x40;
           DAT_400020a2 = 0;
           DAT_400024aa = 0;
@@ -9664,7 +9663,7 @@ undefined8 bootloader_download_handler_encrypted(void)
                 (((*(int *)(&UNK_ffff8044 + unaff_r13) == 0x60 && (iVar3 == iVar4)) &&
                  (iVar3 == _bootloader_flash_programming_addr)))) {
           *(undefined4 *)(&UNK_ffff8070 + unaff_r13) = 0x1c000;
-          memmove(&DAT_40001c98,&DAT_0001c000,0x40);
+          memmove((byte *)&hc_prog_mode_mem,&DAT_0001c000,0x40);
           memmove(&DAT_40001cb8,&acis_state,*(int *)(&UNK_ffff8044 + unaff_r13) - 0x40);
           DAT_400020a0 = 0x40;
           DAT_400020a2 = 0;
@@ -9707,10 +9706,12 @@ undefined8 bootloader_download_handler_encrypted(void)
   else {
     memmove(&DAT_40001888 + (short)_DAT_40001c90,&DAT_400020ad,(int)bootloader_rx_write_index - 6);
     _DAT_40001c90 = (bootloader_rx_write_index + _DAT_40001c90) - 6;
-    memmove(&DAT_40001c98,&UNK_ffff8030 + unaff_r13,*(size_t *)(&UNK_ffff8038 + unaff_r13));
+    memmove((byte *)&hc_prog_mode_mem,&UNK_ffff8030 + unaff_r13,
+            *(size_t *)(&UNK_ffff8038 + unaff_r13));
     DAT_400020a0 = (ushort)*(undefined4 *)(&UNK_ffff8038 + unaff_r13);
     bootloader_download_decrypt_and_align
-              (&DAT_40001c98 + (short)DAT_400020a0,&DAT_40001888,(uint)_DAT_40001c90);
+              ((byte *)((int)&hc_prog_mode_mem + (int)(short)DAT_400020a0),&DAT_40001888,
+               (uint)_DAT_40001c90);
     DAT_400020a0 = DAT_400020a0 + *(short *)(&UNK_ffff8042 + unaff_r13);
     _DAT_40001c90 = *(short *)((int)&bootloader_download_received_data_size + unaff_r13);
     memmove(&DAT_40001888,
@@ -9725,7 +9726,8 @@ undefined8 bootloader_download_handler_encrypted(void)
          ((int)(short)DAT_400020a0 >> 0x1f);
     DAT_400020a0 = DAT_400020a0 & 0xfff8;
     for (iVar3 = 0; iVar3 < *(int *)(&UNK_ffff8038 + unaff_r13); iVar3 = iVar3 + 1) {
-      (&UNK_ffff8030)[iVar3 + unaff_r13] = (&DAT_40001c98)[(short)DAT_400020a0 + iVar3];
+      (&UNK_ffff8030)[iVar3 + unaff_r13] =
+           *(undefined1 *)((int)&hc_prog_mode_mem + (short)DAT_400020a0 + iVar3);
     }
     if (*(int *)((int)&bootloader_download_expected_data_size + unaff_r13) <=
         ((int)(short)DAT_400020a0 + *(int *)(&UNK_ffff8038 + unaff_r13)) -
@@ -9741,7 +9743,7 @@ undefined8 bootloader_download_handler_encrypted(void)
         iVar3 = 0;
         for (lVar10 = 8 - (((uVar1 & 0x1fffffff) << 3 | (uVar1 << 0x20) >> 0x3d) - lVar10);
             0 < (int)lVar10; lVar10 = lVar10 + -1) {
-          (&DAT_40001c98)[(short)DAT_400020a0 + iVar3] = 0xff;
+          *(undefined1 *)((int)&hc_prog_mode_mem + (short)DAT_400020a0 + iVar3) = 0xff;
           iVar3 = iVar3 + 1;
         }
         DAT_400020a0 = DAT_400020a0 + (short)iVar3;
@@ -10369,8 +10371,8 @@ bool FUN_00004e5c(void)
     iVar5 = (int)uVar4;
     if ((((uint)((uVar1 & 0xffffffff) << 3) | (uint)uVar1 >> 0x1d) == iVar5 >> 0x1f) &&
        ((*(uint *)(&UNK_ffff8070 + unaff_r13) & 7) == 0)) {
-      cVar2 = FUN_00005ad8(*(undefined4 *)(&UNK_ffff8070 + unaff_r13),&DAT_40001c98 + DAT_400020a2,
-                           uVar4);
+      cVar2 = FUN_00005ad8(*(undefined4 *)(&UNK_ffff8070 + unaff_r13),
+                           (int)&hc_prog_mode_mem + (int)DAT_400020a2,uVar4);
       *(int *)(&UNK_ffff8070 + unaff_r13) = *(int *)(&UNK_ffff8070 + unaff_r13) + iVar5;
       *(int *)((int)&bootloader_download_expected_data_size + unaff_r13) =
            *(int *)((int)&bootloader_download_expected_data_size + unaff_r13) - iVar5;
@@ -10393,12 +10395,12 @@ void FUN_00005034(void)
 
 {
   FUN_000053f8(0,1,0);
-  memmove(&DAT_40001c98,(byte *)&bootload_flash_programm_mode,8);
-  DAT_40001c98 = 0;
-  DAT_40001c99 = 0;
-  DAT_40001c9a = 0;
-  DAT_40001c9b = 0;
-  FUN_00005ad8(&bootload_flash_programm_mode,&DAT_40001c98,8);
+  memmove((byte *)&hc_prog_mode_mem,(byte *)&hc08_program_mode,8);
+  hc_prog_mode_mem._0_1_ = 0;
+  hc_prog_mode_mem._1_1_ = 0;
+  hc_prog_mode_mem._2_1_ = 0;
+  hc_prog_mode_mem._3_1_ = 0;
+  FUN_00005ad8(&hc08_program_mode,&hc_prog_mode_mem,8);
   bootloader_hw_cleanup();
   return;
 }
@@ -10409,12 +10411,12 @@ void FUN_000050ec(void)
 
 {
   FUN_000053f8(0,1,0);
-  memmove(&DAT_40001c98,(byte *)&bootload_flash_programm_mode,8);
-  DAT_40001c98 = 0x88;
-  DAT_40001c99 = 0x88;
-  DAT_40001c9a = 0x88;
-  DAT_40001c9b = 0x88;
-  FUN_00005ad8(&bootload_flash_programm_mode,&DAT_40001c98,8);
+  memmove((byte *)&hc_prog_mode_mem,(byte *)&hc08_program_mode,8);
+  hc_prog_mode_mem._0_1_ = 0x88;
+  hc_prog_mode_mem._1_1_ = 0x88;
+  hc_prog_mode_mem._2_1_ = 0x88;
+  hc_prog_mode_mem._3_1_ = 0x88;
+  FUN_00005ad8(&hc08_program_mode,&hc_prog_mode_mem,8);
   bootloader_hw_cleanup();
   return;
 }
@@ -10800,7 +10802,7 @@ undefined8 bootloader_hw_cleanup(void)
 
 
 
-void FUN_00005cec(void)
+void set_spr150_4000(void)
 
 {
   return;
@@ -10856,7 +10858,7 @@ void FUN_00005d84(void)
 void FUN_00005db4(void)
 
 {
-  FUN_00007404(0xc6,0x100);
+  FUN_00007404(198,256);
   return;
 }
 
@@ -10907,7 +10909,7 @@ void FUN_00005e20(void)
   
   uVar1 = Ramc3f90984;
   Ramc3f90984 = uVar1 & 0xffffc0ff | 0x200;
-  Ramc3f901ec = 0x2cc;
+  Ramc3f901ec = 716;
   return;
 }
 
@@ -10918,9 +10920,9 @@ void FUN_00005e44(void)
 {
   int unaff_r13;
   
-  *(undefined **)(&UNK_ffff80cc + unaff_r13) = PTR_DAT_0004008c;
-  siu_gpdo[0xd1] = '\0';
-  FUN_00007404(0xd1,0x2cc);
+  *(byte **)(&UNK_ffff80cc + unaff_r13) = hc08_firmware_ptr;
+  siu_gpdo[0xd1] = 0;
+  FUN_00007404(0xd1,716);
   FUN_00005e20();
   FUN_00005db4();
   siu_gpdo[0xce] = '\0';
@@ -11074,7 +11076,7 @@ byte bootloader_flash_response_rx(void)
 
 
 
-bool bootloader_flash_write_and_verify(void)
+bool hc08_flash_and_verify(void)
 
 {
   int in_r2;
@@ -11090,9 +11092,8 @@ bool bootloader_flash_write_and_verify(void)
   
                     //   - 0xAAAAAAAA (-0x55555556): Standard flash write/program mode
                     //   - 0x88888888 (-0x77777778): Flash erase verification mode
-                    //   - 0xBBBBBBBB (-0x44444445): Alternative flash programming mode
-  if ((bootload_flash_programm_mode == -0x55555556) || (bootload_flash_programm_mode == -0x44444445)
-     ) {
+                    //   - 0xBBBBBBBB (-0x44444445): zero mode
+  if ((hc08_program_mode == 0xaaaaaaaa) || (hc08_program_mode == 0xbbbbbbbb)) {
     bootloader_flash_write_byte(*(byte *)(in_r2 + -0x8000));
     bVar1 = bootloader_flash_response_rx();
     bootloader_flash_write_byte(*(byte *)(in_r2 + -0x7fff));
@@ -11121,7 +11122,7 @@ bool bootloader_flash_write_and_verify(void)
       return true;
     }
   }
-  else if (bootload_flash_programm_mode == -0x77777778) {
+  else if (hc08_program_mode == 0x88888888) {
     bootloader_flash_write_byte(0xff);
     bVar1 = bootloader_flash_response_rx();
     bootloader_flash_write_byte(0xff);
@@ -11356,12 +11357,12 @@ undefined8 FUN_00006824(void)
     }
     iVar1 = FUN_0000644c(uVar2,local_20);
     if (iVar1 == 0) break;
-    if (bootload_flash_programm_mode == -0x55555556) {
+    if (hc08_program_mode == 0xaaaaaaaa) {
       if (local_20[0] != (&UNK_fffe800a)[(uint)uVar2 + (int)in_r2]) {
         return 0;
       }
     }
-    else if ((bootload_flash_programm_mode == -0x77777778) && (local_20[0] != -1)) {
+    else if ((hc08_program_mode == 0x88888888) && (local_20[0] != -1)) {
       return 0;
     }
     uVar2 = uVar2 + 1;
@@ -11703,8 +11704,8 @@ undefined1 FUN_00006f78(void)
   int iVar1;
   
   iVar1 = 0;
-  while ((iVar1 < 3 && (unaff_r30 = bootloader_flash_write_and_verify(), !(bool)unaff_r30))) {
-    FUN_000073bc(&DAT_0000c350);
+  while ((iVar1 < 3 && (unaff_r30 = hc08_flash_and_verify(), !(bool)unaff_r30))) {
+    FUN_000073bc(50000);
     iVar1 = iVar1 + 1;
   }
   return unaff_r30;
@@ -11720,7 +11721,7 @@ undefined8 FUN_00006fe0(undefined2 param_1,undefined4 param_2,undefined1 param_3
   
   iVar1 = 0;
   while ((iVar1 < 3 && (unaff_r30 = FUN_000069f0(param_1,param_2,param_3), (int)unaff_r30 == 0))) {
-    FUN_000073bc(&DAT_0000c350);
+    FUN_000073bc(50000);
     iVar1 = iVar1 + 1;
   }
   return unaff_r30;
@@ -11736,7 +11737,7 @@ undefined8 FUN_00007060(void)
   
   iVar1 = 0;
   while ((iVar1 < 3 && (unaff_r30 = FUN_00006cc4(), (int)unaff_r30 == 0))) {
-    FUN_000073bc(&DAT_0000c350);
+    FUN_000073bc(50000);
     iVar1 = iVar1 + 1;
   }
   return unaff_r30;
@@ -11749,25 +11750,26 @@ undefined8 bootloader_flash_update(void)
 {
   int iVar1;
   int unaff_r13;
+  int i;
   undefined *puVar2;
   
-  FUN_00005cec();
+  set_spr150_4000();
   FUN_00005e44();
-  FUN_00005cec();
+  set_spr150_4000();
   FUN_00002374(5000);
-  FUN_000073bc(600000);
+  FUN_000073bc(10176);
   FUN_00005e10();
-  FUN_000073bc(600000);
+  FUN_000073bc(10176);
   iVar1 = FUN_00006f78();
   if (iVar1 == 0) {
-    for (iVar1 = 0; iVar1 < 10000; iVar1 = iVar1 + 1) {
+    for (i = 0; i < 10000; i = i + 1) {
     }
     FUN_00001f24(0x90);
     do {
-      FUN_00005cec();
+      set_spr150_4000();
     } while( true );
   }
-  if (bootload_flash_programm_mode == -0x44444445) {
+  if (hc08_program_mode == 0xbbbbbbbb) {
     iVar1 = FUN_00007060();
     if (iVar1 != 0) {
       FUN_00002450(0);
@@ -11775,12 +11777,12 @@ undefined8 bootloader_flash_update(void)
       }
       FUN_00002298(0);
       do {
-        FUN_00005cec();
+        set_spr150_4000();
       } while( true );
     }
     FUN_00001f24(0x91);
     do {
-      FUN_00005cec();
+      set_spr150_4000();
     } while( true );
   }
   iVar1 = FUN_00006824();
@@ -11793,41 +11795,41 @@ undefined8 bootloader_flash_update(void)
       }
       FUN_00002298(3000);
       do {
-        FUN_00005cec();
+        set_spr150_4000();
       } while( true );
     }
     FUN_00001f24(0x91);
     do {
-      FUN_00005cec();
+      set_spr150_4000();
     } while( true );
   }
   iVar1 = FUN_00007060();
   if (iVar1 == 0) {
     FUN_00001f24(0x91);
     do {
-      FUN_00005cec();
+      set_spr150_4000();
     } while( true );
   }
   FUN_00002450(30000);
   for (puVar2 = &DAT_0000dc00; (int)puVar2 < 0xfc00; puVar2 = puVar2 + 0x40) {
-    FUN_00005cec();
+    set_spr150_4000();
     iVar1 = FUN_00006fe0((uint)puVar2 & 0xffff,
                          &UNK_ffff2400 + (int)(puVar2 + *(int *)(&UNK_ffff80cc + unaff_r13)),0x40);
     if (iVar1 == 0) {
-      FUN_00005cec();
+      set_spr150_4000();
       FUN_00001f24(0x92);
       do {
-        FUN_00005cec();
+        set_spr150_4000();
       } while( true );
     }
   }
-  FUN_00005cec();
+  set_spr150_4000();
   iVar1 = FUN_00006fe0(&DAT_0000ffdc,(ulonglong)*(uint *)(&UNK_ffff80cc + unaff_r13) + 0x23dc,0x24);
   if (iVar1 == 0) {
-    FUN_00005cec();
+    set_spr150_4000();
     FUN_00001f24(0x92);
     do {
-      FUN_00005cec();
+      set_spr150_4000();
     } while( true );
   }
   FUN_00005034();
@@ -11837,7 +11839,7 @@ undefined8 bootloader_flash_update(void)
 
 
 
-void FUN_00007324(void)
+void bootloader_noop(void)
 
 {
   return;
@@ -11881,7 +11883,7 @@ undefined8 bootload_timebase_read(void)
 
 
 
-void FUN_000073bc(int param_1)
+void FUN_000073bc(uint16_t size_unknown)
 
 {
   uint uVar1;
@@ -11889,7 +11891,7 @@ void FUN_000073bc(int param_1)
   FUN_00007328(1);
   do {
     uVar1 = FUN_0000735c(1);
-  } while (uVar1 <= (uint)(param_1 * 0x50));
+  } while (uVar1 <= (uint)((short)size_unknown * 0x50));
   return;
 }
 
@@ -17853,7 +17855,7 @@ void ignition(void)
   ushort ign_startup_unknown;
   byte _ign_adv_temp_comp;
   i16_angle_1_4 ign_adv_final2_;
-  byte ign_adv_dfso;
+  byte _ign_mbt_modeled;
   
   ign_voltage_comp_lookup =
        lookup_3D_uint8_interpolated
@@ -17877,11 +17879,11 @@ void ignition(void)
                  (32,32,(ushort)engine_speed_3,(ushort)load_mass_per_stroke,CAL_ign_knock_safe,
                   CAL_ign_knock_safe_X_rpm,CAL_ign_knock_safe_Y_load);
   ign_adv_knock_safe = _ign_knock_safe - 40;
-  ign_adv_dfso = lookup_3D_uint8_interpolated
-                           (16,16,(ushort)engine_speed_3,(ushort)load_mass_per_stroke,
-                            CAL_ign_mbt_modeled,CAL_ign_mbt_modeled_X_rpm,CAL_ign_mbt_modeled_Y_load
-                           );
-  ign_mbt_modeled = ign_adv_dfso - 40;
+  _ign_mbt_modeled =
+       lookup_3D_uint8_interpolated
+                 (16,16,(ushort)engine_speed_3,(ushort)load_mass_per_stroke,CAL_ign_mbt_modeled,
+                  CAL_ign_mbt_modeled_X_rpm,CAL_ign_mbt_modeled_Y_load);
+  ign_mbt_modeled = _ign_mbt_modeled - 40;
   ign_adv_unknown =
        lookup_3D_uint8_interpolated
                  (8,8,(ushort)engine_speed_3,(ushort)load_mass_per_stroke,
@@ -17905,11 +17907,12 @@ void ignition(void)
     ign_comp_startup = -1;
   }
   if (maf_accumulated_2 < 2040) {
-    ign_adv_dfso = lookup_3D_uint8_interpolated
-                             (8,8,(ushort)((int)(uint)maf_accumulated_2 >> 3) & 0xff,(ushort)tps_2,
-                              CAL_ign_comp_maf_accum,CAL_ign_comp_maf_accum_X_maf_accum,
-                              CAL_ign_comp_maf_accum_Y_tps);
-    ign_adv_adj2 = (ushort)ign_adv_dfso;
+    _ign_mbt_modeled =
+         lookup_3D_uint8_interpolated
+                   (8,8,(ushort)((int)(uint)maf_accumulated_2 >> 3) & 0xff,(ushort)tps_2,
+                    CAL_ign_comp_maf_accum,CAL_ign_comp_maf_accum_X_maf_accum,
+                    CAL_ign_comp_maf_accum_Y_tps);
+    ign_adv_adj2 = (ushort)_ign_mbt_modeled;
   }
   else {
     ign_adv_adj2 = 0xff;
@@ -17956,38 +17959,43 @@ void ignition(void)
                           (longlong)(int)ign_comp_temp_raw << 32) >> 39);
   if ((COD_base[0] >> 0xd & 7) == 1) {
     if (((ign_idle_base_flags & 1) == 0) || (ign_idle_base_variant == 0)) {
-      ign_adv_dfso = lookup_2D_uint8_interpolated
-                               (16,coolant_temp,CAL_ign_advance_idle_base_auto_gearbox__a,
-                                CAL_ign_advance_idle_base_auto_gearbox__a_X_coolant);
-      ign_adv_idle_base = (ushort)ign_adv_dfso;
+      _ign_mbt_modeled =
+           lookup_2D_uint8_interpolated
+                     (16,coolant_temp,CAL_ign_advance_idle_base_auto_gearbox__a,
+                      CAL_ign_advance_idle_base_auto_gearbox__a_X_coolant);
+      ign_adv_idle_base = (ushort)_ign_mbt_modeled;
     }
     else {
-      ign_adv_dfso = lookup_2D_uint8_interpolated
-                               (16,coolant_temp,CAL_ign_advance_idle_base_auto_gearbox__b,
-                                CAL_ign_advance_idle_base_auto_gearbox__b_X_coolant);
-      ign_adv_idle_base = (ushort)ign_adv_dfso;
+      _ign_mbt_modeled =
+           lookup_2D_uint8_interpolated
+                     (16,coolant_temp,CAL_ign_advance_idle_base_auto_gearbox__b,
+                      CAL_ign_advance_idle_base_auto_gearbox__b_X_coolant);
+      ign_adv_idle_base = (ushort)_ign_mbt_modeled;
     }
   }
   else if (((ign_idle_base_flags & 1) == 0) || (ign_idle_base_variant == 0)) {
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,coolant_temp,CAL_ign_advance_idle_base_manual_gearbox__a,
-                              CAL_ign_advance_idle_base_manual_gearbox__a_X_coolant);
-    ign_adv_idle_base = (ushort)ign_adv_dfso;
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,coolant_temp,CAL_ign_advance_idle_base_manual_gearbox__a,
+                    CAL_ign_advance_idle_base_manual_gearbox__a_X_coolant);
+    ign_adv_idle_base = (ushort)_ign_mbt_modeled;
   }
   else {
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,coolant_temp,CAL_ign_advance_idle_base_manual_gearbox__b,
-                              CAL_ign_advance_idle_base_manual_gearbox__b_X_coolant);
-    ign_adv_idle_base = (ushort)ign_adv_dfso;
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,coolant_temp,CAL_ign_advance_idle_base_manual_gearbox__b,
+                    CAL_ign_advance_idle_base_manual_gearbox__b_X_coolant);
+    ign_adv_idle_base = (ushort)_ign_mbt_modeled;
   }
-  ign_adv_dfso = lookup_2D_uint8_interpolated
-                           (16,temp_engine_air,CAL_ign_advance_idle_adj2,
-                            CAL_ign_advance_idle_adj2_X_engine_air);
-  ign_adv_idle_adj2 = (short)(char)(ign_adv_dfso ^ 128);
-  ign_adv_dfso = lookup_2D_uint8_interpolated
-                           (16,engine_speed_3,CAL_ign_advance_adj3,
-                            CAL_ign_advance_adj3_X_engine_speed);
-  ign_adv_adj_rpm_factor = (short)(char)(ign_adv_dfso ^ 128);
+  _ign_mbt_modeled =
+       lookup_2D_uint8_interpolated
+                 (16,temp_engine_air,CAL_ign_advance_idle_adj2,
+                  CAL_ign_advance_idle_adj2_X_engine_air);
+  ign_adv_idle_adj2 = (short)(char)(_ign_mbt_modeled ^ 128);
+  _ign_mbt_modeled =
+       lookup_2D_uint8_interpolated
+                 (16,engine_speed_3,CAL_ign_advance_adj3,CAL_ign_advance_adj3_X_engine_speed);
+  ign_adv_adj_rpm_factor = (short)(char)(_ign_mbt_modeled ^ 128);
   ign_adv_adj_coolant_factor =
        lookup_2D_uint8_interpolated
                  (8,coolant_temp,CAL_ign_advance_adj3_adj,CAL_ign_advance_adj3_adj_X_coolant);
@@ -18018,37 +18026,41 @@ void ignition(void)
   }
   ign_adv_base2___ = ign_base;
   if (obd_ii_idle_speed_error < -0x200) {
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,0,CAL_ign_advance_idle_adj1,CAL_ign_advance_idle_adj1_X_idle_error)
-    ;
-    ign_adv_adj1_idle = (short)(char)(ign_adv_dfso ^ 128);
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,0,CAL_ign_advance_idle_adj1_alternative,
-                              CAL_ign_advance_idle_adj1_alternative_X_idle_error);
-    ign_adv_adj1_idle_alt = (short)(char)(ign_adv_dfso ^ 128);
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,0,CAL_ign_advance_idle_adj1,CAL_ign_advance_idle_adj1_X_idle_error);
+    ign_adv_adj1_idle = (short)(char)(_ign_mbt_modeled ^ 128);
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,0,CAL_ign_advance_idle_adj1_alternative,
+                    CAL_ign_advance_idle_adj1_alternative_X_idle_error);
+    ign_adv_adj1_idle_alt = (short)(char)(_ign_mbt_modeled ^ 128);
   }
   else if (obd_ii_idle_speed_error < 0x200) {
     uVar4 = (int)obd_ii_idle_speed_error + 0x200;
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,(char)((int)uVar4 >> 2) + ((int)uVar4 < 0 && (uVar4 & 3) != 0),
-                              CAL_ign_advance_idle_adj1,CAL_ign_advance_idle_adj1_X_idle_error);
-    ign_adv_adj1_idle = (short)(char)(ign_adv_dfso ^ 128);
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,(char)((int)uVar4 >> 2) + ((int)uVar4 < 0 && (uVar4 & 3) != 0),
+                    CAL_ign_advance_idle_adj1,CAL_ign_advance_idle_adj1_X_idle_error);
+    ign_adv_adj1_idle = (short)(char)(_ign_mbt_modeled ^ 128);
     uVar4 = (int)obd_ii_idle_speed_error + 0x200;
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,(char)((int)uVar4 >> 2) + ((int)uVar4 < 0 && (uVar4 & 3) != 0),
-                              CAL_ign_advance_idle_adj1_alternative,
-                              CAL_ign_advance_idle_adj1_alternative_X_idle_error);
-    ign_adv_adj1_idle_alt = (short)(char)(ign_adv_dfso ^ 128);
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,(char)((int)uVar4 >> 2) + ((int)uVar4 < 0 && (uVar4 & 3) != 0),
+                    CAL_ign_advance_idle_adj1_alternative,
+                    CAL_ign_advance_idle_adj1_alternative_X_idle_error);
+    ign_adv_adj1_idle_alt = (short)(char)(_ign_mbt_modeled ^ 128);
   }
   else {
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,255,CAL_ign_advance_idle_adj1,
-                              CAL_ign_advance_idle_adj1_X_idle_error);
-    ign_adv_adj1_idle = (short)(char)(ign_adv_dfso ^ 128);
-    ign_adv_dfso = lookup_2D_uint8_interpolated
-                             (16,255,CAL_ign_advance_idle_adj1_alternative,
-                              CAL_ign_advance_idle_adj1_alternative_X_idle_error);
-    ign_adv_adj1_idle_alt = (short)(char)(ign_adv_dfso ^ 128);
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,255,CAL_ign_advance_idle_adj1,CAL_ign_advance_idle_adj1_X_idle_error);
+    ign_adv_adj1_idle = (short)(char)(_ign_mbt_modeled ^ 128);
+    _ign_mbt_modeled =
+         lookup_2D_uint8_interpolated
+                   (16,255,CAL_ign_advance_idle_adj1_alternative,
+                    CAL_ign_advance_idle_adj1_alternative_X_idle_error);
+    ign_adv_adj1_idle_alt = (short)(char)(_ign_mbt_modeled ^ 128);
   }
   if (CAL_misc_recirculation_pump_on_car_speed_threshold < car_speed_u8) {
     ign_adv_adj1_idle = ign_adv_adj1_idle_alt;
@@ -18075,30 +18087,30 @@ void ignition(void)
       ign_adv_adj1_idle = sVar6;
     }
     if (ign_idle_adj3_index < -0xff) {
-      ign_adv_dfso = lookup_2D_uint8_interpolated
-                               (16,0,&CAL_ign_adv_unknown_idle_adj3,
-                                &CAL_ign_adv_unknown_idle_adj3_xaxis);
-      ign_adv_idle_adj3 = (short)(char)(ign_adv_dfso ^ 128);
+      _ign_mbt_modeled =
+           lookup_2D_uint8_interpolated
+                     (16,0,&CAL_ign_adv_unknown_idle_adj3,&CAL_ign_adv_unknown_idle_adj3_xaxis);
+      ign_adv_idle_adj3 = (short)(char)(_ign_mbt_modeled ^ 128);
     }
     else if (ign_idle_adj3_index < 0x100) {
-      ign_adv_dfso = lookup_2D_uint8_interpolated
-                               (16,(uint8_t)((ign_idle_adj3_index + 255) / 2),
-                                &CAL_ign_adv_unknown_idle_adj3,&CAL_ign_adv_unknown_idle_adj3_xaxis)
-      ;
-      ign_adv_idle_adj3 = (short)(char)(ign_adv_dfso ^ 128);
+      _ign_mbt_modeled =
+           lookup_2D_uint8_interpolated
+                     (16,(uint8_t)((ign_idle_adj3_index + 255) / 2),&CAL_ign_adv_unknown_idle_adj3,
+                      &CAL_ign_adv_unknown_idle_adj3_xaxis);
+      ign_adv_idle_adj3 = (short)(char)(_ign_mbt_modeled ^ 128);
     }
     else {
-      ign_adv_dfso = lookup_2D_uint8_interpolated
-                               (16,255,&CAL_ign_adv_unknown_idle_adj3,
-                                &CAL_ign_adv_unknown_idle_adj3_xaxis);
-      ign_adv_idle_adj3 = (short)(char)(ign_adv_dfso ^ 128);
+      _ign_mbt_modeled =
+           lookup_2D_uint8_interpolated
+                     (16,255,&CAL_ign_adv_unknown_idle_adj3,&CAL_ign_adv_unknown_idle_adj3_xaxis);
+      ign_adv_idle_adj3 = (short)(char)(_ign_mbt_modeled ^ 128);
     }
   }
-  ign_adv_dfso = lookup_3D_uint8_interpolated
-                           (16,16,(ushort)engine_speed_3,(ushort)load_mass_per_stroke,
-                            CAL_ign_advance_min,CAL_ign_advance_min_X_engine_speed,
-                            CAL_ign_advance_min_Y_engine_load);
-  ign_adv_min = ign_adv_dfso - 80;
+  _ign_mbt_modeled =
+       lookup_3D_uint8_interpolated
+                 (16,16,(ushort)engine_speed_3,(ushort)load_mass_per_stroke,CAL_ign_advance_min,
+                  CAL_ign_advance_min_X_engine_speed,CAL_ign_advance_min_Y_engine_load);
+  ign_adv_min = _ign_mbt_modeled - 80;
   if (ign_is_cranking == 0) {
     if (((ign_dfso_flags & 1) == 0) || (ign_dfso_active != 0)) {
       if (((abs_esp_flags & 1) == 0) &&
@@ -18192,11 +18204,11 @@ void ignition(void)
       }
     }
     else {
-      ign_adv_dfso = CAL_ign_advance_dfso_gearbox_manual;
+      _ign_mbt_modeled = CAL_ign_advance_dfso_gearbox_manual;
       if ((COD_base[0] >> 0xd & 7) == 1) {
-        ign_adv_dfso = CAL_ign_advance_dfso_gearbox_auto;
+        _ign_mbt_modeled = CAL_ign_advance_dfso_gearbox_auto;
       }
-      ign_adv_final = ign_adv_dfso - 40;
+      ign_adv_final = _ign_mbt_modeled - 40;
       ign_calc_mode = 1;
     }
   }
@@ -18368,13 +18380,13 @@ void ignition(void)
   uVar3 = (ulonglong)ign_voltage_comp;
   uVar2 = (ulonglong)ign_dwell_divisor;
   i16_angle_1_4_4000177e = ign_adv_final2_;
-  for (ign_adv_dfso = 0; ign_adv_dfso < 6; ign_adv_dfso = ign_adv_dfso + 1) {
+  for (_ign_mbt_modeled = 0; _ign_mbt_modeled < 6; _ign_mbt_modeled = _ign_mbt_modeled + 1) {
     iVar5 = (int)((uVar3 * 1000) / uVar2);
-    if (iVar5 + ign_adv_per_cylinder[ign_adv_dfso] < 0xbeb) {
-      ign_unknown4[ign_adv_dfso] = iVar5;
+    if (iVar5 + ign_adv_per_cylinder[_ign_mbt_modeled] < 0xbeb) {
+      ign_unknown4[_ign_mbt_modeled] = iVar5;
     }
     else {
-      ign_unknown4[ign_adv_dfso] = 0xbea - ign_adv_per_cylinder[ign_adv_dfso];
+      ign_unknown4[_ign_mbt_modeled] = 0xbea - ign_adv_per_cylinder[_ign_mbt_modeled];
     }
   }
   if ((ign_static_timing_mode == 1) && (ign_static_timing_enable == 0)) {
@@ -46610,7 +46622,7 @@ void flexcan_a_rx_80(void)
       DAT_400022c4 = 0xfffc0108;
       uVar3 = fca_buffer[8].arb_id;
       if ((uVar3 >> 0x12 & 0x7ff) == 0x80) {
-        DAT_40001c98 = 1;
+        hc_prog_mode_mem._0_1_ = 1;
         DAT_400022c4 = 0xfffc0109;
         DAT_40001c91 = fca_buffer[8].data[1];
         uVar4 = fca_buffer[8].code_and_timestamp;
