@@ -105,6 +105,10 @@
 #define 00011111b 0x1f
 #define 24 0x18
 #define 0xD 0xd
+#define 1111111011111111b 0xfeff
+#define 00000000000000000000000100000000b 0x100
+#define 00000000000000000000000010000000b 0x80
+#define 1111111101111111b 0xff7f
 
 typedef unsigned char   undefined;
 
@@ -5235,8 +5239,8 @@ u16_angle_1/4deg obd_ii_vvt_exhaust_target_bank1;
 u16_time_5ms obd_ii_o2_precat_diag_timer_bank2;
 uint8_t uint8_t_ARRAY_c3f9067c;
 undefined1 obd_ii_oil_temp_ips;
-bool dpm_button_decrease;
 bool dpm_button_increase;
+bool dpm_button_decrease;
 undefined2 aux_coolant_pump_state_and_diag?;
 undefined1 fuel_pump_state??;
 u16_factor_1/10000 fuel_pump_dutycycle_commanded;
@@ -8705,8 +8709,8 @@ uint8_t CAL_dpm_integral_limit;
 u16_time_5ms dpm_direct_mode_off_delay;
 u16_time_5ms CAL_dpm_direct_mode_off_delay;
 undefined2 CAL_dpm_direct_mode_on_delay;
-undefined1 dpm_increase_hold_time;
-undefined1 dpm_decrease_hold_time;
+uint8_t dpm_decrease_hold_time;
+uint8_t dpm_increase_hold_time;
 bool dpm_both_buttons_pressed;
 int DAT_40008158;
 undefined4 DAT_40008150;
@@ -32004,7 +32008,7 @@ void obd_ii_mode22_processing(void)
     uVar5 = 5;
     break;
   case 0x2d0:
-    if (dpm_button_decrease) {
+    if (dpm_button_increase) {
       uVar5 = 4;
       obd_ii_response[3] = 1;
     }
@@ -32014,7 +32018,7 @@ void obd_ii_mode22_processing(void)
     }
     break;
   case 0x2d1:
-    if (dpm_button_increase) {
+    if (dpm_button_decrease) {
       uVar5 = 4;
       obd_ii_response[3] = 1;
     }
@@ -58127,59 +58131,57 @@ void dpm_mode_button_handler(void)
 {
   uint8_t _btn_counter;
   
-  if (!dpm_button_increase) {
-    dpm_control_flags = dpm_control_flags & 0xfeff;
+  if (!dpm_button_decrease) {
+    dpm_control_flags = dpm_control_flags & 0b1111111011111111;
   }
   else {
-    dpm_control_flags = dpm_control_flags | 0x100;
+    dpm_control_flags = dpm_control_flags | 0b0000000100000000;
   }
-  _btn_counter = dpm_button_increase;
-  if (dpm_button_decrease) {
-    dpm_control_flags = dpm_control_flags | 0x80;
+  _btn_counter = dpm_button_decrease;
+  if (dpm_button_increase) {
+    dpm_control_flags = dpm_control_flags | 0b10000000;
     _btn_counter = _btn_counter + '\x01';
   }
   else {
-    dpm_control_flags = dpm_control_flags & 0xff7f;
+    dpm_control_flags = dpm_control_flags & 0b1111111101111111;
   }
   if ((_btn_counter != '\x01') || (dpm_both_buttons_pressed)) {
     if (dpm_both_buttons_pressed) {
-      dpm_increase_hold_time = 0;
       dpm_decrease_hold_time = 0;
+      dpm_increase_hold_time = 0;
     }
-  }
-  else if (dpm_button_increase) {
-    if (dpm_increase_hold_time != -1) {
-      dpm_increase_hold_time = dpm_increase_hold_time + '\x01';
-    }
-    dpm_decrease_hold_time = '\0';
   }
   else if (dpm_button_decrease) {
-    if (dpm_decrease_hold_time != -1) {
-      dpm_decrease_hold_time = dpm_decrease_hold_time + '\x01';
+    if (dpm_decrease_hold_time != 0xff) {
+      dpm_decrease_hold_time = dpm_decrease_hold_time + 1;
     }
     dpm_increase_hold_time = '\0';
   }
+  else if (dpm_button_increase) {
+    if (dpm_increase_hold_time != 0xff) {
+      dpm_increase_hold_time = dpm_increase_hold_time + 1;
+    }
+    dpm_decrease_hold_time = 0;
+  }
   if (_btn_counter < 2) {
-    if (_btn_counter == '\0') {
+    if (_btn_counter == 0) {
       dpm_both_buttons_pressed = false;
     }
   }
   else {
     dpm_both_buttons_pressed = true;
   }
-  if (_btn_counter == '\0') {
-                    // The logic here is the inverse of what one might think. More DPM indicates
-                    // less slip and a lower dpm index.
-    if ((byte)(dpm_decrease_hold_time - 4U) < 0x60) {
+  if (_btn_counter == 0) {
+    if ((byte)(dpm_increase_hold_time - 4) < 96) {
       if (dpm_mode_index < 6) {
         dpm_mode_index = dpm_mode_index + 1;
       }
     }
-    else if (((byte)(dpm_increase_hold_time - 4U) < 96) && (1 < dpm_mode_index)) {
+    else if (((byte)(dpm_decrease_hold_time - 4) < 96) && (1 < dpm_mode_index)) {
       dpm_mode_index = dpm_mode_index + 0xff;
     }
-    dpm_increase_hold_time = 0;
     dpm_decrease_hold_time = 0;
+    dpm_increase_hold_time = 0;
   }
   if (6 < dpm_mode_index) {
     dpm_mode_index = 6;
