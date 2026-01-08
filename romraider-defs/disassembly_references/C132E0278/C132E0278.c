@@ -1118,7 +1118,7 @@ byte DAT_400087d1;
 byte DAT_40001b4f;
 uint16_t lea_load_alphaN_index;
 byte DAT_400087d0;
-undefined2 timer_unknown5;
+undefined2 hc08_send_timer;
 byte DAT_40001b4e;
 u8_factor_1/255 inj_fuel_fillm_xtau_coeff_combined;
 undefined1 DAT_400016bc;
@@ -3388,10 +3388,10 @@ u16_rspeed_rpm CAL_cluster_shift_light_deadband_rpm;
 undefined1 oil_pressure_warning_light_timer;
 u16_time_100ms lfb_pulse_toggle_timer;
 u8_rspeed_125/4+500rpm[8] CAL_cluster_oil_pressure_warn_threshold_X_engine_speed;
-undefined2 fuel_range_remaining;
+uint16_t fuel_range_remaining;
 u8_rspeed_125/4+500rpm[8] CAL_cluster_oil_pressure_warn_threshold;
-undefined2 fuel_economy_instantaneous;
-undefined2 fuel_economy_avg;
+uint16_t fuel_economy_instantaneous;
+uint16_t fuel_economy_avg;
 undefined2 cluster_shiftlight_rpm_offset;
 undefined1 cluster_run_state;
 enum_slip_detect_mode CAL_slip_detect_mode;
@@ -4112,7 +4112,7 @@ ushort DAT_400048a8;
 enum_throttle_system_state throttle_control_mode;
 char DAT_400048a6;
 char DAT_40001cbc;
-undefined1 tps_actuator_flags_unknown;
+undefined1 hc08_obd_flags;
 u8_rspeed_125/4+500rpm[8] CAL_load_plausibility_test_delta_X_rpm;
 u8_factor_1/255[8] CAL_load_plausibility_test_delta_Y_tps;
 u8_obd2level_t6 CAL_obd_ii_P0122;
@@ -4541,16 +4541,15 @@ undefined1 DAT_40001d6e;
 undefined1 DAT_400087fe;
 undefined1 DAT_40002190;
 undefined1 DAT_40001d98;
-undefined2 DAT_40004f30;
 undefined1 throttle_control_flags;
 uint16_t siu_pcr[206];
 uint8_t uint8_t_ARRAY_c3f906d1;
 uint8_t uint8_t_ARRAY_c3f90616;
+undefined2 hc08_crc16;
 uint16_t siu_pcr[22];
 uint16_t siu_pcr[198];
 uint8_t uint8_t_ARRAY_c3f906ce;
 uint16_t siu_pcr[209];
-ushort DAT_40004f30;
 undefined UNK_ffff25ff;
 short DAT_40001d9c;
 short DAT_40001d9a;
@@ -7695,48 +7694,27 @@ byte DAT_400025f3;
 byte DAT_400025f1;
 undefined1 DAT_400025f5;
 undefined1 DAT_400025f6;
+char[24] hc08_parse_buf;
 undefined1 DAT_400025f7;
 byte DAT_400025f0;
-undefined1 DAT_40007f40;
-byte DAT_40007f41;
 undefined DAT_40007f3f;
 undefined1 esci_seq_number;
 char DAT_40008688;
 uint32_t throttle_tx_counter;
-char DAT_40007f41;
-uint8_t DAT_40007f42;
-byte DAT_40007f43;
-undefined1 DAT_40007f44;
-undefined1 DAT_40004f34;
-undefined1 DAT_40007f45;
-undefined1 DAT_40004f35;
-undefined1 DAT_40007f46;
-undefined1 DAT_40004f36;
-undefined1 DAT_40007f47;
-undefined1 DAT_40004f37;
-undefined1 DAT_40007f48;
-undefined1 DAT_40004f38;
-undefined1 DAT_40007f49;
-undefined1 DAT_40004f39;
-undefined1 DAT_40007f4a;
-undefined1 DAT_40004f3a;
-undefined1 DAT_40007f4b;
-undefined1 DAT_40004f3b;
-undefined1 DAT_40007f4c;
-undefined1 DAT_40004f3c;
-undefined1 DAT_40007f4d;
-undefined1 DAT_40004f3d;
-undefined1 DAT_40007f4e;
-undefined1 DAT_40007f4f;
-byte DAT_40007f50;
+char DAT_40004f34;
+char DAT_40004f35;
+char DAT_40004f36;
+char DAT_40004f37;
+char DAT_40004f38;
+char DAT_40004f39;
+char DAT_40004f3a;
+char DAT_40004f3b;
+char DAT_40004f3c;
+char DAT_40004f3d;
 byte DAT_40004a0c;
-byte DAT_40007f51;
 byte DAT_40004a0d;
-byte DAT_40007f52;
 byte DAT_40004a0e;
-byte DAT_40007f53;
 byte DAT_40004a0f;
-byte DAT_40007f54;
 byte DAT_40004a10;
 int DAT_400025fc;
 short DAT_400025f8;
@@ -10333,7 +10311,7 @@ void main(void)
     injection();
     ignition();
     lea_reset_handler_unknown();
-    service_tick_unknown();
+    HC08_com();
     read_accessory_states();
     vvt();
     knock();
@@ -10630,10 +10608,10 @@ void interrupt_timer_2000hz(void)
     if (bVar1) {
       DAT_400016ce = 0;
     }
-    bVar1 = timer_unknown5 == 0;
-    timer_unknown5 = timer_unknown5 + -1;
+    bVar1 = hc08_send_timer == 0;
+    hc08_send_timer = hc08_send_timer + -1;
     if (bVar1) {
-      timer_unknown5 = 0;
+      hc08_send_timer = 0;
     }
     DAT_40001440 = DAT_40001440 + -1;
     if (DAT_40001440 == '\0') {
@@ -20532,8 +20510,7 @@ void cluster_data_send_100ms(void)
   else {
     _dpm_index = 0;
   }
-  flexcan_a_tx_403((uint)fuel_range_remaining,(uint)fuel_economy_instantaneous,
-                   (uint)fuel_economy_avg,_dpm_index);
+  flexcan_a_tx_403(fuel_range_remaining,fuel_economy_instantaneous,fuel_economy_avg,_dpm_index);
   return;
 }
 
@@ -21486,7 +21463,7 @@ void fuel_level_and_usage(void)
       fuel_economy_instantaneous = 1023;
     }
     else {
-      fuel_economy_instantaneous = (undefined2)_fuel_economy_instantaneous;
+      fuel_economy_instantaneous = (uint16_t)_fuel_economy_instantaneous;
       if (999 < _fuel_economy_instantaneous) {
         fuel_economy_instantaneous = 999;
       }
@@ -21495,7 +21472,7 @@ void fuel_level_and_usage(void)
       fuel_economy_avg = 1023;
     }
     else {
-      fuel_economy_avg = (undefined2)fuel_consumption_running_total;
+      fuel_economy_avg = (uint16_t)fuel_consumption_running_total;
       if (999 < fuel_consumption_running_total) {
         fuel_economy_avg = 999;
       }
@@ -21510,6 +21487,13 @@ void fuel_level_and_usage(void)
        fuel_range_remaining_smoothing_factor *
        (LEA_fuel_range_smoothed / fuel_range_remaining_smoothing_factor);
   _fuel_range_remaining2 = _fuel_range_remaining & 0xffff;
+                    // 
+                    //   | Value | Meaning                                                 |
+                    //   |-------|---------------------------------------------------------|
+                    //   | 0-999 | Actual range in km                                      |
+                    //   | 999   | Capped maximum (≥1000 km)                               |
+                    //   | 1022  | Fuel sensor fault (P0462 or P0463 DTC active)           |
+                    //   | 1023  | Low fuel / invalid condition                            |
   if (((LEA_obd_ii_P0462_dtc_state & 4) == 0) && ((LEA_obd_ii_P0463_dtc_state & 4) == 0)) {
     if (_fuel_range_remaining2 < 1000) {
       if ((_fuel_range_remaining2 < u8_distance_km_40008990) ||
@@ -21517,7 +21501,7 @@ void fuel_level_and_usage(void)
         fuel_range_remaining = 1023;
       }
       else {
-        fuel_range_remaining = (undefined2)_fuel_range_remaining;
+        fuel_range_remaining = (uint16_t)_fuel_range_remaining;
       }
     }
     else {
@@ -25380,7 +25364,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     }
   }
   if ((CAL_obd_ii_P2107 & 7) != 0) {
-    if (((tps_actuator_flags_unknown & 0x40) == 0) && ((tps_actuator_flags_unknown & 0x80) == 0)) {
+    if (((hc08_obd_flags & 0x40) == 0) && ((hc08_obd_flags & 0x80) == 0)) {
       DAT_40001cce = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2107,&LEA_obd_ii_P2107_dtc_state);
       if (DAT_40001cc4 < DAT_4000d420) {
@@ -25457,7 +25441,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       }
     }
   }
-  if ((tps_actuator_flags_unknown & 0x10) == 0) {
+  if ((hc08_obd_flags & 0x10) == 0) {
     DAT_40001cd2 = 0;
   }
   else {
@@ -27726,7 +27710,7 @@ void throttle_actuator_init(void)
   siu_gpdo[0xce] = '\x01';
   throttle_control_mode = THROTTLE_NORMAL0;
   throttle_control_flags = 0;
-  DAT_40004f30 = 0x25fe;
+  hc08_crc16 = 0x25fe;
   return;
 }
 
@@ -27750,30 +27734,37 @@ void FUN_000737a0(void)
 
 
 
-ulonglong tps_check_param_valid(void)
+ulonglong HC08_check_CRC(void)
 
 {
-  return (ulonglong)(LZCOUNT(&UNK_ffff25ff + DAT_40004f30) << 0x20) >> 0x25;
+                    // The original code here was:
+                    // 
+                    // if (HC08_CRC_REG == 0xDA01) {
+                    //         return 1;
+                    //     } else {
+                    //         return 0;
+                    //     }
+  return (ulonglong)(LZCOUNT(&UNK_ffff25ff + hc08_crc16) << 0x20) >> 0x25;
 }
 
 
 
-void service_tick_unknown(void)
+void HC08_com(void)
 
 {
-  if (timer_unknown5 == 0) {
-    timer_unknown5 = 0x14;
-    throttle_actuator_tx();
+  if (hc08_send_timer == 0) {
+    hc08_send_timer = 0x14;
+    HC08_send_status();
     if (u8_time_5ms_4000143c == '\0') {
       if (DAT_40001d9c != -1) {
         DAT_40001d9c = DAT_40001d9c + 1;
       }
     }
-    else if (((tps_actuator_flags_unknown & 0x80) != 0) && (DAT_40001d9a != -1)) {
+    else if (((hc08_obd_flags & 0x80) != 0) && (DAT_40001d9a != -1)) {
       DAT_40001d9a = DAT_40001d9a + 1;
     }
   }
-  throttle_actuator_message_handler();
+  HC08_recv();
   return;
 }
 
@@ -49025,24 +49016,27 @@ void flexcan_a_tx_400(cluster_data *data)
 
 
 
-void flexcan_a_tx_403(uint param_1,uint param_2,uint param_3,byte _dpm_index)
+void flexcan_a_tx_403(uint16_t _fuel_range_remaining,uint16_t _fuel_economy_instantaneous,
+                     uint16_t _economy_instantaneous,byte _dpm_index)
 
 {
   uint uVar1;
-  uint32_t uVar2;
   uint c_and_t;
+  uint32_t arb_id;
   
   c_and_t = fca_buffer[0x19].code_and_timestamp;
   fca_buffer[0x19].code_and_timestamp = c_and_t & 0xf0ffffff | 0x8000000;
-  uVar2 = fca_buffer[0x19].arb_id;
-  fca_buffer[0x19].arb_id = uVar2 & 0xe003ffff | 0x100c0000;
-  fca_buffer[0x19].data[0] = (byte)((int)(param_1 & 0xffff) >> 2);
+  arb_id = fca_buffer[0x19].arb_id;
+  fca_buffer[0x19].arb_id = arb_id & 0xe003ffff | 0x100c0000;
+  fca_buffer[0x19].data[0] = (byte)((int)(uint)_fuel_range_remaining >> 2);
   fca_buffer[0x19].data[1] =
-       (byte)(((ulonglong)param_1 & 3) << 6) | (byte)((int)(param_2 & 0xffff) >> 4) & 0b00111111;
+       (byte)(((ulonglong)(uint)(int)(short)_fuel_range_remaining & 3) << 6) |
+       (byte)((int)(uint)_fuel_economy_instantaneous >> 4) & 0b00111111;
   fca_buffer[0x19].data[2] =
-       (byte)(((ulonglong)param_2 & 0b00001111) << 4) |
-       (byte)((int)(param_3 & 0xffff) >> 6) & 0b00001111;
-  fca_buffer[0x19].data[3] = (byte)(((ulonglong)param_3 & 0xffff) << 2);
+       (byte)(((ulonglong)(uint)(int)(short)_fuel_economy_instantaneous & 0b00001111) << 4) |
+       (byte)((int)(uint)_economy_instantaneous >> 6) & 0b00001111;
+  fca_buffer[0x19].data[3] =
+       (byte)(((ulonglong)(uint)(int)(short)_economy_instantaneous & 0xffff) << 2);
   fca_buffer[0x19].data[4] = _dpm_index & 0b00011111;
   uVar1 = fca_buffer[0x19].code_and_timestamp;
   fca_buffer[0x19].code_and_timestamp = uVar1 & 0xfff0ffff | 0x50000;
@@ -50594,16 +50588,16 @@ undefined8 esci_message_receive_validate(byte param_1)
     if (DAT_400025f1 == 0) {
       DAT_400025f1 = '\x01';
       DAT_400025f0 = param_1;
-      DAT_40007f40 = param_1;
+      hc08_parse_buf[0] = param_1;
     }
     else if (DAT_400025f1 == 1) {
       DAT_400025f1 = '\x02';
       DAT_400025f0 = DAT_400025f0 + param_1;
-      DAT_40007f41 = param_1;
+      hc08_parse_buf[1] = param_1;
     }
-    else if (DAT_40007f40 + 1 < (uint)DAT_400025f1) {
-      if ((uint)DAT_400025f1 == DAT_40007f40 + 2) {
-        (&DAT_40007f40)[DAT_400025f1] = param_1;
+    else if ((byte)hc08_parse_buf[0] + 1 < (uint)DAT_400025f1) {
+      if ((uint)DAT_400025f1 == (byte)hc08_parse_buf[0] + 2) {
+        hc08_parse_buf[DAT_400025f1] = param_1;
         if ((param_1 == (byte)~DAT_400025f0) && ((&DAT_40007f3f)[DAT_400025f1] == esci_seq_number))
         {
           DAT_400025f1 = 0;
@@ -50619,7 +50613,7 @@ undefined8 esci_message_receive_validate(byte param_1)
       }
     }
     else {
-      (&DAT_40007f40)[DAT_400025f1] = param_1;
+      hc08_parse_buf[DAT_400025f1] = param_1;
       DAT_400025f1 = DAT_400025f1 + 1;
       DAT_400025f0 = DAT_400025f0 + param_1;
     }
@@ -50661,7 +50655,7 @@ void esci_a_tx(byte *data,uint8_t len)
 
 
 
-void throttle_actuator_tx(void)
+void HC08_send_status(void)
 
 {
   byte abStack_10 [2];
@@ -50683,53 +50677,54 @@ void throttle_actuator_tx(void)
 
 
 
-void throttle_actuator_message_handler(void)
+void HC08_recv(void)
 
 {
-  ulonglong uVar1;
-  undefined1 uVar3;
-  int iVar2;
+  ulonglong i;
+  undefined1 uVar2;
+  int iVar1;
+  int crc_valid;
   
-  while (uVar1 = extract_sign_bit_from_27c5(), (int)uVar1 != 0) {
-    uVar3 = esci_circular_buffer_dequeue();
-    iVar2 = esci_message_receive_validate(uVar3);
-    if (iVar2 != 0) {
+  while (i = extract_sign_bit_from_27c5(), (int)i != 0) {
+    uVar2 = esci_circular_buffer_dequeue();
+    iVar1 = esci_message_receive_validate(uVar2);
+    if (iVar1 != 0) {
       u8_time_5ms_4000143c = 'd';
-      if (DAT_40007f41 == -0x80) {
-        DAT_40004f30 = CONCAT11(DAT_40007f42,DAT_40007f43);
+      if (hc08_parse_buf[1] == -0x80) {
+        hc08_crc16 = CONCAT11(hc08_parse_buf[2],hc08_parse_buf[3]);
       }
-      else if (DAT_40007f41 == -0x7f) {
-        throttle_actuator_state = DAT_40007f42;
-        DAT_40004f34 = DAT_40007f44;
-        DAT_40004f35 = DAT_40007f45;
-        DAT_40004f36 = DAT_40007f46;
-        DAT_40004f37 = DAT_40007f47;
-        DAT_40004f38 = DAT_40007f48;
-        DAT_40004f39 = DAT_40007f49;
-        DAT_40004f3a = DAT_40007f4a;
-        DAT_40004f3b = DAT_40007f4b;
-        DAT_40004f3c = DAT_40007f4c;
-        DAT_40004f3d = DAT_40007f4d;
-        DAT_40004f30 = CONCAT11(DAT_40007f4e,DAT_40007f4f);
-        iVar2 = tps_check_param_valid();
-        if (iVar2 == 0) {
-          DAT_40007f43 = DAT_40007f43 | 0x40;
+      else if (hc08_parse_buf[1] == -0x7f) {
+        throttle_actuator_state = hc08_parse_buf[2];
+        DAT_40004f34 = hc08_parse_buf[4];
+        DAT_40004f35 = hc08_parse_buf[5];
+        DAT_40004f36 = hc08_parse_buf[6];
+        DAT_40004f37 = hc08_parse_buf[7];
+        DAT_40004f38 = hc08_parse_buf[8];
+        DAT_40004f39 = hc08_parse_buf[9];
+        DAT_40004f3a = hc08_parse_buf[10];
+        DAT_40004f3b = hc08_parse_buf[0xb];
+        DAT_40004f3c = hc08_parse_buf[0xc];
+        DAT_40004f3d = hc08_parse_buf[0xd];
+        hc08_crc16 = CONCAT11(hc08_parse_buf[0xe],hc08_parse_buf[0xf]);
+        crc_valid = HC08_check_CRC();
+        if (crc_valid == 0) {
+          hc08_parse_buf[3] = hc08_parse_buf[3] | 0x40;
         }
-        tps_actuator_flags_unknown = DAT_40007f43;
-        if (DAT_40004a0c < DAT_40007f50) {
-          DAT_40004a0c = DAT_40007f50;
+        hc08_obd_flags = hc08_parse_buf[3];
+        if (DAT_40004a0c < (byte)hc08_parse_buf[0x10]) {
+          DAT_40004a0c = hc08_parse_buf[0x10];
         }
-        if (DAT_40004a0d < DAT_40007f51) {
-          DAT_40004a0d = DAT_40007f51;
+        if (DAT_40004a0d < (byte)hc08_parse_buf[0x11]) {
+          DAT_40004a0d = hc08_parse_buf[0x11];
         }
-        if (DAT_40004a0e < DAT_40007f52) {
-          DAT_40004a0e = DAT_40007f52;
+        if (DAT_40004a0e < (byte)hc08_parse_buf[0x12]) {
+          DAT_40004a0e = hc08_parse_buf[0x12];
         }
-        if (DAT_40004a0f < DAT_40007f53) {
-          DAT_40004a0f = DAT_40007f53;
+        if (DAT_40004a0f < (byte)hc08_parse_buf[0x13]) {
+          DAT_40004a0f = hc08_parse_buf[0x13];
         }
-        if (DAT_40004a10 < DAT_40007f54) {
-          DAT_40004a10 = DAT_40007f54;
+        if (DAT_40004a10 < (byte)hc08_parse_buf[0x14]) {
+          DAT_40004a10 = hc08_parse_buf[0x14];
         }
         DAT_400025fc = DAT_400025fc + 1;
         DAT_400025f8 = (short)throttle_tx_counter - (short)DAT_400025fc;
@@ -50740,7 +50735,7 @@ void throttle_actuator_message_handler(void)
     PTR_DAT_40001598._0_1_ = u8_time_5ms_4000143c;
   }
   if (u8_time_5ms_4000143c == '\0') {
-    tps_actuator_flags_unknown = tps_actuator_flags_unknown | 0x80;
+    hc08_obd_flags = hc08_obd_flags | 0x80;
     DAT_400025f5 = 0;
     DAT_400025f6 = 0;
     DAT_400025f7 = 0;
@@ -58140,12 +58135,12 @@ void dpm_mode_button_handler(void)
   _btn_counter = dpm_button_decrease;
   if (dpm_button_increase) {
     dpm_control_flags = dpm_control_flags | 0b10000000;
-    _btn_counter = _btn_counter + '\x01';
+    _btn_counter = _btn_counter + 1;
   }
   else {
     dpm_control_flags = dpm_control_flags & 0b1111111101111111;
   }
-  if ((_btn_counter != '\x01') || (dpm_both_buttons_pressed)) {
+  if ((_btn_counter != 1) || (dpm_both_buttons_pressed)) {
     if (dpm_both_buttons_pressed) {
       dpm_decrease_hold_time = 0;
       dpm_increase_hold_time = 0;
@@ -58155,7 +58150,7 @@ void dpm_mode_button_handler(void)
     if (dpm_decrease_hold_time != 0xff) {
       dpm_decrease_hold_time = dpm_decrease_hold_time + 1;
     }
-    dpm_increase_hold_time = '\0';
+    dpm_increase_hold_time = 0;
   }
   else if (dpm_button_increase) {
     if (dpm_increase_hold_time != 0xff) {
