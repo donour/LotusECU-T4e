@@ -1,0 +1,207 @@
+## Throttle control dataflow
+
+  - accel pedal voltage
+    - position d voltage: adc_dma_dest[0]
+    - position e voltage: adc_dma_dest[1]
+  - accel_pedal_pos and accel_pedal_pos_latched set in accel_pedal_position_from_voltage()
+    - accel_pedal_pos_latched is used only for non-throttle table lookups and for threshold testing
+    - accel_pedal_pos is used in accel_pedal_200hz() to lookup tps target in CAL_tpstarget_* tables
+  - tps_target: set by looking up tps requested value from CAL_tpstarget_* tables
+  - tps_requested_scaled_by_limit and tps_requested_scaled_by_limit2: calculated from tps_target, with an rpm scaling factor in CAL_tps_scaling_factor
+    - tps_requested_scaled_by_limit2: used 1 place throttle_and_torque_control().
+    - tps_requested_scaled_by_limit
+      - used as tps lookup in torque_model() for alphaN load
+      - used to calculate tps rate and used for tps history (commanded history)
+      - combined with idle target a set to _tps_commanded in throttle_and_torque_control()
+  - _tps_commanded
+    - clipped to _tps_torque_limit in throttle_and_torque_control()
+    - tps_request_before_limits set to _tps_commanded
+    - tps_commanded_after_limits set to _tps_commanded if there is no warmup limit active
+  - tps_request_before_limits: used only in throttle_and_torque_control(), only used in this function.
+    - used as input to calc_tps_for_torque_limit(), which sets tps_after_torque_limit
+    - passed to calc_tps_for_torque_limit() to get commanded tps value
+  - calc_tps_for_torque_limit()
+    - compute load limit from torque limit
+    - call calc_load_to_tps() with load hard limit
+      - lookup calibrated and learned TPS value for given load limit
+      - return tps limit
+    - PI control for computing tps targets
+    - returns tps value that hits torque target
+  - tps_commanded is clamped to torque limit tps
+  - tps is clamped to tps_max_during_warmup
+  - tps is clamp to CAL_tps_min
+  - tps_commanded is set to the result of all of these
+  - Another tps_commanded value is then clamped to the left-foot-brake safety check
+  - Difference between the previous and current tps_commanded sent through increment and decrement smoothing filter
+  - final commanded TPS is the output of smoothing filter
+
+### Throttle Control Block Diagram
+
+```
+                              ACCELERATOR PEDAL INPUT
+                     ┌─────────────────────────────────────┐
+                     │  adc_dma_dest[0] (position D volt)  │
+                     │  adc_dma_dest[1] (position E volt)  │
+                     └──────────────────┬──────────────────┘
+                                        │
+                                        ▼
+                     ┌─────────────────────────────────────┐
+                     │  accel_pedal_position_from_voltage()│
+                     └──────────────────┬──────────────────┘
+                                        │
+                                        ▼
+                              ┌───────────────────┐
+                              │  accel_pedal_pos  │
+                              └─────────┬─────────┘
+                                        │
+                                        ▼
+                     ┌─────────────────────────────────────┐
+                     │       accel_pedal_200hz()           │
+                     │   Select pedal map based on:       │
+                     │   - Transmission (IPS vs Manual)    │
+                     │   - Drive mode (Tour vs Sport)      │
+                     │   - Gear (low gear threshold)       │
+                     └──────────────────┬──────────────────┘
+                                        │
+            ┌───────────────────────────┼───────────────────────────┐
+            │                           │                           │
+            ▼                           ▼                           ▼
+  ┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐
+  │    IPS TABLES       │   │   MANUAL TABLES     │   │  LOW GEAR TABLES    │
+  ├─────────────────────┤   ├─────────────────────┤   ├─────────────────────┤
+  │CAL_tpstarget_tour_  │   │CAL_tpstarget_tour_  │   │CAL_tpstarget_low_   │
+  │  ips                │   │  manual             │   │  gear_tour_manual   │
+  │CAL_tpstarget_sport_ │   │CAL_tpstarget_sport_ │   │CAL_tpstarget_low_   │
+  │  ips                │   │  manual             │   │  gear_sport_manual  │
+  │CAL_tpstarget_tour_  │   │                     │   │CAL_tpstarget_low_   │
+  │  shifting           │   │                     │   │  gear_tour_ips      │
+  │CAL_tpstarget_sport_ │   │                     │   │CAL_tpstarget_low_   │
+  │  shifting           │   │                     │   │  gear_sport_ips     │
+  └─────────┬───────────┘   └─────────┬───────────┘   └─────────┬───────────┘
+            │                         │                         │
+            │   Each table uses X-axis: _X_pps (pedal position) │
+            └─────────────────────────┼─────────────────────────┘
+                                      │
+                                      ▼
+                              ┌───────────────────┐
+                              │    tps_target     │
+                              └─────────┬─────────┘
+                                        │
+                                        ▼
+                     ┌─────────────────────────────────────┐
+                     │       RPM SCALING FACTOR            │
+                     │  CAL_tps_scaling_factor_rpm         │
+                     │  CAL_tps_scaling_factor_rpm_X_rpm   │
+                     └──────────────────┬──────────────────┘
+                                        │
+                                        ▼
+                     ┌─────────────────────────────────────┐
+                     │   tps_requested_scaled_by_limit    │
+                     └──────────────────┬──────────────────┘
+                                        │
+                      ┌─────────────────┴─────────────────┐
+                      │                                   │
+                      ▼                                   ▼
+           ┌─────────────────┐                  ┌─────────────────┐
+           │   Idle Target   │                  │  torque_model() │
+           │   (separate     │                  │  (alphaN load)  │
+           │    control)     │                  └─────────────────┘
+           └────────┬────────┘
+                    │
+                    ▼
+          ┌────────────────────────────────────────────────────────┐
+          │           throttle_and_torque_control()                │
+          │     Combine pedal request with idle target             │
+          └─────────────────────────┬──────────────────────────────┘
+                                    │
+                                    ▼
+                           ┌────────────────┐
+                           │ _tps_commanded │
+                           └────────┬───────┘
+                                    │
+          ┌─────────────────────────┴─────────────────────────┐
+          │                   LIMITING CHAIN                  │
+          ├───────────────────────────────────────────────────┤
+          │                                                   │
+          │  1. TORQUE LIMIT                                  │
+          │     └─ calc_tps_for_torque_limit()               │
+          │        └─ calc_load_to_tps() (load->TPS lookup)  │
+          │                                                   │
+          │  2. WARMUP LIMIT                                  │
+          │     └─ tps_max_during_warmup                     │
+          │     └─ CAL_tps_limit_warmup_stepsize             │
+          │                                                   │
+          │  3. MINIMUM LIMIT                                 │
+          │     └─ CAL_tps_min                               │
+          │                                                   │
+          │  4. LEFT-FOOT-BRAKE SAFETY CHECK                  │
+          │                                                   │
+          └─────────────────────────┬─────────────────────────┘
+                                    │
+                                    ▼
+                     ┌───────────────────────────┐
+                     │ tps_commanded_after_limits│
+                     └─────────────┬─────────────┘
+                                   │
+                                   ▼
+          ┌────────────────────────────────────────────────────────┐
+          │                  SMOOTHING FILTER                      │
+          │  (rate-limits TPS changes for drivability)             │
+          ├────────────────────────────────────────────────────────┤
+          │  Opening (Increment):                                  │
+          │    CAL_tpssmooth_increment_rpm[_X_rpm]                │
+          │    CAL_tpssmooth_increment_tour[_X_tps_diff]          │
+          │    CAL_tpssmooth_increment_sport[_X_tps_diff]         │
+          │    CAL_tpssmooth_increment_parking[_X_tps_diff]       │
+          │    CAL_tpssmooth_increment_b_neutral_tour             │
+          │    CAL_tpssmooth_increment_b_neutral_sport            │
+          │                                                        │
+          │  Closing (Decrement):                                  │
+          │    CAL_tpssmooth_decrement_by_rpm[_X_rpm]             │
+          │    CAL_tpssmooth_decrement_by_delta[_X_tps_delta]     │
+          │    CAL_tpssmooth_decrement_comp_gears_manual[7]       │
+          │    CAL_tpssmooth_decrement_comp_gears_ips[7]          │
+          │                                                        │
+          │  Rate Filtering:                                       │
+          │    CAL_tpssmooth_rate_decay_opening[_X_rpm]           │
+          │    CAL_tpssmooth_rate_decay_closing[_X_rpm]           │
+          │    CAL_tpssmooth_rate_opening_clamp_thresholds        │
+          │    CAL_tpssmooth_rate_closing_clamp_thresholds        │
+          │    CAL_tpssmooth_rate_calc_window_size                │
+          │                                                        │
+          │  Mode Control:                                         │
+          │    CAL_tpssmooth_accel_pedal_modes_enable              │
+          │    CAL_tpssmooth_parking_threshold_tps                │
+          │    CAL_tpssmooth_parking_threshold_carspeed           │
+          │    CAL_tpssmooth_parking_threshold_gear               │
+          │    CAL_tpssmooth_parking_clutch_threshold             │
+          │    CAL_tpssmooth_step_timer                           │
+          └────────────────────────┬───────────────────────────────┘
+                                   │
+                                   ▼
+                     ┌───────────────────────────┐
+                     │    FINAL COMMANDED TPS    │
+                     │   (to throttle actuator)  │
+                     └───────────────────────────┘
+```
+
+### Pedal Map Table Selection Logic
+
+The pedal map (`CAL_tpstarget_*`) is selected based on:
+1. **Gear position**: If gear <= `CAL_tpstarget_pedalmap_low_gear_threshold`, use low gear tables
+2. **Transmission type**: IPS (automated manual) vs Manual
+3. **Drive mode**: Tour vs Sport
+4. **Shifting state** (IPS only): Use shifting tables during gear changes
+
+| Condition | Table Used |
+|-----------|------------|
+| Manual, Tour, Normal | `CAL_tpstarget_tour_manual` |
+| Manual, Sport, Normal | `CAL_tpstarget_sport_manual` |
+| Manual, Tour, Low Gear | `CAL_tpstarget_low_gear_tour_manual` |
+| Manual, Sport, Low Gear | `CAL_tpstarget_low_gear_sport_manual` |
+| IPS, Tour, Normal | `CAL_tpstarget_tour_ips` |
+| IPS, Sport, Normal | `CAL_tpstarget_sport_ips` |
+| IPS, Tour, Shifting | `CAL_tpstarget_tour_shifting` |
+| IPS, Sport, Shifting | `CAL_tpstarget_sport_shifting` |
+| IPS, Tour, Low Gear | `CAL_tpstarget_low_gear_tour_ips` |
+| IPS, Sport, Low Gear | `CAL_tpstarget_low_gear_sport_ips` |
