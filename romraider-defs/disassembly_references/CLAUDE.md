@@ -1,9 +1,10 @@
 ## Project Overview
 
-This directory contains various diassembly projects from Ghidra.
+This directory contains various disassembly projects from Ghidra.
 
  - E132E0288: Lotus Evora GT
  - C132E0278: Lotus Evora GT430
+ - B13200091: Lotus Evora NA
  - abs: antilock brake system
 
 ## Architecture and Data Types
@@ -90,3 +91,4 @@ u8_load_1173mg/255stroke[20] CAL_ign_base_manual_Y_load;        // Y-axis
 - The disassembly is part of a larger RomRaider tuning definition project for Lotus vehicles
 - PowerPC32 architecture (MPC5500 series microcontroller)
 - o2 sensor 1 is bank one pre cat, sensor 2 is bank 1 post cat. Sensor 5 is bank 2 precat; sensor 6 is bank2 post cat.
+- fuel tank capacity is 60.0 liters
