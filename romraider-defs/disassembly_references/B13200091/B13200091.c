@@ -157,6 +157,14 @@
 #define -34 -0x22
 #define 1111111111111100b 0xfffc
 #define 00001001b 0x9
+#define 00000000000000000000000000001100b 0xc
+#define 00000000000000000000000000110000b 0x30
+#define 00000000000000000000000001111111b 0x7f
+#define 11101110b 0xee
+#define 00100000b 0x20
+#define 11011111b 0xdf
+#define 650 0x28a
+#define 144 0x90
 
 typedef unsigned char   undefined;
 
@@ -555,6 +563,8 @@ struct struct_emios_unified_channel_register {
     byte uc[256];
 };
 
+typedef uint8_t u8_fuel_liters;
+
 typedef uint8_t u8_factor_1/64;
 
 typedef uint8_t u8_rspeed_50rpm;
@@ -585,6 +595,8 @@ typedef uint8_t u8_mass_g;
 typedef uint32_t u32_rspeed_1024rpm;
 
 typedef uint8_t u8_pressure_5kpa;
+
+typedef uint8_t u8_fuel_3liter;
 
 typedef uint8_t checksum_8bit;
 
@@ -840,6 +852,8 @@ typedef enum enum_tps_smooth_step_flag {
 typedef uint32_t u32_time_5ms;
 
 typedef uint8_t u8_time_10us;
+
+typedef uint32_t u32_fuel_3liter;
 
 typedef struct evp_pkey_ctx_st evp_pkey_ctx_st, *Pevp_pkey_ctx_st;
 
@@ -1961,7 +1975,7 @@ byte DAT_40008eab;
 byte DAT_40008fb9;
 undefined1 clutch_pos_sensor;
 undefined4 vvt_bank_inhibit_flags;
-u8_fuel_gal_x10 fuel_level;
+u8_fuel_liters fuel_level;
 u16_fuel_gal_x10[8] CAL_sensor_fuel_level;
 u16_voltage_5/1023v[2] CAL_sensor_fuel_level_sensor_voltage_threshold;
 u16_voltage_5/1023v[8] CAL_sensor_fuel_level_X_voltage;
@@ -3312,31 +3326,31 @@ byte DAT_40001966;
 byte DAT_4000256c;
 u8_temp_5/8-40c CAL_cluster_overtemp_warning_light;
 char DAT_40001a96;
-ushort DAT_40001910;
 undefined1 tpms0;
+char DAT_40009046;
 cluster_data dash_data_CAN400;
-char DAT_4000190e;
 undefined1 tpms1;
 byte[8] tpms_output;
-byte DAT_4000190d;
 undefined1 tpms2;
 undefined1 tpms3;
-char DAT_40009046;
-byte DAT_40001980;
-undefined1 fuel_level_percentage;
+u8_factor_1/255 fuel_level_percentage;
 uint8_t[8] CAL_cluster_shiftlight_rpm_offset_ips;
 uint8_t[8] CAL_cluster_shiftlight_rpm_offset_manual;
 ushort cluster_shiftlight_rpm_offset;
 undefined1 cluster_shift_light_state;
 undefined1 cluster_indicator_flags;
-u8_fuel_gal_x10[2] CAL_cluster_fuel_level_warning_threshold;
-u8_fuel_gal_x10 CAL_cluster_fuel_level_zero_clip_threshold;
+u8_fuel_liters[2] CAL_cluster_fuel_level_warning_threshold;
+u8_fuel_liters CAL_fuel_reserve_size;
 u16_time_100ms lfb_pulse_toggle_timer;
 undefined1 cluster_run_state;
 undefined2 obd_ii_montior_passes_bitfield;
 u16_rspeed_rpm CAL_cluster_shift_light_deadband_rpm;
+undefined1 tpms_tx_pending_flags;
 undefined1 cluster_flags;
+undefined2 cluster_tpms_blink_timer;
 enum_slip_detect_mode CAL_slip_detect_mode;
+undefined1 cluster_tpms_blink_cycle_timer;
+undefined1 cluster_tpms_blink_state;
 undefined2 obd_ii_tire_pressure_valid_and_error;
 u16_rspeed_rpm[2] CAL_airbox_flapper_engine_speed_tour2;
 u16_rspeed_rpm[2] CAL_airbox_flapper_engine_speed_sport2;
@@ -3355,8 +3369,8 @@ char DAT_400013b1;
 byte DAT_400013b3;
 byte DAT_400013b2;
 byte DAT_40001924;
-byte DAT_40008f36;
-byte DAT_40008f2f;
+u8_time_250ms u8_time_250ms_40008f36;
+u8_time_250ms u8_time_250ms_40008f2f;
 char DAT_4000192e;
 char DAT_40008f33;
 byte DAT_4000192d;
@@ -7190,7 +7204,7 @@ byte *DAT_400022a0;
 byte fca_buffer[16].data[0];
 byte DAT_400022aa;
 undefined2 DAT_000c2a58;
-byte[8] BYTE_ARRAY_40001978;
+byte[8] tpms_tx_401_data;
 byte fca_buffer[21].data[4];
 char DAT_400023dc;
 byte fca_buffer[21].data[5];
@@ -22126,7 +22140,7 @@ void read_accessory_states(void)
 void cluster_send_data(void)
 
 {
-  uint uVar1;
+  u32_fuel_3liter _fuel_tank_capacity;
   ushort _cluster_shiftlight_rpm_offset;
   uint _engine_speed_tach3;
   uint _engine_speed_tach;
@@ -22138,12 +22152,12 @@ void cluster_send_data(void)
   byte _cluster_flags;
   bool timer_is_zero;
   
-  i = DAT_40001921 | 0x20;
-  DAT_40001921 = DAT_40001921 & 0xdf;
+  i = DAT_40001921 | 0b00100000;
+  DAT_40001921 = DAT_40001921 & 0b11011111;
   if ((COD_base.COD[0] >> 3 & 1) == 0) {
     DAT_40001921 = i;
   }
-  if ((COD_base.COD[0] >> 0xd & 7) == 1) {
+  if ((COD_base.COD[0] >> 13 & 7) == 1) {
     _cluster_shiftlight_rpm_offset =
          lookup_2D_uint8_fixed(8,car_gear_current,CAL_cluster_shiftlight_rpm_offset_ips);
   }
@@ -22240,28 +22254,29 @@ void cluster_send_data(void)
   }
   cluster_flags = cluster_flags & 0xef;
   dash_data_CAN400.field7 = 0;
-  uVar1 = (COD_base.COD[0] >> 4 & 0x7f) * 3;
-  if (0xff < uVar1) {
-    uVar1 = 0xff;
+  _fuel_tank_capacity = (COD_base.COD[0] >> 4 & 0b01111111) * 3;
+  if (255 < _fuel_tank_capacity) {
+    _fuel_tank_capacity = 255;
   }
-  if (((fuel_level < CAL_cluster_fuel_level_zero_clip_threshold) ||
-      ((LEA_obd_ii_P0462_flags & 4) != 0)) || ((LEA_obd_ii_P0463_flags & 4) != 0)) {
+  if (((fuel_level < CAL_fuel_reserve_size) || ((LEA_obd_ii_P0462_flags & 4) != 0)) ||
+     ((LEA_obd_ii_P0463_flags & 4) != 0)) {
     fuel_level_percentage = 0;
   }
-  else if ((uVar1 & 0xff) < (uint)fuel_level) {
+  else if ((_fuel_tank_capacity & 0xff) < (uint)fuel_level) {
     fuel_level_percentage = 255;
   }
   else {
     fuel_level_percentage =
-         (byte)((int)(((uint)fuel_level - (uint)CAL_cluster_fuel_level_zero_clip_threshold) * 0xff)
-               / (int)((uVar1 & 0xff) - (uint)CAL_cluster_fuel_level_zero_clip_threshold));
+         (u8_factor_1_255)
+         ((int)(((uint)fuel_level - (uint)CAL_fuel_reserve_size) * 0xff) /
+         (int)((_fuel_tank_capacity & 0xff) - (uint)CAL_fuel_reserve_size));
   }
   if ((fuel_level < CAL_cluster_fuel_level_warning_threshold[0]) || (cluster_run_state == 1)) {
     cluster_flags = cluster_flags | 1;
                     // Probably the low fuel indicator light
   }
   else if (CAL_cluster_fuel_level_warning_threshold[1] < fuel_level) {
-    cluster_flags = _cluster_flags & 0xee;
+    cluster_flags = _cluster_flags & 0b11101110;
   }
                     // TODO decode TPMS values
   if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_ecu_flexcan_diag_bus_select == 2)) {
@@ -22289,16 +22304,16 @@ void cluster_send_data(void)
     }
     else {
       main_diagnostic_flags = main_diagnostic_flags | 0x40;
-      if (DAT_40001910 < 0x28a) {
-        DAT_40001910 = DAT_40001910 + 1;
-        if (DAT_4000190e == '\0') {
-          DAT_4000190d = DAT_4000190d ^ 2;
-          DAT_4000190e = '\x05';
+      if (cluster_tpms_blink_timer < 650) {
+        cluster_tpms_blink_timer = cluster_tpms_blink_timer + 1;
+        if (cluster_tpms_blink_cycle_timer == '\0') {
+          cluster_tpms_blink_state = cluster_tpms_blink_state ^ 2;
+          cluster_tpms_blink_cycle_timer = '\x05';
         }
         else {
-          DAT_4000190e = DAT_4000190e + -1;
+          cluster_tpms_blink_cycle_timer = cluster_tpms_blink_cycle_timer + -1;
         }
-        if (DAT_4000190d == 0) {
+        if (cluster_tpms_blink_state == 0) {
           cluster_indicator_flags = cluster_indicator_flags & 0xfd;
         }
         else {
@@ -22375,7 +22390,7 @@ void cluster_send_data(void)
       tpms_output[i] = 0xff;
     }
     tpms_output[4] = tpms_output[4] & 0b11110000;
-    DAT_40001980 = DAT_40001980 & 0b11111101;
+    tpms_tx_pending_flags = tpms_tx_pending_flags & 0b11111101;
   }
   else {
     if (((((tpms0 == 0) || (tpms2 == 0)) || (tpms1 == 0)) || (tpms3 == 0)) &&
@@ -22420,7 +22435,7 @@ void cluster_send_data(void)
         tpms_output[4] = tpms_output[4] | 8;
       }
     }
-    DAT_40001980 = DAT_40001980 | 2;
+    tpms_tx_pending_flags = tpms_tx_pending_flags | 2;
   }
   tpms_output[5] = 0;
   tpms_output[6] = 0;
@@ -22581,15 +22596,15 @@ void cluster_and_exhaust_flaps_100ms(void)
     bVar1 = 8 < DAT_40001924;
     DAT_40001924 = bVar2;
     if (bVar1) {
-      flexcan_c_send_7a0();
+      flexcan_c_tx_7a0();
       DAT_40001924 = 0;
     }
   }
-  if ((runtime_since_start < (uint)DAT_40008f36 * 50) ||
-     ((uint)DAT_40008f2f * 50 < runtime_since_start)) {
+  if ((runtime_since_start < (uint)u8_time_250ms_40008f36 * 50) ||
+     ((uint)u8_time_250ms_40008f2f * 50 < runtime_since_start)) {
     DAT_4000192e = DAT_40008f33;
     temp_coolant2 = coolant_temp;
-    if (runtime_since_start < (uint)DAT_40008f36 * 50) {
+    if (runtime_since_start < (uint)u8_time_250ms_40008f36 * 50) {
       DAT_4000192f = 1;
       if ((COD_base.COD[1] >> 0x1a & 1) != 0) {
         fan_coolant_flags = fan_coolant_flags | 0x800;
@@ -22605,13 +22620,13 @@ void cluster_and_exhaust_flaps_100ms(void)
       DAT_4000192d = temp_coolant2 - coolant_temp;
       if (DAT_4000192d < DAT_40008f32) {
         DAT_4000192f = 0;
-        if (((COD_base.COD[1] >> 0x1a & 1) != 0) && ((fan_coolant_flags & 0x400) == 0)) {
+        if (((COD_base.COD[1] >> 26 & 1) != 0) && ((fan_coolant_flags & 0x400) == 0)) {
           fan_coolant_flags = fan_coolant_flags & 0xfffff7ff;
         }
       }
       else {
         DAT_4000192f = 1;
-        if ((COD_base.COD[1] >> 0x1a & 1) != 0) {
+        if ((COD_base.COD[1] >> 26 & 1) != 0) {
           fan_coolant_flags = fan_coolant_flags | 0x800;
         }
       }
@@ -47368,15 +47383,17 @@ void flexcan_a_rx_303(void)
   uint uVar3;
   byte bVar4;
   int iVar5;
-  byte bVar6;
-  byte local_10 [4];
-  undefined4 local_c;
+  byte i;
+  byte data_buf [8];
   
-  local_10[0] = 0;
-  local_10[1] = 0;
-  local_10[2] = 0;
-  local_10[3] = 0;
-  local_c = 0;
+  data_buf[0] = 0;
+  data_buf[1] = 0;
+  data_buf[2] = 0;
+  data_buf[3] = 0;
+  data_buf[4] = 0;
+  data_buf[5] = 0;
+  data_buf[6] = 0;
+  data_buf[7] = 0;
   uVar2 = flexcan_a_interrupt_reg_flag_low;
   flexcan_a_interrupt_reg_flag_low = uVar2 & 0xffffdfff | 0x2000;
   uVar3 = fca_buffer[0xd].code_and_timestamp;
@@ -47396,19 +47413,20 @@ void flexcan_a_rx_303(void)
        (uVar2 = fca_buffer[0xd].arb_id, (uVar2 >> 0x12 & 0x7ff) == 0x303)) {
       bVar4 = DAT_40001518 & 0xfb;
       DAT_40001518 = bVar4 | 1;
-      for (bVar6 = 0; bVar6 < 7; bVar6 = bVar6 + 1) {
-        local_10[bVar6] = fca_buffer[0xd].data[bVar6];
+      for (i = 0; i < 7; i = i + 1) {
+        data_buf[i] = fca_buffer[0xd].data[i];
       }
-      DAT_400022ce = local_10[1];
-      iVar1 = (int)(local_10[1] & 0xc) >> 2;
-      iVar5 = (int)(local_10[1] & 0x30) >> 4;
-      if ((((longlong)(-((ulonglong)local_10[1] & 1) << 0x20) < 0) ||
-          ((longlong)(-((ulonglong)local_10[1] & 2) << 0x20) < 0)) ||
+      DAT_400022ce = data_buf[1];
+      iVar1 = (int)(data_buf[1] & 0b00001100) >> 2;
+      iVar5 = (int)(data_buf[1] & 0b00110000) >> 4;
+      if ((((longlong)(-((ulonglong)data_buf[1] & 1) << 0x20) < 0) ||
+          ((longlong)(-((ulonglong)data_buf[1] & 2) << 0x20) < 0)) ||
          ((iVar1 == 1 || ((iVar1 == 2 || ((iVar5 + 0xffU & 0xff) < 2)))))) {
         DAT_40001518 = bVar4 | 5;
       }
       if (iVar5 == 0) {
-        iVar5 = (((int)(local_c._1_1_ & 0xf0) >> 4 | (local_c >> 0x18) << 4) - 0x801) * 0x4fa1;
+        iVar5 = (((int)(data_buf[5] & 0xf0) >> 4 | ((uint)data_buf._4_4_ >> 0x18) << 4) - 0x801) *
+                0x4fa1;
         imu_accel_lat =
              ((short)(iVar5 / 100000) + (short)(iVar5 >> 0x1f)) -
              (short)((longlong)iVar5 * 0x14f8b589 >> 0x3f);
@@ -47417,7 +47435,7 @@ void flexcan_a_rx_303(void)
         imu_accel_lat = 0;
       }
       if (iVar1 == 0) {
-        imu_gyro = (((ushort)local_c._2_1_ | (local_c._1_1_ & 0xf) << 8) - 0x800) * 8;
+        imu_gyro = (((ushort)data_buf[6] | (data_buf[5] & 0xf) << 8) - 0x800) * 8;
       }
       else {
         imu_gyro = 0;
@@ -48137,15 +48155,15 @@ void flexcan_a_tx_401_402_tpms(void)
     uVar1 = flexcan_a_interrupt_reg_flag_low;
     flexcan_a_interrupt_reg_flag_low = uVar1 & 0xffefffff | 0x100000;
   }
-  if ((DAT_40001980 & 2) == 0) {
-    if ((DAT_40001980 & 1) != 0) {
-      DAT_40001980 = DAT_40001980 & 0xfe;
+  if ((tpms_tx_pending_flags & 2) == 0) {
+    if ((tpms_tx_pending_flags & 1) != 0) {
+      tpms_tx_pending_flags = tpms_tx_pending_flags & 0xfe;
       uVar2 = fca_buffer[0x14].code_and_timestamp;
       fca_buffer[0x14].code_and_timestamp = uVar2 & 0xf0ffffff | 0x8000000;
       uVar1 = fca_buffer[0x14].arb_id;
       fca_buffer[0x14].arb_id = uVar1 & 0xe003ffff | 0x10040000;
       for (i = 0; i < 8; i = i + 1) {
-        fca_buffer[0x14].data[i] = BYTE_ARRAY_40001978[i];
+        fca_buffer[0x14].data[i] = tpms_tx_401_data[i];
       }
       uVar2 = fca_buffer[0x14].code_and_timestamp;
       fca_buffer[0x14].code_and_timestamp = uVar2 & 0xfff0ffff | 0x80000;
@@ -48154,7 +48172,7 @@ void flexcan_a_tx_401_402_tpms(void)
     }
   }
   else {
-    DAT_40001980 = DAT_40001980 & 0xfd;
+    tpms_tx_pending_flags = tpms_tx_pending_flags & 0xfd;
     uVar2 = fca_buffer[0x14].code_and_timestamp;
     fca_buffer[0x14].code_and_timestamp = uVar2 & 0xf0ffffff | 0x8000000;
     uVar1 = fca_buffer[0x14].arb_id;
@@ -49206,20 +49224,21 @@ void flexcan_c_tx_460(void)
 
 
 
-void flexcan_c_send_7a0(void)
+void flexcan_c_tx_7a0(void)
 
 {
   byte bVar1;
   uint uVar2;
   uint32_t uVar3;
   undefined2 uVar4;
+  u8_temp_5_8_40c _intake_temp;
   
-  bVar1 = air_temp_intake_unknown;
+  _intake_temp = air_temp_intake_unknown;
   if ((COD_base.COD[1] >> 10 & 1) == 0) {
-    bVar1 = temp_engine_air;
+    _intake_temp = temp_engine_air;
   }
-  if (bVar1 < 0x91) {
-    uVar4 = (undefined2)((int)((uint)bVar1 * 0x32) >> 3);
+  if (_intake_temp < 145) {
+    uVar4 = (undefined2)((int)((uint)_intake_temp * 50) >> 3);
   }
   else {
     uVar4 = 900;
