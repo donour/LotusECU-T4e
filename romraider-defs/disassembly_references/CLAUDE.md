@@ -7,9 +7,8 @@ used as the basis for building RomRaider tuning definitions. The goal is to unde
 table locations, scaling, and units so that tuning parameters can be exposed to end users.
 
 The firmware is **Lotus/Bosch co-developed** engine management software for the Toyota-sourced 3.5L
-2GR-FE V6 engine with Lotus supercharger. All ECU variants run on the **Freescale MPC5534**
-microcontroller (PowerPC e200z3 core, ~80 MHz, 2 MB flash, 96 KB RAM), except the Emira which uses
-the MPC5777C.
+2GR-FE V6 engine with Lotus supercharger. All ECU variants run on the **Freescale MPC5534** except
+the Emira which uses the MPC5777C.
 
 ---
 
@@ -24,8 +23,7 @@ the MPC5777C.
 | `abs/`       | —           | ABS/ESP module (Bosch ESP8)      | All       | Evora 400, GT410, GT430, GT    |
 | `emira/`     | —           | Lotus Emira V6 Supercharged      | EU/UK (98 RON) | MPC5777C; different arch  |
 
-The E132E0288 (Evora GT) is the **primary reference**. A refactored, human-readable version is in
-`E132E0288/20251226_factor/` with 24 files split by subsystem — start there for new analysis.
+DO NOT READ `E132E0288/20251226_factor/`. It is incomplete.
 
 ---
 
@@ -147,24 +145,24 @@ MAF compensation) that persist across ignition cycles via EEPROM emulation in fl
 | `CAL_obd_*`         | OBD-II monitor thresholds and DTC enable masks                |
 | `CAL_cluster_*`     | Instrument cluster communication                              |
 | `CAL_cruise_*`      | Cruise control                                                |
+| `CAL_dca_*`         | Drive Cycle Assist, disabled emissions testing functionalty   |
 
 ### Table Structure Pattern
 
 All multi-dimensional lookup tables follow this naming pattern:
 
-```c
+```
 u8_angle_1/4-10deg[400]          CAL_ign_base_manual;           // 20×20 data
 u8_rspeed_125/4+500rpm[20]       CAL_ign_base_manual_X_engine_speed; // X axis (RPM)
 u8_load_1173mg/255stroke[20]     CAL_ign_base_manual_Y_load;    // Y axis (load)
 ```
 
-The table is stored row-major. Lookup functions perform bilinear interpolation.
+The table is stored row-major. Some lookup functions perform bilinear interpolation, some do not.
 Separate tables exist for IPS (automatic) and manual transmission in key calibrations
 (`_manual` vs `_ips` suffix).
 
 ### Ignition Base Tables
 
-The primary ignition timing tables are 20×20 (400 entries):
 - `CAL_ign_base_manual` / `CAL_ign_base_ips` — base timing maps
 - Compensations applied additively: coolant temp, IAT, TPS rate, RPM, manifold temp, idle error
 - Per-cylinder knock retard tracked in `LEA_ign_knock_retard[6]`
@@ -172,13 +170,12 @@ The primary ignition timing tables are 20×20 (400 entries):
 
 ### Fuel System
 
-- `CAL_inj_afr_base` — 20×20 AFR target map (type `u8_afr_1/20+5`)
-- Fuel metering uses speed-density (MAP + VE table) with MAF cross-check
+- `CAL_inj_afr_base` — AFR target map (type `u8_afr_1/20+5`)
 - Closed-loop O2 control runs bank 1 and bank 2 independently
 - O2 sensor numbering: sensor 1 = bank 1 pre-cat, sensor 2 = bank 1 post-cat,
   sensor 5 = bank 2 pre-cat, sensor 6 = bank 2 post-cat
 - Fuel film (X-tau) compensation for transient enrichment: `CAL_injtip_*`
-- DFCO (deceleration fuel cut) enabled via `CAL_fuel_*` parameters
+- DFCO (deceleration fuel cut)
 
 ---
 
@@ -196,16 +193,17 @@ FlexCAN A carries both OBD-II (ISO 15765 / ISO-TP) diagnostic traffic and intern
 
 ### Vehicle CAN Messages (ECU ↔ Other Modules)
 
-| CAN ID  | Direction     | Content                                          |
-|---------|---------------|--------------------------------------------------|
-| `0x85`  | ECU transmit  | Throttle/torque request to body module           |
+| CAN ID  | Source        | Content                                             |
+|---------|---------------|-----------------------------------------------------|
+| `0x85`  | SAS transmit  | Steering Angle Sensor                               |
+| `0xD2`  | ECU transmit  | IPS transmission requests                           |
 | `0x102` | ECU transmit  | Torque data to ABS/ESP (Alpha-N net, combustion Nm) |
-| `0x114` | ECU receive   | IPS transmission data (gear, shift state)        |
-| `0x303` | ECU transmit  | Engine status to instrument cluster              |
+| `0x114` | ECU           | Tachometer, accelerator pedal, drivetrain mode      |
+| `0x303` | Yaw transmit  | Bosch YAW sensor, lateral acceleration              |
 | `0x400` | ECU transmit  | Cluster data: fuel level, coolant temp, shift lights, MIL |
-| `0xA2`  | ABS → ECU     | Front wheel speeds (LF, RF, vehicle speed)       |
-| `0xA4`  | ABS → ECU     | Rear wheel speeds (LR, RR), brake switch         |
-| `0xA8`  | ABS → ECU     | ESP/ABS status flags (ABS active, ESP active)    |
+| `0xA2`  | ABS           | Front wheel speeds (LF, RF, vehicle speed)          |
+| `0xA4`  | ABS           | Rear wheel speeds (LR, RR), brake switch            |
+| `0xA8`  | ABS           | ESP/ABS status flags (ABS active, ESP active)       |
 
 CAN 0x400 (cluster message) carries: instantaneous fuel usage, fuel level %, coolant temperature
 (u8_temp_5/8-40c encoding), traction control indicator, MIL, shift lights (3 stages), low fuel
@@ -238,16 +236,17 @@ Key behaviours:
 ### Variable Valve Timing (VVT)
 
 - Dual independent VVT (intake and exhaust cams, both banks = 4 actuators)
+- intake angle up to 40 degrees
 - Target cam positions from `CAL_vvt_*` tables (RPM × load)
 - Position feedback from cam sensors via eTPU
 - Disabled during cold coolant conditions
 
 ### Traction Control
 
-- TC is **ECU-based** (not ABS/ESP) on GT430 and later models
+- TC is **ECU-based** (not ABS/ESP) on GT430 only
+- TC is also in the ESP, as a safety mechanism.
 - Wheel speed data received from ABS via CAN (0xA2, 0xA4)
-- Implemented in ECU firmware; cruise control also in ECU (not ESP/ABS)
-- `CAL_tc_*` calibrations control intervention thresholds
+- cruise control also in ECU (not ESP/ABS)
 
 ### Torque Model
 
@@ -256,11 +255,11 @@ The ECU maintains a torque model with several friction components:
 - `torque_engine_friction_accessory` — AC compressor load
 - `torque_engine_friction_comp_engine_speed` — RPM-dependent mechanical loss
 - Net torques transmitted to ABS/ESP via CAN 0x102 for stability control coordination
+- S2 evoras (GT, GT430, 400) have torque limit calibrations
 
 ### IPS Transmission Interface
 
 When IPS (automated manual) transmission is fitted:
-- ECU receives gear/shift state from IPS module via CAN 0x114
 - Separate ignition and fuel tables for IPS vs manual (`_ips` suffix)
 - Rev-matching PID controller adjusts engine speed during downshifts
 - Torque reduction requests during gear changes
@@ -271,6 +270,11 @@ When IPS (automated manual) transmission is fitted:
 - `CAL_idle_*` tables control target idle speed vs coolant temp, AC load, electrical load
 - Cold-start idle learn stored in `LEA_idle_cold_learning_*`
 
+### Drive Cycle Assist (DCA)
+
+- Enabled only a moderate speed, with steering wheel pointed forward
+- Not enabled on production vehicles
+
 ---
 
 ## File Structure Reference
@@ -279,22 +283,7 @@ Each ECU directory typically contains:
 - `<part>.c` — Full Ghidra disassembly (monolithic, 50,000–65,000 lines)
 - `<part>.hex` — Original firmware binary in Intel HEX format
 - `<part>.symbols.csv` or `<part>_cal_symbols.txt` — Exported Ghidra symbols with addresses and sizes
-- `CLAUDE.md` — Per-variant firmware metadata
-- `include/` — (E132E0288/20251226_factor only) Refactored header files
-
-The refactored E132E0288 layout in `E132E0288/20251226_factor/`:
-```
-include/
-  types.h           — All typedef definitions
-  constants.h       — Named bit flags, magic numbers
-  hardware.h        — MMIO peripheral register layouts
-  runtime_vars.h    — All global runtime state (~6000 lines)
-  cal_*.h           — Calibration variables split by subsystem
-src/
-  main.c, ignition.c, fuel.c, knock.c, vvt.c
-  cooling.c, ips.c, sensors.c, vehicle.c
-  can.c, obd.c, diagnostics.c, engine_mgmt.c, system.c
-```
+- `CLAUDE.md` — Per-variant firmware metadata and LLM context
 
 ---
 
@@ -303,12 +292,12 @@ src/
 | Feature                   | B13200091 (NA) | C132E0271 (400) | C132E0278 (GT430) | E132E0288 (GT) |
 |---------------------------|:--------------:|:---------------:|:-----------------:|:--------------:|
 | Supercharged              | No             | No              | Yes               | Yes            |
-| ECU-based TC              | No             | No              | Yes               | Yes            |
-| IPS transmission support  | No             | Yes?            | Yes               | Yes            |
+| ECU-based TC              | No             | No              | Yes               | No             |
+| IPS transmission support  | No             | Yes             | Yes               | Yes            |
 | US/Federal market         | Yes            | Yes             | No                | Yes            |
-| Charge air cooler         | No             | No              | Yes               | Yes            |
-| VIMS (variable intake)    | Yes            | Yes             | Yes               | Yes            |
-| CAC pump (PID 0x151)      | No             | No              | Yes               | Yes            |
+| Charge air cooler         | No             | Yes             | Yes               | Yes            |
+| VIMS (variable intake)    | Yes            | No              | No                | No             |
+| CAC pump (PID 0x151)      | No             | Yes             | Yes               | Yes            |
 
 The NA (B13200091) is the earliest and simplest variant. The GT430 (C132E0278) has the most
 aggressive traction control calibration. The GT (E132E0288) is the primary US reference target.
@@ -327,7 +316,7 @@ aggressive traction control calibration. The GT (E132E0288) is the primary US re
 
 **Check EEPROM-stored learned values**: Search for `LEA_` prefix — these survive power cycles.
 
-**Identify unresolved variables**: `undefined2` type or `????`/`___` in the variable name means
+**Identify unresolved variables**: `undefined2` type or `???`/`___` in the variable name means
 the physical unit has not yet been determined.
 
 ---
@@ -344,3 +333,4 @@ the physical unit has not yet been determined.
 - The `clip_value(value, min, max)` helper enforces limits throughout the codebase
 - Lookup interpolation functions: `lookup_2D_uint8_interpolated(n_entries, x, data[], axis[])`
   and `lookup_2D_uint16_interpolated` — arguments are (size, index, data_ptr, axis_ptr)
+- Drag torque control is implemented in the ESP/ABS unit
