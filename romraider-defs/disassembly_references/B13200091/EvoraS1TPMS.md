@@ -1,16 +1,13 @@
 # TPMS Analysis Report — B13200091 (2011 Lotus Evora NA)
 
-NOTE: The TPMS module communicates on a dedicated CAN bus
-(FlexCAN B, using fcb_buffer). Some functions are named
-flexcan_c_* by the analyst, but they all use fcb_buffer
-and are on the same bus as flexcan_b_rx_540. All TPMS
-traffic is on CAN B, separate from vehicle CAN A.
+NOTE: The TPMS module communicates on FlexCAN C.
+uses flexcan_c_* throughout.
 
 ---
 
 ## Section 1: CAN Message Summary
 
-### CAN B — ECU transmits TO TPMS module
+### CAN C — ECU transmits TO TPMS module
 
 | ID    | Content |
 |-------|---------|
@@ -19,18 +16,19 @@ traffic is on CAN B, separate from vehicle CAN A.
 | 0x460 | Engine speed + vehicle speed |
 | 0x7A0 | Intake air temperature |
 
-### CAN B — ECU receives FROM TPMS module
+### CAN C — ECU receives FROM TPMS module
 
 | ID    | Content |
 |-------|---------|
 | 0x540 | Tire pressures + validity/error flags |
+| 0x55F | Extended sensor data (multiplexed, see §9) |
 | 0x256 | Handshake responses (from the 0x240 protocol dialog) |
 
 ### CAN A — ECU transmits TO vehicle cluster
 
 | ID    | Content |
 |-------|---------|
-| 0x401 | `tpms_tx_401_data` (never populated — see §4) |
+| 0x401 | `tpms_tx_401_data` (never populated — dead code, see §9) |
 | 0x402 | `tpms_output` (tire pressures + status flags) |
 
 ---
@@ -41,7 +39,7 @@ traffic is on CAN B, separate from vehicle CAN A.
 
 Tire pressure values, one per sensor.
 
-- **Source**: CAN B 0x540 bytes [2][4][3][5] respectively.
+- **Source**: CAN C 0x540 bytes [2][4][3][5] respectively.
   Note: byte order in CAN frame is tpms0, tpms2, tpms1, tpms3.
 - **Units**: Unresolved. Best estimate **2 kPa/count** based on
   the left-shift-1 applied before cluster output and the need
@@ -54,7 +52,7 @@ Tire pressure values, one per sensor.
 
 ### `obd_ii_tire_pressure_valid_and_error` — `undefined2`
 
-16-bit status bitfield populated from CAN B 0x540.
+16-bit status bitfield populated from CAN C 0x540.
 
 | Bit | Mask   | Meaning |
 |-----|--------|---------|
@@ -109,11 +107,12 @@ cleared.
 
 ---
 
-### `tpms_tx_401_data[8]` — `byte[8]`
+### `tpms_tx_401_data[8]` — `byte[8]` @ `0x40001978`
 
 CAN A 0x401 payload. **Never written** anywhere in the firmware.
 Transmitted only when `tpms_tx_pending_flags` bit 0 is set, but
-that bit is also never set. Dead/reserved code path.
+that bit is also never set. Fully dead code path in this variant.
+See §9 for the likely intended purpose.
 
 ---
 
@@ -160,7 +159,7 @@ Bit 1 set after populating `tpms_output`. Cleared by
 | `DAT_4000227f` | Total frame count for multi-frame message |
 | `DAT_40002280` | More frames pending flag (1 = pending; checked by init handshake) |
 
-### Receive buffer (from CAN B 0x256 responses)
+### Receive buffer (from CAN C 0x256 responses)
 
 | Variable | Meaning |
 |----------|---------|
@@ -175,7 +174,7 @@ Bit 1 set after populating `tpms_output`. Cleared by
 | Variable | Meaning |
 |----------|---------|
 | `DAT_40009046` | Gen-2 module flag (0 = gen-1, 1 = gen-2). Never written in decompiled C; initialized by startup code. Combined with `VIN[9] < 'F'` (MY2015) check: either condition alone forces gen-1 paths. |
-| `DAT_40002277` | TPMS module comms watchdog. Set to 0x32 (50) on receipt of CAN B 0x540; decrements each task call. Zero = module has stopped transmitting. |
+| `DAT_40002277` | TPMS module comms watchdog. Set to 0x32 (50) on receipt of CAN C 0x540; decrements each task call. Zero = module has stopped transmitting. |
 
 ---
 
@@ -208,9 +207,9 @@ Sent in state 0x0F as: `high_A, high_B` (final programming).
 
 ## Section 5: Function Descriptions
 
-### `flexcan_b_rx_540`
+### `flexcan_c_rx_540`
 
-CAN B receive handler for TPMS module message 0x540. Only active
+CAN C receive handler for TPMS module message 0x540. Only active
 when TPMS fitted (`COD[1] bit 13`) and
 `CAL_ecu_flexcan_diag_bus_select != 2`.
 
@@ -230,7 +229,7 @@ value is forced to 0. Bit 8 (0x100) set from byte[6] bit 7. Sets
 
 ---
 
-### `flexcan_c_send_220` — CAN B 0x220
+### `flexcan_c_send_220` — CAN C 0x220
 
 Sends fixed 8-byte sync/preamble frame: `19 81 00 20 02 40 00 00`.
 Called before each major init handshake sequence and at the start of
@@ -238,9 +237,9 @@ sensor relearn.
 
 ---
 
-### `flexcan_c_send_unknown` / `flexcan_c_tx_0x240` — CAN B 0x240
+### `flexcan_c_send_unknown` / `flexcan_c_tx_0x240` — CAN C 0x240
 
-General multi-frame transmit on CAN B ID 0x240. Uses staging
+General multi-frame transmit on CAN C ID 0x240. Uses staging
 registers `DAT_40008440`–`DAT_4000844c` for payload bytes.
 `DAT_40002272` = byte count.
 
@@ -311,7 +310,7 @@ the tester to select the starting state (state 5 = cancel/abort).
 
 ### `FUN_000a63a8` → `tpms_module_reset_and_wake`
 
-Sends 0x220 sync then `0x3B, 0x14, 0xFF, 0x00` on CAN B 0x240.
+Sends 0x220 sync then `0x3B, 0x14, 0xFF, 0x00` on CAN C 0x240.
 Used to reset TPMS module state at relearn start and on relearn
 timeout.
 
@@ -319,7 +318,7 @@ timeout.
 
 ### `FUN_000a6338` → `tpms_module_wake_alt`
 
-Sends 0x220 sync then `0x3B, 0x18, 0x00, 0xFF, 0x00` on CAN B
+Sends 0x220 sync then `0x3B, 0x18, 0x00, 0xFF, 0x00` on CAN C
 0x240. Alternate wake/reset variant.
 
 ---
@@ -335,7 +334,7 @@ over bit 0 (0x401).
 
 ---
 
-### `flexcan_c_tx_460` — CAN B 0x460
+### `flexcan_c_tx_460` — CAN C 0x460
 
 Transmits engine speed and vehicle speed to TPMS module.
 
@@ -351,7 +350,7 @@ road speed.
 
 ---
 
-### `flexcan_c_tx_7a0` — CAN B 0x7A0
+### `flexcan_c_tx_7a0` — CAN C 0x7A0
 
 Transmits air temperature to TPMS module. Temperature source:
 `air_temp_intake_unknown`, or `temp_engine_air` if `COD[1] bit 10`
@@ -424,13 +423,13 @@ Response bytes 3–4: high byte, low byte of
 ```
              [TPMS Module]
                   |
-         CAN B (FlexCAN B)
-         RX 0x540, 0x256
+         CAN C (FlexCAN C)
+         RX 0x540, 0x55F, 0x256
          TX 0x220, 0x240, 0x460, 0x7A0
                   |
      +------------+------------+
      |                         |
-flexcan_b_rx_540        response buffer
+flexcan_c_rx_540        response buffer
      |                DAT_400083c0-c5
 tpms0–3                        |
 obd_ii_tire_pressure_    handshake validation
@@ -446,11 +445,73 @@ CAN A 0x402
 ```
 
 **Init flow (startup):** `tpms_init_handshake_state_machine` runs
-once, ~17 round-trips on CAN B 0x240/0x256, programs pressure
+once, ~17 round-trips on CAN C 0x240/0x256, programs pressure
 thresholds and CVN into module. Failure → `DAT_40001a96 = 1` →
 warning light.
 
 **Relearn flow (workshop):** OBD tester triggers proprietary service.
 `tpms_sensor_relearn_state_machine` exchanges ~4 round-trips on
-CAN B 0x240. Vehicle speed clamped to 50 km/h during process. Bit
+CAN C 0x240. Vehicle speed clamped to 50 km/h during process. Bit
 0x200 gates speed reporting to TPMS module.
+
+---
+
+## Section 9: Unimplemented Features (Dead Code)
+
+### CAN A 0x401 and `tpms_tx_401_data`
+
+CAN A message 0x401 is structurally supported by
+`flexcan_a_tx_401_402_tpms` but is **never transmitted** because:
+
+1. `tpms_tx_401_data[8]` at `0x40001978` is never written anywhere
+   in the firmware.
+2. `tpms_tx_pending_flags` bit 0 (which would trigger the TX) is
+   never set.
+
+The most likely intended purpose is to forward extended TPMS sensor
+data (possibly including tire temperature) to the cluster, mirroring
+how 0x402 forwards pressure. Whether later firmware variants
+(C132E0271, C132E0278, E132E0288) implement this is unknown.
+
+### CAN C 0x55F — Extended TPMS sensor data
+
+`flexcan_c_rx_55F` receives a rich extended data stream from the
+TPMS module on CAN C ID 0x55F. Five message types are handled,
+dispatched on `data[0]`:
+
+| `data[0]` | Description | Stored in |
+|-----------|-------------|-----------|
+| `0x27` | 8 multiplexed 16-bit values, index in `data[1]`, value in `data[6:7]` | `DAT_4000230a`–`DAT_40002318` |
+| `0x2F` | 16-bit value in `data[2:3]`, index in `data[1]` | `DAT_40002324`, `DAT_40002322` |
+| `0x2D` | 16-bit value in `data[4:5]`, index in `data[1]` | `DAT_40002320`, `DAT_4000231e` |
+| `0x2E` | 4 flag bits from `data[7]` | `DAT_4000231a`, `DAT_4000231b` |
+| `0x30` | 2 bytes from `data[1:2]` | `DAT_4000231d`, `DAT_4000231c` |
+
+The `0x27` stream stores 8 × 16-bit values into a contiguous RAM
+block. With 4 TPMS sensors, 8 values is consistent with two
+measurements per sensor (e.g. pressure + temperature). However,
+**all of this data is stored in RAM and never read** by any
+subsequent ECU code in this firmware variant. None of it feeds into
+`tpms_tx_401_data` or any other output.
+
+#### RAM locations for 0x27 multiplexed values
+
+| Index | Address | Notes |
+|-------|---------|-------|
+| 0 | `DAT_40002318` | |
+| 1 | `DAT_40002316` | |
+| 2 | `DAT_40002314` | |
+| 3 | `DAT_40002312` | |
+| 4 | `DAT_40002310` | |
+| 5 | `DAT_4000230e` | |
+| 6 | `DAT_4000230c` | |
+| 7 | `DAT_4000230a` | |
+
+### Summary
+
+The B13200091 firmware contains the receive infrastructure for
+extended TPMS data (CAN C 0x55F) and the transmit infrastructure
+for forwarding it to the cluster (CAN A 0x401), but the link
+between them was never implemented. This appears to be planned
+functionality that was not completed in this earliest firmware
+variant.
