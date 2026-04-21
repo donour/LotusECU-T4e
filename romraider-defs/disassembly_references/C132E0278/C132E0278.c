@@ -256,8 +256,6 @@ typedef uchar u8_angle_1/4-32deg;
 
 typedef uchar u8_load_4mg/stroke;
 
-typedef uchar u8_fuel_gal_x10;
-
 typedef uint16_t u16_speed_kph_x100;
 
 typedef uchar u8_factor_1/200;
@@ -404,7 +402,7 @@ typedef uchar u8_mass_8g;
 
 typedef uchar u8_rspeed_rpm;
 
-typedef int16_t i16_accel_1/2550g;
+typedef int32_t i32_accel_1/255g;
 
 typedef uchar u8_obd2level_t6;
 
@@ -636,8 +634,6 @@ typedef uint16_t u16_factor_1/65536;
 
 typedef uint32_t u32_mass_ug;
 
-typedef uchar u8_accel_1/2550g;
-
 typedef int16_t i16_accel_g_x10;
 
 typedef enum enum_drive_cycle_assist {
@@ -671,13 +667,15 @@ typedef uint16_t u16_time_50ms;
 
 typedef uint16_t u16_time_s;
 
+typedef uchar u16_volume_1/10gallon;
+
 typedef uchar u8_rspeed_-128;
 
 typedef uint16_t u16_time_4us;
 
-typedef uchar u8_gear;
+typedef uint8_t u8_volume_liter;
 
-typedef int32_t i32_accel_1/2550g;
+typedef uchar u8_gear;
 
 typedef struct struct_top_rpm_event struct_top_rpm_event, *Pstruct_top_rpm_event;
 
@@ -755,6 +753,8 @@ typedef uint16_t u16_ratio_mbar/5v;
 
 typedef uint16_t u16_mass_g;
 
+typedef uint8_t u8_volume_1/10gallon;
+
 typedef uchar u8_rspeed_25rpm;
 
 typedef uint8_t u8_dutycycle_100/255;
@@ -778,6 +778,8 @@ typedef uint32_t u32_distance_km;
 typedef uchar u8_voltage_5/255v;
 
 typedef uint16_t u16_mass_100ug;
+
+typedef uchar u8_accel_1/255g;
 
 typedef uint8_t u8_flow_100mg/s;
 
@@ -803,6 +805,8 @@ struct wheelspeeds_int {
 typedef uchar u8_time_hours;
 
 typedef ushort u16_time_100ms;
+
+typedef int16_t i16_accel_1/255g;
 
 typedef struct struct_esci_control_registers struct_esci_control_registers, *Pstruct_esci_control_registers;
 
@@ -1316,7 +1320,7 @@ uint8_t[10] flexcan_timeslot_timer;
 undefined2 injection_flags;
 u8_rspeed_125/4+500rpm[4] CAL_tps_rate_steadystate_threshold_X_rpm;
 u8_factor_1/255[4] CAL_tps_rate_steadystate_threshold_Y_tps;
-undefined1 queue_flags_unknown;
+undefined1 flexcan_tx_queue_state_flags;
 u8_factor_1/255[16] CAL_tps_rate_steadystate_threshold;
 u16_voltage_5/1023v[32] maf_voltage_buffer;
 u16_voltage_5/1023v[32] map_voltage_buffer;
@@ -1843,22 +1847,22 @@ byte emios_uc[1].uc[32];
 byte emios_uc[1].uc[48];
 byte emios_uc[1].uc[36];
 undefined1 lookup_bounds_???;
-uint DAT_4000182c;
 undefined1 ips_state_flags;
-short DAT_400018c4;
-undefined1 clutch_pos_sensor;
-u8_fuel_gal_x10 u8_fuel_gal_x10_40008855;
-char DAT_4000147d;
-uint8_t CAL_fuel_level_debounce_window_low???;
-u8_fuel_gal_x10 CAL_fuel_level_debounce_window_high???;
-char DAT_40008697;
-byte DAT_40008696;
 byte DAT_400086db;
-uint16_t[8] CAL_sensor_fuel_level_X_voltage;
 byte DAT_400087e9;
-uint16_t[8] CAL_sensor_fuel_level;
-u8_fuel_gal_x10 fuel_level;
-uint16_t[2] CAL_sensor_fuel_level_sensor_voltage_threshold;
+undefined1 clutch_pos_sensor;
+u8_volume_1/10gallon CAL_fuel_level_debounce_window_low;
+u16_volume_1/10gallon CAL_fuel_level_debounce_window_high???;
+u16_voltage_5/1023v[8] CAL_sensor_fuel_level_X_voltage;
+u16_volume_1/10gallon[8] CAL_sensor_fuel_level;
+undefined4 fuel_level_filtered_x40000;
+undefined1 fuel_level_stable_counter;
+undefined1 CAL_fuel_level_stable_count;
+undefined1 CAL_fuel_level_holdoff_count;
+undefined2 fuel_level_update_holdoff_timer;
+u16_volume_1/10gallon CAL_fuel_level_change_threshold;
+u16_volume_1/10gallon fuel_level;
+u16_voltage_5/1023v[2] CAL_sensor_fuel_level_sensor_voltage_threshold;
 uint DAT_40001828;
 byte DAT_4000c9e1;
 uint16_t[45] adc_sample_buffer_primary;
@@ -2019,8 +2023,8 @@ u16_voltage_5/1023v[32] CAL_sensor_maf_scaling_X_signal;
 u16_flow_10mg/s[32] CAL_sensor_maf_scaling;
 u8_factor_1/255 CAL_sensor_lat_accel_smoothing_factor;
 i16_accel_1/10g lat_accel;
-i32_accel_1/2550g lat_accel_last;
-i16_accel_1/2550g imu_accel_lat;
+i32_accel_1/255g lat_accel_last;
+i16_accel_1/255g imu_accel_lat;
 u16_current_mA o2_sensor1_heater_current_scaled;
 u16_current_mA o2_sensor2_heater_current_scaled;
 u16_current_mA o2_sensor5_heater_current_scaled;
@@ -3443,10 +3447,10 @@ uint8_t[8] CAL_cluster_shiftlight_rpm_offset_ips;
 undefined1 cluster_test_timer;
 bool CAL_cluster_test_enable???;
 uint8_t[8] CAL_cluster_shiftlight_rpm_offset_manual;
-u8_fuel_gal_x10 CAL_cluster_fuel_level_zero_clip_threshold;
+u16_volume_1/10gallon CAL_cluster_fuel_level_zero_clip_threshold;
 u8_temp_5/8-40c[2] CAL_cluster_coolant_warning;
 undefined1 traction_flags_unknown;
-u8_fuel_gal_x10[2] CAL_cluster_fuel_level_warning_threshold;
+u16_volume_1/10gallon[2] CAL_cluster_fuel_level_warning_threshold;
 uint8_t cluster_shift_light_state;
 u16_rspeed_rpm CAL_cluster_shift_light_deadband_rpm;
 undefined1 oil_pressure_warning_light_timer;
@@ -3575,8 +3579,8 @@ u16_rspeed_1/4rpm[10] CAL_ecu_engine_speed_target_tour;
 enum_accel_pedal_mode accel_pedal_mode;
 u8_temp_5/8-40c[4] CAL_ecu_engine_speed_target_dec_gain_X_coolant_temp;
 u8_factor_1/255[4] CAL_ecu_engine_speed_target_dec_gain;
-u8_time_100ms CAL_cluster_fuel_mileage_update_timer;
 u8_distance_km u8_distance_km_40008990;
+u8_time_100ms CAL_cluster_fuel_mileage_update_timer;
 uint8_t[2] CAL_cluster_fuel_economy_factor_limit;
 u8_time_100ms CAL_cluster_fuel_range_smoothing_interval;
 undefined2 fuel_economy_factor;
@@ -3585,7 +3589,7 @@ undefined1 fuel_usage_timer1;
 u8_distance_km CAL_cluster_dte_min_distance_threshold;
 undefined1 fuel_usage_reset_request_timer;
 uint8_t CAL_cluster_fuel_economy_factory_stepsize;
-u8_fuel_gal_x10 fuel_level_prev;
+u16_volume_1/10gallon fuel_level_prev;
 u16_distance_km cluster_range_to_empty_calculated;
 uint8_t CAL_cluster_fuel_range_remaining_smoothing_factor;
 bool fuel_usage_reset;
@@ -4939,13 +4943,13 @@ ushort DAT_400049aa;
 byte DAT_400049ad;
 byte DAT_40001f90;
 byte DAT_4000caee;
-u8_fuel_gal_x10[16] s_-<KZix_4000df20;
+u16_volume_1/10gallon[16] s_-<KZix_4000df20;
 uint8_t[16] s_!#&),049_4000df30;
 uint8_t[8] s__4000df40;
 uint8_t[16] s__4000df48;
 uint8_t[128] s_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx_4000df58;
 u8_temp_5/8-40c[4] s_00`_4000e0f8;
-u8_fuel_gal_x10[10] s_-<KZix_4000e0fc;
+u16_volume_1/10gallon[10] s_-<KZix_4000e0fc;
 uint8_t[40] s_"_$_&_!(_$+_(/_4000e106;
 undefined2 obd_ii_eval_leak_check_result;
 u8_obd2level_t6 CAL_obd_ii_P0442;
@@ -6952,7 +6956,6 @@ byte DAT_4000d413;
 byte DAT_400023a8;
 byte DAT_4000d3d1;
 undefined2 DAT_400023a2;
-int DAT_4000182c;
 int DAT_40001828;
 undefined1 DAT_4000d413;
 undefined1 DAT_400023a7;
@@ -7372,6 +7375,7 @@ undefined1 isotp_flow_status;
 undefined1 isotp_block_size;
 uint32_t fca_buffer[15].arb_id;
 uint fca_buffer[15].code_and_timestamp;
+undefined4 flexcan_a_interrupt_reg_flag_low;
 uint8_t uint8_t_ARRAY_fff480e4;
 uint16_t siu_pcr[84];
 uint8_t uint8_t_ARRAY_fff480e5;
@@ -7410,7 +7414,6 @@ uint fca_buffer[20].code_and_timestamp;
 uint32_t fca_buffer[3].arb_id;
 uint32_t fca_buffer[11].arb_id;
 uint32_t fca_buffer[19].arb_id;
-undefined4 DAT_fffc0030;
 uint fca_buffer[3].code_and_timestamp;
 uint fca_buffer[11].code_and_timestamp;
 uint fca_buffer[19].code_and_timestamp;
@@ -7441,8 +7444,8 @@ uint fca_buffer[8].code_and_timestamp;
 uint fca_buffer[16].code_and_timestamp;
 undefined2 can_rx_msg_timestamp;
 u16_torque_nm torque_limit_external_tc_fast;
-u16_torque_nm torque_limit_external_esp_fast;
 char DAT_40002821;
+u16_torque_nm torque_limit_external_esp_fast;
 u16_torque_nm torque_limit_external_tc_slow;
 bool flexcan_mesg_0xb7_is_7byte;
 undefined2 torque_request1;
@@ -7489,10 +7492,10 @@ undefined2 DAT_400025a8;
 undefined2 DAT_400025a6;
 undefined2 DAT_400025a4;
 undefined2 DAT_400025a2;
-byte fca_buffer[6].data[4];
 undefined2 DAT_400025a0;
-byte fca_buffer[6].data[5];
+byte fca_buffer[6].data[4];
 undefined2 DAT_4000259e;
+byte fca_buffer[6].data[5];
 byte fca_buffer[6].data[6];
 byte fca_buffer[6].data[7];
 byte fca_buffer[6].data[0];
@@ -8255,7 +8258,7 @@ undefined2 revlimit_load;
 undefined2 revlimit_maf_flow_bounded;
 undefined2 revlimit_integrator_decrement;
 u8_rspeed_2rpm revlimit_trim_per_gear;
-undefined2 speed_limit_target_ramped;
+u16_speed_1/100kph speed_limit_target_ramped;
 undefined2 rpm_speed_estimated;
 undefined2 revlimit_max;
 undefined2 rpm_speed_estimated_clipped_tomax;
@@ -8315,7 +8318,7 @@ char DAT_40002830;
 char DAT_40002836;
 byte DAT_40002837;
 undefined1 sas_timer_unknown;
-u8_accel_1/2550g CAL_sensor_lat_accel_raw_threshold;
+u8_accel_1/255g CAL_sensor_lat_accel_raw_threshold;
 byte DAT_40002810;
 byte DAT_40002811;
 undefined DAT_40002810;
@@ -8536,7 +8539,7 @@ char DAT_40001631;
 u8_factor_1/100 CAL_fuel_pump_integral_gain;
 bool CAL_fuel_pump_integral_hold_on_dfco;
 bool CAL_fuel_pump_integral_enable;
-u8_fuel_gal_x10 CAL_fuel_pump_integral_fuel_level_min;
+u16_volume_1/10gallon CAL_fuel_pump_integral_fuel_level_min;
 char DAT_40002068;
 char DAT_40002069;
 char DAT_4000288f;
@@ -11220,8 +11223,8 @@ void interrupt_timer_2000hz(void)
   uVar6 = emios_uc[0].uc._144_4_;
   emios_uc[0].uc._144_4_ = uVar6 & 0xfffffffe | 1;
   DAT_40001580 = DAT_40001580 + -1;
-  if ((cVar4 == '\0') && ((queue_flags_unknown & 8) == 8)) {
-    queue_flags_unknown = queue_flags_unknown & 0xf7;
+  if ((cVar4 == '\0') && ((flexcan_tx_queue_state_flags & 8) == 8)) {
+    flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xf7;
     DAT_40002530 = DAT_40002530 + '\x01';
   }
   return;
@@ -14111,7 +14114,7 @@ void set_spr154_2c52(void)
 
 
 
-uint8_t fuel_level_lookup_filtered(uint8_t fuel_level_raw)
+uint8_t fuel_level_lookup_filtered(u8_volume_1_10gallon fuel_level_raw)
 
 {
   uint8_t uVar1;
@@ -14121,28 +14124,29 @@ uint8_t fuel_level_lookup_filtered(uint8_t fuel_level_raw)
   longlong lVar3;
   int iVar4;
   ulonglong uVar5;
-  uint16_t _threshold_low;
+  u16_voltage_5_1023v _threshold_low;
   
   _threshold_low = CAL_sensor_fuel_level_sensor_voltage_threshold[1];
   uVar2 = (ulonglong)(char)fuel_level_raw;
   _fuel_level_high =
        lookup_2D_uint16_interpolated
-                 ('\b',CAL_sensor_fuel_level_sensor_voltage_threshold[0],CAL_sensor_fuel_level,
-                  CAL_sensor_fuel_level_X_voltage);
+                 (8,CAL_sensor_fuel_level_sensor_voltage_threshold[0],
+                  (uint16_t *)CAL_sensor_fuel_level,CAL_sensor_fuel_level_X_voltage);
   _fuel_level_low =
        lookup_2D_uint16_interpolated
-                 ('\b',_threshold_low,CAL_sensor_fuel_level,CAL_sensor_fuel_level_X_voltage);
+                 ('\b',_threshold_low,(uint16_t *)CAL_sensor_fuel_level,
+                  CAL_sensor_fuel_level_X_voltage);
   if (((_fuel_level_high < _fuel_level_low) &&
       (((int)(uint)_fuel_level_low < (int)(char)fuel_level_raw ||
        ((int)(char)fuel_level_raw <= (int)(uint)_fuel_level_high)))) ||
      ((iVar4 = (int)(char)fuel_level_raw, _fuel_level_low < _fuel_level_high &&
       (((int)(uint)_fuel_level_high < iVar4 || (iVar4 <= (int)(uint)_fuel_level_low)))))) {
-    uVar1 = (uint8_t)((ulonglong)DAT_4000182c / 40000);
+    uVar1 = (uint8_t)((ulonglong)fuel_level_filtered_x40000 / 40000);
   }
   else {
-    if (((int)(uint)CAL_fuel_level_debounce_window_low___ <
+    if (((int)(uint)CAL_fuel_level_debounce_window_low <
          (int)((int)(char)fuel_level_raw - (uint)fuel_level)) && (engine_speed_2 != 0)) {
-      uVar5 = (ulonglong)fuel_level + (ulonglong)CAL_fuel_level_debounce_window_low___;
+      uVar5 = (ulonglong)fuel_level + (ulonglong)CAL_fuel_level_debounce_window_low;
     }
     else {
       uVar5 = uVar2;
@@ -14156,45 +14160,45 @@ uint8_t fuel_level_lookup_filtered(uint8_t fuel_level_raw)
          ((ips_state_flags == '\0' || (ips_state_flags == '\t')))) ||
         (((COD_base.COD[1] >> 0x15 & 3) == 2 &&
          (((clutch_pos_sensor & 2) == 0 && ((clutch_pos_sensor & 8) == 0)))))))) {
-      if (DAT_400018c4 == 0) {
+      if (fuel_level_update_holdoff_timer == 0) {
         lVar3 = libc_abs(fuel_level - uVar2);
-        if (((int)lVar3 < (int)(uint)u8_fuel_gal_x10_40008855) &&
+        if (((int)lVar3 < (int)(uint)CAL_fuel_level_change_threshold) &&
            ((uVar2 & 0xffffffff) < ((ulonglong)(COD_base.COD[0] >> 4) & 0x7f) * 3)) {
-          DAT_4000147d = DAT_40008697;
+          fuel_level_stable_counter = CAL_fuel_level_stable_count;
         }
-        else if (DAT_4000147d != '\0') {
-          DAT_4000147d = DAT_4000147d + -1;
+        else if (fuel_level_stable_counter != '\0') {
+          fuel_level_stable_counter = fuel_level_stable_counter + -1;
         }
       }
       else {
-        DAT_400018c4 = DAT_400018c4 + -1;
+        fuel_level_update_holdoff_timer = fuel_level_update_holdoff_timer + -1;
       }
     }
     else {
-      DAT_400018c4 = (ushort)DAT_40008696 << 3;
-      DAT_4000147d = DAT_40008697;
+      fuel_level_update_holdoff_timer = (ushort)CAL_fuel_level_holdoff_count << 3;
+      fuel_level_stable_counter = CAL_fuel_level_stable_count;
     }
-    if (DAT_4000147d == '\0') {
-      DAT_4000147d = DAT_40008697;
-      DAT_4000182c = iVar4 * 40000;
+    if (fuel_level_stable_counter == '\0') {
+      fuel_level_stable_counter = CAL_fuel_level_stable_count;
+      fuel_level_filtered_x40000 = iVar4 * 40000;
     }
-    else if ((ulonglong)DAT_4000182c / 40000 < (uVar5 & 0xffffffff)) {
-      DAT_4000182c = (uint)((((((((ulonglong)DAT_4000182c & 0x3fffffff) * 4 +
-                                 (ulonglong)DAT_4000182c << 0x20) >> 0x22) -
-                              ((longlong)(int)DAT_4000182c * (longlong)(int)(uint)DAT_400086db &
-                              0xffffffffU) / 40000) +
-                             (longlong)(int)uVar5 * (longlong)(int)(uint)DAT_400086db) * 100 &
-                            0xffffffff) / 0x7d);
+    else if ((ulonglong)fuel_level_filtered_x40000 / 40000 < (uVar5 & 0xffffffff)) {
+      fuel_level_filtered_x40000 =
+           (uint)((((((((ulonglong)fuel_level_filtered_x40000 & 0x3fffffff) * 4 +
+                       (ulonglong)fuel_level_filtered_x40000 << 0x20) >> 0x22) -
+                    ((longlong)(int)fuel_level_filtered_x40000 * (longlong)(int)(uint)DAT_400086db &
+                    0xffffffffU) / 40000) + (longlong)(int)uVar5 * (longlong)(int)(uint)DAT_400086db
+                   ) * 100 & 0xffffffff) / 0x7d);
     }
     else {
-      DAT_4000182c = (uint)((((((((ulonglong)DAT_4000182c & 0x3fffffff) * 4 +
-                                 (ulonglong)DAT_4000182c << 0x20) >> 0x22) -
-                              ((longlong)(int)DAT_4000182c * (longlong)(int)(uint)DAT_400087e9 &
-                              0xffffffffU) / 40000) +
-                             (longlong)(int)uVar5 * (longlong)(int)(uint)DAT_400087e9) * 100 &
-                            0xffffffff) / 0x7d);
+      fuel_level_filtered_x40000 =
+           (uint)((((((((ulonglong)fuel_level_filtered_x40000 & 0x3fffffff) * 4 +
+                       (ulonglong)fuel_level_filtered_x40000 << 0x20) >> 0x22) -
+                    ((longlong)(int)fuel_level_filtered_x40000 * (longlong)(int)(uint)DAT_400087e9 &
+                    0xffffffffU) / 40000) + (longlong)(int)uVar5 * (longlong)(int)(uint)DAT_400087e9
+                   ) * 100 & 0xffffffff) / 0x7d);
     }
-    uVar1 = (uint8_t)((ulonglong)DAT_4000182c / 40000);
+    uVar1 = (uint8_t)((ulonglong)fuel_level_filtered_x40000 / 40000);
   }
   return uVar1;
 }
@@ -15301,12 +15305,13 @@ void adc_convert(void)
                             s___AQar_40008ccc);
   if (fuel_level_voltage < 0x3ff) {
     uVar4 = lookup_2D_uint16_interpolated
-                      ('\b',fuel_level_voltage,CAL_sensor_fuel_level,CAL_sensor_fuel_level_X_voltage
-                      );
+                      ('\b',fuel_level_voltage,(uint16_t *)CAL_sensor_fuel_level,
+                       CAL_sensor_fuel_level_X_voltage);
   }
   else {
     uVar4 = lookup_2D_uint16_interpolated
-                      ('\b',0x3ff,CAL_sensor_fuel_level,CAL_sensor_fuel_level_X_voltage);
+                      ('\b',0x3ff,(uint16_t *)CAL_sensor_fuel_level,CAL_sensor_fuel_level_X_voltage)
+    ;
   }
   fuel_level_raw = 0xff;
   if (uVar4 < 0x100) {
@@ -20110,7 +20115,7 @@ void cooling_fan_engine_bay_control(void)
   uint uVar1;
   uint uVar2;
   
-  if ((COD_base.COD[1] >> 0x1a & 1) == 0) {
+  if ((COD_base.COD[1] >> 26 & 1) == 0) {
     obd_ii_relay_status = obd_ii_relay_status & 0xbf;
   }
   else {
@@ -21500,8 +21505,8 @@ void fuel_level_and_usage(void)
   if ((999 < LEA_fuel_range_smoothed) ||
      ((car_speed_x100 == 0 &&
       (((COD_base.COD[0] >> 4 & 0x7f) * 3 <= (uint)fuel_level ||
-       ((int)(uint)u8_fuel_gal_x10_40008855 <= (int)((uint)fuel_level - (uint)fuel_level_prev)))))))
-  {
+       ((int)(uint)CAL_fuel_level_change_threshold <=
+        (int)((uint)fuel_level - (uint)fuel_level_prev))))))) {
     LEA_fuel_range_smoothed = cluster_range_to_empty_calculated;
   }
   fuel_level_prev = fuel_level;
@@ -39002,6 +39007,7 @@ void obd_ii_mode2F_processing(void)
     obd_ii_mode2f_timeout = CAL_obd_ii_mode2f_timeout;
     break;
   case 0x144:
+                    // coolant recirculation pump
     if ((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) {
       uVar3 = obd_ii_mode2f_flags_state & 0xffbfffff;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x400000;
@@ -43329,7 +43335,7 @@ void obd_ii_init_fuel_evap_diagnostics(void)
 
 {
   DAT_400023a2 = 0;
-  DAT_4000182c = (uint)fuel_level_raw * 40000;
+  fuel_level_filtered_x40000 = (uint)fuel_level_raw * 40000;
   fuel_level = fuel_level_raw;
   DAT_40001828 = (int)obd_ii_evap_purge_pressure << 8;
   DAT_400023a7 = DAT_4000d413;
@@ -46419,7 +46425,7 @@ undefined8 FUN_000af660(byte param_1)
         puVar2 < (undefined1 *)((uint)param_1 * 0x1ac + 0x40006e2c); puVar2 = puVar2 + 1) {
       *puVar2 = 0;
     }
-    queue_flags_unknown = queue_flags_unknown | 2;
+    flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 2;
     queue_reset_unknown();
     uVar1 = 0xc;
   }
@@ -46460,7 +46466,7 @@ bool FUN_000af790(byte param_1)
 {
   if (param_1 < 10) {
     (&DAT_40006e2a)[(uint)param_1 * 0x1ac] = 1;
-    queue_flags_unknown = queue_flags_unknown | 0x80;
+    flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 0x80;
   }
   return param_1 < 10;
 }
@@ -46477,7 +46483,7 @@ void FUN_000af7e0(void)
       (&DAT_40006e2a)[(uint)i * 0x1ac] = 1;
     }
   }
-  queue_flags_unknown = queue_flags_unknown | 0x80;
+  flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 0x80;
   return;
 }
 
@@ -46495,7 +46501,7 @@ void FUN_000af850(byte param_1)
         return;
       }
     }
-    queue_flags_unknown = queue_flags_unknown & 0x7f;
+    flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0x7f;
   }
   return;
 }
@@ -46510,7 +46516,7 @@ void FUN_000af8d0(void)
   for (i = 0; i < 10; i = i + 1) {
     (&DAT_40006e2a)[(uint)i * 428] = 0;
   }
-  queue_flags_unknown = queue_flags_unknown & 0x77;
+  flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0x77;
   return;
 }
 
@@ -46575,7 +46581,7 @@ void flexcan_counters_scheduler_tick(uint8_t schedule_slot)
   char cVar4;
   byte i;
   
-  if ((queue_flags_unknown & 0x80) != 0) {
+  if ((flexcan_tx_queue_state_flags & 0x80) != 0) {
     cVar4 = '\0';
     for (i = 0; i < 10; i = i + 1) {
       if (((((&DAT_40006e2a)[(uint)i * 0x1ac] & 1) != 0) &&
@@ -46601,8 +46607,8 @@ void flexcan_counters_scheduler_tick(uint8_t schedule_slot)
       }
       cVar4 = cVar4 + '\f';
     }
-    if (((queue_flags_unknown & 8) == 0) && (queue_len != '\0')) {
-      queue_flags_unknown = queue_flags_unknown | 8;
+    if (((flexcan_tx_queue_state_flags & 8) == 0) && (queue_len != '\0')) {
+      flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 8;
       flexcan_tx_from_queue_0x351();
     }
   }
@@ -46650,18 +46656,19 @@ void diag_comm_queue_mgmt_unknown(byte *data)
   
   if ((*data == 1) || (*data == 5)) {
     if (*(short *)(data + 2) != 0) {
-      if ((queue_flags_unknown & 0x20) == 0) {
+      if ((flexcan_tx_queue_state_flags & 0x20) == 0) {
         return;
       }
-      queue_flags_unknown = queue_flags_unknown & 0xdf | 0x10;
+      flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xdf | 0x10;
       return;
     }
     if (*data == 1) {
-      if (((queue_flags_unknown & 0x20) == 0) && ((queue_flags_unknown & 0x10) == 0)) {
+      if (((flexcan_tx_queue_state_flags & 0x20) == 0) &&
+         ((flexcan_tx_queue_state_flags & 0x10) == 0)) {
         FUN_000af8d0();
         DAT_400068a9 = 0;
       }
-      queue_flags_unknown = queue_flags_unknown & 0xef | 0x20;
+      flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xef | 0x20;
     }
     DAT_400068a0 = 0xff;
     DAT_400068a1 = 0;
@@ -46670,7 +46677,7 @@ void diag_comm_queue_mgmt_unknown(byte *data)
     DAT_400068a4 = 0;
   }
   else {
-    if ((queue_flags_unknown & 0x20) == 0) {
+    if ((flexcan_tx_queue_state_flags & 0x20) == 0) {
       return;
     }
     DAT_400068a0 = 0xff;
@@ -46702,7 +46709,7 @@ void diag_comm_queue_mgmt_unknown(byte *data)
       diag_stream_read(0,data[2],&DAT_400068a3);
       break;
     case 6:
-      if ((queue_flags_unknown & 2) == 0) {
+      if ((flexcan_tx_queue_state_flags & 2) == 0) {
         DAT_400068a1 = 0x22;
       }
       else if (data[2] == 0) {
@@ -46720,16 +46727,16 @@ void diag_comm_queue_mgmt_unknown(byte *data)
       }
       break;
     case 7:
-      queue_flags_unknown = queue_flags_unknown & 0xdf;
+      flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xdf;
       if (data[2] == 0) {
-        queue_flags_unknown = queue_flags_unknown | 0x10;
+        flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 0x10;
       }
       else {
         FUN_000af8d0();
       }
       break;
     case 8:
-      if ((queue_flags_unknown & 2) == 0) {
+      if ((flexcan_tx_queue_state_flags & 2) == 0) {
         DAT_400068a1 = 0x22;
       }
       else if (data[2] == 0) {
@@ -46834,7 +46841,7 @@ void clear_can_logging_buffer(void)
 void flexcan_tx_from_queue_0x351(void)
 
 {
-  if (((queue_flags_unknown & 0x80) != 0) && (queue_len != '\0')) {
+  if (((flexcan_tx_queue_state_flags & 0x80) != 0) && (queue_len != '\0')) {
     flexcan_tx_from_queue_helper(&queue_buffer + (uint)queue_head * 2);
     queue_head = queue_head + 1;
     if (0x77 < queue_head) {
@@ -46842,7 +46849,7 @@ void flexcan_tx_from_queue_0x351(void)
     }
     queue_len = queue_len + 0xff;
     if (queue_len == '\0') {
-      queue_flags_unknown = queue_flags_unknown & 0xf7;
+      flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xf7;
     }
   }
   return;
@@ -47307,7 +47314,7 @@ void init_flexcan_a(void)
   uVar3 = DAT_fffc0000;
   DAT_fffc0000 = uVar3 & 0xefffffff;
   DAT_fffc002c = 0xffffffff;
-  DAT_fffc0030 = 0xffffffff;
+  flexcan_a_interrupt_reg_flag_low = 0xffffffff;
   return;
 }
 
@@ -47328,8 +47335,8 @@ void flexcan_a_rx_B7(void)
   
   local_20 = 0;
   local_1c = 0;
-  uVar4 = DAT_fffc0030;
-  DAT_fffc0030 = uVar4 & 0xfffffffe | 1;
+  uVar4 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar4 & 0xfffffffe | 1;
   uVar4 = fca_buffer[0].code_and_timestamp;
   while ((uVar4 >> 0x18 & 1) != 0) {
     uVar4 = fca_buffer[0].code_and_timestamp;
@@ -47488,8 +47495,8 @@ void flexcan_a_rx_199(void)
   local_10[2] = 0;
   local_10[3] = 0;
   local_c = 0;
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xfffffffd | 2;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffffffd | 2;
   uVar2 = fca_buffer[1].code_and_timestamp;
   while ((uVar2 >> 0x18 & 1) != 0) {
     uVar2 = fca_buffer[1].code_and_timestamp;
@@ -47569,8 +47576,8 @@ void flexcan_a_rx_202(void)
   byte bStack_e;
   
   _local_10 = 0;
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xfffffffb | 4;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffffffb | 4;
   uVar2 = fca_buffer[2].code_and_timestamp;
   while ((uVar2 >> 0x18 & 1) != 0) {
     uVar2 = fca_buffer[2].code_and_timestamp;
@@ -47619,8 +47626,8 @@ void flexcan_a_rx_407(void)
   uint32_t uVar3;
   byte bVar4;
   
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xfffffff7 | 8;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffffff7 | 8;
   uVar2 = fca_buffer[3].code_and_timestamp;
   while ((uVar2 >> 0x18 & 1) != 0) {
     uVar2 = fca_buffer[3].code_and_timestamp;
@@ -47672,8 +47679,8 @@ void flexcan_a_rx_85(void)
   undefined4 local_10;
   
   local_10 = 0;
-  uVar3 = DAT_fffc0030;
-  DAT_fffc0030 = uVar3 & 0xffffffef | 0x10;
+  uVar3 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar3 & 0xffffffef | 0x10;
   uVar3 = fca_buffer[4].code_and_timestamp;
   while ((uVar3 >> 0x18 & 1) != 0) {
     uVar3 = fca_buffer[4].code_and_timestamp;
@@ -47734,8 +47741,8 @@ void flexcan_a_rx_250(void)
   
   local_10 = 0;
   local_c = 0;
-  uVar4 = DAT_fffc0030;
-  DAT_fffc0030 = uVar4 & 0xffffffdf | 0x20;
+  uVar4 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar4 & 0xffffffdf | 0x20;
   uVar4 = fca_buffer[5].code_and_timestamp;
   while ((uVar4 >> 0x18 & 1) != 0) {
     uVar4 = fca_buffer[5].code_and_timestamp;
@@ -47810,8 +47817,8 @@ void flexcan_a_rx_250(void)
   fca_buffer[5].arb_id = uVar5 & 0xe003ffff | 0x9400000;
   uVar4 = fca_buffer[5].code_and_timestamp;
   fca_buffer[5].code_and_timestamp = uVar4 & 0xf0ffffff | 0x4000000;
-  uVar4 = DAT_fffc0030;
-  DAT_fffc0030 = uVar4 & 0xffffffdf | 0x20;
+  uVar4 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar4 & 0xffffffdf | 0x20;
   return;
 }
 
@@ -47832,8 +47839,8 @@ void flexcan_a_rx_310_311(void)
   byte bVar10;
   byte bVar11;
   
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xffffffbf | 0x40;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xffffffbf | 0x40;
   uVar2 = fca_buffer[6].code_and_timestamp;
   while ((uVar2 >> 0x18 & 1) != 0) {
     uVar2 = fca_buffer[6].code_and_timestamp;
@@ -47911,8 +47918,8 @@ void flexcan_unknown1(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xffffff7f | 0x80;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xffffff7f | 0x80;
   return;
 }
 
@@ -47923,8 +47930,8 @@ void flexcan_unknown2(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xfffffeff | 0x100;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfffffeff | 0x100;
   return;
 }
 
@@ -47967,8 +47974,8 @@ void flexcan_a_rx_7df(void)
   fca_buffer[9].arb_id = uVar2 & 0xe003ffff | 0x1f7c0000;
   uVar1 = fca_buffer[9].code_and_timestamp;
   fca_buffer[9].code_and_timestamp = uVar1 & 0xf0ffffff | 0x4000000;
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xfffffdff | 0x200;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfffffdff | 0x200;
   return;
 }
 
@@ -48011,8 +48018,8 @@ void flexcan_a_rx_7e0(void)
   fca_buffer[10].arb_id = uVar3 & 0xe003ffff | 0x1f800000;
   uVar2 = fca_buffer[10].code_and_timestamp;
   fca_buffer[10].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xfffffbff | 0x400;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffffbff | 0x400;
   return;
 }
 
@@ -48044,8 +48051,8 @@ void flexcan_a_rx_502(void)
     fca_buffer[0xb].arb_id = uVar3 & 0xe003ffff | 0x14080000;
     uVar2 = fca_buffer[0xb].code_and_timestamp;
     fca_buffer[0xb].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
-    uVar2 = DAT_fffc0030;
-    DAT_fffc0030 = uVar2 & 0xfffff7ff | 0x800;
+    uVar2 = flexcan_a_interrupt_reg_flag_low;
+    flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffff7ff | 0x800;
   }
   uVar2 = fca_buffer[0xb].code_and_timestamp;
   while ((uVar2 >> 0x18 & 1) != 0) {
@@ -48053,8 +48060,8 @@ void flexcan_a_rx_502(void)
   }
   uVar2 = fca_buffer[0xb].code_and_timestamp;
   if ((uVar2 >> 0x18 & 6) == 6) {
-    uVar2 = DAT_fffc0030;
-    DAT_fffc0030 = uVar2 & 0xfffff7ff | 0x800;
+    uVar2 = flexcan_a_interrupt_reg_flag_low;
+    flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffff7ff | 0x800;
     uVar2 = fca_buffer[0xb].code_and_timestamp;
     fca_buffer[0xb].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
     uVar1 = DAT_fffc0008;
@@ -48063,8 +48070,8 @@ void flexcan_a_rx_502(void)
   else {
     uVar2 = fca_buffer[0xb].code_and_timestamp;
     if ((uVar2 >> 0x18 & 2) == 2) {
-      uVar2 = DAT_fffc0030;
-      DAT_fffc0030 = uVar2 & 0xfffff7ff | 0x800;
+      uVar2 = flexcan_a_interrupt_reg_flag_low;
+      flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffff7ff | 0x800;
       uVar3 = fca_buffer[0xb].arb_id;
       if ((uVar3 >> 0x12 & 0x7ff) == 0x502) {
         for (bVar4 = 0; bVar4 < 8; bVar4 = bVar4 + 1) {
@@ -48094,8 +48101,8 @@ void flexcan_a_rx_350(void)
   uint uVar2;
   uint32_t uVar3;
   
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xffffefff | 0x1000;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xffffefff | 0x1000;
   uVar2 = fca_buffer[0xc].code_and_timestamp;
   while ((uVar2 >> 0x18 & 1) != 0) {
     uVar2 = fca_buffer[0xc].code_and_timestamp;
@@ -48161,8 +48168,8 @@ void flexcan_a_rx_303(void)
   
   local_10 = 0;
   local_c = 0;
-  uVar3 = DAT_fffc0030;
-  DAT_fffc0030 = uVar3 & 0xffffdfff | 0x2000;
+  uVar3 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar3 & 0xffffdfff | 0x2000;
   uVar3 = fca_buffer[0xd].code_and_timestamp;
   while ((uVar3 >> 0x18 & 1) != 0) {
     uVar3 = fca_buffer[0xd].code_and_timestamp;
@@ -48241,8 +48248,8 @@ void flexcan_a_rx_wheelspeeds(void)
   
   local_20 = 0;
   local_1c = 0;
-  uVar4 = DAT_fffc0030;
-  DAT_fffc0030 = uVar4 & 0xffffbfff | 0x4000;
+  uVar4 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar4 & 0xffffbfff | 0x4000;
   uVar4 = fca_buffer[0xe].code_and_timestamp;
   while ((uVar4 >> 0x18 & 1) != 0) {
     uVar4 = fca_buffer[0xe].code_and_timestamp;
@@ -48796,8 +48803,8 @@ LAB_000b4300:
     }
   }
 LAB_000b4780:
-  uVar5 = DAT_fffc0030;
-  DAT_fffc0030 = uVar5 & 0xffff7fff | 0x8000;
+  uVar5 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar5 & 0xffff7fff | 0x8000;
   return;
 }
 
@@ -48808,43 +48815,43 @@ void flexcan_a_interrupt(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x10 & 1) == 1) {
     flexcan_a_tx_7a0();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x11 & 1) == 1) {
     FUN_000b49e4();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x12 & 1) == 1) {
     FUN_000b4a10();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x13 & 1) == 1) {
     FUN_000b4a3c();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x14 & 1) == 1) {
     FUN_000b4a54();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x15 & 1) == 1) {
     flexcan_a_tx_114();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x16 & 1) == 1) {
     FUN_000b4c84();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x17 & 1) == 1) {
     flexcan_a_interrupt();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x18 & 1) == 1) {
     FUN_000b4cf8();
   }
-  uVar1 = DAT_fffc0030;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
   if ((uVar1 >> 0x19 & 1) == 1) {
     FUN_000b4d10();
   }
@@ -48862,8 +48869,8 @@ void flexcan_a_tx_7a0(void)
   short sVar4;
   ushort uVar5;
   
-  uVar2 = DAT_fffc0030;
-  DAT_fffc0030 = uVar2 & 0xfffeffff | 0x10000;
+  uVar2 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar2 & 0xfffeffff | 0x10000;
   if (DAT_40002562 != 0) {
     DAT_40002580 = fca_buffer[0x10].data;
     uVar2 = fca_buffer[0x10].code_and_timestamp;
@@ -48910,8 +48917,8 @@ void FUN_000b49e4(void)
   
   uVar1 = fca_buffer[0x11].code_and_timestamp;
   if ((uVar1 >> 0x18 & 0xf) == 8) {
-    uVar1 = DAT_fffc0030;
-    DAT_fffc0030 = uVar1 & 0xfffdffff | 0x20000;
+    uVar1 = flexcan_a_interrupt_reg_flag_low;
+    flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfffdffff | 0x20000;
   }
   return;
 }
@@ -48925,8 +48932,8 @@ void FUN_000b4a10(void)
   
   uVar1 = fca_buffer[0x12].code_and_timestamp;
   if ((uVar1 >> 0x18 & 0xf) == 8) {
-    uVar1 = DAT_fffc0030;
-    DAT_fffc0030 = uVar1 & 0xfffbffff | 0x40000;
+    uVar1 = flexcan_a_interrupt_reg_flag_low;
+    flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfffbffff | 0x40000;
   }
   return;
 }
@@ -48938,8 +48945,8 @@ void FUN_000b4a3c(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xfff7ffff | 0x80000;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfff7ffff | 0x80000;
   return;
 }
 
@@ -48950,8 +48957,8 @@ void FUN_000b4a54(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xffefffff | 0x100000;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xffefffff | 0x100000;
   return;
 }
 
@@ -48979,8 +48986,8 @@ void flexcan_a_tx_114(void)
   }
   c_and_t = fca_buffer[0x15].code_and_timestamp;
   if ((c_and_t >> 0x18 & 0xf) == 8) {
-    uVar1 = DAT_fffc0030;
-    DAT_fffc0030 = uVar1 & 0xffdfffff | 0x200000;
+    uVar1 = flexcan_a_interrupt_reg_flag_low;
+    flexcan_a_interrupt_reg_flag_low = uVar1 & 0xffdfffff | 0x200000;
   }
   if (message_102_complete) {
     message_102_complete = false;
@@ -49034,8 +49041,8 @@ void FUN_000b4c84(void)
   
   uVar1 = fca_buffer[0x16].code_and_timestamp;
   if ((uVar1 >> 0x18 & 0xf) == 8) {
-    uVar1 = DAT_fffc0030;
-    DAT_fffc0030 = uVar1 & 0xffbfffff | 0x400000;
+    uVar1 = flexcan_a_interrupt_reg_flag_low;
+    flexcan_a_interrupt_reg_flag_low = uVar1 & 0xffbfffff | 0x400000;
   }
   return;
 }
@@ -49047,8 +49054,8 @@ void flexcan_a_interrupt(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xff7fffff | 0x800000;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xff7fffff | 0x800000;
   if (CAL_ecu_flexcan_diag_bus_select == 1) {
     flexcan_tx_from_queue_0x351();
   }
@@ -49062,8 +49069,8 @@ void FUN_000b4cf8(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xfeffffff | 0x1000000;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfeffffff | 0x1000000;
   return;
 }
 
@@ -49074,8 +49081,8 @@ void FUN_000b4d10(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_fffc0030;
-  DAT_fffc0030 = uVar1 & 0xfdffffff | 0x2000000;
+  uVar1 = flexcan_a_interrupt_reg_flag_low;
+  flexcan_a_interrupt_reg_flag_low = uVar1 & 0xfdffffff | 0x2000000;
   return;
 }
 
@@ -54961,8 +54968,7 @@ void revlimit(void)
   
   revlimit_trim_per_gear =
        lookup_2D_uint8_interpolated
-                 ('\a',car_current_gear,CAL_revlimit_trim_per_gear,CAL_revlimit_trim_per_gear_X_gear
-                 );
+                 (7,car_current_gear,CAL_revlimit_trim_per_gear,CAL_revlimit_trim_per_gear_X_gear);
   if ((ips_enforce_speed_limit == false) && (CAL_vehicle_speed_limit_enforce == false)) {
     _speed_limit = 0xff;
   }
