@@ -128,6 +128,20 @@ The existing `lib.calibration unlock` helper is not Emira-specific as-is. It
 writes a contiguous unlock magic used by older platforms, while this firmware
 checks four scattered calibration bytes.
 
+## Unauthenticated Backdoor CAN Protocol (IDs 0x50, 0x51)
+
+In addition to the standard UDS/CRP paths, a proprietary and unauthenticated CAN
+protocol is present on IDs `0x50` and `0x51`:
+
+- `emira.c:11026`: `flexcan_rx_50_51` unauthenticated receiver.
+- `emira.c:11057`: Messages are collected into a 4096-byte buffer `DAT_40004700`.
+- `emira.c:11574`: Command `0x06` triggers `FUN_00802740` (proprietary update).
+- `emira.c:12433`: The "ECU ID" session check (`DAT_40000a94`) is initialized to
+  `0` at boot, making the backdoor reachable by default.
+
+This protocol provides an unauthenticated write primitive to several memory
+targets, including the RSA public key area at `0x900`.
+
 ## RSA Signature Enforcement
 
 The firmware has a higher-level RSA signature check:
@@ -139,22 +153,56 @@ The firmware has a higher-level RSA signature check:
 - `emira.c:19954`: checks whether the RSA public key area is blank.
 - `emira.c:19986`: `rsa_sign_check()`.
 
-Critical behavior:
+### Cryptographic Weakness: Missing Padding Verification
+
+The `signcheck` implementation contains a significant implementation flaw. While
+it performs RSA decryption, it fails to validate the PKCS#1 v1.5 padding. It
+only verifies that the final 20 bytes of the decrypted block match the computed
+SHA1 hash:
 
 ```c
-flash_key_is_programmed = rsa_key_flash_check();
-if (flash_key_is_programmed == 0) {
-  signcheck_succes = true;
-}
+memcmp_rc1 = memcmp(certout + 108, &md, 20);
 ```
 
-Implications:
+While forging a signature still requires the matching private key (unless a small
+public exponent exploit is applicable), this omission significantly weakens the
+security posture and facilitates signature forgery if the key material or
+exponent are weak.
+
+### Implications
 
 - If the RSA public key area is blank, RSA verification is bypassed and the main
   software integrity requirement becomes the calibration CRC.
 - If the RSA public key area is programmed, changing any calibration byte changes
   the hash covered by `signcheck()`, so the existing signature will no longer
   match.
+- **RCE Path:** The unauthenticated 0x50/0x51 backdoor allows writing to the
+  RSA public key area (`0x900`). An attacker can replace the Lotus public key
+  with their own, then flash custom firmware signed with their matching private
+  key.
+
+## Exploit Path: RSA Key Swap via CAN Backdoor
+
+This path provides a persistent unlock by replacing the ECU's root-of-trust. It
+bypasses the need for the UDS `0x2E` stack overflow by using the built-in
+unauthenticated CAN protocol.
+
+1.  **Preparation:**
+    - Generate a custom RSA-1024 key pair.
+    - Prepare a patched calibration with the four unlock bytes and valid CRC16.
+    - Sign the patched calibration using the custom private key.
+2.  **Key Injection:**
+    - Use the `0x50/0x51` CAN backdoor to send a Service `0x06` payload.
+    - Target the RSA public key region at `0x900` with the custom public key.
+    - If `0x900` is already programmed, this may require a separate erase
+      primitive or a fallback to the `0x2E` RCE to drive the flash controller.
+3.  **Authorized Flashing:**
+    - Once the ECU trusts the custom public key, flash the signed, patched
+      calibration via standard UDS Services `0x34`/`0x36`.
+4.  **Verification:**
+    - Reset the ECU. `signcheck()` will pass using the injected key, and
+      `init_core_system` will set `ecu_unlocked = true` based on the patched
+      calibration bytes.
 
 Routine control appears to expose status:
 
