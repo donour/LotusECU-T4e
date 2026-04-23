@@ -195,11 +195,160 @@ An unrelated diagnostic handler has a stack overflow candidate:
 - `emira.c:85274`: copies `*param_3` bytes into that buffer without a local cap.
 - `emira.c:86097`: caller appears to derive the length from request data.
 
-This is a memory-corruption/RCE research lead, but it is not a safe or direct
-calibration flashing path. Even with code execution, persistent RSA key
-replacement still faces the flash-sector erase problem described above. Treat
-this as a bench-only vulnerability research item, not as the preferred unlock
-workflow.
+Reachability refinement:
+
+- The dispatcher at `emira.c:68846` routes UDS service `0x2E`
+  (WriteDataByIdentifier) to `FUN_00a89a8c`, which calls the vulnerable
+  `FUN_00a89070`.
+- `FUN_00a89a8c` (`emira.c:86183-86243`) requires the active session byte to be
+  `0x03` (extended diagnostic session), entered with an unauthenticated
+  `0x10 03` request.
+- The only gate before the `memmove` in `FUN_00a89070` is
+  `FUN_00a4dfe4` (`emira.c:64856-64862`), which checks
+  `FUN_00a0f338() == 0 && DAT_40003666 < 300`. That is a system-ready check,
+  **not** UDS security access.
+- The length used by the copy is `*(byte)(param_1 + 0x41) - 2`
+  (`emira.c:86196`), so any attacker on the powertrain CAN bus who can enter
+  extended session can drive up to ~253 bytes into an 84-byte stack buffer.
+
+This is a memory-corruption/RCE research lead. It is not a safe or direct
+calibration flashing path by itself, but it is the primitive that enables the
+"RSA key programmed" bypass path described below.
+
+## RSA Verification Cache Bypass
+
+`rsa_sign_check` (`emira.c:19986-20009`) has a short-circuit that is not the
+"key area blank" path:
+
+```c
+flash_key_is_programmed = rsa_key_flash_check();
+if (flash_key_is_programmed == 0) { /* key blank, skip */ }
+else {
+  previously_verified = check_previous_verify();
+  if (previously_verified != 0) { signcheck_succes = true; }   // skip signcheck()
+  else { signcheck_succes = signcheck(); if (ok) cache_verify_result(); }
+}
+```
+
+`check_previous_verify` (`emira.c:19943-19950`) is:
+
+```c
+memcmp(BYTE_ARRAY_4000795e, BYTE_ARRAY_0082136c, 8) == 0
+```
+
+Eight bytes of RAM at `0x4000795e` compared against a fixed constant in ROM at
+`0x0082136c`. The ROM constant is known from any firmware dump, so the cache is
+a plain "skip RSA this boot" flag, not a cryptographic binding.
+
+`cache_verify_result` (`emira.c:19912-19924`) sets the cache to the ROM
+constant after a successful `signcheck()`.
+
+### Cache is persistent, not plain RAM
+
+The 0x128-byte region containing the cache (`0x4000795c..0x40007a83`) is
+backed by non-volatile storage and re-validated with its own CRC16:
+
+- `FUN_0080f1c0` (`emira.c:15273-15283`): recomputes
+  `CRC16(&DAT_4000795c, 0x126, 0xffff)` into `DAT_40007a82` and persists the
+  region via `FUN_0080f0e0`.
+- `FUN_0080ee9c` (`emira.c:15180-15197`): loads the region back.
+- Boot-time loader `FUN_0080f244` (`emira.c:15288-15336`) calls
+  `FUN_0080ee9c`, checks the CRC, and if it matches, trusts the cache.
+- `FUN_0080f448` (`emira.c:15340-15355`): reloader / CRC validator with
+  "zero and re-persist" on mismatch.
+
+The CRC-over-NV pattern means a valid cache survives reset and power cycle
+until an explicit clear happens.
+
+### Cache clearers
+
+`verification_result_clear` (`emira.c:19930-19938`) memsets the 8 bytes and
+calls `FUN_0080f1c0` to persist. Its callers are all flash-erase-program
+entry points for the signed regions:
+
+- `emira.c:12980` - high-level erase path for CAL (`0x20000`).
+- `emira.c:13074` - erase path for program (`PTR_DAT_00a00000`).
+- `emira.c:13103` - erase path for `0xf00000`.
+- `emira.c:13320` - `FUN_00808534` program-area helper.
+- `emira.c:13513` - `FUN_00808e40` helper for `0xf00000`.
+
+The cache is **not** cleared by any timer, watchdog, periodic task, session
+transition, or signcheck failure - only by re-erasing a signed region through
+the high-level wrapper.
+
+### Exploit Path With RSA Key Programmed
+
+This path does not require erasing the RSA key flash sector. The attacker
+keeps the existing signed firmware and RSA key in place and forges a
+"previously verified" state that survives reboot.
+
+1. Enter extended diagnostic session:
+   `0x10 03` over CAN (no security access required).
+2. Trigger the stack overflow in `FUN_00a89070` via an oversize `0x2E`
+   request and gain code execution in RAM.
+3. From the RCE payload, program the patched calibration into the CAL
+   region at `0x20000..0x2ffff`:
+   - Include the four unlock bytes at `+0x0e2`, `+0x218`, `+0x290`, `+0x337`.
+   - Store a correct calibration CRC16 at `CALBASE + 0xfffe`.
+   - Drive the flash controller directly rather than through the high-level
+     programming wrappers, so that `verification_result_clear` is not called.
+4. From the RCE payload, write the 8 verify-cache bytes taken from ROM
+   `0x0082136c` into RAM `0x4000795e`.
+5. Recompute `CRC16(&DAT_4000795c, 0x126, 0xffff)` and store it at
+   `DAT_40007a82`, then call `FUN_0080f1c0` (or its underlying
+   `FUN_0080f0e0`) to persist the cache region to NV.
+6. Reset.
+
+On the next boot, `firmware_integrity_validate` -> `rsa_sign_check` sees
+`check_previous_verify() == true` and returns success without running
+`signcheck()`. The patched, unlocked calibration runs. The RSA public key
+stays programmed and untouched.
+
+### Re-Exploit Conditions
+
+The bypass holds across reset and power cycle until one of these events:
+
+- Any flash erase that goes through the high-level wrappers at
+  `emira.c:12980`, `13074`, `13103`, `13320`, `13513`. In practice that
+  means any subsequent OEM or bench reprogramming of CAL, program, or the
+  `0xf00000` region.
+- Any code path that writes over the cache region without updating the
+  companion CRC, so the boot-time CRC check fails and the region is zeroed
+  (`emira.c:15325`, `15349`).
+
+After such an event, the attacker must re-run steps 1-6. The RCE primitive
+itself is not consumed by exploitation; the calibration stays patched across
+the bypass collapse, but a subsequent boot with a cleared cache will run
+`signcheck()`, find the CAL hash no longer matches the stored signature, and
+fail. At that point the only recovery is reverting to a signed calibration
+(or re-executing the bypass before that boot path runs, which is not
+generally possible without debug access).
+
+### Variant: Per-Boot Bypass Without Persist
+
+If writing the cache to NV is undesirable (to avoid leaving a forensic
+artifact), the attacker can skip step 5 and re-trigger the RCE on every
+boot while the ECU is in a state where
+`FUN_0080f244`/`FUN_0080f448` zeros the cache. The exploit then re-seeds
+`BYTE_ARRAY_4000795e` in RAM before any code path that consults
+`rsa_sign_check` runs. This is noisier and timing-sensitive, but does not
+touch NV. The patched calibration in CAL flash persists either way; only
+the cache part of the bypass needs re-seeding.
+
+### Caveats
+
+- `rsa_sign_check` is only one gate. Check whether any later runtime code
+  re-hashes CAL and compares to the stored signature independently of the
+  cache. A quick audit of direct `signcheck()` callers vs
+  `rsa_sign_check()` callers will answer this.
+- Step 3 assumes the RCE payload can drive the low-level flash controller
+  directly. If the only reachable write primitives go through
+  `FUN_00819cd8` or `FUN_00819f30`, the attacker must either (a) call the
+  clear themselves and then restore the cache after, or (b) interpose
+  between the clear and any subsequent integrity check.
+- The ROM constant at `0x0082136c` must be read from the running firmware
+  or a dump of the same variant. It is not compile-time randomized per
+  unit, based on the decompile.
 
 ## Practical Path Forward
 
@@ -214,9 +363,18 @@ Recommended sequence for authorized bench work:
    - Package and flash the calibration via the factory/CRP path or UDS
      programming path.
 4. If programmed:
-   - Do not assume unsigned calibration changes will boot.
+   - Do not assume unsigned calibration changes will boot through the normal
+     UDS programming flow - the high-level erase wrappers call
+     `verification_result_clear`, which invalidates the "previously verified"
+     cache and forces `signcheck()` to run on the modified calibration.
+   - The cache-bypass path described in "RSA Verification Cache Bypass" is
+     available via the `0x2E` stack overflow RCE, and works without erasing
+     the RSA key sector. It survives reset and power cycle, but collapses
+     the next time a signed region is re-flashed through the high-level
+     wrappers.
    - Use an already-signed image, an OEM signing route, or bench/debug access
-     with full flash backup and recovery.
+     with full flash backup and recovery if a durable, tamper-evident-proof
+     path is required.
    - Avoid attempting to erase the RSA key sector without a complete low-sector
      image and a proven restore procedure.
 
