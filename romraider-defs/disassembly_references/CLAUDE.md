@@ -6,22 +6,22 @@ This directory contains Ghidra-generated C disassembly of Lotus Evora (T6e platf
 used as the basis for building RomRaider tuning definitions. The goal is to understand calibration
 table locations, scaling, and units so that tuning parameters can be exposed to end users.
 
-The firmware is **Lotus/Bosch co-developed** engine management software for the Toyota-sourced 3.5L
-2GR-FE V6 engine with Lotus supercharger. All ECU variants run on the **Freescale MPC5534** except
-the Emira which uses the MPC5777C.
+The firmware is **Lotus/EFi-technology co-developed** engine management software for the Toyota-sourced 3.5L
+2GR-FE V6 engine with Lotus supercharger. Evora ECU variants run on the **Freescale MPC5534**.
+Emira uses the MPC5777C.
 
 ---
 
 ## ECU Variants
 
-| Directory    | Part Number | Vehicle                          | Market    | Notes                          |
-|--------------|-------------|----------------------------------|-----------|--------------------------------|
-| `E132E0288`  | E132E0288   | Lotus Evora GT (2020–2021)       | US (91 oct) | Manual + IPS; main reference  |
-| `C132E0278`  | C132E0278   | Lotus Evora GT430 (2019)         | UK        | ECU-based traction control     |
-| `C132E0271`  | C132E0271   | Lotus Evora 400 (2017)           | US Federal | Naturally aspirated base      |
-| `B13200091`  | B13200091   | Lotus Evora NA (2011)            | US Federal | Oldest variant; NA engine      |
-| `abs/`       | —           | ABS/ESP module (Bosch ESP8)      | All       | Evora 400, GT410, GT430, GT    |
-| `emira/`     | —           | Lotus Emira V6 Supercharged      | EU/UK (98 RON) | MPC5777C; different arch  |
+| Directory    | Part Number | Vehicle                          | Market         | Notes                          |
+|--------------|-------------|----------------------------------|----------------|--------------------------------|
+| `E132E0288`  | E132E0288   | Lotus Evora GT (2020–2021)       | US (91 oct)    | Manual + IPS; main reference   |
+| `C132E0278`  | C132E0278   | Lotus Evora GT430 (2019)         | UK             | ECU-based traction control     |
+| `C132E0271`  | C132E0271   | Lotus Evora 400 (2017)           | US Federal     | Naturally aspirated base       |
+| `B13200091`  | B13200091   | Lotus Evora NA (2011)            | US Federal     | Oldest variant; NA engine      |
+| `abs/`       | —           | ABS/ESP module (Bosch ESP8)      | All            | Evora 400, GT410, GT430, GT    |
+| `emira/`     | —           | Lotus Emira V6 Supercharged      | EU/UK (98 RON) | MPC5777C; different arch       |
 
 DO NOT READ `E132E0288/20251226_factor/`. It is incomplete.
 
@@ -324,7 +324,7 @@ the physical unit has not yet been determined.
 ## Notes and Caveats
 
 - All variable names are **analyst-assigned** except `DAT_*` and `FUN_*` (Ghidra auto-generated)
-- The disassembly is for **research and educational purposes** — Lotus/Bosch IP
+- The disassembly is for **research and educational purposes**
 - Fuel tank capacity: **60.0 liters**
 - O2 sensors: bank 1 = cylinders 1–3, bank 2 = cylinders 4–6
   (sensor 1 pre-cat, sensor 2 post-cat, sensor 5 pre-cat, sensor 6 post-cat)

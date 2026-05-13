@@ -52,6 +52,8 @@ where α = `CAL_inj_fuel_fillm_xtau_coeff / 256`.
 
 Higher coefficient → faster response (less lag compensation). Lower → heavier wetting modeled.
 
+**Stock value: 0xFF (≈100%, α ≈ 0.996).** At this setting the filter is a near pass-through — `load_filtered1` tracks `load_selected_raw` essentially unchanged each 5 ms cycle, so the X-tau fuel film compensation is **effectively disabled in the stock tune**. Transient fueling is handled entirely by the injtip enrichment/enleanment mechanism (Part 3). To re-enable meaningful wall-wetting compensation, lower this value (e.g. 200–240) and expect to reduce `CAL_injtip_time_base` accordingly to avoid double-compensation.
+
 ---
 
 ## Part 3: Injtip Enrichment/Enleanment
