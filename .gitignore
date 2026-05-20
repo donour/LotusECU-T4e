@@ -2,6 +2,7 @@
 hc08_patcher/__pycache__/
 lib/__pycache__/
 .vs/
+
 # emacs backup files and autosave files
 *~
 \#*\#
