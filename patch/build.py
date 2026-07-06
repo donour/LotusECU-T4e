@@ -12,17 +12,17 @@ class Patcher():
 		self.data = memoryview(bytearray(size))
 		self.offset=offset
 		with open(file,'rb') as f: d = f.read()
-		if(len(d) > size): raise Exception("File too big!")
+		if(len(d) > size): raise RuntimeError("File too big!")
 		self.data[0:len(d)] = d
 		for i in range(len(d), size): self.data[i] = 0xFF
 
 	def check(self, addr, data):
 		addr -= self.offset
 		if(self.data[addr:addr+len(data)] != data):
-			raise Exception("Unexpected data!")
+			raise RuntimeError(f"Unexpected data at address 0x{hex(addr + self.offset)}!")
 
 	def replace(self, addr, data, size):
-		if(size < len(data)): raise Exception("Too much data!")
+		if(size < len(data)): raise RuntimeError("Too much data!")
 		addr -= self.offset
 		self.data[addr:addr+len(data)] = data
 		for i in range(addr+len(data), addr+size): self.data[i] = 0xFF
@@ -39,7 +39,7 @@ class Patcher():
 	def check_blank(self, addr, size):
 		addr -= self.offset
 		for i in range(addr, addr+size):
-			if(self.data[i] != 0xFF): raise Exception("Not blank!")
+			if(self.data[i] != 0xFF): raise RuntimeError("Not blank!")
 
 	def merge_file(self, addr, file, size=None, check_blank=True):
 		with open(file,'rb') as f: data = f.read()
@@ -76,13 +76,13 @@ class Patcher_Prog(Patcher):
 
 	def read_segments(self):
 		i = self.data.tobytes().find(self.hint)
-		if(i == -1): raise Exception("First segment not found!")
+		if(i == -1): raise RuntimeError("First segment not found!")
 		self.segments_table_offset = i
 		self.segments = []
 
 		# Search opcode which point to i.
 		j = self.data.tobytes().find(self.instText(i))
-		if(j == -1): raise Exception(".text/.data opcode not found!")
+		if(j == -1): raise RuntimeError(".text/.data opcode not found!")
 		self.opcode1_offset = j
 
 		# Initialized data
@@ -101,7 +101,7 @@ class Patcher_Prog(Patcher):
 
 		# Search opcode which point to i.
 		j = self.data.tobytes().find(self.instBss(i))
-		if(j == -1): raise Exception(".bss opcode not found!")
+		if(j == -1): raise RuntimeError(".bss opcode not found!")
 		self.opcode2_offset = j
 
 		# Uninitialized data
@@ -155,7 +155,7 @@ class Patcher_Prog(Patcher):
 
 		# Verify that we do not overwrite something important.
 		if(i > self.blank_limit):
-			raise Exception("Not enough free space for segments!")
+			raise RuntimeError("Not enough free space for segments!")
 
 	def search_last_segments(self):
 		# Search the upper segment in ROM and RAM
