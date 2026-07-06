@@ -29,7 +29,7 @@ class Patcher():
 		for i in range(addr+len(data), addr+size): self.data[i] = 0xFF
 
 	def check_and_replace(self, addr, old_data, new_data):
-		# print("Check and replace at 0x{:06X}: {:s} -> {:s}".format(addr, old_data.hex(), new_data.hex()))
+		print("Check and replace at 0x{:06X}: {:s} -> {:s}".format(addr, old_data.hex(), new_data.hex()))
 		self.check(addr, old_data)
 		self.replace(addr, new_data, len(old_data))
 
@@ -590,7 +590,7 @@ def build_t6_combined(args):
 	replacements = [
 		[m.get_sym_addr("hook_init_loc"), PPC32.ppc_lwz(*expected_bytes["hook_init_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_init")) ],
 		[m.get_sym_addr("hook_loop_loc"), PPC32.ppc_b(m.get_sym_addr("hook_loop_continue") - m.get_sym_addr("hook_loop_loc")),PPC32.ppc_ba(m.get_sym_addr("hook_loop"))],
-		[m.get_sym_addr("hook_loop_correction"), PPC32.ppc_ble(-0x294), PPC32.ppc_ble( 0x1C)],
+		[m.get_sym_addr("hook_loop_correction"), PPC32.ppc_ble(*expected_bytes["hook_loop_correction"]), PPC32.ppc_ble( 0x1C)],
 		[m.get_sym_addr("hook_timer_5ms_loc"), PPC32.ppc_li(*expected_bytes["hook_timer_5ms_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_timer_5ms"))],
 		[m.get_sym_addr("hook_OBD_mode_0x01_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x01_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x01"))],
 		[m.get_sym_addr("hook_OBD_mode_0x22_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x22_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x22"))],

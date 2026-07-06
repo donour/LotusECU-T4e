@@ -5,11 +5,17 @@
 
 adc_dma_dest                   = 0x400026e0;
 
-sensor_adc_pre_O2_bank1        = 0x40001712;
-sensor_adc_pre_O2_bank2        = 0x40001716;
-sensor_adc_post_O2_bank1       = 0x40001714;
-sensor_adc_post_O2_bank2       = 0x40001718;
-CAL_sensor_O2_heater_threshold = 0x4000d23c;
+sensor_adc_pre_O2_bank1            = 0x40001712;
+sensor_adc_pre_O2_bank2            = 0x40001716;
+sensor_adc_post_O2_bank1           = 0x40001714;
+sensor_adc_post_O2_bank2           = 0x40001718;
+CAL_sensor_O2_heater_threshold     = 0x4000d23c;
+load_pre_O2_heater_threshold_bank1 = 0x4cf54;
+load_pre_O2_heater_threshold_bank2 = 0x4cfac;
+adc_sample_pre_O2_bank1            = 0x4c3ac;
+adc_sample_pre_O2_bank2            = 0x4c3c4;
+
+
 
 hook_init_loc                  = 0x42d10;
 hook_init_continue             = 0x42d12;
