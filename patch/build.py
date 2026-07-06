@@ -740,7 +740,7 @@ def main():
 		"(e.g. T6EVRGT430E01_BIN_USDM_PATCHED.cpt).")
 	t6_parser.add_argument("--sym-file", required=True,
 		help="Path to the T6 .sym symbol file (e.g. T6-GT430.sym).")
-	t6_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=None,
+	t6_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=False,
 		help="Include flexfuel support (default: prompt).")
 	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
 		help="Include wideband support (default: prompt).")
