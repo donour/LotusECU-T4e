@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import os, sys
+import argparse, os, sys
 sys.path.insert(0, '..')
 from lib.ppc32 import PPC32
 
@@ -300,15 +300,19 @@ def build_stage15():
 	p.merge_file(0x9000, "../flasher/t4e/canstrap-black.bin")
 	p.save("t4e/stage15/black/bootldr.bin", False)
 
-def build_combined():
+def ask_yn(prompt_text, flag):
+	if(flag == None): return input(prompt_text)
+	return 'y' if flag else 'n'
+
+def build_combined(args):
 	print("Combined T4e patch...")
 	c = Patcher_T4eCalibration("../dump/t4e-black/A129E0002/calrom.bin")
 	p = Patcher_T4eProg("../dump/t4e-black/A129E0002/prog.bin")
-	accusump = input("Include accusump support (y/n) ? ")
-	flexfuel = input("Include flexfuel support (y/n) ? ")
-	obdoil   = input("Include obdoil support (y/n) ? ")
-	wideband = input("Include wideband support (y/n) ? ")
-	softvtc = input("Disable VTC knob sampling (y/n) ? ")
+	accusump = ask_yn("Include accusump support (y/n) ? ", args.accusump)
+	flexfuel = ask_yn("Include flexfuel support (y/n) ? ", args.flexfuel)
+	obdoil   = ask_yn("Include obdoil support (y/n) ? ", args.obdoil)
+	wideband = ask_yn("Include wideband support (y/n) ? ", args.wideband)
+	softvtc = ask_yn("Disable VTC knob sampling (y/n) ? ", args.softvtc)
 	os.system(
 		"make -C t4e/combined clean all OBD_KLINE=n "
 		"CAL=0x{:X} ROM=0x{:X} RAM=0x{:X} SYM={:s} "
@@ -555,15 +559,15 @@ def build_combined():
 	# Test
 	#p.print_segments()
 
-def build_t6_combined():
+def build_t6_combined(args):
 	print("Combined T6 patch...")
 	#c = Patcher_T6Calibration("../dump/t6/P138E0009/calrom.bin")
 	#p = Patcher_T6Prog("../dump/t6/P138E0009/prog.bin")
 	c = Patcher_T6Calibration("../../LotusCRP/extracted/C132E0278/C132E0278_TAB.cpt")
 	#p = Patcher_T6Prog("../../LotusCRP/extracted/C132E0278/T6EVRGT430E01_BIN.cpt")
 	p = Patcher_T6Prog("../dump/T6EVRGT430E01_BIN_USDM_PATCHED.cpt")
-	flexfuel = input("Include flexfuel support (y/n) ? ")
-	wideband = input("Include wideband support (y/n) ? ")
+	flexfuel = ask_yn("Include flexfuel support (y/n) ? ", args.flexfuel)
+	wideband = ask_yn("Include wideband support (y/n) ? ", args.wideband)
 	os.system(
 		"make -C t6/combined clean all "
 		"CAL=0x{:X} ROM=0x{:X} RAM=0x{:X} SYM={:s} "
@@ -696,7 +700,38 @@ def build_t6_combined():
 	# Test
 	#p.print_segments()
 
+def main():
+	parser = argparse.ArgumentParser(description="Build Lotus T4e/T6 ECU patches.")
+	subparsers = parser.add_subparsers(dest="command", required=True)
+
+	subparsers.add_parser("stage15",
+		help="Build T4e stage 1.5 bootloaders (white and black).")
+
+	t4e_parser = subparsers.add_parser("t4e-combined",
+		help="Build the combined T4e patch.")
+	t4e_parser.add_argument("--accusump", action=argparse.BooleanOptionalAction, default=None,
+		help="Include accusump support (default: prompt).")
+	t4e_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=None,
+		help="Include flexfuel support (default: prompt).")
+	t4e_parser.add_argument("--obdoil", action=argparse.BooleanOptionalAction, default=None,
+		help="Include obdoil support (default: prompt).")
+	t4e_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
+		help="Include wideband support (default: prompt).")
+	t4e_parser.add_argument("--softvtc", action=argparse.BooleanOptionalAction, default=None,
+		help="Disable VTC knob sampling (default: prompt).")
+
+	t6_parser = subparsers.add_parser("t6-combined",
+		help="Build the combined T6 patch.")
+	t6_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=None,
+		help="Include flexfuel support (default: prompt).")
+	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
+		help="Include wideband support (default: prompt).")
+
+	args = parser.parse_args()
+
+	if(args.command == "stage15"): build_stage15()
+	elif(args.command == "t4e-combined"): build_combined(args)
+	elif(args.command == "t6-combined"): build_t6_combined(args)
+
 if __name__ == "__main__":
-	#build_stage15()
-	#build_combined()
-	build_t6_combined()
+	main()
