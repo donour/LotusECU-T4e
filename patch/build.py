@@ -18,8 +18,9 @@ class Patcher():
 
 	def check(self, addr, data):
 		addr -= self.offset
-		if(self.data[addr:addr+len(data)] != data):
-			raise RuntimeError(f"Unexpected data at address 0x{hex(addr + self.offset)}!")
+		comp = self.data[addr:addr+len(data)] 
+		if(comp != data):
+			raise RuntimeError(f"Unexpected data at address {hex(addr + self.offset)}: {comp} != {data}!")
 
 	def replace(self, addr, data, size):
 		if(size < len(data)): raise RuntimeError("Too much data!")
@@ -28,6 +29,7 @@ class Patcher():
 		for i in range(addr+len(data), addr+size): self.data[i] = 0xFF
 
 	def check_and_replace(self, addr, old_data, new_data):
+		# print("Check and replace at 0x{:06X}: {:s} -> {:s}".format(addr, old_data.hex(), new_data.hex()))
 		self.check(addr, old_data)
 		self.replace(addr, new_data, len(old_data))
 
