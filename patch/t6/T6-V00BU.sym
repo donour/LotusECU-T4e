@@ -1,0 +1,125 @@
+/* T6-V00BU.sym - linker symbol map for the V00BU firmware (B13200091).
+/* =========================================================================
+ * Hooks
+ * ========================================================================= */
+
+adc_dma_dest                   = 0x400026e0;
+
+sensor_adc_pre_O2_bank1        = 0x40001712;
+sensor_adc_pre_O2_bank2        = 0x40001716;
+sensor_adc_post_O2_bank1       = 0x40001714;
+sensor_adc_post_O2_bank2       = 0x40001718;
+CAL_sensor_O2_heater_threshold = 0x4000d23c;
+
+hook_init_loc                  = 0x42d10;
+hook_init_continue             = 0x42d12;
+hook_timer_5ms_loc             = 0x43548;
+hook_timer_5ms_continue        = 0x4354c;
+
+
+hook_OBD_mode_0x01_loc         = 0xaca9c;
+hook_OBD_mode_0x01_continue    = 0xacaa0;
+hook_OBD_mode_0x01_jump        = 0x0addd8;
+
+/* OBD-II mode 0x22 dispatcher (for diagnostic readback patches).
+ * Both `_loc` and `_continue` come from Ghidra as Instruction Labels;
+ * a `_jump` slot is TBD when we write the mode-0x22 patch.
+ * mode22 processing function lives at obd_ii_mode22_processing. */
+hook_OBD_mode_0x22_loc         = 0x786b0;
+hook_OBD_mode_0x22_continue    = 0x786b4;
+hook_OBD_mode_0x22_jump        = 0x7dc7c;
+/*obd_ii_mode22_processing      = 0x0007861C;*/
+
+
+
+/* Main loop back-branch. Original instruction `b -0x29C` closes the
+ * do { ... } while(true) at the bottom of main(). */
+hook_loop_loc                 = 0x42ffc;
+hook_loop_continue            = 0x42d60;
+
+/* Displaced instruction at hook_loop_loc was `bl torque_model`.
+ * The hook replays this call before doing its own work. */
+torque_model                  = 0x000B236C;
+
+/* =========================================================================
+ * Inputs (RAM)
+ * ========================================================================= */
+
+/* Wheel speeds from ABS CAN. Halfwords: LR@0, RR@2, LF@4, RF@6.
+ * Units are presumed 1/100 kph; VERIFY (porting_plan risk #3). */
+wheel_speed                   = 0x400018DA;
+
+/* Engine state. */
+engine_speed_2                = 0x4000163A;  /* u16 rpm (8-bit truncated copy) */
+engine_speed_3                = 0x40001640;  /* u8  rspeed_125/4+500rpm */
+engine_is_running             = 0x40001638;  /* bool */
+runtime_since_start           = 0x400015F4;  /* u32 5ms ticks since engine start */
+accel_pedal_latched           = 0x40001F0E;  /* u16 1/1023 factor */
+
+/* Driver inputs. */
+sport_button_enable           = 0x40001742;  /* u8 - debounced sport-button state */
+driver_input_flags            = 0x40001769;  /* u8[2] - packed brake/clutch/sport */
+
+/* Fuel / spark gates. */
+inj_flags                     = 0x40001994;  /* bit 0 = fuel cut active */
+ignition_on_flags             = 0x4000171A;
+
+/* ABS / ESP gates. */
+abs_esp_flags                 = 0x400023E6;  /* bit 4 = ABS active */
+
+/* =========================================================================
+ * Torque path (clamp injection - later DPM phase)
+ * ========================================================================= */
+
+torque_net_engine_combustion  = 0x400023CC;  /* u16 nm; what we'd snapshot at intervention */
+torque_alphaN_net             = 0x400023CE;  /* u16 nm; the final output we'd clamp */
+torque_limit_engine_protection = 0x400023FA;
+torque_limit_external_and_internal = 0x400023FC;
+torque_external_request_final = 0x4000240A;
+
+/* External torque limits, already populated by ABS/ESP torque requests
+ * (`:46707`). DPM clamp must merge with these via min(). */
+torque_limit_external_tc_fast = 0x400014C6;
+torque_limit_external_esp_fast = 0x400014C8;
+torque_limit_external_tc_slow = 0x400014CA;
+torque_limit_external_net     = 0x400023C6;
+
+/* =========================================================================
+ * Lookup helpers (called by slip-target & torque-cut tables in later phases)
+ * ========================================================================= */
+
+lookup_2D_uint8_interpolated  = 0x0005D5D4;
+lookup_3D_uint8_interpolated  = 0x0005D904;
+lookup_3D_uint32_interpolated = 0x0005DF64;
+
+/* =========================================================================
+ * Base addresses (for relative addressing of CAL_/LEA_/COD_ tables)
+ * ========================================================================= */
+
+CAL_base                      = 0x40008E24;
+COD_base                      = 0x400087E0;
+EEPROM_lea_base               = 0x00010000;
+
+/* =========================================================================
+ * OBD-II request/response buffers (for mode 0x22 / 0x2F PIDs)
+ * ========================================================================= */
+
+obd_req                       = 0x400084C0;
+obd_resp                      = 0x40008540;
+
+/* =========================================================================
+ * Symbols that DO NOT EXIST in this firmware (GT430-only references):
+ *   - tc_inhibit_flags, tc_enable_condition_1, tc_enable_condition_2
+ *       S1 NA has no ECU-side TC; gate DPM via abs_esp_flags & ABS bit instead.
+ *   - torque_external_request_margin
+ *       GT430-only torque-routing concept (IPS coordination); skip in port.
+ *   - abs_wheel_speed_validity_flags
+ *       Referenced in B13200091.c:4122 but not a global symbol; treat as
+ *       always-valid for now, refine if false-trigger problems appear.
+ *   - digital_input_debounce_state
+ *       Referenced as an array; locate via Ghidra when button handling lands.
+ * ========================================================================= */
+
+/* DPM output state is declared in the assembly source's .bss section.
+ * The linker places it at RAM=0x4000F000 (passed via -Tbss in build.py).
+ * MPC5534 SRAM ends at 0x4000FFFF; segment-table BSS top is 0x4000F000. */
