@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import argparse, os, sys
+import argparse, json, os, sys
 sys.path.insert(0, '..')
 from lib.ppc32 import PPC32
 
@@ -563,7 +563,7 @@ def build_combined(args):
 
 def build_t6_combined(args):
 	print("Combined T6 patch...")
-	expected_bytes = args.expected_bytes
+	with open(args.expected_bytes_file, 'r') as f: expected_bytes = json.load(f)
 
 	c = Patcher_T6Calibration(args.cal_file)
 	p = Patcher_T6Prog(args.prog_file)
@@ -707,20 +707,18 @@ def main():
 		"(e.g. T6EVRGT430E01_BIN_USDM_PATCHED.cpt).")
 	t6_parser.add_argument("--sym-file", required=True,
 		help="Path to the T6 .sym symbol file (e.g. T6-GT430.sym).")
+	t6_parser.add_argument("--expected-bytes-file",
+		default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "t6", "expected_bytes.json"),
+		help="Path to a JSON file describing the expected opcode operands at each hook "
+		"location, used to validate the firmware before patching it "
+		"(default: t6/expected_bytes.json).")
 	t6_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=False,
 		help="Include flexfuel support (default: prompt).")
 	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
 		help="Include wideband support (default: prompt).")
 
-
 	args = parser.parse_args()
-	args.expected_bytes = {
-		"hook_init_loc": (0, 1, 20),
-		"hook_timer_5ms_loc": (0, 10),
-		"hook_OBD_mode_0x01_loc": (0, 31, 0, 24, 31),
-		"hook_OBD_mode_0x22_loc": (4, 0, 0, 16, 31)
-	}
-	
+
 	if(args.command == "stage15"): build_stage15(args)
 	elif(args.command == "t4e-combined"): build_combined(args)
 	elif(args.command == "t6-combined"): build_t6_combined(args)

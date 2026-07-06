@@ -36,6 +36,9 @@ hook_OBD_mode_0x22_jump        = 0x7dc7c;
  * do { ... } while(true) at the bottom of main(). */
 hook_loop_loc                 = 0x42ffc;
 hook_loop_continue            = 0x42d60;
+hook_loop_correction          = 0x42fe0;
+hook_freeram_counter          = 0x4300c;
+
 
 /* Displaced instruction at hook_loop_loc was `bl torque_model`.
  * The hook replays this call before doing its own work. */
