@@ -281,23 +281,23 @@ class HDRMap:
 # Bootloader from ALS3M0240J seems ugly. Look at 0x400 for example.
 # Bootloader A128E6009F, ALS3M0240F, ALS3M0244F and B120E0029F are identical
 # except the ID and CRC.
-def build_stage15():
+def build_stage15(args):
 	print("Build white Stage 1.5...")
-	p = Patcher_T4eBoot("../dump/t4e-white/A128E6009F/bootldr.bin")
+	p = Patcher_T4eBoot(args.white_bootldr)
 	p.search_and_replace(
 		PPC32.ppc_ba(0x4000), # This value is also hardcoded in canstrap-white.bin
 		PPC32.ppc_ba(0x3000)
 	)
-	p.merge_file(0x3000, "../flasher/t4e/canstrap-white.bin")
+	p.merge_file(0x3000, args.white_canstrap)
 	p.save("t4e/stage15/white/bootldr.bin", False)
 
 	print("Build black Stage 1.5...")
-	p = Patcher_T4eBoot("../dump/t4e-black/A129E0002/bootldr.bin")
+	p = Patcher_T4eBoot(args.black_bootldr)
 	p.search_and_replace(
 		PPC32.ppc_ori(4, 4, 0x1FDC), # This value is also hardcoded in canstrap-black.bin
 		PPC32.ppc_ori(4, 4, 0x9000)
 	)
-	p.merge_file(0x9000, "../flasher/t4e/canstrap-black.bin")
+	p.merge_file(0x9000, args.black_canstrap)
 	p.save("t4e/stage15/black/bootldr.bin", False)
 
 def ask_yn(prompt_text, flag):
@@ -306,8 +306,8 @@ def ask_yn(prompt_text, flag):
 
 def build_combined(args):
 	print("Combined T4e patch...")
-	c = Patcher_T4eCalibration("../dump/t4e-black/A129E0002/calrom.bin")
-	p = Patcher_T4eProg("../dump/t4e-black/A129E0002/prog.bin")
+	c = Patcher_T4eCalibration(args.cal_file)
+	p = Patcher_T4eProg(args.prog_file)
 	accusump = ask_yn("Include accusump support (y/n) ? ", args.accusump)
 	flexfuel = ask_yn("Include flexfuel support (y/n) ? ", args.flexfuel)
 	obdoil   = ask_yn("Include obdoil support (y/n) ? ", args.obdoil)
@@ -320,7 +320,7 @@ def build_combined(args):
 		c.get_free_cal(),
 		p.get_free_rom(),
 		p.get_free_ram(),
-		"../black91.sym",
+		args.sym_file,
 		accusump, flexfuel, obdoil, wideband
 	))
 	m = HDRMap("t4e/combined/patch.txt")
@@ -561,11 +561,8 @@ def build_combined(args):
 
 def build_t6_combined(args):
 	print("Combined T6 patch...")
-	#c = Patcher_T6Calibration("../dump/t6/P138E0009/calrom.bin")
-	#p = Patcher_T6Prog("../dump/t6/P138E0009/prog.bin")
-	c = Patcher_T6Calibration("../../LotusCRP/extracted/C132E0278/C132E0278_TAB.cpt")
-	#p = Patcher_T6Prog("../../LotusCRP/extracted/C132E0278/T6EVRGT430E01_BIN.cpt")
-	p = Patcher_T6Prog("../dump/T6EVRGT430E01_BIN_USDM_PATCHED.cpt")
+	c = Patcher_T6Calibration(args.cal_file)
+	p = Patcher_T6Prog(args.prog_file)
 	flexfuel = ask_yn("Include flexfuel support (y/n) ? ", args.flexfuel)
 	wideband = ask_yn("Include wideband support (y/n) ? ", args.wideband)
 	os.system(
@@ -575,7 +572,7 @@ def build_t6_combined(args):
 		c.get_free_cal(),
 		p.get_free_rom(),
 		p.get_free_ram(),
-		"../T6-GT430.sym",
+		args.sym_file,
 		flexfuel, wideband
 	))
 	m = HDRMap("t6/combined/patch.txt")
@@ -704,11 +701,25 @@ def main():
 	parser = argparse.ArgumentParser(description="Build Lotus T4e/T6 ECU patches.")
 	subparsers = parser.add_subparsers(dest="command", required=True)
 
-	subparsers.add_parser("stage15",
+	stage15_parser = subparsers.add_parser("stage15",
 		help="Build T4e stage 1.5 bootloaders (white and black).")
+	stage15_parser.add_argument("--white-bootldr", required=True,
+		help="Path to the white bootldr.bin to patch (e.g. dump/t4e-white/A128E6009F/bootldr.bin).")
+	stage15_parser.add_argument("--white-canstrap", required=True,
+		help="Path to the white canstrap binary (e.g. flasher/t4e/canstrap-white.bin).")
+	stage15_parser.add_argument("--black-bootldr", required=True,
+		help="Path to the black bootldr.bin to patch (e.g. dump/t4e-black/A129E0002/bootldr.bin).")
+	stage15_parser.add_argument("--black-canstrap", required=True,
+		help="Path to the black canstrap binary (e.g. flasher/t4e/canstrap-black.bin).")
 
 	t4e_parser = subparsers.add_parser("t4e-combined",
 		help="Build the combined T4e patch.")
+	t4e_parser.add_argument("--cal-file", required=True,
+		help="Path to the T4e calrom.bin to patch.")
+	t4e_parser.add_argument("--prog-file", required=True,
+		help="Path to the T4e prog.bin to patch.")
+	t4e_parser.add_argument("--sym-file", required=True,
+		help="Path to the T4e .sym symbol file (e.g. black91.sym).")
 	t4e_parser.add_argument("--accusump", action=argparse.BooleanOptionalAction, default=None,
 		help="Include accusump support (default: prompt).")
 	t4e_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=None,
@@ -722,6 +733,13 @@ def main():
 
 	t6_parser = subparsers.add_parser("t6-combined",
 		help="Build the combined T6 patch.")
+	t6_parser.add_argument("--cal-file", required=True,
+		help="Path to the T6 calibration .cpt/.bin to patch (e.g. C132E0278_TAB.cpt).")
+	t6_parser.add_argument("--prog-file", required=True,
+		help="Path to the T6 .cpt program binary to patch "
+		"(e.g. T6EVRGT430E01_BIN_USDM_PATCHED.cpt).")
+	t6_parser.add_argument("--sym-file", required=True,
+		help="Path to the T6 .sym symbol file (e.g. T6-GT430.sym).")
 	t6_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=None,
 		help="Include flexfuel support (default: prompt).")
 	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
@@ -729,7 +747,7 @@ def main():
 
 	args = parser.parse_args()
 
-	if(args.command == "stage15"): build_stage15()
+	if(args.command == "stage15"): build_stage15(args)
 	elif(args.command == "t4e-combined"): build_combined(args)
 	elif(args.command == "t6-combined"): build_t6_combined(args)
 
