@@ -320,7 +320,7 @@ def build_combined(args):
 		c.get_free_cal(),
 		p.get_free_rom(),
 		p.get_free_ram(),
-		args.sym_file,
+		os.path.abspath(args.sym_file),
 		accusump, flexfuel, obdoil, wideband
 	))
 	m = HDRMap("t4e/combined/patch.txt")
@@ -572,7 +572,7 @@ def build_t6_combined(args):
 		c.get_free_cal(),
 		p.get_free_rom(),
 		p.get_free_ram(),
-		args.sym_file,
+		os.path.abspath(args.sym_file),
 		flexfuel, wideband
 	))
 	m = HDRMap("t6/combined/patch.txt")
