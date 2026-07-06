@@ -563,6 +563,8 @@ def build_combined(args):
 
 def build_t6_combined(args):
 	print("Combined T6 patch...")
+	expected_bytes = args.expected_bytes
+
 	c = Patcher_T6Calibration(args.cal_file)
 	p = Patcher_T6Prog(args.prog_file)
 	flexfuel = ask_yn("Include flexfuel support (y/n) ? ", args.flexfuel)
@@ -579,61 +581,24 @@ def build_t6_combined(args):
 	))
 	m = HDRMap("t6/combined/patch.txt")
 
-	# Hook: Init
-	p.check_and_replace(
-		m.get_sym_addr("hook_init_loc"),
-		PPC32.ppc_lwz(0, 1, 20),
-		PPC32.ppc_ba(m.get_sym_addr("hook_init"))
-	)
-
-	# Hook: Main Loop
-	p.check_and_replace(
-		m.get_sym_addr("hook_loop_loc"),
-		PPC32.ppc_b(
-			m.get_sym_addr("hook_loop_continue") -
-			m.get_sym_addr("hook_loop_loc")
-		),
-		PPC32.ppc_ba(m.get_sym_addr("hook_loop"))
-	)
-
-	# Hook: Main Loop Correction
-	p.check_and_replace(
-		0x42fbc,
-		PPC32.ppc_ble(-0x294),
-		PPC32.ppc_ble( 0x1C)
-	)
-
-	# Hook: Timer 5ms
-	p.check_and_replace(
-		m.get_sym_addr("hook_timer_5ms_loc"),
-		PPC32.ppc_li(0, 10),
-		PPC32.ppc_ba(m.get_sym_addr("hook_timer_5ms"))
-	)
-
-	# Hook: OBD Mode 0x01
-	p.check_and_replace(
-		m.get_sym_addr("hook_OBD_mode_0x01_loc"),
-		PPC32.ppc_rlwinm(0, 31, 0, 24, 31),
-		PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x01"))
-	)
-
-	# Hook: OBD Mode 0x22
-	p.check_and_replace(
-		m.get_sym_addr("hook_OBD_mode_0x22_loc"),
-		#PPC32.ppc_or(31, 3, 3),
-		PPC32.ppc_rlwinm(4, 0, 0, 16, 31),
-		PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x22"))
-	)
-
 	# Move the pointer for the freeram counter
 	addr = m.get_seg_addr(".bss") + m.get_seg_size(".bss")
 	addr_ha = (addr >> 16) + ((addr >> 15) & 1)
 	addr_l = addr & 0xFFFF
-	p.check_and_replace(
-		0x42fe8,
-		PPC32.ppc_lis(3, 0x4001) + PPC32.ppc_addi(0, 3, -0x1000),
-		PPC32.ppc_lis(3, addr_ha) + PPC32.ppc_addi(0, 3, addr_l)
-	)
+
+	# replacement
+	replacements = [
+		[m.get_sym_addr("hook_init_loc"), PPC32.ppc_lwz(*expected_bytes["hook_init_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_init")) ],
+		[m.get_sym_addr("hook_loop_loc"), PPC32.ppc_b(m.get_sym_addr("hook_loop_continue") - m.get_sym_addr("hook_loop_loc")),PPC32.ppc_ba(m.get_sym_addr("hook_loop"))],
+		[m.get_sym_addr("hook_loop_correction"), PPC32.ppc_ble(-0x294), PPC32.ppc_ble( 0x1C)],
+		[m.get_sym_addr("hook_timer_5ms_loc"), PPC32.ppc_li(*expected_bytes["hook_timer_5ms_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_timer_5ms"))],
+		[m.get_sym_addr("hook_OBD_mode_0x01_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x01_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x01"))],
+		[m.get_sym_addr("hook_OBD_mode_0x22_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x22_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x22"))],
+		[m.get_sym_addr("hook_freeram_counter"), PPC32.ppc_lis(3, 0x4001) + PPC32.ppc_addi(0, 3, -0x1000), PPC32.ppc_lis(3, addr_ha) + PPC32.ppc_addi(0, 3, addr_l)],
+	]
+	for s, o, n in replacements:
+		p.check_and_replace(s, o, n)
+
 
 	if(flexfuel == 'y'):
 		# Change SIU_PCR184 for primary function (Input RG4)
@@ -747,8 +712,15 @@ def main():
 	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
 		help="Include wideband support (default: prompt).")
 
-	args = parser.parse_args()
 
+	args = parser.parse_args()
+	args.expected_bytes = {
+		"hook_init_loc": (0, 1, 20),
+		"hook_timer_5ms_loc": (0, 10),
+		"hook_OBD_mode_0x01_loc": (0, 31, 0, 24, 31),
+		"hook_OBD_mode_0x22_loc": (4, 0, 0, 16, 31)
+	}
+	
 	if(args.command == "stage15"): build_stage15(args)
 	elif(args.command == "t4e-combined"): build_combined(args)
 	elif(args.command == "t6-combined"): build_t6_combined(args)
