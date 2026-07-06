@@ -1,4 +1,5 @@
 .venv/
+.venv_linux/
 hc08_patcher/__pycache__/
 lib/__pycache__/
 .vs/
