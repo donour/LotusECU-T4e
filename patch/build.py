@@ -572,12 +572,12 @@ def build_t6_combined(args):
 	subprocess.run(
 		"make -C t6/combined clean all "
 		"CAL=0x{:X} ROM=0x{:X} RAM=0x{:X} SYM={:s} "
-		"FLEXFUEL={:s} WIDEBAND={:s}".format(
+		"FLEXFUEL={:s} WIDEBAND={:s} DPM={:s}".format(
 		c.get_free_cal(),
 		p.get_free_rom(),
 		p.get_free_ram(),
 		os.path.abspath(args.sym_file),
-		flexfuel, wideband
+		flexfuel, wideband, "y",
 	), shell=True, check=True)
 	m = HDRMap("t6/combined/patch.txt")
 
@@ -601,6 +601,7 @@ def build_t6_combined(args):
 
 
 	if(flexfuel == 'y'):
+		raise NotImplementedError()
 		# Change SIU_PCR184 for primary function (Input RG4)
 		p.check_and_replace(
 			0x4285C,
@@ -714,7 +715,7 @@ def main():
 		"(default: t6/expected_bytes.json).")
 	t6_parser.add_argument("--flexfuel", action=argparse.BooleanOptionalAction, default=False,
 		help="Include flexfuel support (default: prompt).")
-	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=None,
+	t6_parser.add_argument("--wideband", action=argparse.BooleanOptionalAction, default=False,
 		help="Include wideband support (default: prompt).")
 
 	args = parser.parse_args()

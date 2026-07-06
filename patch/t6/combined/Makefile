@@ -14,6 +14,10 @@ ifeq ($(WIDEBAND), y)
 	SRCS+=../wideband/wideband.S
 	ASFLAGS+=--defsym WIDEBAND=1
 endif
+ifeq ($(DPM), y)
+	SRCS+=../dpm/dpm.S
+	ASFLAGS+=--defsym DPM=1
+endif
 OBJS=$(SRCS:.S=.o)
 
 all: $(NAME).text.bin $(NAME).data.bin $(NAME).txt
