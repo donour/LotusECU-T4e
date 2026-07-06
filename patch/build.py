@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import argparse, json, os, sys
+import argparse, json, os, subprocess, sys
 sys.path.insert(0, '..')
 from lib.ppc32 import PPC32
 
@@ -569,7 +569,7 @@ def build_t6_combined(args):
 	p = Patcher_T6Prog(args.prog_file)
 	flexfuel = ask_yn("Include flexfuel support (y/n) ? ", args.flexfuel)
 	wideband = ask_yn("Include wideband support (y/n) ? ", args.wideband)
-	os.system(
+	subprocess.run(
 		"make -C t6/combined clean all "
 		"CAL=0x{:X} ROM=0x{:X} RAM=0x{:X} SYM={:s} "
 		"FLEXFUEL={:s} WIDEBAND={:s}".format(
@@ -578,7 +578,7 @@ def build_t6_combined(args):
 		p.get_free_ram(),
 		os.path.abspath(args.sym_file),
 		flexfuel, wideband
-	))
+	), shell=True, check=True)
 	m = HDRMap("t6/combined/patch.txt")
 
 	# Move the pointer for the freeram counter
