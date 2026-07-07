@@ -1,25 +1,158 @@
+# DPM (Dynamic Performance Mode) - 6-level slip-based traction control.
+# Port of the C132E0278 (GT430) implementation to B13200091 (S1 Evora NA).
+# Variable set follows C132E0278/DPM_plan.md Phase 1.
+
 # Constants
+.set DPM_TORQUE_NO_LIMIT, 911 # Nm sentinel = "no torque cut requested"
+.set DPM_MODE_MAX,          6 # Highest selectable DPM level
+
+# dpm_control_flags bitmap
+.set DPM_FLAG_ACTIVE,       0x0001 # Intervention active (torque being cut)
+.set DPM_FLAG_ENABLED,      0x0002 # Intervention enabled
+.set DPM_FLAG_DIRECT,       0x0004 # Direct mode active (high L-R speed diff)
+.set DPM_FLAG_SLIP_VALID,   0x0008 # Slip calculation valid
+.set DPM_FLAG_SYS_ENABLED,  0x0010 # DPM system enabled
+.set DPM_FLAG_SYS_DISABLED, 0x0020 # System disabled (fault/inhibit)
+.set DPM_FLAG_BUTTONS,      0x0040 # Button processing enabled
+.set DPM_FLAG_BTN_INC,      0x0080 # Increase button pressed
+.set DPM_FLAG_BTN_DEC,      0x0100 # Decrease button pressed
 
 .section .data
 
 .section .bss
-.global dpm_target_torque_reduced
+.global dpm_slip, dpm_slip_target
+.global dpm_slip_error_raw, dpm_slip_error_filtered
+.global dpm_slip_filter_accumulator, dpm_slip_integral_accumulator
+.global dpm_target_torque_reduced, dpm_target_torque_upper_limit
 .global dpm_torque_when_tc_activated
-.global dpm_torque_cut_total
-.global dpm_torque_cut_accumulated
-.global dpm_slip_integral_accumulator
+.global dpm_torque_cut_factor, dpm_torque_cut_accumulated, dpm_torque_cut_total
+.global dpm_mode_index, dpm_control_flags
+.global dpm_front_axle_speed_max, dpm_rear_axle_speed_max
+.global dpm_vehicle_speed_kph
+.global dpm_front_lr_speed_diff, dpm_rear_lr_speed_diff, dpm_max_lr_speed_diff
+.global dpm_direct_mode_on_delay, dpm_direct_mode_off_delay
+.global dpm_integral_update_timer
+.global dpm_button_increase, dpm_button_decrease
+.global dpm_increase_hold_time, dpm_decrease_hold_time
+.global dpm_both_buttons_pressed
 
-.section .txt
+# 32-bit
+.comm dpm_slip_filter_accumulator,    4, 4 # u32, slip error filter state memory
+.comm dpm_slip_integral_accumulator,  4, 4 # i32, integral controller state
+
+# 16-bit
+.comm dpm_slip,                       2, 2 # u16_slip_1/8%, current wheel slip
+.comm dpm_slip_target,                2, 2 # u16_slip_1/8%, target slip setpoint
+.comm dpm_slip_error_raw,             2, 2 # u16_slip_1/8%, slip - target (when slip > target)
+.comm dpm_slip_error_filtered,        2, 2 # u16_slip_1/8%, filtered error (fast attack, slow decay)
+.comm dpm_target_torque_reduced,      2, 2 # u16_torque_nm, maximum allowed torque
+.comm dpm_target_torque_upper_limit,  2, 2 # u16_torque_nm, reduced + recovery margin
+.comm dpm_torque_when_tc_activated,   2, 2 # u16_torque_nm, torque snapshot at intervention start
+.comm dpm_control_flags,              2, 2 # DPM_FLAG_* bitmap
+.comm dpm_front_axle_speed_max,       2, 2 # u16_speed_1/100kph, max(LF, RF)
+.comm dpm_rear_axle_speed_max,        2, 2 # u16_speed_1/100kph, max(LR, RR)
+.comm dpm_front_lr_speed_diff,        2, 2 # u16_speed_1/100kph, abs(LF - RF)
+.comm dpm_rear_lr_speed_diff,         2, 2 # u16_speed_1/100kph, abs(LR - RR)
+.comm dpm_max_lr_speed_diff,          2, 2 # u16_speed_1/100kph, max of front/rear L-R diffs
+.comm dpm_direct_mode_on_delay,       2, 2 # u16_time_5ms, countdown to enter direct mode
+.comm dpm_direct_mode_off_delay,      2, 2 # u16_time_5ms, countdown to exit direct mode
+.comm dpm_integral_update_timer,      2, 2 # u16_time_5ms, integral update period countdown
+
+# 8-bit
+.comm dpm_mode_index,                 1, 1 # 0 = off, 1-6 = DPM level
+.comm dpm_vehicle_speed_kph,          1, 1 # u8_speed_kph, front axle max / 100
+.comm dpm_torque_cut_factor,          1, 1 # u8_factor_1/255, instantaneous cut from lookup
+.comm dpm_torque_cut_accumulated,     1, 1 # u8_factor_1/255, integral torque cut term
+.comm dpm_torque_cut_total,           1, 1 # u8_factor_1/255, factor + accumulated (sat. 255)
+.comm dpm_button_increase,            1, 1 # bool, increase button state
+.comm dpm_button_decrease,            1, 1 # bool, decrease button state
+.comm dpm_increase_hold_time,         1, 1 # u8, 5ms counts increase held
+.comm dpm_decrease_hold_time,         1, 1 # u8, 5ms counts decrease held
+.comm dpm_both_buttons_pressed,       1, 1 # bool, dual-press latch
+
+.section .text
 .global dpm_init
 
-
+# The firmware does not zero-fill the patch .bss region, so every
+# variable must be initialized explicitly here.
 dpm_init:
 	# Push link register on stack
 	stwu	%r1, -8(%r1)
 	mflr	%r0
 	stw	%r0, 12(%r1)
 
-    blr
+	# Torque limits start at the "no limit" sentinel
+	li	%r3, DPM_TORQUE_NO_LIMIT
+	lis	%r4, dpm_target_torque_reduced@ha
+	sth	%r3, dpm_target_torque_reduced@l(%r4)
+	lis	%r4, dpm_target_torque_upper_limit@ha
+	sth	%r3, dpm_target_torque_upper_limit@l(%r4)
 
+	# Everything else starts at 0.
+	# In particular dpm_mode_index = 0: DPM stays OFF until the
+	# driver explicitly enables it.
+	li	%r3, 0
 
+	# 32-bit state
+	lis	%r4, dpm_slip_filter_accumulator@ha
+	stw	%r3, dpm_slip_filter_accumulator@l(%r4)
+	lis	%r4, dpm_slip_integral_accumulator@ha
+	stw	%r3, dpm_slip_integral_accumulator@l(%r4)
 
+	# 16-bit state
+	lis	%r4, dpm_slip@ha
+	sth	%r3, dpm_slip@l(%r4)
+	lis	%r4, dpm_slip_target@ha
+	sth	%r3, dpm_slip_target@l(%r4)
+	lis	%r4, dpm_slip_error_raw@ha
+	sth	%r3, dpm_slip_error_raw@l(%r4)
+	lis	%r4, dpm_slip_error_filtered@ha
+	sth	%r3, dpm_slip_error_filtered@l(%r4)
+	lis	%r4, dpm_torque_when_tc_activated@ha
+	sth	%r3, dpm_torque_when_tc_activated@l(%r4)
+	lis	%r4, dpm_control_flags@ha
+	sth	%r3, dpm_control_flags@l(%r4)
+	lis	%r4, dpm_front_axle_speed_max@ha
+	sth	%r3, dpm_front_axle_speed_max@l(%r4)
+	lis	%r4, dpm_rear_axle_speed_max@ha
+	sth	%r3, dpm_rear_axle_speed_max@l(%r4)
+	lis	%r4, dpm_front_lr_speed_diff@ha
+	sth	%r3, dpm_front_lr_speed_diff@l(%r4)
+	lis	%r4, dpm_rear_lr_speed_diff@ha
+	sth	%r3, dpm_rear_lr_speed_diff@l(%r4)
+	lis	%r4, dpm_max_lr_speed_diff@ha
+	sth	%r3, dpm_max_lr_speed_diff@l(%r4)
+	lis	%r4, dpm_direct_mode_on_delay@ha
+	sth	%r3, dpm_direct_mode_on_delay@l(%r4)
+	lis	%r4, dpm_direct_mode_off_delay@ha
+	sth	%r3, dpm_direct_mode_off_delay@l(%r4)
+	lis	%r4, dpm_integral_update_timer@ha
+	sth	%r3, dpm_integral_update_timer@l(%r4)
+
+	# 8-bit state
+	lis	%r4, dpm_mode_index@ha
+	stb	%r3, dpm_mode_index@l(%r4)
+	lis	%r4, dpm_vehicle_speed_kph@ha
+	stb	%r3, dpm_vehicle_speed_kph@l(%r4)
+	lis	%r4, dpm_torque_cut_factor@ha
+	stb	%r3, dpm_torque_cut_factor@l(%r4)
+	lis	%r4, dpm_torque_cut_accumulated@ha
+	stb	%r3, dpm_torque_cut_accumulated@l(%r4)
+	lis	%r4, dpm_torque_cut_total@ha
+	stb	%r3, dpm_torque_cut_total@l(%r4)
+	lis	%r4, dpm_button_increase@ha
+	stb	%r3, dpm_button_increase@l(%r4)
+	lis	%r4, dpm_button_decrease@ha
+	stb	%r3, dpm_button_decrease@l(%r4)
+	lis	%r4, dpm_increase_hold_time@ha
+	stb	%r3, dpm_increase_hold_time@l(%r4)
+	lis	%r4, dpm_decrease_hold_time@ha
+	stb	%r3, dpm_decrease_hold_time@l(%r4)
+	lis	%r4, dpm_both_buttons_pressed@ha
+	stb	%r3, dpm_both_buttons_pressed@l(%r4)
+
+	# Pop link register from stack
+	lwz	%r0, 12(%r1)
+	mtlr	%r0
+	addi	%r1, %r1, 8
+	blr
