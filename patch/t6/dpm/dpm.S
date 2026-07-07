@@ -3,6 +3,9 @@
 # Variable set follows C132E0278/DPM_plan.md Phase 1.
 
 # Constants
+.set DPM_MIN_ACTIVATE_SPEED,  5 # kph
+.set DPM_SLIP_TARGET_OFFSET,  16 # 2% in 1/8% units
+
 .set DPM_TORQUE_NO_LIMIT, 911 # Nm sentinel = "no torque cut requested"
 .set DPM_MODE_MAX,          6 # Highest selectable DPM level
 
@@ -180,8 +183,14 @@ dpm_init:
 #   dpm_front_lr_speed_diff  = abs(LF - RF)
 #   dpm_rear_lr_speed_diff   = abs(LR - RR)
 #   dpm_slip                 = rear-over-front overspeed, 1/8% units
-# Clobbers r0, r3-r10.
+#   dpm_slip_target          = per-level target (via dpm_calc_slip_target)
+# Clobbers r0, r3-r10; calls dpm_calc_slip_target.
 dpm_calc_slip:
+	# Push link register (this function now calls dpm_calc_slip_target).
+	stwu	%r1, -8(%r1)
+	mflr	%r0
+	stw	%r0, 12(%r1)
+
 	# Load the four wheel speeds.
 	lis	%r3, wheel_speed@ha
 	addi	%r3, %r3, wheel_speed@l
@@ -239,21 +248,80 @@ slip_3:
 	#            ? min((rear_max * 800) / front_max - 800, 0xFFFF)
 	#            : 0
 	# 800 = 100% in 1/8% units; ratio, so independent of speed scale.
-	li	%r0, 0
+	# Accumulate in r3, not r0: subi/addi encode rA=r0 as the literal 0
+	# rather than the register, so `subi %r0,%r0,800` would compute 0-800.
+	li	%r3, 0
 	cmplwi	%r8, 0
 	beq	slip_5
 	cmplw	%r9, %r8
 	ble	slip_5
-	mulli	%r0, %r9, 800	# max 65535*800 = 52.4M, fits in 32 bits
-	divwu	%r0, %r0, %r8
-	subi	%r0, %r0, 800	# >= 0 because rear_max > front_max
-	cmplwi	%r0, 0xFFFF
+	mulli	%r3, %r9, 800	# max 65535*800 = 52.4M, fits in 32 bits
+	divwu	%r3, %r3, %r8
+	subi	%r3, %r3, 800	# >= 0 because rear_max > front_max
+	cmplwi	%r3, 0xFFFF
 	ble	slip_5
-	li	%r0, -1		# 0xFFFF after the halfword store
+	li	%r3, -1		# 0xFFFF after the halfword store
 slip_5:
 	lis	%r10, dpm_slip@ha
-	sth	%r0, dpm_slip@l(%r10)
+	sth	%r3, dpm_slip@l(%r10)
+
+	# Compute the slip target that dpm_slip is judged against.
+	bl	dpm_calc_slip_target
+
+	# Pop link register.
+	lwz	%r0, 12(%r1)
+	mtlr	%r0
+	addi	%r1, %r1, 8
 	blr
+
+# Compute dpm_slip_target: the slip threshold dpm_slip is compared against.
+# Higher DPM level tolerates more slip before intervening; level 0 (off)
+# yields the max target so measured slip can never exceed it.
+#
+# Interim: the base target is a direct per-level table index, equivalent to
+# the GT430 CAL_dpm_slip_target_base[dpm_mode_index] 1D lookup. The pedal
+# compensation, direct-mode target switch and CAL_slip_target_offset from
+# C132E0278.c:58180-58230 remain TODO and land with the CAL_dpm_* tables.
+# Leaf function. Clobbers r3-r5.
+dpm_calc_slip_target:
+	lis	%r3, dpm_mode_index@ha
+	lbz	%r3, dpm_mode_index@l(%r3)
+	cmplwi	%r3, 0
+	bne	tgt_1
+	# DPM off: target = 0xFFFF so dpm_slip can never exceed it.
+	li	%r4, -1
+	b	tgt_2
+tgt_1:
+	# Clamp the level to the highest table entry.
+	cmplwi	%r3, DPM_MODE_MAX
+	ble	tgt_1a
+	li	%r3, DPM_MODE_MAX
+tgt_1a:
+	# base = dpm_slip_target_base[level] (halfword table).
+	lis	%r5, dpm_slip_target_base@ha
+	addi	%r5, %r5, dpm_slip_target_base@l
+	slwi	%r3, %r3, 1	# halfword index
+	lhzx	%r4, %r5, %r3
+tgt_2:
+	lis	%r5, dpm_slip_target@ha
+	sth	%r4, dpm_slip_target@l(%r5)
+	blr
+
+.balign 2
+# PLACEHOLDER base slip target per DPM level, 1/8% units (u16).
+# Index = dpm_mode_index (1..6); slot 0 unused (DPM-off handled above).
+# Monotonic: higher level tolerates more slip. Replace with the
+# CAL_dpm_slip_target_base[] lookup and NA-scaled values when the cal
+# tables land (porting plan Phase 5/7).
+dpm_slip_target_base:
+	.short 0	# 0: unused
+	.short 24	# 1:  3.0%
+	.short 40	# 2:  5.0%
+	.short 64	# 3:  8.0%
+	.short 96	# 4: 12.0%
+	.short 128	# 5: 16.0%
+	.short 160	# 6: 20.0%
+.balign 4	# realign: instructions must start on a 4-byte boundary
 
 # Calculate wheel slip from the ABS wheel speeds and derive axle maxima,
 # L-R diffs and slip. Called from the main loop hook.
