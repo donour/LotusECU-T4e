@@ -71,7 +71,7 @@
 .comm dpm_both_buttons_pressed,       1, 1 # bool, dual-press latch
 
 .section .text
-.global dpm_init
+.global dpm_init, dpm_slip_calculator
 
 # The firmware does not zero-fill the patch .bss region, so every
 # variable must be initialized explicitly here.
@@ -150,6 +150,109 @@ dpm_init:
 	stb	%r3, dpm_decrease_hold_time@l(%r4)
 	lis	%r4, dpm_both_buttons_pressed@ha
 	stb	%r3, dpm_both_buttons_pressed@l(%r4)
+
+	# Pop link register from stack
+	lwz	%r0, 12(%r1)
+	mtlr	%r0
+	addi	%r1, %r1, 8
+	blr
+
+
+# Subfunction of dpm_slip_calculator.
+# Reads the firmware wheel_speed struct (halfwords, REARS FIRST:
+# LR@0, RR@2, LF@4, RF@6; u16_speed_1/100kph) and updates:
+#   dpm_front_axle_speed_max = max(LF, RF)
+#   dpm_rear_axle_speed_max  = max(LR, RR)
+#   dpm_vehicle_speed_kph    = min(front_max / 100, 255)
+#   dpm_front_lr_speed_diff  = abs(LF - RF)
+#   dpm_rear_lr_speed_diff   = abs(LR - RR)
+#   dpm_slip                 = rear-over-front overspeed, 1/8% units
+# Clobbers r0, r3-r10.
+dpm_calc_slip:
+	# Load the four wheel speeds.
+	lis	%r3, wheel_speed@ha
+	addi	%r3, %r3, wheel_speed@l
+	lhz	%r6, 0(%r3)	# LR
+	lhz	%r7, 2(%r3)	# RR
+	lhz	%r4, 4(%r3)	# LF
+	lhz	%r5, 6(%r3)	# RF
+
+	# dpm_front_axle_speed_max = max(LF, RF)
+	mr	%r8, %r4
+	cmplw	%r8, %r5
+	bge	slip_1
+	mr	%r8, %r5
+slip_1:
+	lis	%r10, dpm_front_axle_speed_max@ha
+	sth	%r8, dpm_front_axle_speed_max@l(%r10)
+
+	# dpm_rear_axle_speed_max = max(LR, RR)
+	mr	%r9, %r6
+	cmplw	%r9, %r7
+	bge	slip_2
+	mr	%r9, %r7
+slip_2:
+	lis	%r10, dpm_rear_axle_speed_max@ha
+	sth	%r9, dpm_rear_axle_speed_max@l(%r10)
+
+	# dpm_vehicle_speed_kph = min(front_max / 100, 255)
+	li	%r10, 100
+	divwu	%r0, %r8, %r10
+	cmplwi	%r0, 255
+	ble	slip_3
+	li	%r0, 255
+slip_3:
+	lis	%r10, dpm_vehicle_speed_kph@ha
+	stb	%r0, dpm_vehicle_speed_kph@l(%r10)
+
+	# dpm_front_lr_speed_diff = abs(LF - RF)
+	# Branchless abs: m = x >> 31; abs = (x ^ m) - m
+	subf	%r0, %r5, %r4	# r0 = LF - RF
+	srawi	%r10, %r0, 31
+	xor	%r0, %r0, %r10
+	subf	%r0, %r10, %r0
+	lis	%r10, dpm_front_lr_speed_diff@ha
+	sth	%r0, dpm_front_lr_speed_diff@l(%r10)
+
+	# dpm_rear_lr_speed_diff = abs(LR - RR)
+	subf	%r0, %r7, %r6	# r0 = LR - RR
+	srawi	%r10, %r0, 31
+	xor	%r0, %r0, %r10
+	subf	%r0, %r10, %r0
+	lis	%r10, dpm_rear_lr_speed_diff@ha
+	sth	%r0, dpm_rear_lr_speed_diff@l(%r10)
+
+	# dpm_slip = (front_max > 0 && rear_max > front_max)
+	#            ? min((rear_max * 800) / front_max - 800, 0xFFFF)
+	#            : 0
+	# 800 = 100% in 1/8% units; ratio, so independent of speed scale.
+	li	%r0, 0
+	cmplwi	%r8, 0
+	beq	slip_5
+	cmplw	%r9, %r8
+	ble	slip_5
+	mulli	%r0, %r9, 800	# max 65535*800 = 52.4M, fits in 32 bits
+	divwu	%r0, %r0, %r8
+	subi	%r0, %r0, 800	# >= 0 because rear_max > front_max
+	cmplwi	%r0, 0xFFFF
+	ble	slip_5
+	li	%r0, -1		# 0xFFFF after the halfword store
+slip_5:
+	lis	%r10, dpm_slip@ha
+	sth	%r0, dpm_slip@l(%r10)
+	blr
+
+# Calculate wheel slip from the ABS wheel speeds and derive axle maxima,
+# L-R diffs and slip. Called from the main loop hook.
+# TODO: port slip target, error filtering and torque cut from
+# C132E0278.c:58135-58316.
+dpm_slip_calculator:
+	# Push link register on stack
+	stwu	%r1, -8(%r1)
+	mflr	%r0
+	stw	%r0, 12(%r1)
+
+	bl	dpm_calc_slip
 
 	# Pop link register from stack
 	lwz	%r0, 12(%r1)
