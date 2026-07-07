@@ -278,53 +278,124 @@ slip_5:
 	addi	%r1, %r1, 8
 	blr
 
-# Compute dpm_slip_target: the slip threshold dpm_slip is compared against.
-# Higher DPM level tolerates more slip before intervening; level 0 (off)
-# yields the max target so measured slip can never exceed it.
+# Compute dpm_slip_target: the slip threshold dpm_slip is judged against.
+# Ported from C132E0278.c:58274-58327 (the "system enabled" active path).
 #
-# Interim: the base target is a direct per-level table index, equivalent to
-# the GT430 CAL_dpm_slip_target_base[dpm_mode_index] 1D lookup. The pedal
-# compensation, direct-mode target switch and CAL_slip_target_offset from
-# C132E0278.c:58180-58230 remain TODO and land with the CAL_dpm_* tables.
-# Leaf function. Clobbers r3-r5.
+#   pedal_comp = lookup_3D(6,6, vehicle_speed_kph, (pedal>>2)&0xff,
+#                          CAL_dpm_slip_target_comp_pedal, _X_carspeed, _Y_pps)
+#   base       = lookup_2D(16, dpm_mode_index,
+#                          CAL_dpm_slip_target_base, _X_dpm_level)
+#   target     = min(base + pedal_comp*16 + DPM_SLIP_TARGET_OFFSET, 0xFFFF)
+#
+# Simplifications versus the GT430 (racecar build):
+#   - dpm_control_flags gating is dropped; the target is ALWAYS computed.
+#   - the direct-mode "no offset" branch (flag 0x04) is dropped, so the
+#     offset is always applied.
+#   - dpm_mode_index 0 = DPM off: target = 0xFFFF so dpm_slip can never
+#     exceed it. This is the level selector, not an enable flag, so it stays.
+# The CAL_dpm_* values live in static .text tables below until the flash cal
+# section lands (porting plan Phase 5/7).
+# Non-leaf: calls firmware lookups. Clobbers r0, r3-r9.
 dpm_calc_slip_target:
+	# Push link register (this function calls the firmware lookups).
+	stwu	%r1, -8(%r1)
+	mflr	%r0
+	stw	%r0, 12(%r1)
+
+	# DPM off (mode 0): target = 0xFFFF, skip the lookups.
 	lis	%r3, dpm_mode_index@ha
 	lbz	%r3, dpm_mode_index@l(%r3)
 	cmplwi	%r3, 0
-	bne	tgt_1
-	# DPM off: target = 0xFFFF so dpm_slip can never exceed it.
-	li	%r4, -1
-	b	tgt_2
-tgt_1:
-	# Clamp the level to the highest table entry.
-	cmplwi	%r3, DPM_MODE_MAX
-	ble	tgt_1a
-	li	%r3, DPM_MODE_MAX
-tgt_1a:
-	# base = dpm_slip_target_base[level] (halfword table).
-	lis	%r5, dpm_slip_target_base@ha
-	addi	%r5, %r5, dpm_slip_target_base@l
-	slwi	%r3, %r3, 1	# halfword index
-	lhzx	%r4, %r5, %r3
-tgt_2:
+	bne	tgt_on
+	li	%r4, -1			# 0xFFFF after the halfword store
 	lis	%r5, dpm_slip_target@ha
 	sth	%r4, dpm_slip_target@l(%r5)
+	b	tgt_done
+tgt_on:
+	# pedal_comp = lookup_3D_uint8_interpolated(6, 6, speed, pedal, ...)
+	li	%r3, 6			# size_x
+	li	%r4, 6			# size_y
+	lis	%r5, dpm_vehicle_speed_kph@ha
+	lbz	%r5, dpm_vehicle_speed_kph@l(%r5)	# input_x = speed (kph)
+	lis	%r6, accel_pedal_latched@ha
+	lha	%r6, accel_pedal_latched@l(%r6)
+	srawi	%r6, %r6, 2
+	clrlwi	%r6, %r6, 24		# input_y = (pedal>>2)&0xff
+	lis	%r7, CAL_dpm_slip_target_from_pedal@ha
+	addi	%r7, %r7, CAL_dpm_slip_target_from_pedal@l
+	lis	%r8, CAL_dpm_slip_target_from_pedal_X_carspeed@ha
+	addi	%r8, %r8, CAL_dpm_slip_target_from_pedal_X_carspeed@l
+	lis	%r9, CAL_dpm_slip_target_from_pedal_Y_pps@ha
+	addi	%r9, %r9, CAL_dpm_slip_target_from_pedal_Y_pps@l
+	bl	lookup_3D_uint8_interpolated
+
+	# Stash the pedal contribution (pedal_comp << 4: 2% -> 1/8% units) in the
+	# target slot. Memory survives the next call, so no callee-saved register
+	# is needed to carry it across the base lookup.
+	slwi	%r3, %r3, 4
+	lis	%r4, dpm_slip_target@ha
+	sth	%r3, dpm_slip_target@l(%r4)
+
+	# base = lookup_2D_uint8_interpolated(16, dpm_mode_index, ...)
+	li	%r3, 16			# size_x
+	lis	%r4, dpm_mode_index@ha
+	lbz	%r4, dpm_mode_index@l(%r4)	# input_x = level
+	lis	%r5, CAL_dpm_slip_target_base@ha
+	addi	%r5, %r5, CAL_dpm_slip_target_base@l
+	lis	%r6, CAL_dpm_slip_target_base_X_dpm_level@ha
+	addi	%r6, %r6, CAL_dpm_slip_target_base_X_dpm_level@l
+	bl	lookup_2D_uint8_interpolated
+
+	# target = min(base + pedal_contrib + offset, 0xFFFF)
+	lis	%r4, dpm_slip_target@ha
+	lhz	%r5, dpm_slip_target@l(%r4)	# pedal contribution from above
+	add	%r3, %r3, %r5
+	addi	%r3, %r3, DPM_SLIP_TARGET_OFFSET
+	cmplwi	%r3, 0xFFFF
+	ble	tgt_store
+	li	%r3, -1			# clamp to 0xFFFF
+tgt_store:
+	sth	%r3, dpm_slip_target@l(%r4)
+tgt_done:
+	# Pop link register.
+	lwz	%r0, 12(%r1)
+	mtlr	%r0
+	addi	%r1, %r1, 8
 	blr
 
-.balign 2
-# PLACEHOLDER base slip target per DPM level, 1/8% units (u16).
-# Index = dpm_mode_index (1..6); slot 0 unused (DPM-off handled above).
-# Monotonic: higher level tolerates more slip. Replace with the
-# CAL_dpm_slip_target_base[] lookup and NA-scaled values when the cal
-# tables land (porting plan Phase 5/7).
-dpm_slip_target_base:
-	.short 0	# 0: unused
-	.short 24	# 1:  3.0%
-	.short 40	# 2:  5.0%
-	.short 64	# 3:  8.0%
-	.short 96	# 4: 12.0%
-	.short 128	# 5: 16.0%
-	.short 160	# 6: 20.0%
+# ---- DPM calibration tables (real GT430 C132E0278 values) --------------
+# Transcribed verbatim from the GT430 disassembly so slip-target behaves
+# identically until an NA-specific tune is dialed in. Slip units are 1/8%;
+# pedal-comp units are 2% (the *16 in the code above converts them to 1/8%).
+# GT430 RAM cal source address noted per table.
+.balign 4
+
+# CAL_dpm_slip_target_base[16]: base slip target, u8 1/8%. GT430 @ 0x4000d654.
+# Looked up by dpm_mode_index against the level axis below. That axis maps
+# levels 1..5 -> 0%, 3%, 6%, 9%, 12% (level 1 = most intervention). Mode 0 is
+# off (handled in code); mode 6 clamps to the level-5 value (12%).
+CAL_dpm_slip_target_base:
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0	# [0..11] level 1 -> 0%
+	.byte 0x18, 0x30, 0x48, 0x60			# [12..15] 24,48,72,96 = 3,6,9,12%
+CAL_dpm_slip_target_base_X_dpm_level:		# GT430 @ 0x4000d644
+	.byte 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1	# [0..11] -> level 1
+	.byte 2, 3, 4, 5				# [12..15] -> levels 2..5
+
+# CAL_dpm_slip_target_from_pedal[6x6]: extra slip vs speed x pedal, u8 2%.
+# GT430 @ 0x40009a0e. Row = pedal (Y), column = car speed (X);
+# lut[pedal*6 + speed]. Nonzero only at high pedal + low speed (launch).
+CAL_dpm_slip_target_from_pedal:
+	#      speed:   s0    s1    s2    s3    s4   s5
+	.byte             0,    0,    0,    0,    0,   0	# pedal row 0
+	.byte             0,    0,    0,    0,    0,   0	# pedal row 1
+	.byte             0,    0,    0,    0,    0,   0	# pedal row 2
+	.byte          0x0a, 0x05, 0x02,    0,    0,   0	# pedal row 3
+	.byte          0x64, 0x34, 0x1c, 0x0e, 0x03,   0	# pedal row 4
+	.byte          0xff, 0x84, 0x48, 0x2a, 0x0a,   0	# pedal row 5
+CAL_dpm_slip_target_from_pedal_X_carspeed:	# GT430 @ 0x40009a02
+	.byte 5, 10, 15, 20, 30, 35			# u8 kph
+CAL_dpm_slip_target_from_pedal_Y_pps:		# GT430 @ 0x40009a08
+	.byte 0x1a, 0x1a, 0x1a, 0x33, 0x66, 0xcc	# 26,26,26,51,102,204 (1/255)
 .balign 4	# realign: instructions must start on a 4-byte boundary
 
 # Calculate wheel slip from the ABS wheel speeds and derive axle maxima,
