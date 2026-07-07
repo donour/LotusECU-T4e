@@ -1,3 +1,7 @@
+#TODO: Add dpm_mode_index cycle function using TC button
+#TODO: change TC button default toggle duration/timout 
+
+
 # DPM (Dynamic Performance Mode) - 6-level slip-based traction control.
 # Port of the C132E0278 (GT430) implementation to B13200091 (S1 Evora NA).
 # Variable set follows C132E0278/DPM_plan.md Phase 1.
