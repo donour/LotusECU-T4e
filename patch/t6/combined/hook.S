@@ -35,6 +35,9 @@ hook_timer_5ms:
 .ifdef WIDEBAND
 	bl	wideband_5ms
 .endif
+.ifdef DPM
+	bl	dpm_system_state_manager_200hz
+.endif
 	# Load 10 (Erase by patch in original code)
 	li	%r0, 10
 	ba	hook_timer_5ms_continue

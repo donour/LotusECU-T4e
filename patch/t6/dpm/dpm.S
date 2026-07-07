@@ -1,6 +1,6 @@
 #TODO: Add dpm_mode_index cycle function using TC button
 #TODO: change TC button default toggle duration/timout 
-
+#TODO: add back direction histeresis via dpm_control_flags and dpm_direct_mode_on_delay
 
 # DPM (Dynamic Performance Mode) - 6-level slip-based traction control.
 # Port of the C132E0278 (GT430) implementation to B13200091 (S1 Evora NA).
@@ -91,7 +91,7 @@ dpm_decrease_hold_time:        .skip 1 # u8, 5ms counts decrease held
 dpm_both_buttons_pressed:      .skip 1 # bool, dual-press latch
 
 .section .text
-.global dpm_init, dpm_slip_calculator
+.global dpm_init, dpm_slip_calculator, dpm_system_state_manager_200hz
 
 # The firmware does not zero-fill the patch .bss region, so every
 # variable must be initialized explicitly here.
@@ -186,9 +186,10 @@ dpm_init:
 #   dpm_vehicle_speed_kph    = min(front_max / 100, 255)
 #   dpm_front_lr_speed_diff  = abs(LF - RF)
 #   dpm_rear_lr_speed_diff   = abs(LR - RR)
+#   dpm_max_lr_speed_diff    = max(front_lr_diff, rear_lr_diff)
 #   dpm_slip                 = rear-over-front overspeed, 1/8% units
 #   dpm_slip_target          = per-level target (via dpm_calc_slip_target)
-# Clobbers r0, r3-r10; calls dpm_calc_slip_target.
+# Clobbers r0, r3-r11; calls dpm_calc_slip_target.
 dpm_calc_slip:
 	# Push link register (this function now calls dpm_calc_slip_target).
 	stwu	%r1, -8(%r1)
@@ -236,17 +237,26 @@ slip_3:
 	subf	%r0, %r5, %r4	# r0 = LF - RF
 	srawi	%r10, %r0, 31
 	xor	%r0, %r0, %r10
-	subf	%r0, %r10, %r0
+	subf	%r11, %r10, %r0	# r11 = abs(LF - RF), kept for the max below
 	lis	%r10, dpm_front_lr_speed_diff@ha
-	sth	%r0, dpm_front_lr_speed_diff@l(%r10)
+	sth	%r11, dpm_front_lr_speed_diff@l(%r10)
 
 	# dpm_rear_lr_speed_diff = abs(LR - RR)
 	subf	%r0, %r7, %r6	# r0 = LR - RR
 	srawi	%r10, %r0, 31
 	xor	%r0, %r0, %r10
-	subf	%r0, %r10, %r0
+	subf	%r0, %r10, %r0	# r0 = abs(LR - RR)
 	lis	%r10, dpm_rear_lr_speed_diff@ha
 	sth	%r0, dpm_rear_lr_speed_diff@l(%r10)
+
+	# dpm_max_lr_speed_diff = max(front_lr_diff, rear_lr_diff)
+	# Cornering magnitude; the direct-mode hysteresis will consume this later.
+	cmplw	%r11, %r0	# front (r11) vs rear (r0), unsigned
+	bge	slip_4
+	mr	%r11, %r0	# rear larger -> r11 = max
+slip_4:
+	lis	%r10, dpm_max_lr_speed_diff@ha
+	sth	%r11, dpm_max_lr_speed_diff@l(%r10)
 
 	# dpm_slip = (front_max > 0 && rear_max > front_max)
 	#            ? min((rear_max * 800) / front_max - 800, 0xFFFF)
@@ -414,4 +424,13 @@ dpm_slip_calculator:
 	lwz	%r0, 12(%r1)
 	mtlr	%r0
 	addi	%r1, %r1, 8
+	blr
+
+# 200 Hz (5 ms) DPM state machine: enable gating, ignition-off reset, button
+# handler, direct-mode hysteresis and the integral controller.
+# Port of C132E0278.c:58446-58513, called from the 5 ms timer hook.
+# STUB: no logic yet (no-op). It is currently a leaf (calls nothing), so it
+# needs no LR frame; add the stwu/mflr/stw ... lwz/mtlr/blr frame when it
+# starts calling subfunctions (e.g. dpm_mode_button_handler).
+dpm_system_state_manager_200hz:
 	blr
