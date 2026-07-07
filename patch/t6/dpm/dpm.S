@@ -19,7 +19,20 @@
 
 .section .data
 
+# DPM runtime state.
+#
+# These are defined as explicit .bss labels rather than .comm. On PowerPC
+# EABI the assembler diverts small .comm objects (<= the -G small-data
+# threshold, default 8 bytes) into .sbss. The combined Makefile only sets
+# -Tbss $(RAM) and never places .sbss, so those symbols would link at VMA 0
+# (showing up as uRam0000xxxx in the disassembly) instead of the 0x4000xxxx
+# SRAM block. Explicit .bss placement avoids the diversion and also gives a
+# deterministic layout for the later OBD readback patch.
+#
+# Ordered widest-first (4/2/1 byte) so every field stays naturally aligned
+# with no padding.
 .section .bss
+.balign 4
 .global dpm_slip, dpm_slip_target
 .global dpm_slip_error_raw, dpm_slip_error_filtered
 .global dpm_slip_filter_accumulator, dpm_slip_integral_accumulator
@@ -37,38 +50,38 @@
 .global dpm_both_buttons_pressed
 
 # 32-bit
-.comm dpm_slip_filter_accumulator,    4, 4 # u32, slip error filter state memory
-.comm dpm_slip_integral_accumulator,  4, 4 # i32, integral controller state
+dpm_slip_filter_accumulator:   .skip 4 # u32, slip error filter state memory
+dpm_slip_integral_accumulator: .skip 4 # i32, integral controller state
 
 # 16-bit
-.comm dpm_slip,                       2, 2 # u16_slip_1/8%, current wheel slip
-.comm dpm_slip_target,                2, 2 # u16_slip_1/8%, target slip setpoint
-.comm dpm_slip_error_raw,             2, 2 # u16_slip_1/8%, slip - target (when slip > target)
-.comm dpm_slip_error_filtered,        2, 2 # u16_slip_1/8%, filtered error (fast attack, slow decay)
-.comm dpm_target_torque_reduced,      2, 2 # u16_torque_nm, maximum allowed torque
-.comm dpm_target_torque_upper_limit,  2, 2 # u16_torque_nm, reduced + recovery margin
-.comm dpm_torque_when_tc_activated,   2, 2 # u16_torque_nm, torque snapshot at intervention start
-.comm dpm_control_flags,              2, 2 # DPM_FLAG_* bitmap
-.comm dpm_front_axle_speed_max,       2, 2 # u16_speed_1/100kph, max(LF, RF)
-.comm dpm_rear_axle_speed_max,        2, 2 # u16_speed_1/100kph, max(LR, RR)
-.comm dpm_front_lr_speed_diff,        2, 2 # u16_speed_1/100kph, abs(LF - RF)
-.comm dpm_rear_lr_speed_diff,         2, 2 # u16_speed_1/100kph, abs(LR - RR)
-.comm dpm_max_lr_speed_diff,          2, 2 # u16_speed_1/100kph, max of front/rear L-R diffs
-.comm dpm_direct_mode_on_delay,       2, 2 # u16_time_5ms, countdown to enter direct mode
-.comm dpm_direct_mode_off_delay,      2, 2 # u16_time_5ms, countdown to exit direct mode
-.comm dpm_integral_update_timer,      2, 2 # u16_time_5ms, integral update period countdown
+dpm_slip:                      .skip 2 # u16_slip_1/8%, current wheel slip
+dpm_slip_target:               .skip 2 # u16_slip_1/8%, target slip setpoint
+dpm_slip_error_raw:            .skip 2 # u16_slip_1/8%, slip - target (when slip > target)
+dpm_slip_error_filtered:       .skip 2 # u16_slip_1/8%, filtered error (fast attack, slow decay)
+dpm_target_torque_reduced:     .skip 2 # u16_torque_nm, maximum allowed torque
+dpm_target_torque_upper_limit: .skip 2 # u16_torque_nm, reduced + recovery margin
+dpm_torque_when_tc_activated:  .skip 2 # u16_torque_nm, torque snapshot at intervention start
+dpm_control_flags:             .skip 2 # DPM_FLAG_* bitmap
+dpm_front_axle_speed_max:      .skip 2 # u16_speed_1/100kph, max(LF, RF)
+dpm_rear_axle_speed_max:       .skip 2 # u16_speed_1/100kph, max(LR, RR)
+dpm_front_lr_speed_diff:       .skip 2 # u16_speed_1/100kph, abs(LF - RF)
+dpm_rear_lr_speed_diff:        .skip 2 # u16_speed_1/100kph, abs(LR - RR)
+dpm_max_lr_speed_diff:         .skip 2 # u16_speed_1/100kph, max of front/rear L-R diffs
+dpm_direct_mode_on_delay:      .skip 2 # u16_time_5ms, countdown to enter direct mode
+dpm_direct_mode_off_delay:     .skip 2 # u16_time_5ms, countdown to exit direct mode
+dpm_integral_update_timer:     .skip 2 # u16_time_5ms, integral update period countdown
 
 # 8-bit
-.comm dpm_mode_index,                 1, 1 # 0 = off, 1-6 = DPM level
-.comm dpm_vehicle_speed_kph,          1, 1 # u8_speed_kph, front axle max / 100
-.comm dpm_torque_cut_factor,          1, 1 # u8_factor_1/255, instantaneous cut from lookup
-.comm dpm_torque_cut_accumulated,     1, 1 # u8_factor_1/255, integral torque cut term
-.comm dpm_torque_cut_total,           1, 1 # u8_factor_1/255, factor + accumulated (sat. 255)
-.comm dpm_button_increase,            1, 1 # bool, increase button state
-.comm dpm_button_decrease,            1, 1 # bool, decrease button state
-.comm dpm_increase_hold_time,         1, 1 # u8, 5ms counts increase held
-.comm dpm_decrease_hold_time,         1, 1 # u8, 5ms counts decrease held
-.comm dpm_both_buttons_pressed,       1, 1 # bool, dual-press latch
+dpm_mode_index:                .skip 1 # 0 = off, 1-6 = DPM level
+dpm_vehicle_speed_kph:         .skip 1 # u8_speed_kph, front axle max / 100
+dpm_torque_cut_factor:         .skip 1 # u8_factor_1/255, instantaneous cut from lookup
+dpm_torque_cut_accumulated:    .skip 1 # u8_factor_1/255, integral torque cut term
+dpm_torque_cut_total:          .skip 1 # u8_factor_1/255, factor + accumulated (sat. 255)
+dpm_button_increase:           .skip 1 # bool, increase button state
+dpm_button_decrease:           .skip 1 # bool, decrease button state
+dpm_increase_hold_time:        .skip 1 # u8, 5ms counts increase held
+dpm_decrease_hold_time:        .skip 1 # u8, 5ms counts decrease held
+dpm_both_buttons_pressed:      .skip 1 # bool, dual-press latch
 
 .section .text
 .global dpm_init, dpm_slip_calculator

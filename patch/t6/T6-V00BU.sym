@@ -16,7 +16,6 @@ adc_sample_pre_O2_bank1            = 0x4c3ac;
 adc_sample_pre_O2_bank2            = 0x4c3c4;
 
 
-
 hook_init_loc                  = 0x42d10;
 hook_init_continue             = 0x42d12;
 hook_timer_5ms_loc             = 0x43548;
@@ -37,13 +36,17 @@ hook_OBD_mode_0x22_jump        = 0x7dc7c;
 /*obd_ii_mode22_processing      = 0x0007861C;*/
 
 
-
 /* Main loop back-branch. Original instruction `b -0x29C` closes the
  * do { ... } while(true) at the bottom of main(). */
 hook_loop_loc                 = 0x42ffc;
 hook_loop_continue            = 0x42d60;
 hook_loop_correction          = 0x42fe0;
 hook_freeram_counter          = 0x4300c;
+
+/* Wheel speeds from ABS CAN. Halfwords: LR@0, RR@2, LF@4, RF@6.
+ * Units are presumed 1/100 kph; VERIFY (porting_plan risk #3). */
+wheel_speed                   = 0x400018da;
+
 
 
 /* Displaced instruction at hook_loop_loc was `bl torque_model`.
@@ -54,9 +57,6 @@ torque_model                  = 0x000B236C;
  * Inputs (RAM)
  * ========================================================================= */
 
-/* Wheel speeds from ABS CAN. Halfwords: LR@0, RR@2, LF@4, RF@6.
- * Units are presumed 1/100 kph; VERIFY (porting_plan risk #3). */
-wheel_speed                   = 0x400018DA;
 
 /* Engine state. */
 engine_speed_2                = 0x4000163A;  /* u16 rpm (8-bit truncated copy) */

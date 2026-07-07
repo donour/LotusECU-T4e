@@ -9,6 +9,9 @@ hook_init:
 .ifdef WIDEBAND
 	bl	wideband_init
 .endif
+.ifdef DPM
+	bl	dpm_init
+.endif
 	# Pop link register from stack (Erase by patch in original code)
 	lwz	%r0, 20(%r1)
 	ba	hook_init_continue
@@ -19,6 +22,9 @@ hook_loop:
 .endif
 .ifdef WIDEBAND
 	bl	wideband
+.endif
+.ifdef DPM
+	bl	dpm_slip_calculator
 .endif
 	ba	hook_loop_continue
 
