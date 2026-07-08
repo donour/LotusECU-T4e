@@ -2,7 +2,7 @@
 #TODO: change TC button default toggle duration/timout 
 #TODO: add back direction histeresis via dpm_control_flags and dpm_direct_mode_on_delay
 #TODO: OBD-II data reading is incorrect and forces reboot
-
+#TODO: tune the i term from dpm correction in state mgmt
 
 # DPM (Dynamic Performance Mode) - 6-level slip-based traction control.
 # Port of the C132E0278 (GT430) implementation to B13200091 (S1 Evora NA).
@@ -60,7 +60,7 @@
 
 # 32-bit
 dpm_slip_filter_accumulator:   .skip 4 # u32, slip error filter state memory
-dpm_slip_integral_accumulator: .skip 4 # i32, integral controller state
+dpm_slip_integral_accumulator: .skip 2 # i16, integral controller state (signed, 8.8 fixed-ish)
 
 # 16-bit
 dpm_slip:                      .skip 2 # u16_slip_1/8%, current wheel slip
@@ -708,6 +708,11 @@ CAL_dpm_torque_min_allowed:	.short 30	# u16 Nm   (GT430) = 0x1E
 CAL_dpm_max_vehicle_speed:	.byte 255	# u8 kph   (GT430 @ 0x4000ccbb) = 0xff (no upper limit)
 CAL_dpm_min_vehicle_speed:	.byte 5		# u8 kph   (GT430 @ 0x4000ccbc)
 CAL_dpm_intervention_threshold:	.byte 16	# u8 1/8%  (GT430 @ 0x4000ccbd) = 2%
+
+	# ---- Integral (PI) controller calibrations (real GT430 C132E0278 values) ----
+	CAL_dpm_integral_update_period:	.short 4000	# u16_time_5ms (GT430 @ 0x4000ccb6) = 0x0FA0 = 20 s
+	CAL_dpm_integral_gain:		.byte 1		# uint8_t      (GT430 @ 0x4000ccbe) = 0x01
+	CAL_dpm_integral_limit:		.byte 0x80	# uint8_t      (GT430 @ 0x4000ccbf) = 128, clamped ±128²/256
 .balign 2
 # CAL_dpm_torque_cut_factor[60]: 6 (car speed, X) x 10 (slip error, Y), u16
 # factor 0..255. Row-major: lut[slip*6 + speed]. GT430 @ 0x4000998a.
@@ -750,53 +755,124 @@ dpm_slip_calculator:
 	addi	%r1, %r1, 8
 	blr
 
-# 200 Hz (5 ms) DPM state machine. Port of C132E0278.c:58446-58513.
-# Implements only the direct-mode cornering hysteresis for now:
-#   cornering = dpm_max_lr_speed_diff > CAL_dpm_lr_diff_cornerning_threshold
-#     -> set DPM_FLAG_DIRECT and reload dpm_direct_mode_off_delay
-#   straight  -> count dpm_direct_mode_off_delay down; when it reaches 0,
-#     clear DPM_FLAG_DIRECT (exit debounce so DIRECT doesn't chatter)
-# Simplified vs GT430 (C132E0278.c:58465-58484): the on_delay entry debounce
-# is dropped, so DIRECT engages immediately on cornering and
-# dpm_direct_mode_on_delay is left untouched. Only dpm_direct_mode_off_delay
-# and dpm_control_flags are updated. The DPM_FLAG_DIRECT bit is not consumed
-# yet (dpm_calc_slip_target still always applies the offset); gating on it is
-# a later step.
-# Leaf (no calls) -> no LR frame. Clobbers r0, r3-r8.
-dpm_system_state_manager_200hz:
-	# cornering = (threshold < max_lr_diff)
-	lis	%r3, dpm_max_lr_speed_diff@ha
-	lhz	%r3, dpm_max_lr_speed_diff@l(%r3)
-	lis	%r4, CAL_dpm_lr_diff_cornerning_threshold@ha
-	lhz	%r4, CAL_dpm_lr_diff_cornerning_threshold@l(%r4)
+	# 200 Hz (5 ms) DPM state machine. Port of C132E0278.c:58446-58582.
+	# Two responsibilities, run in order every tick:
+	#   1. Direct-mode cornering hysteresis (DIRECT flag + off-delay timer).
+	#   2. PI integral controller: accumulates slip error into
+	#      dpm_torque_cut_accumulated when CUTTING; resets when not CUTTING.
+	#      Timer-triggered every CAL_dpm_integral_update_period (20 s).
+	#      accumulator += slip_error_filtered * gain,  clamped +/-limit*128,
+	#      then torque_cut_accumulated = accumulator >> 8.
+	# Leaf (no calls) -> no LR frame. Clobbers r0, r3-r11.
+	dpm_system_state_manager_200hz:
+		# === Stage 1: cornering hysteresis ===
+		# cornering = (threshold < max_lr_diff)
+		lis	%r3, dpm_max_lr_speed_diff@ha
+		lhz	%r3, dpm_max_lr_speed_diff@l(%r3)
+		lis	%r4, CAL_dpm_lr_diff_cornerning_threshold@ha
+		lhz	%r4, CAL_dpm_lr_diff_cornerning_threshold@l(%r4)
 
-	# Load flags (r6, base r5) and off_delay base (r7) up front.
-	lis	%r5, dpm_control_flags@ha
-	lhz	%r6, dpm_control_flags@l(%r5)
-	lis	%r7, dpm_direct_mode_off_delay@ha
+		# Load flags (r6, base r5) and off_delay base (r7) up front.
+		lis	%r5, dpm_control_flags@ha
+		lhz	%r6, dpm_control_flags@l(%r5)
+		lis	%r7, dpm_direct_mode_off_delay@ha
 
-	cmplw	%r4, %r3		# threshold < max_lr_diff ?
-	blt	dsm_cornering
+		cmplw	%r4, %r3		# threshold < max_lr_diff ?
+		blt	dsm_cornering
 
-	# --- straight line: exit-debounce countdown ---
-	lhz	%r8, dpm_direct_mode_off_delay@l(%r7)
-	cmplwi	%r8, 0
-	beq	dsm_clear		# already expired -> keep DIRECT clear
-	subi	%r8, %r8, 1
-	sth	%r8, dpm_direct_mode_off_delay@l(%r7)
-	cmplwi	%r8, 0
-	bne	dsm_ret			# still holding -> leave flags as-is
-dsm_clear:
-	andi.	%r6, %r6, (0xffff & ~DPM_FLAG_DIRECT)
-	sth	%r6, dpm_control_flags@l(%r5)
-dsm_ret:
-	blr
+		# --- straight line: exit-debounce countdown ---
+		lhz	%r8, dpm_direct_mode_off_delay@l(%r7)
+		cmplwi	%r8, 0
+		beq	dsm_clear		# already expired -> keep DIRECT clear
+		subi	%r8, %r8, 1
+		sth	%r8, dpm_direct_mode_off_delay@l(%r7)
+		cmplwi	%r8, 0
+		bne	dsm_integral		# still holding -> leave flags as-is, go to PI
+	dsm_clear:
+		andi.	%r6, %r6, (0xffff & ~DPM_FLAG_DIRECT)
+		sth	%r6, dpm_control_flags@l(%r5)
+		b	dsm_integral		# was dsm_ret; now continue to PI
 
-dsm_cornering:
-	# --- cornering: engage DIRECT, reload the exit timer ---
-	ori	%r6, %r6, DPM_FLAG_DIRECT
-	sth	%r6, dpm_control_flags@l(%r5)
-	lis	%r8, CAL_dpm_direct_mode_off_delay@ha
-	lhz	%r8, CAL_dpm_direct_mode_off_delay@l(%r8)
-	sth	%r8, dpm_direct_mode_off_delay@l(%r7)
-	blr
+	dsm_cornering:
+		# --- cornering: engage DIRECT, reload the exit timer ---
+		ori	%r6, %r6, DPM_FLAG_DIRECT
+		sth	%r6, dpm_control_flags@l(%r5)
+		lis	%r8, CAL_dpm_direct_mode_off_delay@ha
+		lhz	%r8, CAL_dpm_direct_mode_off_delay@l(%r8)
+		sth	%r8, dpm_direct_mode_off_delay@l(%r7)
+		# fall through to PI controller (was blr)
+
+	# === Stage 2: PI integral controller ===
+	# if (!(flags & CUTTING)): reset timer + accumulator + accumulated cut
+	# else if (timer == 0): update accumulator, clamp, derive accumulated cut
+	# else: decrement timer
+	dsm_integral:
+		# Reload flags (r6 may be stale from cornering paths).
+		lis	%r5, dpm_control_flags@ha
+		lhz	%r3, dpm_control_flags@l(%r5)
+		andi.	%r3, %r3, DPM_FLAG_CUTTING
+		beq	dsm_int_reset		# !CUTTING -> reset integral
+
+		# CUTTING is set: check update timer
+		lis	%r4, dpm_integral_update_timer@ha
+		lhz	%r3, dpm_integral_update_timer@l(%r4)
+		cmplwi	%r3, 0
+		beq	dsm_int_update		# timer expired -> update
+		subi	%r3, %r3, 1		# timer > 0 -> decrement
+		sth	%r3, dpm_integral_update_timer@l(%r4)
+		blr
+
+	dsm_int_reset:
+		# Reset integral: preload timer to period, clear accumulator + output.
+		lis	%r3, CAL_dpm_integral_update_period@ha
+		lhz	%r3, CAL_dpm_integral_update_period@l(%r3)
+		lis	%r4, dpm_integral_update_timer@ha
+		sth	%r3, dpm_integral_update_timer@l(%r4)
+		li	%r3, 0
+		lis	%r4, dpm_slip_integral_accumulator@ha
+		sth	%r3, dpm_slip_integral_accumulator@l(%r4)
+		lis	%r4, dpm_torque_cut_accumulated@ha
+		stb	%r3, dpm_torque_cut_accumulated@l(%r4)
+		blr
+
+	dsm_int_update:
+		# Reload timer with update period.
+		lis	%r3, CAL_dpm_integral_update_period@ha
+		lhz	%r3, CAL_dpm_integral_update_period@l(%r3)
+		sth	%r3, dpm_integral_update_timer@l(%r4)	# r4 still has timer base
+
+		# accumulator += slip_error_filtered * gain
+		lis	%r5, dpm_slip_error_filtered@ha
+		lhz	%r5, dpm_slip_error_filtered@l(%r5)	# r5 = error (u16, >= 0)
+		lis	%r6, CAL_dpm_integral_gain@ha
+		lbz	%r6, CAL_dpm_integral_gain@l(%r6)	# r6 = gain (u8)
+		mullw	%r5, %r5, %r6				# r5 = error * gain
+
+		lis	%r7, dpm_slip_integral_accumulator@ha
+		lha	%r8, dpm_slip_integral_accumulator@l(%r7)	# r8 = acc (signed 16-bit)
+		add	%r8, %r8, %r5				# r8 = acc + error*gain
+
+		# Clamp to +/- (limit * 128)
+		lis	%r9, CAL_dpm_integral_limit@ha
+		lbz	%r9, CAL_dpm_integral_limit@l(%r9)	# r9 = limit
+		slwi	%r10, %r9, 7				# r10 = limit * 128 (upper)
+		cmpw	%r8, %r10
+		bgt	dsm_int_clamp_hi
+		neg	%r11, %r10				# r11 = -(limit*128) (lower)
+		cmpw	%r8, %r11
+		blt	dsm_int_clamp_lo
+		b	dsm_int_store
+
+	dsm_int_clamp_hi:
+		mr	%r8, %r10
+		b	dsm_int_store
+	dsm_int_clamp_lo:
+		mr	%r8, %r11
+	dsm_int_store:
+		sth	%r8, dpm_slip_integral_accumulator@l(%r7)	# store accumulator
+
+		# torque_cut_accumulated = accumulator >> 8 (arithmetic; acc >= 0 in practice)
+		srawi	%r3, %r8, 8
+		lis	%r4, dpm_torque_cut_accumulated@ha
+		stb	%r3, dpm_torque_cut_accumulated@l(%r4)
+		blr
