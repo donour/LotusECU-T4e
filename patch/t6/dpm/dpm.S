@@ -292,15 +292,18 @@ slip_5:
 # Ported from C132E0278.c:58274-58327 (the "system enabled" active path).
 #
 #   pedal_comp = lookup_3D(6,6, vehicle_speed_kph, (pedal>>2)&0xff,
-#                          CAL_dpm_slip_target_comp_pedal, _X_carspeed, _Y_pps)
+#                          CAL_dpm_slip_target_from_pedal, _X_carspeed, _Y_pps)
 #   base       = lookup_2D(16, dpm_mode_index,
 #                          CAL_dpm_slip_target_base, _X_dpm_level)
-#   target     = min(base + pedal_comp*16 + DPM_SLIP_TARGET_OFFSET, 0xFFFF)
+#   comp       = base + pedal_comp*16
+#   target     = min(comp + (direct_mode ? 0 : DPM_SLIP_TARGET_OFFSET), 0xFFFF)
+#
+# In direct mode (DPM_FLAG_DIRECT, set by the 5 ms state manager on sustained
+# cornering) the offset is skipped, tightening the target through corners.
 #
 # Simplifications versus the GT430 (racecar build):
-#   - dpm_control_flags gating is dropped; the target is ALWAYS computed.
-#   - the direct-mode "no offset" branch (flag 0x04) is dropped, so the
-#     offset is always applied.
+#   - the enable gating (SYS_ENABLED/SYS_DISABLED) is dropped; the target is
+#     ALWAYS computed. The dead pedal-only branch (BUTTONS clear) is omitted.
 #   - dpm_mode_index 0 = DPM off: target = 0xFFFF so dpm_slip can never
 #     exceed it. This is the level selector, not an enable flag, so it stays.
 # The CAL_dpm_* values live in static .text tables below until the flash cal
@@ -356,11 +359,19 @@ tgt_on:
 	addi	%r6, %r6, CAL_dpm_slip_target_base_X_dpm_level@l
 	bl	lookup_2D_uint8_interpolated
 
-	# target = min(base + pedal_contrib + offset, 0xFFFF)
+	# comp = base + pedal_contrib  (base in r3 from lookup_2D)
 	lis	%r4, dpm_slip_target@ha
-	lhz	%r5, dpm_slip_target@l(%r4)	# pedal contribution from above
+	lhz	%r5, dpm_slip_target@l(%r4)	# pedal contribution stashed above
 	add	%r3, %r3, %r5
+
+	# Add the offset unless direct mode is active. In direct mode (cornering)
+	# the offset is skipped to tighten the target (C132E0278.c:58317-58327).
+	lis	%r6, dpm_control_flags@ha
+	lhz	%r6, dpm_control_flags@l(%r6)
+	andi.	%r6, %r6, DPM_FLAG_DIRECT
+	bne	tgt_clamp			# direct mode -> no offset
 	addi	%r3, %r3, DPM_SLIP_TARGET_OFFSET
+tgt_clamp:
 	cmplwi	%r3, 0xFFFF
 	ble	tgt_store
 	li	%r3, -1			# clamp to 0xFFFF
@@ -406,6 +417,20 @@ CAL_dpm_slip_target_from_pedal_X_carspeed:	# GT430 @ 0x40009a02
 	.byte 5, 10, 15, 20, 30, 35			# u8 kph
 CAL_dpm_slip_target_from_pedal_Y_pps:		# GT430 @ 0x40009a08
 	.byte 0x1a, 0x1a, 0x1a, 0x33, 0x66, 0xcc	# 26,26,26,51,102,204 (1/255)
+
+# Direct-mode calibrations (GT430 0x4000ccb0..0x4000ccb5, contiguous). u16 each.
+.balign 2
+# L-R wheel-speed diff above which the car is treated as cornering. 1/100 kph.
+CAL_dpm_lr_diff_cornerning_threshold:		# GT430 @ 0x4000ccb0
+	.short 0x2d			# 45 = 0.45 kph
+# Exit debounce: DIRECT stays latched this many 5 ms ticks after cornering
+# ends. Reloaded each cornering cycle.
+CAL_dpm_direct_mode_off_delay:			# GT430 @ 0x4000ccb2
+	.short 0x64			# 100 = 0.5 s at 200 Hz
+# Entry debounce: continuous cornering must persist this many 5 ms ticks
+# before DIRECT engages. Not consumed yet (on_delay logic was dropped).
+CAL_dpm_direct_mode_on_delay:			# GT430 @ 0x4000ccb4
+	.short 0x28			# 40 = 0.2 s at 200 Hz
 .balign 4	# realign: instructions must start on a 4-byte boundary
 
 # Calculate wheel slip from the ABS wheel speeds and derive axle maxima,
@@ -426,11 +451,53 @@ dpm_slip_calculator:
 	addi	%r1, %r1, 8
 	blr
 
-# 200 Hz (5 ms) DPM state machine: enable gating, ignition-off reset, button
-# handler, direct-mode hysteresis and the integral controller.
-# Port of C132E0278.c:58446-58513, called from the 5 ms timer hook.
-# STUB: no logic yet (no-op). It is currently a leaf (calls nothing), so it
-# needs no LR frame; add the stwu/mflr/stw ... lwz/mtlr/blr frame when it
-# starts calling subfunctions (e.g. dpm_mode_button_handler).
+# 200 Hz (5 ms) DPM state machine. Port of C132E0278.c:58446-58513.
+# Implements only the direct-mode cornering hysteresis for now:
+#   cornering = dpm_max_lr_speed_diff > CAL_dpm_lr_diff_cornerning_threshold
+#     -> set DPM_FLAG_DIRECT and reload dpm_direct_mode_off_delay
+#   straight  -> count dpm_direct_mode_off_delay down; when it reaches 0,
+#     clear DPM_FLAG_DIRECT (exit debounce so DIRECT doesn't chatter)
+# Simplified vs GT430 (C132E0278.c:58465-58484): the on_delay entry debounce
+# is dropped, so DIRECT engages immediately on cornering and
+# dpm_direct_mode_on_delay is left untouched. Only dpm_direct_mode_off_delay
+# and dpm_control_flags are updated. The DPM_FLAG_DIRECT bit is not consumed
+# yet (dpm_calc_slip_target still always applies the offset); gating on it is
+# a later step.
+# Leaf (no calls) -> no LR frame. Clobbers r0, r3-r8.
 dpm_system_state_manager_200hz:
+	# cornering = (threshold < max_lr_diff)
+	lis	%r3, dpm_max_lr_speed_diff@ha
+	lhz	%r3, dpm_max_lr_speed_diff@l(%r3)
+	lis	%r4, CAL_dpm_lr_diff_cornerning_threshold@ha
+	lhz	%r4, CAL_dpm_lr_diff_cornerning_threshold@l(%r4)
+
+	# Load flags (r6, base r5) and off_delay base (r7) up front.
+	lis	%r5, dpm_control_flags@ha
+	lhz	%r6, dpm_control_flags@l(%r5)
+	lis	%r7, dpm_direct_mode_off_delay@ha
+
+	cmplw	%r4, %r3		# threshold < max_lr_diff ?
+	blt	dsm_cornering
+
+	# --- straight line: exit-debounce countdown ---
+	lhz	%r8, dpm_direct_mode_off_delay@l(%r7)
+	cmplwi	%r8, 0
+	beq	dsm_clear		# already expired -> keep DIRECT clear
+	subi	%r8, %r8, 1
+	sth	%r8, dpm_direct_mode_off_delay@l(%r7)
+	cmplwi	%r8, 0
+	bne	dsm_ret			# still holding -> leave flags as-is
+dsm_clear:
+	andi.	%r6, %r6, (0xffff & ~DPM_FLAG_DIRECT)
+	sth	%r6, dpm_control_flags@l(%r5)
+dsm_ret:
+	blr
+
+dsm_cornering:
+	# --- cornering: engage DIRECT, reload the exit timer ---
+	ori	%r6, %r6, DPM_FLAG_DIRECT
+	sth	%r6, dpm_control_flags@l(%r5)
+	lis	%r8, CAL_dpm_direct_mode_off_delay@ha
+	lhz	%r8, CAL_dpm_direct_mode_off_delay@l(%r8)
+	sth	%r8, dpm_direct_mode_off_delay@l(%r7)
 	blr
