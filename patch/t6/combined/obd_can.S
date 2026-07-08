@@ -8,41 +8,45 @@
 .global hook_OBD_mode_0x01, hook_OBD_mode_0x22
 
 hook_OBD_mode_0x01:
-	# %r31 is index in obd_req
-	# %r30 is index in obd_resp
+	# r3  = PID byte offset into obd_req (loop counter; MUST be preserved
+	#       because the firmware while-loop at 0xaddd8 does addi r3,r3,1).
+	# r30 = response byte offset into obd_resp.
+	# Original instruction at the hook point: rlwinm r0, r3, 0, 24, 31
 
-	# Store current request byte in %r3
-	lis	%r3, obd_req@ha
-	addi	%r3, %r3, obd_req@l
-	lbzx	%r3, %r3, %r31
+	# Load the current PID byte from the request buffer into r11.
+	# Use r3 as the offset (NOT r31 — the original firmware tracks the
+	# offset in r3).  r10 = obd_req base, destroyed after the lbzx.
+	lis	%r10, obd_req@ha
+	addi	%r10, %r10, obd_req@l
+	lbzx	%r11, %r10, %r3		# r11 = obd_req[r3] = PID value
 
-	# Store current pointer to response byte in %r4
+	# Response output pointer.  r4 = &obd_resp[r30].
 	lis	%r4, obd_resp@ha
 	addi	%r4, %r4, obd_resp@l
 	add	%r4, %r4, %r30
 
-	# Branching
-	cmplwi	%r3, 0x00
-	#beq	OBD_mode_0x01_pid_0x00
-	#cmplwi	%r3, 0x20
+	# PID matching (all on r11 — r3 stays intact)
+	cmplwi	%r11, 0x00
+	beq	OBD_mode_0x01_pid_0x00
+	cmplwi	%r11, 0x20
 	beq	OBD_mode_0x01_pid_0x20
-	cmplwi	%r3, 0x40
+	cmplwi	%r11, 0x40
 	beq	OBD_mode_0x01_pid_0x40
 .ifdef FLEXFUEL
 .set OBD_PID_0x40_MASK, OBD_PID_0x40_MASK | 1<<(0x60-0x52)
-	cmplwi	%r3, 0x52
+	cmplwi	%r11, 0x52
 	beq	OBD_mode_0x01_pid_0x52
 .endif
 .ifdef WIDEBAND
 .set OBD_PID_0x20_MASK, OBD_PID_0x20_MASK | 1<<(0x40-0x24)
-	cmplwi	%r3, 0x24
+	cmplwi	%r11, 0x24
 	beq	OBD_mode_0x01_pid_0x24
 .set OBD_PID_0x20_MASK, OBD_PID_0x20_MASK | 1<<(0x40-0x25)
-	cmplwi	%r3, 0x25
+	cmplwi	%r11, 0x25
 	beq	OBD_mode_0x01_pid_0x25
 .endif
-	# Mask %r31 (Erase by patch in original code)
-	rlwinm	%r0, %r31, 0,24,31
+	# Original instruction: rlwinm r0, r3, 0, 24, 31
+	rlwinm	%r0, %r3, 0,24,31
 	ba	hook_OBD_mode_0x01_continue
 
 # Available PIDs
@@ -60,7 +64,7 @@ OBD_mode_0x01_pid_0x40:
 	b	OBD_mode_0x01_mask
 OBD_mode_0x01_mask:
 	addi	%r30, %r30, 5 # Answer 5 bytes
-	stb	%r3, 0(%r4)
+	stb	%r11, 0(%r4)		# PID value from r11 (r3 = loop counter, preserved)
 	stw	%r5, 1(%r4)
 	ba	hook_OBD_mode_0x01_jump
 
@@ -68,12 +72,12 @@ OBD_mode_0x01_mask:
 OBD_mode_0x01_pid_0x52:
 	# Ethanol fuel %
 	addi	%r30, %r30, 2 # Answer 2 bytes
-	stb	%r3, 0(%r4)
+	stb	%r11, 0(%r4)		# PID value from r11
 
-	lis	%r3, ethanol_content@ha
-	lbz	%r3, ethanol_content@l(%r3)
+	lis	%r5, ethanol_content@ha
+	lbz	%r5, ethanol_content@l(%r5)
 
-	stb	%r3, 1(%r4)
+	stb	%r5, 1(%r4)
 
 	ba	hook_OBD_mode_0x01_jump
 .endif
@@ -92,7 +96,7 @@ OBD_mode_0x01_pid_0x25:
 OBD_mode_0x01_pid_0x24_0x25:
 	# Wideband Lambda
 	addi	%r30, %r30, 5 # Answer 5 bytes
-	stb	%r3, 0(%r4)
+	stb	%r11, 0(%r4)		# PID value from r11
 
 	# Corrected Pre-O2 WB input (0V = 10 AFR, 5V = 20 AFR)
 	lhz	%r6, wb_corr_adc(%r6)
