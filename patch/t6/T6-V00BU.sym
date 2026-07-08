@@ -81,18 +81,18 @@ abs_esp_flags                 = 0x400023E6;  /* bit 4 = ABS active */
  * Torque path (clamp injection - later DPM phase)
  * ========================================================================= */
 
-torque_net_engine_combustion  = 0x400023CC;  /* u16 nm; what we'd snapshot at intervention */
-torque_alphaN_net             = 0x400023CE;  /* u16 nm; the final output we'd clamp */
-torque_limit_engine_protection = 0x400023FA;
+torque_net_engine_combustion       = 0x400023CC;  /* u16 nm; what we'd snapshot at intervention */
+torque_alphaN_net                  = 0x400023CE;  /* u16 nm; the final output we'd clamp */
+torque_limit_engine_protection     = 0x400023FA;
 torque_limit_external_and_internal = 0x400023FC;
-torque_external_request_final = 0x4000240A;
+torque_external_request_final      = 0x4000240A;
 
 /* External torque limits, already populated by ABS/ESP torque requests
  * (`:46707`). DPM clamp must merge with these via min(). */
-torque_limit_external_tc_fast = 0x400014C6;
+torque_limit_external_tc_fast  = 0x400014C6;
 torque_limit_external_esp_fast = 0x400014C8;
-torque_limit_external_tc_slow = 0x400014CA;
-torque_limit_external_net     = 0x400023C6;
+torque_limit_external_tc_slow  = 0x400014CA;
+torque_limit_external_net      = 0x400023C6;
 
 /* =========================================================================
  * Lookup helpers (called by slip-target & torque-cut tables in later phases)
