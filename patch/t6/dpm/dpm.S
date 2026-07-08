@@ -701,33 +701,32 @@ CAL_dpm_direct_mode_off_delay:			# GT430 @ 0x4000ccb2
 CAL_dpm_direct_mode_on_delay:			# GT430 @ 0x4000ccb4
 	.short 0x28			# 40 = 0.2 s at 200 Hz
 
-# ---- Block-6 (torque cut) calibrations — PLACEHOLDERS ------------------
-# Real GT430 values pending (see summary). Types mirror the GT430 layout.
+# ---- Block-6 (torque cut) calibrations (real GT430 C132E0278 values) ----
 .balign 2
-CAL_dpm_min_engine_rpm:		.short 1500	# u16 rpm  (GT430 @ 0x4000ccae)  PLACEHOLDER
-CAL_dpm_torque_min_allowed:	.short 50	# u16 Nm   (GT430 addr TBD)      PLACEHOLDER
-CAL_dpm_max_vehicle_speed:	.byte 200	# u8 kph   (GT430 @ 0x4000ccbb)  PLACEHOLDER
-CAL_dpm_min_vehicle_speed:	.byte 5		# u8 kph   (GT430 @ 0x4000ccbc)  PLACEHOLDER
-CAL_dpm_intervention_threshold:	.byte 8		# u8 1/8%  (GT430 @ 0x4000ccbd)  PLACEHOLDER (=1%)
+CAL_dpm_min_engine_rpm:		.short 1800	# u16 rpm  (GT430 @ 0x4000ccae) = 0x708
+CAL_dpm_torque_min_allowed:	.short 30	# u16 Nm   (GT430) = 0x1E
+CAL_dpm_max_vehicle_speed:	.byte 255	# u8 kph   (GT430 @ 0x4000ccbb) = 0xff (no upper limit)
+CAL_dpm_min_vehicle_speed:	.byte 5		# u8 kph   (GT430 @ 0x4000ccbc)
+CAL_dpm_intervention_threshold:	.byte 16	# u8 1/8%  (GT430 @ 0x4000ccbd) = 2%
 .balign 2
 # CAL_dpm_torque_cut_factor[60]: 6 (car speed, X) x 10 (slip error, Y), u16
-# factor 0..255. Row-major: lut[slip*6 + speed]. GT430 @ 0x4000998a. PLACEHOLDER.
+# factor 0..255. Row-major: lut[slip*6 + speed]. GT430 @ 0x4000998a.
 CAL_dpm_torque_cut_factor:
 	#      speed:  s0   s1   s2   s3   s4   s5
-	.short          0,   0,   0,   0,   0,   0	# slip 0
-	.short         10,  10,   8,   8,   6,   6	# 1
-	.short         25,  22,  20,  18,  15,  12	# 2
-	.short         45,  40,  36,  32,  28,  24	# 3
-	.short         70,  64,  58,  52,  46,  40	# 4
-	.short        100,  92,  84,  76,  68,  60	# 5
-	.short        130, 120, 110, 100,  90,  80	# 6
-	.short        160, 150, 138, 126, 114, 100	# 7
-	.short        190, 178, 165, 150, 135, 120	# 8
-	.short        220, 205, 190, 175, 160, 140	# 9 (highest slip)
+	.short          0,   0,   0,   0,   0,   0	# slip row 0 (2.5%)
+	.short          7,   7,   7,  10,  15,  20	# 1 (3.0%)
+	.short          8,   8,   8,  15,  23,  32	# 2 (3.5%)
+	.short         10,  10,  10,  20,  30,  42	# 3 (4.0%)
+	.short         18,  18,  18,  34,  51,  85	# 4 (6.0%)
+	.short         25,  25,  25,  46,  71, 128	# 5 (8.0%)
+	.short         38,  38,  38,  64, 102, 192	# 6 (12%)
+	.short         60,  60,  60, 102, 154, 192	# 7 (20%)
+	.short        112, 112, 112, 192, 192, 192	# 8 (50%)
+	.short        192, 192, 192, 192, 192, 192	# 9 (100% slip)
 CAL_dpm_torque_cut_factor_X_carspeed:		# GT430 @ 0x4000996a
-	.short 0, 2000, 4000, 6000, 10000, 16000	# u16 1/100 kph  PLACEHOLDER
+	.short 1000, 1000, 1500, 2000, 3000, 3500	# u16 1/100 kph = 10,10,15,20,30,35
 CAL_dpm_torque_cut_factor_Y_slip:		# GT430 @ 0x40009976
-	.short 0, 16, 40, 80, 160, 240, 320, 480, 640, 800  # u16 1/8%  PLACEHOLDER
+	.short 20, 24, 28, 32, 48, 64, 96, 160, 400, 800  # u16 1/8% = 2.5..100%
 .balign 4	# realign: instructions must start on a 4-byte boundary
 
 # Main-loop DPM entry: derive axle maxima / L-R diffs / slip and the slip
