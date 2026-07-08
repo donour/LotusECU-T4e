@@ -119,7 +119,7 @@ dpm_init:
 	lis	%r4, dpm_slip_filter_accumulator@ha
 	stw	%r3, dpm_slip_filter_accumulator@l(%r4)
 	lis	%r4, dpm_slip_integral_accumulator@ha
-	stw	%r3, dpm_slip_integral_accumulator@l(%r4)
+	sth	%r3, dpm_slip_integral_accumulator@l(%r4)
 
 	# 16-bit state
 	lis	%r4, dpm_slip@ha
@@ -154,9 +154,9 @@ dpm_init:
 	# 8-bit state
 	lis	%r4, dpm_mode_index@ha
 	# TODO: temporarily set mode to 3 at init
-	lis %r3, 3 
+	li	%r3, 3
 	stb	%r3, dpm_mode_index@l(%r4)
-	lis %r3, 0
+	li	%r3, 0
 	lis	%r4, dpm_vehicle_speed_kph@ha
 	stb	%r3, dpm_vehicle_speed_kph@l(%r4)
 	lis	%r4, dpm_torque_cut_factor@ha
@@ -643,7 +643,7 @@ dpm_torque_reset_outputs:
 	lis	%r4, dpm_torque_cut_accumulated@ha
 	stb	%r3, dpm_torque_cut_accumulated@l(%r4)
 	lis	%r4, dpm_slip_integral_accumulator@ha
-	stw	%r3, dpm_slip_integral_accumulator@l(%r4)
+	sth	%r3, dpm_slip_integral_accumulator@l(%r4)
 	blr
 
 # ---- DPM calibration tables (real GT430 C132E0278 values) --------------
@@ -703,16 +703,16 @@ CAL_dpm_direct_mode_on_delay:			# GT430 @ 0x4000ccb4
 
 # ---- Block-6 (torque cut) calibrations (real GT430 C132E0278 values) ----
 .balign 2
-CAL_dpm_min_engine_rpm:		.short 1800	# u16 rpm  (GT430 @ 0x4000ccae) = 0x708
-CAL_dpm_torque_min_allowed:	.short 30	# u16 Nm   (GT430) = 0x1E
-CAL_dpm_max_vehicle_speed:	.byte 255	# u8 kph   (GT430 @ 0x4000ccbb) = 0xff (no upper limit)
-CAL_dpm_min_vehicle_speed:	.byte 5		# u8 kph   (GT430 @ 0x4000ccbc)
+CAL_dpm_min_engine_rpm:			.short 1800	# u16 rpm  (GT430 @ 0x4000ccae) = 0x708
+CAL_dpm_torque_min_allowed:		.short 30	# u16 Nm   (GT430) = 0x1E
+CAL_dpm_max_vehicle_speed:		.byte 255	# u8 kph   (GT430 @ 0x4000ccbb) = 0xff (no upper limit)
+CAL_dpm_min_vehicle_speed:		.byte 5		# u8 kph   (GT430 @ 0x4000ccbc)
 CAL_dpm_intervention_threshold:	.byte 16	# u8 1/8%  (GT430 @ 0x4000ccbd) = 2%
 
-	# ---- Integral (PI) controller calibrations (real GT430 C132E0278 values) ----
-	CAL_dpm_integral_update_period:	.short 4000	# u16_time_5ms (GT430 @ 0x4000ccb6) = 0x0FA0 = 20 s
-	CAL_dpm_integral_gain:		.byte 1		# uint8_t      (GT430 @ 0x4000ccbe) = 0x01
-	CAL_dpm_integral_limit:		.byte 0x80	# uint8_t      (GT430 @ 0x4000ccbf) = 128, clamped ±128²/256
+# ---- Integral (PI) controller calibrations (real GT430 C132E0278 values) ----
+CAL_dpm_integral_update_period:	.short 4000	# u16_time_5ms (GT430 @ 0x4000ccb6) = 0x0FA0 = 20 s
+CAL_dpm_integral_gain:			.byte 1		# uint8_t      (GT430 @ 0x4000ccbe) = 0x01
+CAL_dpm_integral_limit:			.byte 0x80	# uint8_t      (GT430 @ 0x4000ccbf) = 128, clamped ±128²/256
 .balign 2
 # CAL_dpm_torque_cut_factor[60]: 6 (car speed, X) x 10 (slip error, Y), u16
 # factor 0..255. Row-major: lut[slip*6 + speed]. GT430 @ 0x4000998a.
