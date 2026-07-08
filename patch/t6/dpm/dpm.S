@@ -1,6 +1,8 @@
 #TODO: Add dpm_mode_index cycle function using TC button
 #TODO: change TC button default toggle duration/timout 
 #TODO: add back direction histeresis via dpm_control_flags and dpm_direct_mode_on_delay
+#TODO: OBD-II data reading is incorrect and forces reboot
+
 
 # DPM (Dynamic Performance Mode) - 6-level slip-based traction control.
 # Port of the C132E0278 (GT430) implementation to B13200091 (S1 Evora NA).
@@ -151,7 +153,10 @@ dpm_init:
 
 	# 8-bit state
 	lis	%r4, dpm_mode_index@ha
+	# TODO: temporarily set mode to 3 at init
+	lis %r3, 3 
 	stb	%r3, dpm_mode_index@l(%r4)
+	lis %r3, 0
 	lis	%r4, dpm_vehicle_speed_kph@ha
 	stb	%r3, dpm_vehicle_speed_kph@l(%r4)
 	lis	%r4, dpm_torque_cut_factor@ha
@@ -160,6 +165,7 @@ dpm_init:
 	stb	%r3, dpm_torque_cut_accumulated@l(%r4)
 	lis	%r4, dpm_torque_cut_total@ha
 	stb	%r3, dpm_torque_cut_total@l(%r4)
+	# TODO: ensure that button variables are used
 	lis	%r4, dpm_button_increase@ha
 	stb	%r3, dpm_button_increase@l(%r4)
 	lis	%r4, dpm_button_decrease@ha
