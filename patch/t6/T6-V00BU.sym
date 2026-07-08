@@ -60,7 +60,7 @@ torque_model                  = 0x000B236C;
 
 
 /* Engine state. */
-engine_speed_2                = 0x4000163A;  /* u16 rpm (8-bit truncated copy) */
+engine_speed_16bit            = 0x4000163A;
 engine_speed_3                = 0x40001640;  /* u8  rspeed_125/4+500rpm */
 engine_is_running             = 0x40001638;  /* bool */
 runtime_since_start           = 0x400015F4;  /* u32 5ms ticks since engine start */
