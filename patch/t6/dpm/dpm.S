@@ -384,6 +384,87 @@ tgt_done:
 	addi	%r1, %r1, 8
 	blr
 
+# Subfunction of dpm_slip_calculator. Derives the slip error and its
+# asymmetric (fast-attack / slow-decay) filter from dpm_slip and
+# dpm_slip_target. Ported from C132E0278.c:58328-58349.
+#   dpm_slip_error_raw = (slip > target) ? slip - target : 0
+#   coeff = lookup_2D(8, vehicle_speed_kph,
+#                     CAL_dpm_slip_filter_coeff, _X_carspeed)   # gain, /256
+#   raw > filtered (rising)  -> instant attack:
+#         filtered = raw;  accumulator = raw << 8
+#   raw < filtered (falling) -> slow decay (exponential low-pass):
+#         accumulator = ((256-coeff)*accumulator >> 8) + coeff*raw
+#         filtered    = accumulator >> 8
+#   raw == filtered          -> unchanged
+# accumulator is 8.8 fixed point (filtered << 8). All values are non-negative,
+# so the GT430 signed-rounding corrections are no-ops and unsigned arithmetic
+# is exact (products stay within 32 bits across the full u16 error range).
+# Non-leaf: calls lookup_2D. Clobbers r0, r3-r9.
+dpm_calc_slip_error:
+	stwu	%r1, -8(%r1)
+	mflr	%r0
+	stw	%r0, 12(%r1)
+
+	# dpm_slip_error_raw = (slip > target) ? slip - target : 0
+	lis	%r3, dpm_slip@ha
+	lhz	%r3, dpm_slip@l(%r3)
+	lis	%r4, dpm_slip_target@ha
+	lhz	%r4, dpm_slip_target@l(%r4)
+	li	%r5, 0
+	cmplw	%r3, %r4		# slip vs target, unsigned
+	ble	serr_store_raw		# slip <= target -> raw = 0
+	subf	%r5, %r4, %r3		# raw = slip - target
+serr_store_raw:
+	lis	%r6, dpm_slip_error_raw@ha
+	sth	%r5, dpm_slip_error_raw@l(%r6)
+
+	# coeff = lookup_2D_uint8_interpolated(8, vehicle_speed_kph, tbl, axis)
+	li	%r3, 8
+	lis	%r4, dpm_vehicle_speed_kph@ha
+	lbz	%r4, dpm_vehicle_speed_kph@l(%r4)	# input_x = speed (kph)
+	lis	%r5, CAL_dpm_slip_filter_coeff@ha
+	addi	%r5, %r5, CAL_dpm_slip_filter_coeff@l
+	lis	%r6, CAL_dpm_slip_filter_coeff_X_carspeed@ha
+	addi	%r6, %r6, CAL_dpm_slip_filter_coeff_X_carspeed@l
+	bl	lookup_2D_uint8_interpolated	# r3 = coeff (clobbers volatiles)
+
+	# Reload raw (r4) and the previous filtered (r5); coeff stays in r3.
+	lis	%r4, dpm_slip_error_raw@ha
+	lhz	%r4, dpm_slip_error_raw@l(%r4)
+	lis	%r5, dpm_slip_error_filtered@ha
+	lhz	%r5, dpm_slip_error_filtered@l(%r5)
+
+	cmplw	%r4, %r5
+	beq	serr_done		# raw == filtered -> unchanged
+	blt	serr_decay		# raw < filtered  -> slow decay
+
+	# --- instant attack (raw > filtered) ---
+	lis	%r6, dpm_slip_error_filtered@ha
+	sth	%r4, dpm_slip_error_filtered@l(%r6)
+	slwi	%r7, %r4, 8			# accumulator = raw << 8
+	lis	%r6, dpm_slip_filter_accumulator@ha
+	stw	%r7, dpm_slip_filter_accumulator@l(%r6)
+	b	serr_done
+
+serr_decay:
+	# accumulator = ((256-coeff)*accumulator >> 8) + coeff*raw
+	lis	%r6, dpm_slip_filter_accumulator@ha
+	lwz	%r7, dpm_slip_filter_accumulator@l(%r6)
+	subfic	%r8, %r3, 256		# 256 - coeff
+	mullw	%r8, %r8, %r7		# (256-coeff) * accumulator
+	srwi	%r8, %r8, 8
+	mullw	%r9, %r3, %r4		# coeff * raw
+	add	%r8, %r8, %r9		# new accumulator
+	stw	%r8, dpm_slip_filter_accumulator@l(%r6)
+	srwi	%r8, %r8, 8		# filtered = accumulator >> 8
+	lis	%r6, dpm_slip_error_filtered@ha
+	sth	%r8, dpm_slip_error_filtered@l(%r6)
+serr_done:
+	lwz	%r0, 12(%r1)
+	mtlr	%r0
+	addi	%r1, %r1, 8
+	blr
+
 # ---- DPM calibration tables (real GT430 C132E0278 values) --------------
 # Transcribed verbatim from the GT430 disassembly so slip-target behaves
 # identically until an NA-specific tune is dialed in. Slip units are 1/8%;
@@ -418,6 +499,13 @@ CAL_dpm_slip_target_from_pedal_X_carspeed:	# GT430 @ 0x40009a02
 CAL_dpm_slip_target_from_pedal_Y_pps:		# GT430 @ 0x40009a08
 	.byte 0x1a, 0x1a, 0x1a, 0x33, 0x66, 0xcc	# 26,26,26,51,102,204 (1/255)
 
+# CAL_dpm_slip_filter_coeff[8]: asymmetric error-filter gain vs car speed, u8
+# (alpha = coeff/256; lower = slower decay = more smoothing). GT430 @ 0x4000e2c0.
+CAL_dpm_slip_filter_coeff:
+	.byte 6, 6, 6, 6, 6, 6, 4, 2
+CAL_dpm_slip_filter_coeff_X_carspeed:		# GT430 @ 0x4000e2b8
+	.byte 0, 0, 0, 0, 5, 10, 20, 30		# u8 kph
+
 # Direct-mode calibrations (GT430 0x4000ccb0..0x4000ccb5, contiguous). u16 each.
 .balign 2
 # L-R wheel-speed diff above which the car is treated as cornering. 1/100 kph.
@@ -433,10 +521,10 @@ CAL_dpm_direct_mode_on_delay:			# GT430 @ 0x4000ccb4
 	.short 0x28			# 40 = 0.2 s at 200 Hz
 .balign 4	# realign: instructions must start on a 4-byte boundary
 
-# Calculate wheel slip from the ABS wheel speeds and derive axle maxima,
-# L-R diffs and slip. Called from the main loop hook.
-# TODO: port slip target, error filtering and torque cut from
-# C132E0278.c:58135-58316.
+# Main-loop DPM entry: derive axle maxima / L-R diffs / slip and the slip
+# target (dpm_calc_slip), then the raw + filtered slip error
+# (dpm_calc_slip_error). Called from the main loop hook.
+# TODO: port the torque cut / intervention block from C132E0278.c:58350-58408.
 dpm_slip_calculator:
 	# Push link register on stack
 	stwu	%r1, -8(%r1)
@@ -444,6 +532,7 @@ dpm_slip_calculator:
 	stw	%r0, 12(%r1)
 
 	bl	dpm_calc_slip
+	bl	dpm_calc_slip_error
 
 	# Pop link register from stack
 	lwz	%r0, 12(%r1)
