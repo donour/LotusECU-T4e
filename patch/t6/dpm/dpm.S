@@ -14,8 +14,8 @@
 .set DPM_MODE_MAX,          6 # Highest selectable DPM level
 
 # dpm_control_flags bitmap
-.set DPM_FLAG_ACTIVE,       0x0001 # Intervention active (torque being cut)
-.set DPM_FLAG_ENABLED,      0x0002 # Intervention enabled
+.set DPM_FLAG_ARMED,        0x0001 # In operating window (armed); set even below threshold
+.set DPM_FLAG_CUTTING,      0x0002 # Actively cutting torque (snapshot taken on its rising edge)
 .set DPM_FLAG_DIRECT,       0x0004 # Direct mode active (high L-R speed diff)
 .set DPM_FLAG_SLIP_VALID,   0x0008 # Slip calculation valid
 .set DPM_FLAG_SYS_ENABLED,  0x0010 # DPM system enabled
@@ -465,6 +465,181 @@ serr_done:
 	addi	%r1, %r1, 8
 	blr
 
+# Subfunction of dpm_slip_calculator: the torque-cut / intervention block.
+# Port of C132E0278.c:58442-58500. COMPUTE-ONLY (Stage 1): produces
+# dpm_torque_limit_spark/throttle, dpm_torque_cut_factor/total and the
+# ARMED/CUTTING flags, but nothing consumes them yet (torque-path injection is
+# a later stage), so this is inert telemetry.
+#
+# Gate (all must hold, else full reset to the 911 sentinel):
+#   dpm_mode_index != 0                               (replaces vehicle_mode==VM_DPM_ACTIVE)
+#   CAL_dpm_min_vehicle_speed < vehicle_speed_kph < CAL_dpm_max_vehicle_speed
+#   CAL_dpm_min_engine_rpm < engine_speed_2           (GT430 engine_speed_16bit; VERIFY symbol)
+#   (inj_flags & 1) == 0                              (fuel cut inactive)
+#   (dpm_control_flags & DPM_FLAG_SYS_DISABLED) == 0  (set by the later ABS gate)
+# The GT430 SLIP_VALID (bit 3) gate is dropped: mode 0 already forces
+# target=0xFFFF -> error 0, and the mode!=0 gate covers "valid".
+#
+# In window, if intervention_threshold < error_filtered -> CUTTING:
+#   snapshot torque on the CUTTING rising edge, set ARMED|CUTTING,
+#   factor = lookup_3D_uint32(6,10, front_axle_speed_max, error_filtered, ...),
+#   total  = min(factor + cut_accumulated, 255),
+#   spark  = max(snapshot - snapshot*total/255, CAL_dpm_torque_min_allowed),
+#   throttle = spark   (GT430 adds torque_external_request_margin, absent on
+#                       the NA -> margin dropped for now).
+# P-only: cut_accumulated stays 0 until the integral controller (Stage 2).
+# Non-leaf: calls lookup_3D_uint32 + dpm_torque_reset_outputs. Clobbers r0,r3-r9.
+dpm_calc_torque_cut:
+	stwu	%r1, -8(%r1)
+	mflr	%r0
+	stw	%r0, 12(%r1)
+
+	# --- gate ---
+	lis	%r3, dpm_mode_index@ha
+	lbz	%r3, dpm_mode_index@l(%r3)
+	cmplwi	%r3, 0
+	beq	tc_out_of_window		# DPM off
+
+	lis	%r3, dpm_vehicle_speed_kph@ha
+	lbz	%r3, dpm_vehicle_speed_kph@l(%r3)	# r3 = speed (kept)
+	lis	%r4, CAL_dpm_max_vehicle_speed@ha
+	lbz	%r4, CAL_dpm_max_vehicle_speed@l(%r4)
+	cmplw	%r3, %r4
+	bge	tc_out_of_window		# speed >= max
+	lis	%r4, CAL_dpm_min_vehicle_speed@ha
+	lbz	%r4, CAL_dpm_min_vehicle_speed@l(%r4)
+	cmplw	%r3, %r4
+	ble	tc_out_of_window		# speed <= min
+
+	lis	%r3, engine_speed_2@ha
+	lhz	%r3, engine_speed_2@l(%r3)
+	lis	%r4, CAL_dpm_min_engine_rpm@ha
+	lhz	%r4, CAL_dpm_min_engine_rpm@l(%r4)
+	cmplw	%r3, %r4
+	ble	tc_out_of_window		# engine_speed <= min_rpm
+
+	lis	%r3, inj_flags@ha
+	lhz	%r3, inj_flags@l(%r3)
+	andi.	%r3, %r3, 1
+	bne	tc_out_of_window		# fuel cut active
+
+	lis	%r5, dpm_control_flags@ha
+	lhz	%r6, dpm_control_flags@l(%r5)	# r6 = flags, r5 = base (both kept)
+	andi.	%r3, %r6, DPM_FLAG_SYS_DISABLED
+	bne	tc_out_of_window
+
+	# --- in window: intervention threshold ---
+	lis	%r3, dpm_slip_error_filtered@ha
+	lhz	%r3, dpm_slip_error_filtered@l(%r3)
+	lis	%r4, CAL_dpm_intervention_threshold@ha
+	lbz	%r4, CAL_dpm_intervention_threshold@l(%r4)
+	cmplw	%r3, %r4
+	ble	tc_below_threshold		# error <= threshold: armed, no cut
+
+	# --- cutting ---
+	# snapshot torque on the CUTTING rising edge
+	andi.	%r3, %r6, DPM_FLAG_CUTTING
+	bne	tc_no_snapshot
+	lis	%r3, torque_net_engine_combustion@ha
+	lhz	%r3, torque_net_engine_combustion@l(%r3)
+	lis	%r4, dpm_torque_when_tc_activated@ha
+	sth	%r3, dpm_torque_when_tc_activated@l(%r4)
+tc_no_snapshot:
+	ori	%r6, %r6, (DPM_FLAG_ARMED | DPM_FLAG_CUTTING)
+	sth	%r6, dpm_control_flags@l(%r5)
+
+	# factor = lookup_3D_uint32(6, 10, front_axle_speed_max, error_filtered, ...)
+	li	%r3, 6
+	li	%r4, 10
+	lis	%r5, dpm_front_axle_speed_max@ha
+	lhz	%r5, dpm_front_axle_speed_max@l(%r5)
+	lis	%r6, dpm_slip_error_filtered@ha
+	lhz	%r6, dpm_slip_error_filtered@l(%r6)
+	lis	%r7, CAL_dpm_torque_cut_factor@ha
+	addi	%r7, %r7, CAL_dpm_torque_cut_factor@l
+	lis	%r8, CAL_dpm_torque_cut_factor_X_carspeed@ha
+	addi	%r8, %r8, CAL_dpm_torque_cut_factor_X_carspeed@l
+	lis	%r9, CAL_dpm_torque_cut_factor_Y_slip@ha
+	addi	%r9, %r9, CAL_dpm_torque_cut_factor_Y_slip@l
+	bl	lookup_3D_uint32_interpolated
+
+	clrlwi	%r3, %r3, 24			# factor = result & 0xff (0-255)
+	lis	%r4, dpm_torque_cut_factor@ha
+	stb	%r3, dpm_torque_cut_factor@l(%r4)
+
+	# total = min(factor + cut_accumulated, 255)
+	lis	%r4, dpm_torque_cut_accumulated@ha
+	lbz	%r4, dpm_torque_cut_accumulated@l(%r4)
+	add	%r3, %r3, %r4
+	cmplwi	%r3, 255
+	ble	tc_total_ok
+	li	%r3, 255
+tc_total_ok:
+	lis	%r4, dpm_torque_cut_total@ha
+	stb	%r3, dpm_torque_cut_total@l(%r4)	# r3 = total (kept)
+
+	# spark = snapshot - snapshot*total/255  (unsigned; snapshot >= 0 in cut)
+	lis	%r4, dpm_torque_when_tc_activated@ha
+	lhz	%r4, dpm_torque_when_tc_activated@l(%r4)	# r4 = snapshot
+	mullw	%r5, %r4, %r3			# snapshot * total (<= 911*255, fits 32b)
+	li	%r6, 255
+	divwu	%r5, %r5, %r6			# / 255
+	subf	%r5, %r5, %r4			# spark = snapshot - reduction
+	# floor at CAL_dpm_torque_min_allowed
+	lis	%r6, CAL_dpm_torque_min_allowed@ha
+	lhz	%r6, CAL_dpm_torque_min_allowed@l(%r6)
+	cmplw	%r5, %r6
+	bge	tc_spark_ok
+	mr	%r5, %r6
+tc_spark_ok:
+	lis	%r7, dpm_torque_limit_spark@ha
+	sth	%r5, dpm_torque_limit_spark@l(%r7)
+	# throttle = spark (recovery margin dropped on NA)
+	lis	%r7, dpm_torque_limit_throttle@ha
+	sth	%r5, dpm_torque_limit_throttle@l(%r7)
+	b	tc_done
+
+tc_below_threshold:
+	# armed but not cutting: reset outputs, keep ARMED, clear CUTTING
+	bl	dpm_torque_reset_outputs
+	lis	%r5, dpm_control_flags@ha
+	lhz	%r6, dpm_control_flags@l(%r5)
+	andi.	%r6, %r6, (0xffff & ~DPM_FLAG_CUTTING)
+	ori	%r6, %r6, DPM_FLAG_ARMED
+	sth	%r6, dpm_control_flags@l(%r5)
+	b	tc_done
+
+tc_out_of_window:
+	# out of window: full reset, clear ARMED + CUTTING
+	bl	dpm_torque_reset_outputs
+	lis	%r5, dpm_control_flags@ha
+	lhz	%r6, dpm_control_flags@l(%r5)
+	andi.	%r6, %r6, (0xffff & ~(DPM_FLAG_ARMED | DPM_FLAG_CUTTING))
+	sth	%r6, dpm_control_flags@l(%r5)
+tc_done:
+	lwz	%r0, 12(%r1)
+	mtlr	%r0
+	addi	%r1, %r1, 8
+	blr
+
+# Reset the DPM torque outputs to the "no limit" state. Leaf. Clobbers r3, r4.
+dpm_torque_reset_outputs:
+	li	%r3, DPM_TORQUE_NO_LIMIT		# 911
+	lis	%r4, dpm_torque_limit_spark@ha
+	sth	%r3, dpm_torque_limit_spark@l(%r4)
+	lis	%r4, dpm_torque_limit_throttle@ha
+	sth	%r3, dpm_torque_limit_throttle@l(%r4)
+	lis	%r4, dpm_torque_when_tc_activated@ha
+	sth	%r3, dpm_torque_when_tc_activated@l(%r4)
+	li	%r3, 0
+	lis	%r4, dpm_torque_cut_total@ha
+	stb	%r3, dpm_torque_cut_total@l(%r4)
+	lis	%r4, dpm_torque_cut_accumulated@ha
+	stb	%r3, dpm_torque_cut_accumulated@l(%r4)
+	lis	%r4, dpm_slip_integral_accumulator@ha
+	stw	%r3, dpm_slip_integral_accumulator@l(%r4)
+	blr
+
 # ---- DPM calibration tables (real GT430 C132E0278 values) --------------
 # Transcribed verbatim from the GT430 disassembly so slip-target behaves
 # identically until an NA-specific tune is dialed in. Slip units are 1/8%;
@@ -519,12 +694,41 @@ CAL_dpm_direct_mode_off_delay:			# GT430 @ 0x4000ccb2
 # before DIRECT engages. Not consumed yet (on_delay logic was dropped).
 CAL_dpm_direct_mode_on_delay:			# GT430 @ 0x4000ccb4
 	.short 0x28			# 40 = 0.2 s at 200 Hz
+
+# ---- Block-6 (torque cut) calibrations — PLACEHOLDERS ------------------
+# Real GT430 values pending (see summary). Types mirror the GT430 layout.
+.balign 2
+CAL_dpm_min_engine_rpm:		.short 1500	# u16 rpm  (GT430 @ 0x4000ccae)  PLACEHOLDER
+CAL_dpm_torque_min_allowed:	.short 50	# u16 Nm   (GT430 addr TBD)      PLACEHOLDER
+CAL_dpm_max_vehicle_speed:	.byte 200	# u8 kph   (GT430 @ 0x4000ccbb)  PLACEHOLDER
+CAL_dpm_min_vehicle_speed:	.byte 5		# u8 kph   (GT430 @ 0x4000ccbc)  PLACEHOLDER
+CAL_dpm_intervention_threshold:	.byte 8		# u8 1/8%  (GT430 @ 0x4000ccbd)  PLACEHOLDER (=1%)
+.balign 2
+# CAL_dpm_torque_cut_factor[60]: 6 (car speed, X) x 10 (slip error, Y), u16
+# factor 0..255. Row-major: lut[slip*6 + speed]. GT430 @ 0x4000998a. PLACEHOLDER.
+CAL_dpm_torque_cut_factor:
+	#      speed:  s0   s1   s2   s3   s4   s5
+	.short          0,   0,   0,   0,   0,   0	# slip 0
+	.short         10,  10,   8,   8,   6,   6	# 1
+	.short         25,  22,  20,  18,  15,  12	# 2
+	.short         45,  40,  36,  32,  28,  24	# 3
+	.short         70,  64,  58,  52,  46,  40	# 4
+	.short        100,  92,  84,  76,  68,  60	# 5
+	.short        130, 120, 110, 100,  90,  80	# 6
+	.short        160, 150, 138, 126, 114, 100	# 7
+	.short        190, 178, 165, 150, 135, 120	# 8
+	.short        220, 205, 190, 175, 160, 140	# 9 (highest slip)
+CAL_dpm_torque_cut_factor_X_carspeed:		# GT430 @ 0x4000996a
+	.short 0, 2000, 4000, 6000, 10000, 16000	# u16 1/100 kph  PLACEHOLDER
+CAL_dpm_torque_cut_factor_Y_slip:		# GT430 @ 0x40009976
+	.short 0, 16, 40, 80, 160, 240, 320, 480, 640, 800  # u16 1/8%  PLACEHOLDER
 .balign 4	# realign: instructions must start on a 4-byte boundary
 
 # Main-loop DPM entry: derive axle maxima / L-R diffs / slip and the slip
 # target (dpm_calc_slip), then the raw + filtered slip error
-# (dpm_calc_slip_error). Called from the main loop hook.
-# TODO: port the torque cut / intervention block from C132E0278.c:58350-58408.
+# (dpm_calc_slip_error), then the torque cut / intervention (dpm_calc_torque_cut).
+# Called from the main loop hook. The torque-cut outputs are inert until the
+# torque-path injection stage.
 dpm_slip_calculator:
 	# Push link register on stack
 	stwu	%r1, -8(%r1)
@@ -533,6 +737,7 @@ dpm_slip_calculator:
 
 	bl	dpm_calc_slip
 	bl	dpm_calc_slip_error
+	bl	dpm_calc_torque_cut
 
 	# Pop link register from stack
 	lwz	%r0, 12(%r1)
