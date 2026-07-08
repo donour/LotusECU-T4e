@@ -480,7 +480,7 @@ serr_done:
 # Gate (all must hold, else full reset to the 911 sentinel):
 #   dpm_mode_index != 0                               (replaces vehicle_mode==VM_DPM_ACTIVE)
 #   CAL_dpm_min_vehicle_speed < vehicle_speed_kph < CAL_dpm_max_vehicle_speed
-#   CAL_dpm_min_engine_rpm < engine_speed_2           (GT430 engine_speed_16bit; VERIFY symbol)
+#   CAL_dpm_min_engine_rpm < engine_speed_16bit
 #   (inj_flags & 1) == 0                              (fuel cut inactive)
 #   (dpm_control_flags & DPM_FLAG_SYS_DISABLED) == 0  (set by the later ABS gate)
 # The GT430 SLIP_VALID (bit 3) gate is dropped: mode 0 already forces
@@ -517,8 +517,8 @@ dpm_calc_torque_cut:
 	cmplw	%r3, %r4
 	ble	tc_out_of_window		# speed <= min
 
-	lis	%r3, engine_speed_2@ha
-	lhz	%r3, engine_speed_2@l(%r3)
+	lis	%r3, engine_speed_16bit@ha
+	lhz	%r3, engine_speed_16bit@l(%r3)
 	lis	%r4, CAL_dpm_min_engine_rpm@ha
 	lhz	%r4, CAL_dpm_min_engine_rpm@l(%r4)
 	cmplw	%r3, %r4
