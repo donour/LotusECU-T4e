@@ -43,7 +43,7 @@
 .global dpm_slip, dpm_slip_target
 .global dpm_slip_error_raw, dpm_slip_error_filtered
 .global dpm_slip_filter_accumulator, dpm_slip_integral_accumulator
-.global dpm_target_torque_reduced, dpm_target_torque_upper_limit
+.global dpm_torque_limit_spark, dpm_torque_limit_throttle
 .global dpm_torque_when_tc_activated
 .global dpm_torque_cut_factor, dpm_torque_cut_accumulated, dpm_torque_cut_total
 .global dpm_mode_index, dpm_control_flags
@@ -65,8 +65,8 @@ dpm_slip:                      .skip 2 # u16_slip_1/8%, current wheel slip
 dpm_slip_target:               .skip 2 # u16_slip_1/8%, target slip setpoint
 dpm_slip_error_raw:            .skip 2 # u16_slip_1/8%, slip - target (when slip > target)
 dpm_slip_error_filtered:       .skip 2 # u16_slip_1/8%, filtered error (fast attack, slow decay)
-dpm_target_torque_reduced:     .skip 2 # u16_torque_nm, maximum allowed torque
-dpm_target_torque_upper_limit: .skip 2 # u16_torque_nm, reduced + recovery margin
+dpm_torque_limit_spark:        .skip 2 # u16_torque_nm, DPM target -> spark/fast channel (deep cut)
+dpm_torque_limit_throttle:     .skip 2 # u16_torque_nm, throttle/slow ceiling (spark + recovery margin)
 dpm_torque_when_tc_activated:  .skip 2 # u16_torque_nm, torque snapshot at intervention start
 dpm_control_flags:             .skip 2 # DPM_FLAG_* bitmap
 dpm_front_axle_speed_max:      .skip 2 # u16_speed_1/100kph, max(LF, RF)
@@ -103,10 +103,10 @@ dpm_init:
 
 	# Torque limits start at the "no limit" sentinel
 	li	%r3, DPM_TORQUE_NO_LIMIT
-	lis	%r4, dpm_target_torque_reduced@ha
-	sth	%r3, dpm_target_torque_reduced@l(%r4)
-	lis	%r4, dpm_target_torque_upper_limit@ha
-	sth	%r3, dpm_target_torque_upper_limit@l(%r4)
+	lis	%r4, dpm_torque_limit_spark@ha
+	sth	%r3, dpm_torque_limit_spark@l(%r4)
+	lis	%r4, dpm_torque_limit_throttle@ha
+	sth	%r3, dpm_torque_limit_throttle@l(%r4)
 
 	# Everything else starts at 0.
 	# In particular dpm_mode_index = 0: DPM stays OFF until the
