@@ -745,10 +745,25 @@ dpm_slip_calculator:
 	mflr	%r0
 	stw	%r0, 12(%r1)
 
+	# --- ABS fault gate ---
+	lis	%r3, abs_esp_flags@ha
+	lbz	%r3, abs_esp_flags@l(%r3)	# abs_esp_flags is u8
+	andi.	%r3, %r3, 0x10			# bit 4 = ABS fault
+	beq	dpm_sc_normal			# no fault -> proceed
+
+	# ABS faulted: disable slip target, reset torque outputs
+	lis	%r3, dpm_slip_target@ha
+	li	%r4, -1			# 0xFFFF in low 16 bits
+	sth	%r4, dpm_slip_target@l(%r3)
+	bl	dpm_torque_reset_outputs
+	b	dpm_sc_done
+
+dpm_sc_normal:
 	bl	dpm_calc_slip
 	bl	dpm_calc_slip_error
 	bl	dpm_calc_torque_cut
 
+dpm_sc_done:
 	# Pop link register from stack
 	lwz	%r0, 12(%r1)
 	mtlr	%r0
