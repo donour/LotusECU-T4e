@@ -40,6 +40,14 @@ hook_timer_5ms:
 .endif
 .ifdef DPM
 	bl	dpm_system_state_manager_200hz
+	# Write DPM mode to fuel_usage_instantaneous for dash display.
+	# Done at 200 Hz (after main-loop fuel calc) so the CAN 0x400
+	# assembly in the same tick sends the DPM value, not the calc'd one.
+	lis	%r3, dpm_mode_index@ha
+	lbz	%r3, dpm_mode_index@l(%r3)
+	mulli	%r3, %r3, 1000
+	lis	%r4, fuel_usage_instantaneous@ha
+	sth	%r3, fuel_usage_instantaneous@l(%r4)
 .endif
 	# Load 10 (Erase by patch in original code)
 	li	%r0, 10

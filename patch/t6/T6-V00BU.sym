@@ -67,6 +67,7 @@ engine_speed_16bit            = 0x4000163A;
 engine_speed_3                = 0x40001640;  /* u8  rspeed_125/4+500rpm */
 engine_is_running             = 0x40001638;  /* bool */
 runtime_since_start           = 0x400015F4;  /* u32 5ms ticks since engine start */
+fuel_usage_instantaneous      = 0x40001806;  /* u16 1/10 mL/km, hijacked for DPM mode display */
 accel_pedal_latched           = 0x40001F0E;  /* u16 1/1023 factor */
 
 /* Driver inputs. */
