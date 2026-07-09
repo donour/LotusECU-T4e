@@ -49,6 +49,9 @@ hook_freeram_counter          = 0x4300c;
 wheel_speed                   = 0x400018da;
 
 
+/* blr request from torque limit arbitration logic */
+hook_torque_limit_arbitration = 0xb46c4;
+
 
 /* Displaced instruction at hook_loop_loc was `bl torque_model`.
  * The hook replays this call before doing its own work. */
@@ -93,6 +96,15 @@ torque_limit_external_tc_fast  = 0x400014C6;
 torque_limit_external_esp_fast = 0x400014C8;
 torque_limit_external_tc_slow  = 0x400014CA;
 torque_limit_external_net      = 0x400023C6;
+
+/* Torque limit source selector (priority-encoded bitmap).  DPM sets bit 0x02
+ * (masquerading as ABS) so the torque_model master gate enables the limit. */
+torque_limit_source_flags      = 0x400023DD;
+
+/* Written by torque_limit_request_arbitration, read by torque_model.
+ * DPM hooks the end of the arbitration to apply min(dpm, arbitrated). */
+torque_limit_external_request  = 0x400014C2;
+torque_external_request_tps_based = 0x400014C4;
 
 /* =========================================================================
  * Lookup helpers (called by slip-target & torque-cut tables in later phases)

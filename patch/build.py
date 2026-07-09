@@ -594,6 +594,9 @@ def build_t6_combined(args):
 		[m.get_sym_addr("hook_timer_5ms_loc"), PPC32.ppc_li(*expected_bytes["hook_timer_5ms_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_timer_5ms"))],
 		[m.get_sym_addr("hook_OBD_mode_0x01_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x01_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x01"))],
 		[m.get_sym_addr("hook_OBD_mode_0x22_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x22_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x22"))],
+		# DPM: hook the blr at the end of torque_limit_request_arbitration
+		# to apply min(dpm_spark, arbitrated) before the torque model runs.
+		[m.get_sym_addr("hook_torque_limit_arbitration"), PPC32.ppc_blr(), PPC32.ppc_ba(m.get_sym_addr("hook_arbitration_dpm"))],
 		[m.get_sym_addr("hook_freeram_counter"), PPC32.ppc_lis(3, 0x4001) + PPC32.ppc_addi(0, 3, -0x1000), PPC32.ppc_lis(3, addr_ha) + PPC32.ppc_addi(0, 3, addr_l)],
 	]
 	for s, o, n in replacements:

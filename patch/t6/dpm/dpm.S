@@ -3,6 +3,7 @@
 #TODO: add back direction histeresis via dpm_control_flags and dpm_direct_mode_on_delay
 #TODO: OBD-II data reading is incorrect and forces reboot
 #TODO: tune the i term from dpm correction in state mgmt
+#TODO: move the CAL tables out of the data segment
 
 # DPM (Dynamic Performance Mode) - 6-level slip-based traction control.
 # Port of the C132E0278 (GT430) implementation to B13200091 (S1 Evora NA).
