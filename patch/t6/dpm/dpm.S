@@ -771,16 +771,50 @@ dpm_sc_done:
 	addi	%r1, %r1, 8
 	blr
 
-	# 200 Hz (5 ms) DPM state machine. Port of C132E0278.c:58446-58582.
-	# Two responsibilities, run in order every tick:
+	# 200 Hz (5 ms) DPM state machine.  Three responsibilities per tick:
+	#   0. Sport-button long-press (> 1.0 s) increments dpm_mode_index
+	#      (0..6, wraps to 0).  Short presses are untouched and still
+	#      toggle sport mode via the firmware's existing logic.
 	#   1. Direct-mode cornering hysteresis (DIRECT flag + off-delay timer).
-	#   2. PI integral controller: accumulates slip error into
-	#      dpm_torque_cut_accumulated when CUTTING; resets when not CUTTING.
-	#      Timer-triggered every CAL_dpm_integral_update_period (20 s).
-	#      accumulator += slip_error_filtered * gain,  clamped +/-limit*128,
-	#      then torque_cut_accumulated = accumulator >> 8.
+	#   2. PI integral controller (accumulates slip error into torque cut).
 	# Leaf (no calls) -> no LR frame. Clobbers r0, r3-r11.
 	dpm_system_state_manager_200hz:
+		# === Stage 0: sport-button long-press -> mode increment ===
+		lis	%r3, sport_button_enable@ha
+		lbz	%r3, sport_button_enable@l(%r3)
+		cmplwi	%r3, 0
+		beq	dpm_btn_released
+
+		# Button held: count ticks.
+		lis	%r4, dpm_increase_hold_time@ha
+		lbz	%r5, dpm_increase_hold_time@l(%r4)
+		addi	%r5, %r5, 1
+		cmplwi	%r5, 200		# 200 * 5 ms = 1.0 s
+		blt	dpm_btn_store_hold
+
+		# Long-press threshold: increment mode, reset timer for autorepeat.
+		li	%r5, 0
+		stb	%r5, dpm_increase_hold_time@l(%r4)
+		lis	%r6, dpm_mode_index@ha
+		lbz	%r7, dpm_mode_index@l(%r6)
+		addi	%r7, %r7, 1
+		cmplwi	%r7, 7			# max mode = 6; wrap to 0
+		blt	dpm_btn_store_mode
+		li	%r7, 0
+	dpm_btn_store_mode:
+		stb	%r7, dpm_mode_index@l(%r6)
+		b	dpm_btn_done
+
+	dpm_btn_store_hold:
+		stb	%r5, dpm_increase_hold_time@l(%r4)
+		b	dpm_btn_done
+
+	dpm_btn_released:
+		lis	%r4, dpm_increase_hold_time@ha
+		li	%r5, 0
+		stb	%r5, dpm_increase_hold_time@l(%r4)
+
+	dpm_btn_done:
 		# === Stage 1: cornering hysteresis ===
 		# cornering = (threshold < max_lr_diff)
 		lis	%r3, dpm_max_lr_speed_diff@ha
