@@ -117,15 +117,19 @@ OBD_mode_0x01_pid_0x24_0x25:
 .endif
 
 hook_OBD_mode_0x22:
-	# %r3 is index in obd_resp
-	# %r0 is the mode 0x22 pid
+	# r0 = 16-bit mode 0x22 PID (firmware-computed from obd_req[2..3]).
+	# r3 = obd_req[2] << 8 (NOT a response index! Firmware uses it at
+	#      _continue for the addi r0,r3,-512 range check).
+	# r4 = previous response state (incremented by firmware before hook).
+	#
+	# The firmware _jump code (0x7dc78) stores r5 to obd_resp[r0 & 0xFF]
+	# and reads r4 & 0xFF as a byte count at 0x7dc7c.  So handlers only
+	# need to set r5 = data and r4 = count; for multi-byte responses write
+	# the remaining bytes directly to obd_resp[r0 & 0xFF + 1..+3].
+	#
+	# Original instruction at hook point: rlwinm r3, r0, 0, 16, 31
 
-	# Store current pointer to response byte in %r4
-	lis	%r4, obd_resp@ha
-	addi	%r4, %r4, obd_resp@l
-	add	%r4, %r4, %r3
-
-	# Branching
+	# Branching (PID in r0)
 .ifdef FLEXFUEL
 	cmplwi	%r0, 0x0401
 	beq	OBD_mode_0x22_pid_0x0401
@@ -136,40 +140,50 @@ hook_OBD_mode_0x22:
 	cmplwi	%r0, 0x0404
 	beq	OBD_mode_0x22_pid_0x0404
 .endif
-	# Mask %r0 (Erase by patch in original code)
-	rlwinm	%r4, %r0, 0,16,31
+	# Original instruction: rlwinm r3, r0, 0, 16, 31
+	rlwinm	%r3, %r0, 0, 16, 31
 	ba	hook_OBD_mode_0x22_continue
 
 .ifdef FLEXFUEL
 OBD_mode_0x22_pid_0x0401:
-	# Fuel temperature
-	addi	%r3, %r3, 1 # Answer 1 bytes
+	# Fuel temperature (1 byte).  r0 & 0xFF = 1 = response offset.
+	# _jump will store r5 to obd_resp[1] and read r4 as byte count.
 	lis	%r5, ethanol_temp@ha
 	lbz	%r5, ethanol_temp@l(%r5)
-	stb	%r5, 0(%r4)
+	li	%r4, 1
 	ba	hook_OBD_mode_0x22_jump
 .endif
 
 .ifdef WIDEBAND
 OBD_mode_0x22_pid_0x0403:
-	# Wideband correction slope and offset bank1
-	addi	%r3, %r3, 4 # Answer 4 bytes
-	lis	%r5, wb_bank1@ha
-	addi	%r5, %r5, wb_bank1@l
-	lhz	%r6, wb_slope(%r5)
-	sth	%r6, 0(%r4)
-	lha	%r6, wb_offset(%r5)
-	sth	%r6, 2(%r4)
+	# Wideband correction slope + offset bank1 (4 bytes at obd_resp[3..6]).
+	rlwinm	%r3, %r0, 0, 24, 31	# r3 = PID & 0xFF = response offset
+	lis	%r5, obd_resp@ha
+	addi	%r5, %r5, obd_resp@l
+	add	%r5, %r5, %r3		# r5 = &obd_resp[offset]
+	lis	%r6, wb_bank1@ha
+	addi	%r6, %r6, wb_bank1@l
+	lhz	%r7, wb_slope(%r6)
+	sth	%r7, 0(%r5)		# store slope (2 bytes)
+	lha	%r7, wb_offset(%r6)
+	sth	%r7, 2(%r5)		# store offset (2 bytes)
+	lbz	%r5, 0(%r5)		# r5 = first byte (for _jump stbx)
+	li	%r4, 4			# byte count
 	ba	hook_OBD_mode_0x22_jump
 
 OBD_mode_0x22_pid_0x0404:
-	# Wideband correction slope and offset bank2
-	addi	%r3, %r3, 4 # Answer 4 bytes
-	lis	%r5, wb_bank2@ha
-	addi	%r5, %r5, wb_bank2@l
-	lhz	%r6, wb_slope(%r5)
-	sth	%r6, 0(%r4)
-	lha	%r6, wb_offset(%r5)
-	sth	%r6, 2(%r4)
+	# Wideband correction slope + offset bank2 (4 bytes at obd_resp[4..7]).
+	rlwinm	%r3, %r0, 0, 24, 31	# r3 = PID & 0xFF = response offset
+	lis	%r5, obd_resp@ha
+	addi	%r5, %r5, obd_resp@l
+	add	%r5, %r5, %r3		# r5 = &obd_resp[offset]
+	lis	%r6, wb_bank2@ha
+	addi	%r6, %r6, wb_bank2@l
+	lhz	%r7, wb_slope(%r6)
+	sth	%r7, 0(%r5)		# store slope (2 bytes)
+	lha	%r7, wb_offset(%r6)
+	sth	%r7, 2(%r5)		# store offset (2 bytes)
+	lbz	%r5, 0(%r5)		# r5 = first byte (for _jump stbx)
+	li	%r4, 4			# byte count
 	ba	hook_OBD_mode_0x22_jump
 .endif
