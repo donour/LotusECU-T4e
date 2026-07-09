@@ -40,14 +40,26 @@ hook_timer_5ms:
 .endif
 .ifdef DPM
 	bl	dpm_system_state_manager_200hz
-	# Write DPM mode to fuel_usage_instantaneous for dash display.
-	# Done at 200 Hz (after main-loop fuel calc) so the CAN 0x400
-	# assembly in the same tick sends the DPM value, not the calc'd one.
-	lis	%r3, dpm_mode_index@ha
-	lbz	%r3, dpm_mode_index@l(%r3)
-	mulli	%r3, %r3, 1000
-	lis	%r4, fuel_usage_instantaneous@ha
-	sth	%r3, fuel_usage_instantaneous@l(%r4)
+		# Write DPM mode to all 4 TPMS pressure bytes for dash display.
+		# TPMS is non-functional; mode * 10 shows as readable two-digit
+		# "PSI" values.  Also force the valid flags so the dash renders
+		# the numbers instead of "--".
+		lis	%r3, dpm_mode_index@ha
+		lbz	%r3, dpm_mode_index@l(%r3)
+		# integer arithmetic to multiply by 2.5
+		slwi %r4, %r3, 1
+		srwi %r5, %r3, 1
+		add  %r3, %r4, %r5
+		lis	%r4, tpms_pressure@ha
+		stb	%r3, tpms_pressure@l(%r4)	# [0]
+		stb	%r3, (tpms_pressure+1)@l(%r4)	# [1]
+		stb	%r3, (tpms_pressure+2)@l(%r4)	# [2]
+		stb	%r3, (tpms_pressure+3)@l(%r4)	# [3]
+		# Force valid: init = 1, clear sensor fault + low pressure
+		# for all wheels, clear system fault.
+		lis	%r4, tire_pressure_valid_and_error@ha
+		li	%r3, 0x0200		# TPMS module initialised, all else clear
+		sth	%r3, tire_pressure_valid_and_error@l(%r4)
 .endif
 	# Load 10 (Erase by patch in original code)
 	li	%r0, 10
