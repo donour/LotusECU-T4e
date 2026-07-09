@@ -592,8 +592,8 @@ def build_t6_combined(args):
 		[m.get_sym_addr("hook_loop_loc"), PPC32.ppc_b(m.get_sym_addr("hook_loop_continue") - m.get_sym_addr("hook_loop_loc")),PPC32.ppc_ba(m.get_sym_addr("hook_loop"))],
 		[m.get_sym_addr("hook_loop_correction"), PPC32.ppc_ble(*expected_bytes["hook_loop_correction"]), PPC32.ppc_ble( 0x1C)],
 		[m.get_sym_addr("hook_timer_5ms_loc"), PPC32.ppc_li(*expected_bytes["hook_timer_5ms_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_timer_5ms"))],
-		[m.get_sym_addr("hook_OBD_mode_0x01_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x01_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x01"))],
-		[m.get_sym_addr("hook_OBD_mode_0x22_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x22_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x22"))],
+		# [m.get_sym_addr("hook_OBD_mode_0x01_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x01_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x01"))],
+		# [m.get_sym_addr("hook_OBD_mode_0x22_loc"), PPC32.ppc_rlwinm(*expected_bytes["hook_OBD_mode_0x22_loc"]), PPC32.ppc_ba(m.get_sym_addr("hook_OBD_mode_0x22"))],
 		# DPM: hook the blr at the end of torque_limit_request_arbitration
 		# to apply min(dpm_spark, arbitrated) before the torque model runs.
 		[m.get_sym_addr("hook_torque_limit_arbitration"), PPC32.ppc_blr(), PPC32.ppc_ba(m.get_sym_addr("hook_arbitration_dpm"))],
