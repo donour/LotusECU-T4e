@@ -40,21 +40,28 @@ hook_timer_5ms:
 .endif
 .ifdef DPM
 	bl	dpm_system_state_manager_200hz
-		# Write DPM mode to all 4 TPMS pressure bytes for dash display.
-		# TPMS is non-functional; mode * 10 shows as readable two-digit
-		# "PSI" values.  Also force the valid flags so the dash renders
-		# the numbers instead of "--".
+		# TPMS display hijack (TPMS non-functional):
+		#   Front wheels: dpm_slip_target low byte (target in 1/8% units)
+		#   Rear wheels:  dpm_mode_index * 2.5
+		# Also force valid flags so dash renders numbers instead of "--".
+		lis	%r4, tpms_pressure@ha
+		# Front = slip target
+		lis	%r3, dpm_slip_target@ha
+		lhz	%r3, dpm_slip_target@l(%r3)
+		# calculate slip/8 * 2.5
+		slwi    %r5, %r3, 2      # r4 = x * 4  (Shift left word immediate by 2)
+		add     %r5, %r5, %r3    # r4 = (x * 4) + x = x * 5
+		srawi   %r3, %r5, 4   		
+		stb	%r3, (tpms_pressure+1)@l(%r4)	# [1] FR
+		stb	%r3, tpms_pressure@l(%r4)	# [0] FL
+		# Rear = mode * 2.5
 		lis	%r3, dpm_mode_index@ha
 		lbz	%r3, dpm_mode_index@l(%r3)
-		# integer arithmetic to multiply by 2.5
-		slwi %r4, %r3, 1
-		srwi %r5, %r3, 1
-		add  %r3, %r4, %r5
-		lis	%r4, tpms_pressure@ha
-		stb	%r3, tpms_pressure@l(%r4)	# [0]
-		stb	%r3, (tpms_pressure+1)@l(%r4)	# [1]
-		stb	%r3, (tpms_pressure+2)@l(%r4)	# [2]
-		stb	%r3, (tpms_pressure+3)@l(%r4)	# [3]
+		slwi	%r5, %r3, 1			# *2
+		srwi	%r6, %r3, 1			# /2
+		add	%r3, %r5, %r6			# *2.5
+		stb	%r3, (tpms_pressure+2)@l(%r4)	# [2] RL
+		stb	%r3, (tpms_pressure+3)@l(%r4)	# [3] RR
 		# Force valid: init = 1, clear sensor fault + low pressure
 		# for all wheels, clear system fault.
 		lis	%r4, tire_pressure_valid_and_error@ha
