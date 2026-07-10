@@ -7,11 +7,9 @@
 # Variable set follows C132E0278/DPM_plan.md Phase 1.
 
 # Constants
-.set DPM_MIN_ACTIVATE_SPEED,  5 # kph
 .set DPM_SLIP_TARGET_OFFSET,  16 # 2% in 1/8% units
 
 .set DPM_TORQUE_NO_LIMIT, 911 # Nm sentinel = "no torque cut requested"
-.set DPM_MODE_MAX,          6 # Highest selectable DPM level
 
 # dpm_control_flags bitmap
 .set DPM_FLAG_ARMED,        0x0001 # In operating window (armed); set even below threshold
@@ -52,8 +50,7 @@
 .global dpm_front_lr_speed_diff, dpm_rear_lr_speed_diff, dpm_max_lr_speed_diff
 .global dpm_direct_mode_on_delay, dpm_direct_mode_off_delay
 .global dpm_integral_update_timer
-.global dpm_button_increase, dpm_button_decrease
-.global dpm_increase_hold_time, dpm_decrease_hold_time
+.global dpm_increase_hold_time
 .global dpm_both_buttons_pressed
 
 # 32-bit
@@ -84,10 +81,7 @@ dpm_vehicle_speed_kph:         .skip 1 # u8_speed_kph, front axle max / 100
 dpm_torque_cut_factor:         .skip 1 # u8_factor_1/255, instantaneous cut from lookup
 dpm_torque_cut_accumulated:    .skip 1 # u8_factor_1/255, integral torque cut term
 dpm_torque_cut_total:          .skip 1 # u8_factor_1/255, factor + accumulated (sat. 255)
-dpm_button_increase:           .skip 1 # bool, increase button state
-dpm_button_decrease:           .skip 1 # bool, decrease button state
 dpm_increase_hold_time:        .skip 1 # u8, 5ms counts increase held
-dpm_decrease_hold_time:        .skip 1 # u8, 5ms counts decrease held
 dpm_both_buttons_pressed:      .skip 1 # bool, dual-press latch
 
 .section .text
@@ -160,15 +154,8 @@ dpm_init:
 	stb	%r3, dpm_torque_cut_accumulated@l(%r4)
 	lis	%r4, dpm_torque_cut_total@ha
 	stb	%r3, dpm_torque_cut_total@l(%r4)
-	# TODO: ensure that button variables are used
-	lis	%r4, dpm_button_increase@ha
-	stb	%r3, dpm_button_increase@l(%r4)
-	lis	%r4, dpm_button_decrease@ha
-	stb	%r3, dpm_button_decrease@l(%r4)
 	lis	%r4, dpm_increase_hold_time@ha
 	stb	%r3, dpm_increase_hold_time@l(%r4)
-	lis	%r4, dpm_decrease_hold_time@ha
-	stb	%r3, dpm_decrease_hold_time@l(%r4)
 	lis	%r4, dpm_both_buttons_pressed@ha
 	stb	%r3, dpm_both_buttons_pressed@l(%r4)
 
