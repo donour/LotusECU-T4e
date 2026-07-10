@@ -150,10 +150,8 @@ dpm_init:
 	sth	%r3, dpm_integral_update_timer@l(%r4)
 
 	# 8-bit state
-	li	%r3, 6   # initialize the DPM to 6 (off)
 	lis	%r4, dpm_mode_index@ha
 	stb	%r3, dpm_mode_index@l(%r4)
-	li	%r3, 0
 	lis	%r4, dpm_vehicle_speed_kph@ha
 	stb	%r3, dpm_vehicle_speed_kph@l(%r4)
 	lis	%r4, dpm_torque_cut_factor@ha
