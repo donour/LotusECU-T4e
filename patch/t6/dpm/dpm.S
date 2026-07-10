@@ -1,6 +1,3 @@
-#TODO: Add dpm_mode_index cycle function using TC button
-#TODO: change TC button default toggle duration/timout 
-#TODO: add back direction histeresis via dpm_control_flags and dpm_direct_mode_on_delay
 #TODO: OBD-II data reading is incorrect and forces reboot
 #TODO: tune the i term from dpm correction in state mgmt
 #TODO: move the CAL tables out of the data segment

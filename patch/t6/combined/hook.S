@@ -53,9 +53,8 @@ hook_timer_5ms:
 		lis	%r4, tpms_pressure@ha
 		stb	%r3, tpms_pressure@l(%r4)	# [0]
 		stb	%r3, (tpms_pressure+1)@l(%r4)	# [1]
-		# only set the first two wheels of the TPMS output to dpm index
-		#stb	%r3, (tpms_pressure+2)@l(%r4)	# [2]
-		#stb	%r3, (tpms_pressure+3)@l(%r4)	# [3]
+		stb	%r3, (tpms_pressure+2)@l(%r4)	# [2]
+		stb	%r3, (tpms_pressure+3)@l(%r4)	# [3]
 		# Force valid: init = 1, clear sensor fault + low pressure
 		# for all wheels, clear system fault.
 		lis	%r4, tire_pressure_valid_and_error@ha
