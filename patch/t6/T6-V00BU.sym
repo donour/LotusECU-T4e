@@ -71,7 +71,8 @@ fuel_usage_instantaneous      = 0x40001806;  /* u16 1/10 mL/km, hijacked for DPM
 accel_pedal_latched           = 0x40001F0E;  /* u16 1/1023 factor */
 
 /* Driver inputs. */
-sport_button_enable           = 0x40001742;  /* u8 - toggled sport-mode state (NOT momentary) */
+sport_button_enable           = 0x40001742;  /* u8 - toggled sport-mode state */
+sport_button_raw_state         = 0x40002C9B;  /* u8 - digital_input_raw_state[3], 1=pressed */
 driver_input_flags            = 0x40001769;  /* u8[2] - packed brake/clutch/sport */
 
 /* Fuel / spark gates. */

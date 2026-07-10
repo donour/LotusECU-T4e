@@ -779,27 +779,54 @@ dpm_sc_done:
 	#   2. PI integral controller (accumulates slip error into torque cut).
 	# Leaf (no calls) -> no LR frame. Clobbers r0, r3-r11.
 	dpm_system_state_manager_200hz:
-		# === Stage 0: sport-button edge -> mode increment ===
-		# Each sport-button press toggles sport_button_enable.
-		# Detect any edge (0->1 or 1->0) and increment DPM mode.
-		# No hold timer needed, no raw input needed.
-		lis	%r3, sport_button_enable@ha
-		lbz	%r3, sport_button_enable@l(%r3)	# current state
-		lis	%r4, dpm_increase_hold_time@ha
-		lbz	%r5, dpm_increase_hold_time@l(%r4)	# previous state
-		cmplw	%r3, %r5
-		beq	dpm_btn_done			# no change -> nothing to do
-		stb	%r3, dpm_increase_hold_time@l(%r4)	# save new previous
+		# === Stage 0: sport-button long-press (> 1.5 s) -> mode increment ===
+		# Uses digital_input_raw_state[3] (0x40002C9B), which tracks
+		# the physical button level even when the debounce is in toggle
+		# mode.  1 = pressed, 0 = released.  Single-shot: fires once
+		# per press, release required for next trigger.
+		lis	%r3, sport_button_raw_state@ha
+		lbz	%r3, sport_button_raw_state@l(%r3)
+		cmplwi	%r3, 0
+		beq	dpm_btn_released
 
-		# Edge detected: increment mode.
-		lis	%r6, dpm_mode_index@ha
-		lbz	%r7, dpm_mode_index@l(%r6)
-		addi	%r7, %r7, 1
-		cmplwi	%r7, 7			# max mode = 6; wrap to 0
+		# Pressed.  Skip if already triggered this hold.
+		lis	%r4, dpm_both_buttons_pressed@ha
+		lbz	%r5, dpm_both_buttons_pressed@l(%r4)
+		cmplwi	%r5, 0
+		bne	dpm_btn_done
+
+		# Count hold ticks.
+		lis	%r6, dpm_increase_hold_time@ha
+		lbz	%r5, dpm_increase_hold_time@l(%r6)
+		addi	%r5, %r5, 1
+		cmplwi	%r5, 200			# 200 * 5 ms = 1.0 s
+		blt	dpm_btn_store_hold
+
+		# Threshold: increment mode, set triggered.
+		li	%r5, 1
+		stb	%r5, dpm_both_buttons_pressed@l(%r4)
+		li	%r5, 0
+		stb	%r5, dpm_increase_hold_time@l(%r6)
+		lis	%r7, dpm_mode_index@ha
+		lbz	%r8, dpm_mode_index@l(%r7)
+		addi	%r8, %r8, 1
+		cmplwi	%r8, 7
 		blt	dpm_btn_store_mode
-		li	%r7, 0
+		li	%r8, 0
 	dpm_btn_store_mode:
-		stb	%r7, dpm_mode_index@l(%r6)
+		stb	%r8, dpm_mode_index@l(%r7)
+		b	dpm_btn_done
+
+	dpm_btn_store_hold:
+		stb	%r5, dpm_increase_hold_time@l(%r6)
+		b	dpm_btn_done
+
+	dpm_btn_released:
+		lis	%r4, dpm_increase_hold_time@ha
+		li	%r5, 0
+		stb	%r5, dpm_increase_hold_time@l(%r4)
+		lis	%r4, dpm_both_buttons_pressed@ha
+		stb	%r5, dpm_both_buttons_pressed@l(%r4)
 
 	dpm_btn_done:
 		# === Stage 1: cornering hysteresis ===
