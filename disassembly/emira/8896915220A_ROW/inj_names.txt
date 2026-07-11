@@ -1,0 +1,42 @@
+# injection() labels — verified against emira.c injection() (0x00A33B68) 2026-06-25
+# --- functions ---
+FUN_00a338c0   inj_base_time_calc          # base injection time per cyl (volt/dp/airtemp/coolant) -> inj_base_time_b1/b2
+FUN_TODO1      lambda_target_arbitrate     # commanded-lambda min-select arbiter -> obd_ii_commanded_lambda (PID 0x44)
+FUN_00a0f36c   vvt_get_group_a_position    # returns vvt_position_4/3 per bank; injection-timing cam reference
+
+# --- charge-temp fuel model (lines 99154-99214) ---
+40006844   inj_chargetemp_gain             # cal_fuel_chargetemp_gain lookup
+40006816   inj_chargetemp_lag              # cal_fuel_chargetemp_lag (IIR coeff)
+40006812   inj_chargetemp_delta            # (charge_temp_ref - manifold_air_temp)*gain*4/255
+40001ee6   inj_chargetemp_filter           # IIR accumulator state (16-bit)
+40006a22   inj_chargetemp_index            # filtered byte -> cal_fuel_chargetemp_corr index
+40006a00   inj_chargetemp_correction       # charge-temp fuel correction (offset 0x7f)
+40006a21   inj_chargetemp_update_timer     # countdown reloaded with field_0x136
+
+# --- base time / differential pressure ---
+40006a2a   inj_base_time_b1                # FUN_00a338c0 output, added to pulse
+40006a2c   inj_base_time_b2
+40006a2f   inj_dp_index                    # inj_differential_pressure / 50
+40006836   inj_base_airtemp_factor         # air-temp scaling of base time (cal 0x18ee)
+
+# --- flow / enrichment ---
+40006837   inj_flow_correction             # cal 0xfce (20x20 airflow x load) result, clamp [100,255], scales flow
+40006810   inj_enrich_product              # coolant*load*iat_map*iat open-loop enrichment product
+4000680e   inj_enrich_total                # enrichment after field_0x73 rpm-scale mode (the flow multiplier)
+
+# --- injection timing ---
+40006a2e   inj_timing_rpm_scale            # cal_inj_timing_rpm_scale result (50..200)
+400037e4   inj_timing_rpm_index            # engine_speed>>2 clamped
+40006a24   inj_timing_coolant_term         # cal_inj_timing_coolant_* scaled by rpm
+
+# --- pulse-width pipeline ---
+400069f4   inj_pulse_precursor_b1          # computed time before STFT/LTFT/film
+40006a04   inj_pulse_precursor_b2
+40006a1c   inj_pulse_trimmed_b1            # after LTFT+STFT+deadtime, before film/learned+base
+400069f0   inj_pulse_trimmed_b2
+400032d8   inj_commanded_pulse_b1          # final pulse to eTPU (0xa0 when fuel disabled)
+400032dc   inj_commanded_pulse_b2
+
+# --- enable / capacity ---
+4000377c   fuel_enable_flags               # bit0 = injectors enabled; clear -> pulse forced off + cut bit
+4000683c   fuel_capacity_base              # cal_fuel_airflow_limit_scale * inj_pw_max / 255

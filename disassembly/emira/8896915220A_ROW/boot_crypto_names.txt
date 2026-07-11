@@ -1,0 +1,6 @@
+# bootloader transport CRC-8 + seed/key — verified 2026-06-26
+00805224   boot_crc8_compute            # Pearson/CRC-8 poly 0x31 over a buffer (table 0x0081e778), init 0
+008053d0   boot_crc8_stream_update      # streaming CRC-8: a86=prev, a87=table[byte^a87]
+0080534c   boot_frame_crc_valid         # frame terminator check: last byte == CRC-8 of preceding (>=6 bytes)
+0081938c   security_key_from_seed       # 24-bit LFSR seed->key, init const 0xC541A9, 64 rounds
+0081e778   boot_crc8_table_poly31       # 256-byte CRC-8 (poly 0x31) lookup table

@@ -1,0 +1,7 @@
+# bootloader reflash workers — verified by reading bodies + call sites 2026-06-25
+0080f6c0   boot_crc16_update           # running CRC-16 over transfer bytes -> reported at TransferExit (DAT_40001ce6)
+00811824   boot_download_erase         # 0x34/RoutineControl-0xFF00 erase: segment-select + blank-check + erase state machine
+00811b78   boot_download_program       # 0x36 TransferData pump: CAN block -> CRC -> buffer -> boot_flash_program
+00819cd8   boot_flash_erase_block      # erase dispatcher: block base -> per-region erase routine (incl 0x20000 cal)
+00819f30   boot_flash_program          # program flash (FUN_00809324) or RAM-shadow memcpy
+00819c68   security_seed_key_compute   # 0x27: generate non-zero seed + derive expected key
