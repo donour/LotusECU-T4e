@@ -256,8 +256,20 @@ Open/medium confidence:
 1. Give semantic names to the IPS shift-state bytes and controller structure fields.
 2. Fully decode `abs_esp_can_torque_request_flags` and `tcu_can_status_flags`; their validity/accepted-source subsets are known, but not every bit.
 3. Rename the auxiliary `torque_cruise_request` only after its IPS/creep behavior is compared with TCU logs; the current historical name is misleading for normal cruise.
-4. Quantify the close-ratio gear windows and cruise gains from a calibration dump.
-5. Confirm whether the shared binary was ever deployed with IPS coding under the same calibration identifier, or merely retains link-time family code.
+4. Confirm whether the shared binary was ever deployed with IPS coding under the same calibration identifier, or merely retains link-time family code.
+
+Calibration-backed values now resolved from the stock CPT:
+
+- close-ratio gear windows (six lower/upper pairs), raw:
+  `[796,2550], [463,795], [375,463], [285,374], [237,284], [100,236]`;
+- long-ratio windows: `[796,2550], [464,795], [308,463], [230,307], [186,229], [100,185]`;
+- cruise gears 3–6, IPS: P `[30,41,60,72]`, I `[65,85,100,120]`, D all zero;
+- manual long-ratio: P `[30,45,65,80]`, I `[30,40,60,80]`, D all zero; and
+- manual close-ratio: P `[26,41,60,80]`, I `[30,44,60,80]`, D all zero.
+
+The former `CAL_trans_gear_lookup_unknown2` pair is now named `CAL_trans_gear_window_long_6th`;
+the old Tour/Sport names are likewise corrected to long-ratio and close-ratio window sets. Physical
+ratio scaling remains raw pending log correlation.
 
 ## Marginal value of this pass
 

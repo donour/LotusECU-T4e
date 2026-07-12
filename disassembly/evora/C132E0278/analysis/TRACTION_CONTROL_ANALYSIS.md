@@ -280,8 +280,13 @@ Remaining open questions:
 1. Recover the exact electrical or CAN source of `dpm_button_increase` and `dpm_button_decrease`; this export contains consumers and diagnostic PIDs but no ordinary C assignment, suggesting an alias, direct I/O update, or missed data reference.
 2. Decode all 0xA8 status fields and give semantic names to `abs_a8_flag2`, `DAT_40002555`, and `DAT_40002556` using the ABS firmware and synchronized logs.
 3. Verify whether choosing the maximum wheel on each axle is purely a cornering robustness strategy or tied to a specific wheel-speed convention.
-4. Quantify calibration values from the original binary (target levels, thresholds and gains), since this decompiler export exposes addresses and types but not a convenient table dump.
-5. Recover the low-level alias/data reference connecting the per-cylinder combustion-gate array to final injector eTPU enable writes; the ignition-angle endpoint is explicit, but this one hardware boundary is obscured in the export.
+4. Recover the low-level alias/data reference connecting the per-cylinder combustion-gate array to final injector eTPU enable writes; the ignition-angle endpoint is explicit, but this one hardware boundary is obscured in the export.
+
+Stock calibration values are now quantified: minimum DPM RPM `1800`, operating speed range
+`5–255 km/h`, left/right wheel-speed threshold `0.45 km/h`, direct-mode on/off delays `0.2/0.5 s`,
+integral update period `20 s`, minimum allowed torque `30 Nm`, slip target offset `2%`, intervention
+threshold `2%`, and final adjustable base targets `3/6/9/12%`. The tuned CPT changes none of the
+DPM definitions, so its powertrain changes must not be attributed to altered traction targets.
 
 ## Confidence summary
 

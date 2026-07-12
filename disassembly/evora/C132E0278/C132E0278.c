@@ -1895,7 +1895,7 @@ byte DAT_400086db;
 byte DAT_400087e9;
 undefined1 clutch_pos_sensor;
 u8_volume_1/10gallon CAL_fuel_level_debounce_window_low;
-u16_volume_1/10gallon CAL_fuel_level_debounce_window_high???;
+u8_volume_1/10gallon CAL_fuel_level_debounce_window_high;
 u16_voltage_5/1023v[8] CAL_sensor_fuel_level_X_voltage;
 u16_volume_1/10gallon[8] CAL_sensor_fuel_level;
 undefined4 fuel_level_filtered_x40000;
@@ -1903,7 +1903,7 @@ undefined1 fuel_level_stable_counter;
 undefined1 CAL_fuel_level_stable_count;
 undefined1 CAL_fuel_level_holdoff_count;
 undefined2 fuel_level_update_holdoff_timer;
-u16_volume_1/10gallon CAL_fuel_level_change_threshold;
+u8_volume_1/10gallon CAL_fuel_level_change_threshold;
 u16_volume_1/10gallon fuel_level;
 u16_voltage_5/1023v[2] CAL_sensor_fuel_level_sensor_voltage_threshold;
 uint DAT_40001828;
@@ -2116,6 +2116,8 @@ u8_temp_5/8-40c[12] CAL_ign_comp_manifold_temp_Y_manifold_temp;
 u8_load_4mg/stroke[16] CAL_ign_min_Y_load;
 u8_angle_1/4-32deg[192] CAL_ign_comp_manifold_temp;
 u8_angle_1/4-20deg[256] CAL_ign_min;
+uint8_t[5] CAL_idle_airflow_decay_interval_X_airflow;
+u8_time_ms[5] CAL_idle_airflow_decay_interval;
 u8_temp_5/8-40c[8] CAL_ign_comp_coldstart_X_coolant_temp;
 u8_angle_1/4-10deg[8] CAL_ign_comp_coldstart;
 u8_temp_5/8-40c CAL_ign_comp_coolant_engine_stopped_min;
@@ -3496,7 +3498,7 @@ uint8_t[8] CAL_cluster_shiftlight_rpm_offset_manual;
 u16_volume_1/10gallon CAL_cluster_fuel_level_zero_clip_threshold;
 u8_temp_5/8-40c[2] CAL_cluster_coolant_warning;
 undefined1 traction_flags_unknown;
-u16_volume_1/10gallon[2] CAL_cluster_fuel_level_warning_threshold;
+u8_volume_1/10gallon[2] CAL_cluster_fuel_level_warning_threshold;
 uint8_t cluster_shift_light_state;
 u16_rspeed_rpm CAL_cluster_shift_light_deadband_rpm;
 undefined1 oil_pressure_warning_light_timer;
@@ -3744,7 +3746,7 @@ u16_load_1173mg/255stroke load_alphaN_calc;
 u8_factor_1/255[20] LEA_load_alphaN_learned_trim_Y_tps;
 undefined4 load_alphaN_expected;
 undefined2 airflow_rate_expected_alphaN;
-undefined1 load_u8_tmp;
+u8_load_1173mg/255stroke load_torque_to_tps_index;
 u16_factor_1/1023 load_to_tps_mapping;
 undefined4 tps_idle_baseline_learned?;
 u16_load_mg/stroke load_comp_idle;
@@ -3757,7 +3759,7 @@ u16_factor_1/255 obd_ii_load_abs;
 undefined2 load_baro_gain;
 undefined2 _ve_for_map_synthesis;
 u8_factor_1/255[400] LEA_load_alphaN_learned_trim;
-uint32_t load_unknown;
+u32_load_mg/stroke load_measured_maf_density_normalized;
 u8_factor_1/100[400] LEA_torque_torque_to_tps_scaling;
 u8_load_1173mg/255stroke[20] LEA_torque_torque_to_tps_scaling_Y_load;
 undefined2 tps_scaling_learned;
@@ -4834,7 +4836,6 @@ byte DAT_40001e0c;
 char DAT_400087ef;
 byte DAT_4000880c;
 byte DAT_400087a4;
-undefined DAT_40008d04;
 u8_speed_kph CAL_idle_low_car_speed_exit;
 u8_speed_kph CAL_idle_low_car_speed_enter;
 ushort DAT_4000ca42;
@@ -8241,9 +8242,9 @@ undefined1 cruise_type;
 undefined1 cod_drive_pos;
 undefined4 vin_byte_arrival_mask;
 char[17] vin_assembly_buf;
-uint16_t[2] CAL_trans_gear_lookup_unknown2;
-uint16_t[12] CAL_trans_gear_ratio_sport;
-uint16_t[10] CAL_trans_gear_ratio_tour;
+uint16_t[2] CAL_trans_gear_window_long_6th;
+uint16_t[12] CAL_trans_gear_windows_close_ratio;
+uint16_t[10] CAL_trans_gear_windows_long_ratio_1st_to_5th;
 undefined1 coding_cmd;
 byte[8] coding_cmd_inline_buf;
 byte[8] staged_cod_payload;
@@ -8562,7 +8563,7 @@ uint8_t CAL_fuel_pump_integral_pressure_deadband;
 u8_factor_1/100 CAL_fuel_pump_integral_gain;
 bool CAL_fuel_pump_integral_hold_on_dfco;
 bool CAL_fuel_pump_integral_enable;
-u16_volume_1/10gallon CAL_fuel_pump_integral_fuel_level_min;
+u8_volume_1/10gallon CAL_fuel_pump_integral_fuel_level_min;
 char DAT_40002068;
 char DAT_40002069;
 char DAT_4000288f;
@@ -14207,8 +14208,8 @@ uint8_t fuel_level_lookup_filtered(u8_volume_1_10gallon fuel_level_raw)
     else {
       uVar5 = uVar2;
       if (((int)((int)(char)fuel_level_raw - (uint)fuel_level) <
-           (int)-(uint)CAL_fuel_level_debounce_window_high___) && (engine_speed_16bit != 0)) {
-        uVar5 = (ulonglong)fuel_level - (ulonglong)CAL_fuel_level_debounce_window_high___;
+           (int)-(uint)CAL_fuel_level_debounce_window_high) && (engine_speed_16bit != 0)) {
+        uVar5 = (ulonglong)fuel_level - (ulonglong)CAL_fuel_level_debounce_window_high;
       }
     }
     if (((car_speed_u8 == '\0') && ((engine_state_failure_flags & 0x400) == 0)) &&
@@ -15803,7 +15804,7 @@ void ignition(void)
   ign_adv_coldstart_comp =
        lookup_2D_uint8_interpolated
                  ('\b',coolant_temp_engine_stopped,CAL_ign_comp_coldstart,
-                  CAL_ign_comp_coldstart_X_coolant_temp + 5);
+                  CAL_ign_comp_coldstart_X_coolant_temp);
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {
     if ((ips_state_flags == '\0') || (ips_state_flags == '\t')) {
       bVar6 = lookup_2D_uint8_interpolated
@@ -17781,8 +17782,8 @@ void EEPROM_load(void)
   }
   libc_memcpy((byte *)LEA_base,(byte *)ecu_prog_version,0x20);
   DAT_4000471a = *(short *)(&UNK_ffff8010 + iVar1);
-  init_lea_maf_and_trqlimit();
-  init_lea_maf_and_trqlimit();
+  lea_validate_and_reseed_adaptive_tables();
+  lea_sync_adaptive_axes_from_calibration();
   for (clear_idx = 0; clear_idx < 1605; clear_idx = clear_idx + 1) {
     (&DAT_400040d5)[clear_idx] = 0;
   }
@@ -19103,7 +19104,7 @@ void reset_learned_adaptive_values(void)
   lea_init_status_flags = lea_init_status_flags | 0x20;
   lea_reset3();
   lea_reset2();
-  FUN_0005a18c();
+  tps_fault_capture_reset();
   for (uVar1 = 0; uVar1 < 0x645; uVar1 = uVar1 + 1) {
     (&DAT_400040d5)[uVar1] = 0;
   }
@@ -19112,7 +19113,7 @@ void reset_learned_adaptive_values(void)
 
 
 
-void init_lea_maf_and_trqlimit(void)
+void lea_validate_and_reseed_adaptive_tables(void)
 
 {
   bool bVar1;
@@ -19185,7 +19186,7 @@ void init_lea_maf_and_trqlimit(void)
 
 
 
-void init_lea_maf_and_trqlimit(void)
+void lea_sync_adaptive_axes_from_calibration(void)
 
 {
   uint8_t uVar1;
@@ -19220,7 +19221,7 @@ void init_lea_maf_and_trqlimit(void)
 
 
 
-void FUN_0005a18c(void)
+void tps_fault_capture_reset(void)
 
 {
   byte bVar1;
@@ -22324,26 +22325,45 @@ void engine_load(void)
        (u32_load_mg_stroke)
        (((((uint)obd_ii_maf_flow + (uint)maf_flow_2) >> 1) *
          (uint)engine_speed_period_adj) / 100000);
-  load_unknown = 0;
-  load_u8_tmp = 0;
-                    // A second lost idiom should density-normalize load_measured_maf for the
-                    // torque-to-TPS lookup. The early Evora computes charge*1013/baro*temp_K/298,
-                    // then clamps charge>>2 to 0xff. Keep these two outputs unresolved until the
-                    // GT430 instructions are available rather than copying constants across builds.
+                    // Raw instructions at 0x6167c..0x61700 clamp measured charge to 1380 mg/stroke,
+                    // normalize it to the selected 20,000-count air-density reference, then map
+                    // 0..1173 mg/stroke linearly to the 0..255 torque-to-TPS table coordinate.
+  if (load_measured_maf < 0x565) {
+    load_measured_maf_density_normalized = load_measured_maf;
+  }
+  else {
+    load_measured_maf_density_normalized = 0x564;
+  }
+  if (CAL_sensor_manifold_temp_sensor_present == false) {
+    load_measured_maf_density_normalized =
+         (load_measured_maf_density_normalized * 20000) / air_density_ambient_ratio_1_20000;
+  }
+  else {
+    load_measured_maf_density_normalized =
+         (load_measured_maf_density_normalized * 20000) / air_density_manifold_ratio_1_20000;
+  }
+  if (load_measured_maf_density_normalized < 0x496) {
+    load_torque_to_tps_index =
+         (u8_load_1173mg_255stroke)
+         ((load_measured_maf_density_normalized * 0xff) / 0x495);
+  }
+  else {
+    load_torque_to_tps_index = 0xff;
+  }
   _tps_scaling_learned =
        lookup_3D_uint8_interpolated
-                 (20,20,(ushort)engine_speed_8bit,0,LEA_torque_torque_to_tps_scaling,
+                 (20,20,(ushort)engine_speed_8bit,(ushort)load_torque_to_tps_index,
                   LEA_torque_torque_to_tps_scaling_X_engine_speed,
                   LEA_torque_torque_to_tps_scaling_Y_load);
   tps_scaling_learned = (ushort)_tps_scaling_learned;
   tps_scaling_learned_index =
        learneddata_get_table_cell_and_enable_flag
-                 (0x14,0x14,engine_speed_8bit,load_u8_tmp,
+                 (0x14,0x14,engine_speed_8bit,load_torque_to_tps_index,
                   LEA_torque_torque_to_tps_scaling_X_engine_speed,
                   LEA_torque_torque_to_tps_scaling_Y_load);
   tps_mapping_from_load =
        lookup_3D_uint8_interpolated
-                 ('\x14','\x14',(ushort)engine_speed_8bit,(ushort)load_u8_tmp,
+                 ('\x14','\x14',(ushort)engine_speed_8bit,(ushort)load_torque_to_tps_index,
                   CAL_load_to_tps_mapping,CAL_load_to_tps_mapping_X_rpm,
                   CAL_load_to_tps_mapping_Y_load);
   load_to_tps_mapping = (ushort)tps_mapping_from_load << 2;
@@ -28814,7 +28834,8 @@ void idle_airflow_decay_manager_1000hz(void)
         x_val = 0xff;
       }
       DAT_40001e0b = lookup_2D_uint8_interpolated
-                               ('\x05',x_val,CAL_ign_comp_coldstart_X_coolant_temp,&DAT_40008d04);
+                               ('\x05',x_val,CAL_idle_airflow_decay_interval,
+                                CAL_idle_airflow_decay_interval_X_airflow);
     }
     else {
       DAT_40001e0b = DAT_40008889;
@@ -45675,7 +45696,7 @@ void tps_capture_fault_data(char param_1,short param_2,short param_3)
   uint uVar3;
   
   if (DAT_40003fd2 == -0x5433) {
-    FUN_0005a18c();
+    tps_fault_capture_reset();
   }
   if (DAT_4000405c != -1) {
     DAT_4000405c = DAT_4000405c + 1;
@@ -55006,32 +55027,32 @@ void init_gear_cal(void)
   determine_vin_type();
   cod_decode_flags_and_validate();
   if ((COD_base.COD[0] >> 0x10 & 1) == 0) {
-    gear_lookup[0] = CAL_trans_gear_ratio_tour[0];
-    gear_lookup[1] = CAL_trans_gear_ratio_tour[1];
-    gear_lookup[2] = CAL_trans_gear_ratio_tour[2];
-    gear_lookup[3] = CAL_trans_gear_ratio_tour[3];
-    gear_lookup[4] = CAL_trans_gear_ratio_tour[4];
-    gear_lookup[5] = CAL_trans_gear_ratio_tour[5];
-    gear_lookup[6] = CAL_trans_gear_ratio_tour[6];
-    gear_lookup[7] = CAL_trans_gear_ratio_tour[7];
-    gear_lookup[8] = CAL_trans_gear_ratio_tour[8];
-    gear_lookup[9] = CAL_trans_gear_ratio_tour[9];
-    gear_lookup[10] = CAL_trans_gear_lookup_unknown2[0];
-    gear_lookup[0xb] = CAL_trans_gear_lookup_unknown2[1];
+    gear_lookup[0] = CAL_trans_gear_windows_long_ratio_1st_to_5th[0];
+    gear_lookup[1] = CAL_trans_gear_windows_long_ratio_1st_to_5th[1];
+    gear_lookup[2] = CAL_trans_gear_windows_long_ratio_1st_to_5th[2];
+    gear_lookup[3] = CAL_trans_gear_windows_long_ratio_1st_to_5th[3];
+    gear_lookup[4] = CAL_trans_gear_windows_long_ratio_1st_to_5th[4];
+    gear_lookup[5] = CAL_trans_gear_windows_long_ratio_1st_to_5th[5];
+    gear_lookup[6] = CAL_trans_gear_windows_long_ratio_1st_to_5th[6];
+    gear_lookup[7] = CAL_trans_gear_windows_long_ratio_1st_to_5th[7];
+    gear_lookup[8] = CAL_trans_gear_windows_long_ratio_1st_to_5th[8];
+    gear_lookup[9] = CAL_trans_gear_windows_long_ratio_1st_to_5th[9];
+    gear_lookup[10] = CAL_trans_gear_window_long_6th[0];
+    gear_lookup[0xb] = CAL_trans_gear_window_long_6th[1];
   }
   else {
-    gear_lookup[0] = CAL_trans_gear_ratio_sport[0];
-    gear_lookup[1] = CAL_trans_gear_ratio_sport[1];
-    gear_lookup[2] = CAL_trans_gear_ratio_sport[2];
-    gear_lookup[3] = CAL_trans_gear_ratio_sport[3];
-    gear_lookup[4] = CAL_trans_gear_ratio_sport[4];
-    gear_lookup[5] = CAL_trans_gear_ratio_sport[5];
-    gear_lookup[6] = CAL_trans_gear_ratio_sport[6];
-    gear_lookup[7] = CAL_trans_gear_ratio_sport[7];
-    gear_lookup[8] = CAL_trans_gear_ratio_sport[8];
-    gear_lookup[9] = CAL_trans_gear_ratio_sport[9];
-    gear_lookup[10] = CAL_trans_gear_ratio_sport[10];
-    gear_lookup[0xb] = CAL_trans_gear_ratio_sport[0xb];
+    gear_lookup[0] = CAL_trans_gear_windows_close_ratio[0];
+    gear_lookup[1] = CAL_trans_gear_windows_close_ratio[1];
+    gear_lookup[2] = CAL_trans_gear_windows_close_ratio[2];
+    gear_lookup[3] = CAL_trans_gear_windows_close_ratio[3];
+    gear_lookup[4] = CAL_trans_gear_windows_close_ratio[4];
+    gear_lookup[5] = CAL_trans_gear_windows_close_ratio[5];
+    gear_lookup[6] = CAL_trans_gear_windows_close_ratio[6];
+    gear_lookup[7] = CAL_trans_gear_windows_close_ratio[7];
+    gear_lookup[8] = CAL_trans_gear_windows_close_ratio[8];
+    gear_lookup[9] = CAL_trans_gear_windows_close_ratio[9];
+    gear_lookup[10] = CAL_trans_gear_windows_close_ratio[10];
+    gear_lookup[0xb] = CAL_trans_gear_windows_close_ratio[0xb];
   }
   obd_p101_config = CAL_obd_ii_P0101_manual;
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {

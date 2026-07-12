@@ -205,12 +205,12 @@
    </table>
    <description>Calibration: closedloop derivative gain table (val/255; 64-element array).</description>
   </table>
-  <table category="closedloop" endian="big" name="closedloop: engine run learn timer unknown" sizex="1" storageaddress="0x0232" storagetype="uint8" type="2D" userlevel="1">
+  <table category="closedloop" endian="big" name="closedloop: integral gain startup duration" sizex="1" storageaddress="0x0232" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Hours" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="hours"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>engine run learn timer unknown</data>
+    <data>integral gain startup duration</data>
    </table>
-   <description>Calibration: closedloop engine run learn timer (hours).</description>
+   <description>Duration after start for scaled-down closed-loop integral gain (hours).</description>
   </table>
   <table category="closedloop" endian="big" name="closedloop: entry delay power enrich" sizex="1" storageaddress="0x0234" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
@@ -421,8 +421,8 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: cluster fuel economy factory stepsize.</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: fuel level warning threshold" sizex="2" storageaddress="0x444C" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+  <table category="cluster" endian="big" name="cluster: fuel level warning threshold" sizex="2" storageaddress="0x444C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table name="" sizex="2" type="Static X Axis">
     <data>low</data>
     <data>high</data>
@@ -430,7 +430,7 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: cluster fuel level warning threshold (gal = val/10; 2-element array).</description>
   </table>
   <table category="cluster" endian="big" name="cluster: fuel level zero clip threshold" sizex="1" storageaddress="0x0194" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel level zero clip threshold</data>
    </table>
@@ -1050,10 +1050,10 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: driver performance mode intervention threshold (% = val/8).</description>
   </table>
-  <table category="dpm" endian="big" name="dpm: lr diff cornerning threshold" sizex="1" storageaddress="0x465C" storagetype="uint16" type="2D" userlevel="1">
+  <table category="dpm" endian="big" name="dpm: lr diff cornering threshold" sizex="1" storageaddress="0x465C" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>lr diff cornerning threshold</data>
+    <data>lr diff cornering threshold</data>
    </table>
    <description>Calibration: driver performance mode lr diff threshold (km/h = val/100).</description>
   </table>
@@ -1182,13 +1182,19 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: ECU engine breakin distance (km).</description>
   </table>
-  <table category="ecu" endian="big" name="ecu: engine running threshold unknown" sizex="2" storageaddress="0x012A" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="2" type="Static X Axis">
-    <data>high</data>
-    <data>low</data>
+  <table category="ecu" endian="big" name="ecu: engine running period max" sizex="1" storageaddress="0x012A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Microsecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="us"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>engine running period max</data>
    </table>
-   <description>Calibration: ECU engine running threshold (2-element array).</description>
+   <description>Engine-period threshold below which the engine is declared running.</description>
+  </table>
+  <table category="ecu" endian="big" name="ecu: engine stopped period min" sizex="1" storageaddress="0x012C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Microsecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="us"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>engine stopped period min</data>
+   </table>
+   <description>Engine-period threshold above which the engine is declared stopped.</description>
   </table>
   <table category="ecu" endian="big" name="ecu: engine speed decel hysteresis rpm" sizex="1" storageaddress="0x02D0" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x/4" fineincrement="10" format="0" to_byte="x*4" units="rpm"/>
@@ -1379,12 +1385,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: ECU wheelspeed update timer (ms = val*5).</description>
   </table>
-  <table category="emissions" endian="big" name="emissions: cat efficiency unknown1" sizex="8" storageaddress="0x5894" storagetype="uint8" type="2D" userlevel="1">
+  <table category="emissions" endian="big" name="emissions: cat monitor min maf accumulated" sizex="8" storageaddress="0x5894" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table endian="big" name="coolant temp" sizex="8" storageaddress="0x588C" storagetype="uint8" type="X Axis">
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
-   <description>Calibration: emissions cat efficiency unknown1 (8-element array).</description>
+   <description>Minimum accumulated-MAF-since-start threshold for catalyst monitoring; output uses 16-count MAF units.</description>
   </table>
   <table category="evap" endian="big" name="evap: commanded purge unknown" sizex="1" storageaddress="0x01A6" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
@@ -1506,22 +1512,22 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: fuel learn time step.</description>
   </table>
-  <table category="fuel" endian="big" name="fuel: level change threshold" sizex="1" storageaddress="0x0201" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+  <table category="fuel" endian="big" name="fuel: level change threshold" sizex="1" storageaddress="0x0201" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>level change threshold</data>
    </table>
    <description>Calibration: fuel level change threshold (gal = val/10).</description>
   </table>
-  <table category="fuel" endian="big" name="fuel: level debounce window high???" sizex="1" storageaddress="0x0041" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+  <table category="fuel" endian="big" name="fuel: level debounce window high" sizex="1" storageaddress="0x0041" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>level debounce window high???</data>
+    <data>level debounce window high</data>
    </table>
    <description>Calibration: fuel level debounce window high (gal = val/10).</description>
   </table>
   <table category="fuel" endian="big" name="fuel: level debounce window low" sizex="1" storageaddress="0x003F" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>level debounce window low</data>
    </table>
@@ -1587,8 +1593,8 @@ Unit is x / 4.83 mpg</description>
    <state data="01" name="Enabled"/>
    <description>Calibration: fuel pump integral enable (boolean flag).</description>
   </table>
-  <table category="fuel" endian="big" name="fuel: pump integral fuel level min" sizex="1" storageaddress="0x0324" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+  <table category="fuel" endian="big" name="fuel: pump integral fuel level min" sizex="1" storageaddress="0x0324" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>pump integral fuel level min</data>
    </table>
@@ -1656,6 +1662,13 @@ Unit is x / 4.83 mpg</description>
     <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    </table>
    <description>Calibration: idle air control proportional (16-element array).</description>
+  </table>
+  <table category="idle" endian="big" name="idle: airflow decay interval" sizex="5" storageaddress="0x06B5" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table endian="big" name="internal airflow divided by 10" sizex="5" storageaddress="0x06B0" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description>Interval between one-count idle-airflow decay steps, selected from an internal airflow coordinate.</description>
   </table>
   <table category="idle" endian="big" name="idle: airflow expected" sizex="16" storageaddress="0x1816" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -1799,12 +1812,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: idle compensation while moving (mg/s = val*100; 16-element array).</description>
   </table>
-  <table category="idle" endian="big" name="idle: error correction unknown" sizex="16" storageaddress="0x425E" storagetype="uint16" type="2D" userlevel="1">
+  <table category="idle" endian="big" name="idle: air control integral step" sizex="16" storageaddress="0x425E" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table endian="big" name="speed error" sizex="16" storageaddress="0x423E" storagetype="uint16" type="X Axis">
     <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    </table>
-   <description>Calibration: idle error correction (16-element array).</description>
+   <description>Signed step added to the idle-air integral accumulator as a function of speed error.</description>
   </table>
   <table category="idle" endian="big" name="idle: learn temp range" sizex="2" storageaddress="0x02BF" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
@@ -1900,7 +1913,7 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="ign" endian="big" name="ign: comp coldstart" sizex="8" storageaddress="0x06C2" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="(x/4)-10" fineincrement="0.25" format="0.00" to_byte="(x+10)*4" units="°"/>
-   <table endian="big" name="coolant temp" sizex="8" storageaddress="0x06B5" storagetype="uint8" type="X Axis">
+   <table endian="big" name="coolant temp" sizex="8" storageaddress="0x06BA" storagetype="uint8" type="X Axis">
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
    <description>Calibration: ignition compensation coldstart (° = val/4−10; 8-element array).</description>
@@ -1912,12 +1925,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: ignition compensation coolant engine stopped minimum (°C = val*5/8−40).</description>
   </table>
-  <table category="ign" endian="big" name="ign: comp coolant engine stopped min" sizex="1" storageaddress="0x004E" storagetype="uint8" type="2D" userlevel="1">
+  <table category="ign" endian="big" name="ign: comp coolant engine stopped max" sizex="1" storageaddress="0x004E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>comp coolant engine stopped min</data>
+    <data>comp coolant engine stopped max</data>
    </table>
-   <description>Calibration: ignition compensation coolant engine stopped minimum (°C = val*5/8−40).</description>
+   <description>Upper stopped-coolant-temperature bound for enabling the ignition startup compensation state.</description>
   </table>
   <table category="ign" endian="big" name="ign: comp coolant ips flags" sizex="16" storageaddress="0x408E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
@@ -2763,12 +2776,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: injector tip-in transient throttle response time (ms = val*5; 64-element array).</description>
   </table>
-  <table category="ips" endian="big" name="ips: torque reduction slow floor nm." sizex="1" storageaddress="0x02BD" storagetype="uint8" type="2D" userlevel="1">
+  <table category="ips" endian="big" name="ips: torque reduction slow floor nm" sizex="1" storageaddress="0x02BD" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="nm" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="Newton meter"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>torque reduction slow floor nm.</data>
+    <data>torque reduction slow floor nm</data>
    </table>
-   <description/>
+   <description>Minimum slow-channel torque request during IPS shift coordination (Nm).</description>
   </table>
   <table category="ips" endian="big" name="ips: torque reduction slow scale pct" sizex="1" storageaddress="0x02BC" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
@@ -3249,35 +3262,33 @@ Unit is x / 4.83 mpg</description>
 1: FlexCAN A logging
 2: FlexCAN C logging</description>
   </table>
-  <table category="maf" endian="big" name="maf: comp ips unknown" sizex="8" storageaddress="0x5280" storagetype="uint8" type="2D" userlevel="1">
+  <table category="emissions" endian="big" name="emissions: cat monitor bin enable ips" sizex="8" storageaddress="0x5280" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="MAF bin" sizex="8" type="Static X Axis">
+    <data>1</data>
+    <data>2</data>
+    <data>3</data>
+    <data>4</data>
+    <data>5</data>
+    <data>6</data>
+    <data>7</data>
+    <data>8</data>
    </table>
-   <description>Calibration: MAF compensation IPS (8-element array).</description>
+   <description>Per-MAF-bin catalyst-monitor enables for IPS; zero pre-marks the bin complete/disabled.</description>
   </table>
-  <table category="maf" endian="big" name="maf: comp manual unknown" sizex="8" storageaddress="0x58A4" storagetype="uint8" type="2D" userlevel="1">
+  <table category="emissions" endian="big" name="emissions: cat monitor bin enable manual" sizex="8" storageaddress="0x58A4" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="MAF bin" sizex="8" type="Static X Axis">
+    <data>1</data>
+    <data>2</data>
+    <data>3</data>
+    <data>4</data>
+    <data>5</data>
+    <data>6</data>
+    <data>7</data>
+    <data>8</data>
    </table>
-   <description>Calibration: MAF compensation manual (8-element array).</description>
+   <description>Per-MAF-bin catalyst-monitor enables for manual cars; zero pre-marks the bin complete/disabled.</description>
   </table>
   <table category="misfire" endian="big" name="misfire: base threshold ips" sizex="16" sizey="16" storageaddress="0x568C" storagetype="int16" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -6262,12 +6273,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: rev-limit flow proportional term (g).</description>
   </table>
-  <table category="revlimit" endian="big" name="revlimit: flow unknown2" sizex="1" storageaddress="0x0241" storagetype="uint8" type="2D" userlevel="1">
+  <table category="revlimit" endian="big" name="revlimit: flow integral limit" sizex="1" storageaddress="0x0241" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>flow unknown2</data>
+    <data>flow integral limit</data>
    </table>
-   <description>Calibration: rev-limit flow unknown2 (g).</description>
+   <description>Symmetric clamp for the rev-limit airflow integral contribution (internal flow units).</description>
   </table>
   <table category="revlimit" endian="big" name="revlimit: fuelcut hysteresis" sizex="1" storageaddress="0x01CC" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -6625,7 +6636,7 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: sensor evaporative purge pressure scaling.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: fuel level" sizex="8" storageaddress="0x272E" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
+   <scaling category="Gallon" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="gal"/>
    <table endian="big" name="voltage" sizex="8" storageaddress="0x271E" storagetype="uint16" type="X Axis">
     <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
@@ -7727,50 +7738,47 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: transmission fluid P2797 threshold (°C = val*5/8−40).</description>
   </table>
-  <table category="trans" endian="big" name="trans: gear lookup unknown2" sizex="2" storageaddress="0x01D0" storagetype="uint16" type="2D" userlevel="1">
+  <table category="trans" endian="big" name="trans: gear window long 6th" sizex="2" storageaddress="0x01D0" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="window" sizex="2" type="Static X Axis">
+    <data>lower</data>
+    <data>upper</data>
    </table>
-   <description>Calibration: transmission gear lookup unknown2 (2-element array).</description>
+   <description>Lower/upper engine-speed-to-road-speed window for 6th gear with the long-ratio gearbox.</description>
   </table>
-  <table category="trans" endian="big" name="trans: gear ratio sport" sizex="12" storageaddress="0x4516" storagetype="uint16" type="2D" userlevel="1">
+  <table category="trans" endian="big" name="trans: gear windows close ratio" sizex="12" storageaddress="0x4516" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="12" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <data>256</data>
-    <data>288</data>
-    <data>320</data>
-    <data>352</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="window" sizex="12" type="Static X Axis">
+    <data>1st lower</data>
+    <data>1st upper</data>
+    <data>2nd lower</data>
+    <data>2nd upper</data>
+    <data>3rd lower</data>
+    <data>3rd upper</data>
+    <data>4th lower</data>
+    <data>4th upper</data>
+    <data>5th lower</data>
+    <data>5th upper</data>
+    <data>6th lower</data>
+    <data>6th upper</data>
    </table>
-   <description>Calibration: transmission gear ratio sport (12-element array).</description>
+   <description>Lower/upper engine-speed-to-road-speed windows for gears 1-6 with the close-ratio gearbox.</description>
   </table>
-  <table category="trans" endian="big" name="trans: gear ratio tour" sizex="10" storageaddress="0x0134" storagetype="uint16" type="2D" userlevel="1">
+  <table category="trans" endian="big" name="trans: gear windows long ratio 1st to 5th" sizex="10" storageaddress="0x0134" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="10" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <data>256</data>
-    <data>288</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="window" sizex="10" type="Static X Axis">
+    <data>1st lower</data>
+    <data>1st upper</data>
+    <data>2nd lower</data>
+    <data>2nd upper</data>
+    <data>3rd lower</data>
+    <data>3rd upper</data>
+    <data>4th lower</data>
+    <data>4th upper</data>
+    <data>5th lower</data>
+    <data>5th upper</data>
    </table>
-   <description>Calibration: transmission gear ratio tour (10-element array).</description>
+   <description>Lower/upper engine-speed-to-road-speed windows for gears 1-5 with the long-ratio gearbox.</description>
   </table>
   <table category="trans" endian="big" name="trans: pump carspeed enable" sizex="2" storageaddress="0x4640" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>

@@ -82,6 +82,15 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			return new String [] {"low","high"};
 		if (n.equals("CAL_cluster_fuel_level_warning_threshold"))
 			return new String [] {"low","high"};
+		if (n.equals("CAL_trans_gear_window_long_6th"))
+			return new String [] {"lower","upper"};
+		if (n.equals("CAL_trans_gear_windows_long_ratio_1st_to_5th"))
+			return new String [] {"1st lower","1st upper","2nd lower","2nd upper","3rd lower","3rd upper","4th lower","4th upper","5th lower","5th upper"};
+		if (n.equals("CAL_trans_gear_windows_close_ratio"))
+			return new String [] {"1st lower","1st upper","2nd lower","2nd upper","3rd lower","3rd upper","4th lower","4th upper","5th lower","5th upper","6th lower","6th upper"};
+		if (n.equals("CAL_emissions_cat_monitor_bin_enable_ips") ||
+			n.equals("CAL_emissions_cat_monitor_bin_enable_manual"))
+			return new String [] {"MAF bin 1","MAF bin 2","MAF bin 3","MAF bin 4","MAF bin 5","MAF bin 6","MAF bin 7","MAF bin 8"};
 
 		if (n.equals("CAL_traction_slip_threshold_per_gear_ips")
 			|| n.equals("CAL_traction_slip_threshold_per_gear_manual"))
@@ -274,8 +283,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_volume_1+153cc","uint16","cc","x+153","x-153","0","10","50","Cubic centimeter"),
 		new DF("u8_volume_4cc","uint8","cc","x*4","x/4","0","4","40","Cubic centimeter"),
 		new DF("u8_volume_liter","uint8","l","x","x","0","1","10","Liter"),
-		new DF("u8_volume_1/10gallon","uint8","l","x","x","0","0.1","1","Gallon"),
-		new DF("u16_volume_1/10gallon","uint16","l","x","x","0","0.1","1","Gallon"),
+		new DF("u8_volume_1/10gallon","uint8","gal","x/10","x*10","0.0","0.1","1","Gallon"),
+		new DF("u16_volume_1/10gallon","uint16","gal","x/10","x*10","0.0","0.1","1","Gallon"),
 		new DF("u8_dt_factor_1/100/5ms","uint8","%/5ms","x","x","0","1","5","Percent/5ms"),
 		new DF("u8_dt_factor_1/1023/5ms","uint8","%/5ms","x*100/1023","x*1023/100","0.00","0.1","1","Percent/5ms"),
 		new DF("u16_ratio_rpm/kph","uint16","rpm/km/h","x","x","0","1","5","Gear Ratio"),

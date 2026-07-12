@@ -104,8 +104,9 @@ Counts below are CSV name-prefix counts; they measure named coverage, not correc
 - Fuel-pressure target `[rpm][load]`, feed-forward pump command, proportional and integral terms.
 - MAF voltage scaling and Alpha-N/load/VE maps.
 
-The primary dual-MAF charge expression is restored. The later density-normalized MAF coordinate used
-for torque-to-TPS learning remains unresolved and should not be exposed.
+The primary dual-MAF charge expression and later density-normalized torque-to-TPS coordinate are
+both recovered from raw instructions. The coordinate saturates measured charge at 1380 mg/stroke,
+normalizes it by selected air density, and maps 0..1173 mg/stroke to 0..255.
 
 ### Ignition and knock
 
@@ -246,21 +247,20 @@ as controller conditioning, not trim-learning enable time.
 
 ## Prioritized next work
 
-1. **Establish binary/flash mapping and integrity.** Obtain the exact GT430 image, map runtime CAL
-   addresses to flash, identify all checksum/signature regions, and prove a no-change round trip.
+1. **Complete flash-path verification.** The stock CPT now proves the `CAL_base`-relative mapping and
+   CRC-16/ARC calibration CVN. Identify any integrity layer outside the CAL block and prove a
+   no-change flash read/write round trip.
 2. **Generate a read-only draft definition.** Export Tier-A entries keyed by address, reject duplicate
    names/overlaps, and include encoded formulas plus source/confidence metadata.
-3. **Validate against stock values.** Check monotonic axes, table dimensions, plausible physical
-   ranges and manual/IPS coding selection using the actual binary.
+3. **Continue stock-value validation.** Both CPTs now pass bounds, overlap and monotonic-axis checks;
+   validate physical ranges and manual/IPS coding selection with logs and the separate COD image.
 4. **Resolve safety-critical duplicates.** O2 thresholds, severe-misfire limits and any overlapping
    CAL labels must be address-specific before editable release.
 5. **Complete coupled torque/load/TPS definitions.** Validate logged requested torque, selected
    charge, throttle limit and actual TPS before treating pedal/throttle maps independently.
-6. **Recover the lost MAF density coordinate.** Use raw GT430 instructions/p-code, not constants
-   copied from another firmware.
-7. **Type idle and accessory feed-forward blocks.** Focus on IPS airflow, VVT airflow, AC, radiator
+6. **Type idle and accessory feed-forward blocks.** Focus on IPS airflow, VVT airflow, AC, radiator
    and engine-bay loads, using logs to confirm units.
-8. **Keep compliance/protection groups read-only.** Emissions, misfire catalyst-damage and diagnostic
+7. **Keep compliance/protection groups read-only.** Emissions, misfire catalyst-damage and diagnostic
    confirmation calibrations should remain locked unless the project explicitly undertakes a
    validation/compliance program.
 
@@ -283,10 +283,12 @@ emissions tables should not be exposed merely because their addresses are known.
 - Medium-high: subsystem readiness ranking and internal-factor Tier-B classification.
 - Medium: exact physical scale of several raw factor outputs and boundaries of generic late-region
   calibration blocks.
-- Not established: flash offsets, integrity algorithms, binary round-trip, writable block format or
-  safe modified-image programming.
+- Newly established from the stock CPT: exact `CAL_base` mapping, original values and CRC-16/ARC
+  calibration CVN (`0x3378`).
+- Not established: integrity outside the CAL block, binary flash round-trip, writable block format
+  or safe modified-image programming.
 
 This final audit reaches diminishing returns for the decompiler/CSV alone. Additional broad symbol
 renaming would improve apparent coverage without materially improving safe tuning readiness. The
-next step with the highest marginal value is no longer another C-reading pass: it is exact binary
-mapping, integrity verification, address-keyed definition generation, and log-backed validation.
+next step with the highest marginal value is no longer another C-reading pass: it is flash-path
+round-trip verification, address-keyed definition generation, and log-backed validation.
