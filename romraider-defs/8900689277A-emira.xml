@@ -1,0 +1,1219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<roms>
+ <rom>
+  <romid>
+   <xmlid>T6-EMIRA-V6-8900689277A</xmlid>
+   <market>ROW</market>
+   <make>Lotus</make>
+   <model>Emira V6</model>
+   <submodel>2023</submodel>
+   <transmission>MT/IPS</transmission>
+   <filesize>64kb</filesize>
+   <memmodel>MPC5777C</memmodel>
+   <flashmethod>CRP</flashmethod>
+   <internalidaddress>0x59D4</internalidaddress>
+   <internalidstring>LOTUS EMIRA V6 ROW </internalidstring>
+   <noRamOffset>1</noRamOffset>
+  </romid>
+
+  <!-- ===== TORQUE MANAGEMENT ===== -->
+
+  <table category="torque" endian="big" name="torque: spark authority threshold manual" sizex="8" sizey="8"
+         storageaddress="0x5158" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x5138" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="requested torque" sizey="8" storageaddress="0x5148" storagetype="uint16" type="Y Axis">
+    <scaling category="Torque (Nm)" coarseincrement="20" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="Nm"/>
+   </table>
+   <description>Spark retard budget before cylinder cut. RPM x requested torque. Internal ECU units (retard accumulator domain). Lower values = cylinder cuts engage sooner (more aggressive protection). Higher values = more spark retard allowed before cutting. The steep drop with RPM means cuts happen faster at high RPM where spark retard is less effective.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: spark retard budget IPS" sizex="8" sizey="8"
+         storageaddress="0x51F8" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x51D8" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="requested torque" sizey="8" storageaddress="0x51E8" storagetype="uint16" type="Y Axis">
+    <scaling category="Torque (Nm)" coarseincrement="20" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="Nm"/>
+   </table>
+   <description>Spark retard budget before cylinder cut — IPS variant. Same internal units as manual.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: limit factor manual" sizex="16" sizey="16"
+         storageaddress="0x53FC" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x53BC" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="load (mg/stroke)" sizey="16" storageaddress="0x53DC" storagetype="uint16" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="10"
+             format="0" to_byte="x" units="mg/stroke"/>
+   </table>
+   <description>Torque AND load limit factor (RPM x load) — manual. Stored as (signed_val XOR 0x8000). Effective = (raw ^ 0x8000) / 100, multiplied with coolant limit. This is the primary load-limiting table — higher values = more reduction at that RPM/load cell.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: limit factor IPS" sizex="16" sizey="16"
+         storageaddress="0x568C" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x564C" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="load (mg/stroke)" sizey="16" storageaddress="0x566C" storagetype="uint16" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="10"
+             format="0" to_byte="x" units="mg/stroke"/>
+   </table>
+   <description>Torque AND load limit factor (RPM x load) — IPS. Same encoding as manual variant.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: reduction scaler manual" sizex="4" sizey="5"
+         storageaddress="0x4F5E" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine load (u8)" sizex="4" storageaddress="0x4F4C" storagetype="uint16" type="X Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <table endian="big" name="torque input" sizey="5" storageaddress="0x4F54" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Torque reduction scaler — manual. Load x torque input → multiplier applied to the 16×16 limit factor table output. Effective multiplier = raw / 100 (0.6× to 10×). Higher values = more torque reduction. Primary purpose: scales spark retard magnitude by engine load.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: reduction scaler IPS" sizex="4" sizey="5"
+         storageaddress="0x4F98" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine load (8-bit)" sizex="4" storageaddress="0x4F86" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="torque input" sizey="5" storageaddress="0x4F8E" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="50" expression="x" fineincrement="10"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Torque reduction scaler — IPS. Same function as manual variant.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: torque to load" sizex="16" sizey="16"
+         storageaddress="0x3036" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="mg/stroke"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x2FF6" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="torque" sizey="16" storageaddress="0x3016" storagetype="uint16" type="Y Axis">
+    <scaling category="Torque (Nm)" coarseincrement="20" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="Nm"/>
+   </table>
+   <description>Torque-to-load conversion (Nm → mg/stroke). Indexed by RPM x requested torque. Data = cylinder air mass required.</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: temp compensation" sizex="8"
+         storageaddress="0x5390" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Factor" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="coolant temp" sizex="8" storageaddress="0x5388" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="°C"/>
+   </table>
+   <description>Torque limit temperature compensation</description>
+  </table>
+
+  <!-- ===== REV LIMITER ===== -->
+
+  <table category="revlimit" endian="big" name="revlimit: speedbase manual tour" sizex="4" sizey="4"
+         storageaddress="0x232E" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="4" storageaddress="0x231E" storagetype="uint16" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="°C"/>
+   </table>
+   <table endian="big" name="timer" sizey="4" storageaddress="0x2326" storagetype="uint16" type="Y Axis">
+    <scaling category="Time" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Base rev limit (manual, tour mode) — coolant temp x time from start</description>
+  </table>
+
+  <table category="revlimit" endian="big" name="revlimit: speedbase manual sport" sizex="4" sizey="4"
+         storageaddress="0x39D6" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="4" storageaddress="0x39C6" storagetype="uint16" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="°C"/>
+   </table>
+   <table endian="big" name="timer" sizey="4" storageaddress="0x39CE" storagetype="uint16" type="Y Axis">
+    <scaling category="Time" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Base rev limit (manual, sport mode)</description>
+  </table>
+
+  <table category="revlimit" endian="big" name="revlimit: speedbase IPS tour" sizex="4" sizey="4"
+         storageaddress="0x3A06" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="4" storageaddress="0x39F6" storagetype="uint16" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="°C"/>
+   </table>
+   <table endian="big" name="timer" sizey="4" storageaddress="0x39FE" storagetype="uint16" type="Y Axis">
+    <scaling category="Time" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Base rev limit (IPS, tour mode)</description>
+  </table>
+
+  <table category="revlimit" endian="big" name="revlimit: speedbase IPS sport" sizex="4" sizey="4"
+         storageaddress="0x3A36" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="4" storageaddress="0x3A26" storagetype="uint16" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="°C"/>
+   </table>
+   <table endian="big" name="timer" sizey="4" storageaddress="0x3A2E" storagetype="uint16" type="Y Axis">
+    <scaling category="Time" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Base rev limit (IPS, sport mode)</description>
+  </table>
+
+  <table category="revlimit" endian="big" name="revlimit: trim per gear" sizex="7"
+         storageaddress="0x2745" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="50" expression="x*2" fineincrement="1"
+            format="0" to_byte="x/2" units="rpm"/>
+   <table endian="big" name="gear" sizex="7" storageaddress="0x273E" storagetype="uint8" type="X Axis">
+    <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="gear"/>
+   </table>
+   <description>Rev limit trim per gear (added to base)</description>
+  </table>
+
+  <table category="revlimit" endian="big" name="revlimit: cold start RPM envelope" sizex="4"
+         storageaddress="0x3A5E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="index" sizex="4" storageaddress="0x3A56" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Cold start rev limit envelope</description>
+  </table>
+
+  <!-- ===== FUEL / LAMBDA ===== -->
+
+  <table category="fuel" endian="big" name="fuel: lambda trim (base)" sizex="8" sizey="8"
+         storageaddress="0x0E86" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="throttle/load" sizex="8" storageaddress="0x0E66" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="engine speed" sizey="8" storageaddress="0x0E76" storagetype="uint16" type="Y Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25"
+             format="0" to_byte="x/25" units="rpm"/>
+   </table>
+   <description>Lambda trim — subtracted from commanded lambda when O2 feedback active. Throttle/load x RPM/25. Raw u16, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: lambda trim (alt)" sizex="8" sizey="8"
+         storageaddress="0x4EBC" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="throttle/load" sizex="8" storageaddress="0x4E9C" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="engine speed" sizey="8" storageaddress="0x4EAC" storagetype="uint16" type="Y Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25"
+             format="0" to_byte="x/25" units="rpm"/>
+   </table>
+   <description>Lambda trim alternate — used for bank 2 when O2 feedback active</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: warmup enrichment base" sizex="12" sizey="12"
+         storageaddress="0x2DEA" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="coolant temp" sizex="12" storageaddress="0x2DB6" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="time from start" sizey="12" storageaddress="0x2DCA" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Warmup/cold-start enrichment (coolant x time). Raw u16, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: warmup enrichment manual" sizex="12" sizey="12"
+         storageaddress="0x7F94" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="coolant temp" sizex="12" storageaddress="0x7F4C" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="time from start" sizey="12" storageaddress="0x7F60" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Warmup enrichment (manual transmission). Raw u16, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: warmup enrichment IPS" sizex="12" sizey="12"
+         storageaddress="0x821C" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="coolant temp" sizex="12" storageaddress="0x81D4" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="time from start" sizey="12" storageaddress="0x81E8" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Warmup enrichment (IPS transmission). Raw u16, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: coolant enrichment manual" sizex="16"
+         storageaddress="0x18C6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="load" sizex="16" storageaddress="0x18B6" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Coolant temperature enrichment factor (manual). Raw u8, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: coolant enrichment IPS" sizex="16"
+         storageaddress="0x52A8" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="load" sizex="16" storageaddress="0x5298" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Coolant temperature enrichment factor (IPS). Raw u8, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: power enrichment" sizex="4"
+         storageaddress="0x0ABA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="load index" sizex="4" storageaddress="0x0AB6" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Power enrichment factor at high load. Raw u8, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: lambda modifier by RPM" sizex="8"
+         storageaddress="0x0F5E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="RPM axis" sizex="8" storageaddress="0x0F56" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Lambda modifier by RPM. Raw u8, scaling TBD.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: transient enrichment" sizex="8" sizey="8"
+         storageaddress="0x0F16" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x0F06" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="throttle delta axis" sizey="8" storageaddress="0x0F0E" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Tip-in/tip-out transient enrichment. Raw u8, scaling TBD.</description>
+  </table>
+
+  <!-- ===== POWER ENRICHMENT ===== -->
+
+  <table category="fuel" endian="big" name="fuel: power enrich factor" sizex="4"
+         storageaddress="0x0ABA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="%"/>
+   <table endian="big" name="load index" sizex="4" storageaddress="0x0AB6" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Power enrichment factor. Multiplies enrichment by x/100 (100% = no extra, 125% = +25%). Active only in gears 1-4 (cal 0x73). Axis = load-derived index.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: enrichment by RPM" sizex="8"
+         storageaddress="0x0F5E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x0F56" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x*10" fineincrement="10"
+             format="0" to_byte="x/10" units="rpm"/>
+   </table>
+   <description>Lambda enrichment target by engine speed (RPM/10). Raw u8 values feed into enrichment accumulation formula.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: enrichment modifier" sizex="8"
+         storageaddress="0x0F6E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="2" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x0F66" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x*10" fineincrement="10"
+             format="0" to_byte="x/10" units="rpm"/>
+   </table>
+   <description>Lambda enrichment modifier — blending weight for enrichment filter. Indexed by engine speed (RPM/10).</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: enrichment magnitude by RPM" sizex="8"
+         storageaddress="0x5B24" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x5B14" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <description>Lambda enrichment magnitude by RPM. Higher values = more enrichment at that RPM.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: lambda correction factor" sizex="8"
+         storageaddress="0x2716" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="factor index" sizex="8" storageaddress="0x270E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Lambda correction factor. 127=no correction, below 127=leaner, above 127=richer.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: bank A enrichment" sizex="8" sizey="8"
+         storageaddress="0x0A26" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine load" sizex="8" storageaddress="0x0A16" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="torque input" sizey="8" storageaddress="0x0A1E" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Bank A lambda enrichment (load x torque). 128 = stoich/no enrichment. Values 127-152: 127 = lean, 152 = +19% enrichment.</description>
+  </table>
+
+  <table category="fuel" endian="big" name="fuel: bank B enrichment" sizex="8" sizey="8"
+         storageaddress="0x0A76" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine load" sizex="8" storageaddress="0x0A66" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <table endian="big" name="torque input" sizey="8" storageaddress="0x0A6E" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Bank B lambda enrichment (load x torque). 128 = stoich. Values 127-140: narrower range than Bank A.</description>
+  </table>
+
+  <!-- ===== IGNITION TIMING ===== -->
+
+  <!-- Primary ignition maps (20x20 u8, RPM x load, u8_angle_1/4-10deg) -->
+
+  <table category="ignition" endian="big" name="ignition: base timing manual" sizex="20" sizey="20"
+         storageaddress="0x1D86" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="20" storageaddress="0x1D5E" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="20" storageaddress="0x1D72" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Base ignition timing — manual transmission. Type: u8_angle_1/4-10deg (RPM x load)</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: base timing IPS" sizex="20" sizey="20"
+         storageaddress="0x49C8" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="20" storageaddress="0x49A0" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="20" storageaddress="0x49B4" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Base ignition timing — IPS transmission. Type: u8_angle_1/4-10deg (RPM x load)</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: knock safe" sizex="20" sizey="20"
+         storageaddress="0x1A16" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="20" storageaddress="0x19EE" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="20" storageaddress="0x1A02" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Knock-safe / low-octane timing (floor). Type: u8_angle_1/4-10deg (RPM x load). More retarded — min -10.0 deg.</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: MBT modeled" sizex="20" sizey="20"
+         storageaddress="0x3C66" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="20" storageaddress="0x3C3E" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="20" storageaddress="0x3C52" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>MBT (Maximum Brake Torque) modeled timing (ceiling). Type: u8_angle_1/4-10deg (RPM x load). More advanced — min 3.5 deg.</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: minimum timing" sizex="16" sizey="16"
+         storageaddress="0x3376" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-20" fineincrement="0.25"
+            format="0.00" to_byte="(x+20)*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x3356" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="16" storageaddress="0x3366" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Absolute minimum ignition timing. Type: u8_angle_1/4-20deg (RPM x load). Hard floor — timing is never retarded past this map, regardless of knock or torque reduction.</description>
+  </table>
+
+  <!-- Ignition compensations and modifiers -->
+
+  <table category="ignition" endian="big" name="ignition: integrator rate A" sizex="8"
+         storageaddress="0x041E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="error" sizex="8" storageaddress="0x0416" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Ignition timing integrator rate A — degrees per step vs error</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: integrator rate B" sizex="8"
+         storageaddress="0x042E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="error" sizex="8" storageaddress="0x0426" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Ignition timing integrator rate B</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: integrator limit" sizex="8"
+         storageaddress="0x23E6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x23DE" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <description>Ignition timing integrator authority limit by RPM (angle = raw/4 - 10°)</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: idle advance" sizex="16"
+         storageaddress="0x074C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x073C" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle ignition advance vs coolant temperature (type: u8_angle_1/4-10deg)</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: idle advance alt" sizex="16"
+         storageaddress="0x0CB6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x0CA6" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle ignition advance alternate map</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: idle advance IPS" sizex="16"
+         storageaddress="0x6BAA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x6B9A" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle ignition advance for IPS transmission</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: idle advance IPS alt" sizex="16"
+         storageaddress="0x6BCA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-10" fineincrement="0.25"
+            format="0.00" to_byte="(x+10)*4" units="deg"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x6BBA" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle ignition advance for IPS alternate</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: coolant compensation A" sizex="16"
+         storageaddress="0x0C96" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-32" fineincrement="0.25"
+            format="0.00" to_byte="(x+32)*4" units="deg"/>
+   <table endian="big" name="load" sizex="16" storageaddress="0x0C86" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Coolant temperature ignition compensation A (type: u8_angle_1/4-32deg)</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: coolant compensation B" sizex="16"
+         storageaddress="0x39B6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-32" fineincrement="0.25"
+            format="0.00" to_byte="(x+32)*4" units="deg"/>
+   <table endian="big" name="load" sizex="16" storageaddress="0x39A6" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Coolant temperature ignition compensation B</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: coolant compensation C" sizex="16"
+         storageaddress="0x406E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-32" fineincrement="0.25"
+            format="0.00" to_byte="(x+32)*4" units="deg"/>
+   <table endian="big" name="load" sizex="16" storageaddress="0x405E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Coolant temperature ignition compensation C</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: coolant compensation D" sizex="16"
+         storageaddress="0x408E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4-32" fineincrement="0.25"
+            format="0.00" to_byte="(x+32)*4" units="deg"/>
+   <table endian="big" name="load" sizex="16" storageaddress="0x407E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Coolant temperature ignition compensation D</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: comp TPS" sizex="8"
+         storageaddress="0x06C2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="TPS index" sizex="8" storageaddress="0x06BA" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>TPS-based ignition compensation</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: comp RPM" sizex="8"
+         storageaddress="0x169A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x1692" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <description>RPM-based ignition compensation</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: comp spark" sizex="6"
+         storageaddress="0x0C20" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="index" sizex="6" storageaddress="0x0C1A" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Spark advance component</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: knock retard step" sizex="8"
+         storageaddress="0x2B06" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="0.5" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="knock intensity" sizex="8" storageaddress="0x2AFE" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Knock retard step — degrees of retard applied per knock event</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: knock retard decay" sizex="8"
+         storageaddress="0x2B16" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="0.5" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="RPM" sizex="8" storageaddress="0x2B0E" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <description>Knock retard decay rate — degrees recovered per cycle vs RPM</description>
+  </table>
+
+  <table category="ignition" endian="big" name="ignition: knock retard decay alt" sizex="8"
+         storageaddress="0x2B26" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="0.5" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="RPM" sizex="8" storageaddress="0x2B1E" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <description>Knock retard decay alternate — degrees recovered per cycle vs RPM</description>
+  </table>
+
+  <!-- ===== VVT CONTROL ===== -->
+
+  <table category="vvt" endian="big" name="vvt: intake target" sizex="16" sizey="16"
+         storageaddress="0x0846" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x0826" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="16" storageaddress="0x0836" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Intake VVT target angle (RPM x load). Max 43° advance. Narrower sport map at 0x40AA.</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: intake target sport" sizex="6" sizey="6"
+         storageaddress="0x40AA" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="6" storageaddress="0x409E" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="6" storageaddress="0x40A4" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Intake VVT target — sport/active mode (smaller map, more aggressive)</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: exhaust target" sizex="16" sizey="16"
+         storageaddress="0x1446" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x1426" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="16" storageaddress="0x1436" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Exhaust VVT target angle (RPM x load). Narrower sport map at 0x4122.</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: exhaust target sport" sizex="6" sizey="6"
+         storageaddress="0x4122" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="6" storageaddress="0x4116" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="6" storageaddress="0x411C" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Exhaust VVT target — sport/active mode (smaller map, more aggressive)</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: intake coolant trim" sizex="16"
+         storageaddress="0x0956" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="0.5" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x0946" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Intake VVT angle trim by coolant temperature — subtracted from target when cold</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: exhaust coolant trim" sizex="16"
+         storageaddress="0x4046" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Angle" coarseincrement="0.5" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x4036" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Exhaust VVT angle trim by coolant temperature</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: load compensation manual" sizex="8"
+         storageaddress="0x16AA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x16A2" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>VVT load-based compensation (manual transmission)</description>
+  </table>
+
+  <table category="vvt" endian="big" name="vvt: load compensation IPS" sizex="8"
+         storageaddress="0x23C6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x23BE" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>VVT load-based compensation (IPS transmission)</description>
+  </table>
+
+  <!-- ===== KNOCK DETECTION ===== -->
+
+  <table category="knock" endian="big" name="knock: window start angle" sizex="16" sizey="16"
+         storageaddress="0x240E" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x23EE" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="16" storageaddress="0x23FE" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Knock detection window start angle (degrees ATDC) by RPM x load</description>
+  </table>
+
+  <table category="knock" endian="big" name="knock: window length" sizex="16" sizey="16"
+         storageaddress="0x252E" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Angle" coarseincrement="1" expression="x/4" fineincrement="0.25"
+            format="0.00" to_byte="x*4" units="deg"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x250E" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="16" storageaddress="0x251E" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4"
+             format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Knock detection window length (crank degrees) by RPM x load. Clamped to 0x40-0x80 (16-32 deg)</description>
+  </table>
+
+  <!-- ===== PEDAL MAP (Accel Pedal → Torque Request) ===== -->
+
+  <table category="pedal" endian="big" name="pedal: map manual base" sizex="16"
+         storageaddress="0x5BF4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/1024" fineincrement="1"
+            format="0.0" to_byte="x*1024/100" units="% demand"/>
+   <table endian="big" name="pedal position" sizex="16" storageaddress="0x5BD4" storagetype="uint16" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/1009" fineincrement="1"
+             format="0.0" to_byte="x*1009/100" units="% pedal"/>
+   </table>
+   <description>Driver demand map — manual base. Translates physical pedal % to driver demand %. No RPM axis: 100% demand = 100% of available torque at current RPM (resolved downstream via torque model).</description>
+  </table>
+
+  <table category="pedal" endian="big" name="pedal: map manual sport" sizex="16"
+         storageaddress="0x6468" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/1024" fineincrement="1"
+            format="0.0" to_byte="x*1024/100" units="% demand"/>
+   <table endian="big" name="pedal position" sizex="16" storageaddress="0x6448" storagetype="uint16" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/1009" fineincrement="1"
+             format="0.0" to_byte="x*1009/100" units="% pedal"/>
+   </table>
+   <description>Driver demand map — manual sport. More aggressive translation curve.</description>
+  </table>
+
+  <table category="pedal" endian="big" name="pedal: map IPS base" sizex="16"
+         storageaddress="0x64A8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/1024" fineincrement="1"
+            format="0.0" to_byte="x*1024/100" units="% demand"/>
+   <table endian="big" name="pedal position" sizex="16" storageaddress="0x6488" storagetype="uint16" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/1009" fineincrement="1"
+             format="0.0" to_byte="x*1009/100" units="% pedal"/>
+   </table>
+   <description>Driver demand map — IPS base.</description>
+  </table>
+
+  <table category="pedal" endian="big" name="pedal: map IPS sport" sizex="16"
+         storageaddress="0x6428" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/1024" fineincrement="1"
+            format="0.0" to_byte="x*1024/100" units="% demand"/>
+   <table endian="big" name="pedal position" sizex="16" storageaddress="0x6408" storagetype="uint16" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/1009" fineincrement="1"
+             format="0.0" to_byte="x*1009/100" units="% pedal"/>
+   </table>
+   <description>Driver demand map — IPS sport.</description>
+  </table>
+
+  <!-- ===== ECU UNLOCK ===== -->
+
+  <table category="ecu" name="ecu: unlock byte 0" sizey="1" storageaddress="0x00E2" type="Switch" userlevel="1">
+   <state data="00" name="Locked (0x00)"/>
+   <state data="0D" name="Unlock (0x0D)"/>
+   <description>ECU unlock magic byte 0 — set to 0x0D as part of 4-byte unlock sequence</description>
+  </table>
+
+  <table category="ecu" name="ecu: unlock byte 1" sizey="1" storageaddress="0x0218" type="Switch" userlevel="1">
+   <state data="00" name="Locked (0x00)"/>
+   <state data="B8" name="Unlock (0xB8)"/>
+   <description>ECU unlock magic byte 1 — set to 0xB8 as part of 4-byte unlock sequence</description>
+  </table>
+
+  <table category="ecu" name="ecu: unlock byte 2" sizey="1" storageaddress="0x0290" type="Switch" userlevel="1">
+   <state data="00" name="Locked (0x00)"/>
+   <state data="45" name="Unlock (0x45)"/>
+   <description>ECU unlock magic byte 2 — set to 0x45 as part of 4-byte unlock sequence</description>
+  </table>
+
+  <table category="ecu" name="ecu: unlock byte 3" sizey="1" storageaddress="0x0337" type="Switch" userlevel="1">
+   <state data="00" name="Locked (0x00)"/>
+   <state data="D4" name="Unlock (0xD4)"/>
+   <description>ECU unlock magic byte 3 — set to 0xD4 as part of 4-byte unlock sequence</description>
+  </table>
+
+  <table category="ecu" endian="big" name="ecu: CVN" sizex="1" storageaddress="0xFFFE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="1" expression="x" fineincrement="1"
+            format="0x%04X" to_byte="x" units="hex"/>
+   <table name="CVN" sizex="1" type="Static X Axis">
+    <data>CVN</data>
+   </table>
+   <description>Calibration Verification Number (CRC-16 of cal data from 0x20 to end). Must match computed CRC or fault flag is set.</description>
+  </table>
+
+  <table category="ecu" endian="big" name="ecu: ROM ID" sizex="30" storageaddress="0x59D4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="String" coarseincrement="1" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="ASCII"/>
+   <table name="ROM ID" sizex="30" type="Static X Axis">
+    <data>ROM ID</data>
+   </table>
+   <description>ROM identification string reported via OBD-II Mode $09 (space-padded ASCII)</description>
+  </table>
+
+  <!-- ===== FUEL PRESSURE ===== -->
+
+  <table category="fuel" endian="big" name="fuel: pressure target" sizex="8" sizey="5"
+         storageaddress="0x6150" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="100" expression="x*50" fineincrement="50"
+            format="0" to_byte="x/50" units="mbar"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x6178" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32"
+             format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="5" storageaddress="0x6180" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="10" expression="x*4" fineincrement="4"
+             format="0" to_byte="x/4" units="mg/stroke"/>
+   </table>
+   <description>Fuel rail pressure target (mbar). 8 RPM x 5 load. 70 = 3500 mbar, 84 = 4200 mbar. u8_pressure_50mbar. Y axis = first 5 of 8 entries at 0x6180.</description>
+  </table>
+
+  <table category="cooling" endian="big" name="cooling: PWM duty cycle" sizex="8"
+         storageaddress="0x5290" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="temperature index" sizex="8" storageaddress="0x5288" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="5" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Cooling fan/PWM duty cycle by temperature index</description>
+  </table>
+
+  <!-- ===== IDLE SPEED CONTROL ===== -->
+
+  <table category="idle" endian="big" name="idle: target RPM base" sizex="8" sizey="8"
+         storageaddress="0x0396" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="RPM" coarseincrement="50" expression="x" fineincrement="10"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="RPM axis" sizex="8" storageaddress="0x0376" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="50"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="load axis" sizey="8" storageaddress="0x0386" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="20" expression="x" fineincrement="10"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Base idle target RPM (RPM x load)</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: target correction" sizex="8"
+         storageaddress="0x036A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="25" expression="x*4" fineincrement="4"
+            format="0" to_byte="x/4" units="rpm"/>
+   <table endian="big" name="index" sizex="8" storageaddress="0x0362" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="2" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="raw"/>
+   </table>
+   <description>Idle target RPM correction factor</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: target RPM by coolant A" sizex="16"
+         storageaddress="0x0B7E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="50" expression="x*10" fineincrement="10"
+            format="0" to_byte="x/10" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x0B6E" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle RPM target by coolant temperature (variant A)</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: target RPM by coolant B" sizex="16"
+         storageaddress="0x13F6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="50" expression="x*10" fineincrement="10"
+            format="0" to_byte="x/10" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x13E6" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle RPM target by coolant temperature (variant B)</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: target RPM by coolant C" sizex="16"
+         storageaddress="0x278E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="50" expression="x*10" fineincrement="10"
+            format="0" to_byte="x/10" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x277E" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle RPM target by coolant temperature (variant C)</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: target RPM by coolant D" sizex="16"
+         storageaddress="0x3486" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="50" expression="x*10" fineincrement="10"
+            format="0" to_byte="x/10" units="rpm"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x3476" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Idle RPM target by coolant temperature (variant D)</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: RPM target curve" sizex="8"
+         storageaddress="0x0DD6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="20" expression="32768-x" fineincrement="5"
+            format="0" to_byte="32768-x" units="rpm delta"/>
+   <table endian="big" name="engine speed" sizex="8" storageaddress="0x0DC6" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <description>Idle RPM target delta (32768-x encoding). Decreases from 180 RPM at 600 RPM to 0 at 1000 RPM — reduces idle correction as RPM rises.</description>
+  </table>
+
+  <table category="idle" endian="big" name="idle: vehicle speed compensation" sizex="8"
+         storageaddress="0x22FE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="25" expression="x" fineincrement="5"
+            format="0" to_byte="x" units="rpm"/>
+   <table endian="big" name="vehicle speed" sizex="8" storageaddress="0x22EE" storagetype="uint16" type="X Axis">
+    <scaling category="km/h" coarseincrement="20" expression="x" fineincrement="5"
+             format="0" to_byte="x" units="km/h"/>
+   </table>
+   <description>Idle RPM compensation by vehicle speed</description>
+  </table>
+
+  <table category="torque" endian="big" name="torque: load to torque" sizex="16" sizey="16"
+         storageaddress="0x47A0" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Torque (Nm)" coarseincrement="10" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="Nm"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x4760" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="16" storageaddress="0x4780" storagetype="uint16" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="4"
+             format="0.0" to_byte="x" units="mg/stroke"/>
+   </table>
+   <description>Load-to-torque conversion (mg/stroke -> Nm). Indexed by RPM x cylinder load. Output = estimated engine torque in Nm. Inverse of torque-to-load table. Peak 650 Nm at 1173 mg/stroke x 6800 RPM.</description>
+  </table>
+
+  <!-- ===== LOAD LIMIT (RPM x Torque Margin) ===== -->
+
+  <table category="torque" endian="big" name="torque: max load by RPM x torque margin" sizex="12" sizey="8"
+         storageaddress="0x8484" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="5"
+            format="0" to_byte="x" units="mg/stroke"/>
+   <table endian="big" name="engine speed" sizex="12" storageaddress="0x845C" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <table endian="big" name="torque margin" sizey="8" storageaddress="0x8474" storagetype="int16" type="Y Axis">
+    <scaling category="Torque (Nm)" coarseincrement="8" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="Nm"/>
+   </table>
+   <description>MAXIMUM ENGINE LOAD (mg/stroke) by RPM x torque margin. Caps the torque-to-load conversion output — limits cylinder air mass. 780-1070 mg/stroke. INCREASE to allow more airflow/power. This is the primary load ceiling.</description>
+  </table>
+
+  <!-- ===== DRIVE MODE ===== -->
+
+  <table category="drivemode" endian="big" name="drivemode: CAN mapping to internal mode" sizex="4"
+         storageaddress="0x0714" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="1" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="mode"/>
+   <table name="CAN index" sizex="4" type="Static X Axis">
+    <data>0</data>
+    <data>1</data>
+    <data>2</data>
+    <data>3</data>
+   </table>
+   <description>Drive mode CAN button index → internal mode (0=Tour, 1=Sport, 2=Track)</description>
+  </table>
+
+  <table category="drivemode" endian="big" name="drivemode: throttle response gain" sizex="8"
+         storageaddress="0x42A6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x*10" fineincrement="1"
+            format="0" to_byte="x/10" units="gain"/>
+   <table endian="big" name="mode index" sizex="8" storageaddress="0x429E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="1" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="index"/>
+   </table>
+   <description>Throttle response gain by drive mode index (higher = more responsive). Effective gain = raw × 10.</description>
+  </table>
+
+  <table category="drivemode" endian="big" name="drivemode: throttle limit Tour" sizex="1"
+         storageaddress="0x0215" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x*16" fineincrement="1"
+            format="0" to_byte="x/16" units="raw"/>
+   <table name="Tour" sizex="1" type="Static X Axis">
+    <data>Tour</data>
+   </table>
+   <description>Max throttle request limit in Tour mode (raw value × 16 = effective limit)</description>
+  </table>
+
+  <table category="drivemode" endian="big" name="drivemode: throttle limit Sport" sizex="1"
+         storageaddress="0x0214" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x*16" fineincrement="1"
+            format="0" to_byte="x/16" units="raw"/>
+   <table name="Sport" sizex="1" type="Static X Axis">
+    <data>Sport</data>
+   </table>
+   <description>Max throttle request limit in Sport mode (raw value × 16 = effective limit)</description>
+  </table>
+
+  <table category="drivemode" endian="big" name="drivemode: throttle limit Track/Off" sizex="1"
+         storageaddress="0x0213" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="5" expression="x*16" fineincrement="1"
+            format="0" to_byte="x/16" units="raw"/>
+   <table name="Track/Off" sizex="1" type="Static X Axis">
+    <data>Track/Off</data>
+   </table>
+   <description>Max throttle request limit in Track/TC-Off mode (raw value × 16 = effective limit)</description>
+  </table>
+
+  <!-- ===== THROTTLE / TPS ===== -->
+
+  <table category="throttle" endian="big" name="throttle: max limit by coolant" sizex="10"
+         storageaddress="0x1D38" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="coolant temp" sizex="10" storageaddress="0x1D2E" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="5" expression="(x*5/8)-40" fineincrement="0.625"
+             format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Max throttle angle limit by coolant temperature</description>
+  </table>
+
+  <table category="throttle" endian="big" name="throttle: idle limit IPS active" sizex="8"
+         storageaddress="0x0DEE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="throttle input" sizex="8" storageaddress="0x0DE6" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+             format="0.0" to_byte="x*255/100" units="%TPS"/>
+   </table>
+   <description>Idle throttle limit (IPS, active)</description>
+  </table>
+
+  <table category="throttle" endian="big" name="throttle: idle limit manual active" sizex="8"
+         storageaddress="0x0DFE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="throttle input" sizex="8" storageaddress="0x0DF6" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+             format="0.0" to_byte="x*255/100" units="%TPS"/>
+   </table>
+   <description>Idle throttle limit (manual, active)</description>
+  </table>
+
+  <table category="throttle" endian="big" name="throttle: idle limit IPS inactive" sizex="8"
+         storageaddress="0x295E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="throttle input" sizex="8" storageaddress="0x2956" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+             format="0.0" to_byte="x*255/100" units="%TPS"/>
+   </table>
+   <description>Idle throttle limit (IPS, inactive)</description>
+  </table>
+
+  <table category="throttle" endian="big" name="throttle: idle limit manual inactive" sizex="8"
+         storageaddress="0x296E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+            format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="throttle input" sizex="8" storageaddress="0x2966" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1"
+             format="0.0" to_byte="x*255/100" units="%TPS"/>
+   </table>
+   <description>Idle throttle limit (manual, inactive)</description>
+  </table>
+
+  <table category="throttle" endian="big" name="throttle: idle governor gain delta by RPM" sizex="16"
+         storageaddress="0x4006" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="50" expression="x" fineincrement="1"
+            format="0" to_byte="x" units="raw"/>
+   <table endian="big" name="engine speed" sizex="16" storageaddress="0x3FE6" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="1"
+             format="0" to_byte="x" units="rpm"/>
+   </table>
+   <description>Idle governor gain delta by RPM</description>
+  </table>
+
+ </rom>
+</roms>
