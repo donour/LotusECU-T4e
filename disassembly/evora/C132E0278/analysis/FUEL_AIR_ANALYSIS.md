@@ -299,34 +299,32 @@ not proven hardware documentation.
 - Added load-path comments describing dual-MAF use and Alpha-N selection.
 - Added charge-cooler comments documenting temperature scheduling, fail-safe behavior, Mode 2F, and
   its recovered three-state output sequencer.
-- Restored the dual-MAF charge expression while leaving the subsequent density-normalized lookup
-  coordinate unresolved rather than importing unverified constants from another build.
+- Restored the dual-MAF charge expression. A later raw-binary/Ghidra pass also recovered the exact
+  density-normalized torque-to-TPS coordinate at `0x0006167C..0x00061700`.
 - Renamed and documented both bank-indexed purge learning/mass functions and resolved GPDO `0xb7`
   as coolant recirculation-pump feedback in both C and the symbol CSV.
 
 ## Unresolved areas and next steps
 
-1. Recover the GT430 instructions for the second missing MAF idiom: density normalization and the
-   clamped 8-bit torque-to-TPS lookup coordinate. The primary dual-MAF charge is now restored.
-2. Determine the physical scale of the purge concentration integrator. Its input, bank allocation,
+1. Determine the physical scale of the purge concentration integrator. Its input, bank allocation,
    output mass unit, and consumer are resolved, but the intermediate fixed-point unit is not.
-3. Resolve the exact purpose of `inj_efficiency`: its table and bounds are clear, but whether it
+2. Resolve the exact purpose of `inj_efficiency`: its table and bounds are clear, but whether it
    represents injector characterization, global flow correction, or a composite scale remains open.
-4. Map `fuel_control_mode_flags` and `injection_flags` bit-by-bit from all writers.
-5. Confirm the inferred absence of an ECU-controlled supercharger bypass against wiring diagrams or
+3. Map `fuel_control_mode_flags` and `injection_flags` bit-by-bit from all writers.
+4. Confirm the inferred absence of an ECU-controlled supercharger bypass against wiring diagrams or
    hardware inspection; further symbol-name searching in this export is unlikely to add confidence.
 
 ## Confidence
 
 - High: normal pulse construction order; pressure-dependent dead-time/flow; purge subtraction and
   production; bank trims; pulse clamps; primary dual-MAF expression; Alpha-N/MAF selection;
-  charge-cooler temperature scheduling and PWM state order; GPDO `0xb7` coolant-pump identity.
+  measured-charge density normalization and torque-to-TPS index; charge-cooler temperature
+  scheduling and PWM state order; GPDO `0xb7` coolant-pump identity.
 - Medium-high: interpretation of AFR departure as power enrichment and the entry-delay behavior;
   bank-balance ratio as an effective injector-flow split.
 - Medium: physical meaning of the injector-efficiency table and some startup correction names.
 - Low/not asserted: unidentified `DAT_*` calibration semantics, purge-integrator physical scale,
-  GT430 MAF density-normalization constants, and the inferred hardware arrangement of the
-  supercharger bypass.
+  and the inferred hardware arrangement of the supercharger bypass.
 
 ## Marginal value of pass two
 
@@ -335,7 +333,7 @@ export, purge subtraction now has a traced producer and bank-specific learning l
 charge-cooler PWM output no longer contains impossible boolean branches. It also eliminated the
 ambiguous “recirculation/ACIS” output as a possible supercharger-control lead.
 
-Further work from this export alone now has lower marginal value. The next high-value evidence is
-external to the decompiled C: GT430 raw instructions/p-code for the second MAF idiom, and vehicle
-wiring or hardware documentation for supercharger bypass plumbing. Renaming the remaining purge
-`DAT_*` state without either source would mostly replace address labels with speculative terms.
+The program binary closes the second MAF idiom: measured charge is clamped to 1380
+mg/stroke, multiplied by 20000 and divided by the selected ambient/manifold density ratio, then
+mapped linearly from 0..1173 mg/stroke to a saturating 0..255 table coordinate. Remaining high-value
+evidence is vehicle wiring/hardware documentation and logs that validate physical scaling.

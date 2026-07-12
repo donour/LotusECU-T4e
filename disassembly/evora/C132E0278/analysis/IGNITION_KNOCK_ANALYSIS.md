@@ -277,14 +277,18 @@ High confidence:
 - catalyst-misfire bank failure versus DPM cylinder-cut distinction;
 - low-oil-pressure participation in the common limp-rev-limit mask.
 
+Calibration-backed resolution:
+
+- Stock `CAL_knock_mode` is `4` (`goertzel_32sample_x3`), confirming the only detector/baseline
+  handoff represented explicitly in this export as the production path.
+
 Medium confidence / open:
 
-1. Confirm the production `CAL_knock_mode` value from the binary. Only mode 4 has an explicit detector/baseline handoff in this export.
-2. Recover semantic names for the DSP energy arrays and the eleven frequency-bin source pointers.
-3. Decode all `revlimit_state_flags` bits; the major airflow, active, escalation and speed-limit states are traceable, but several secondary bits remain unnamed.
-4. Decode the full `misfire_condition_flags` bitfield beyond the bank-failure and major inhibit/window bits.
-5. Resolve the exact low-level injector-channel interpretation of `injection_flags` bits `0x08` and `0x20`; their hard-rev-limit role is explicit, but the final eTPU alias is partially obscured.
-6. Confirm whether non-mode-4 DSP routines are dormant development algorithms or lost final-consumer references.
+1. Recover semantic names for the DSP energy arrays and the eleven frequency-bin source pointers.
+2. Decode all `revlimit_state_flags` bits; the major airflow, active, escalation and speed-limit states are traceable, but several secondary bits remain unnamed.
+3. Decode the full `misfire_condition_flags` bitfield beyond the bank-failure and major inhibit/window bits.
+4. Resolve the exact low-level injector-channel interpretation of `injection_flags` bits `0x08` and `0x20`; their hard-rev-limit role is explicit, but the final eTPU alias is partially obscured.
+5. Confirm whether non-mode-4 DSP routines are dormant development algorithms or lost final-consumer references.
 
 ## Marginal value of this pass
 

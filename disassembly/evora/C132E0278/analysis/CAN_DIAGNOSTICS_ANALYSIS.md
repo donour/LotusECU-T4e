@@ -198,6 +198,11 @@ Several response status bytes resemble diagnostic negative-response values (`0x2
 
 ## Unlock-gated raw memory protocol
 
+The stock CPT stores four spaces in `CAL_ecu_unlock_magic` and selects high-speed logging on
+FlexCAN C (`2`). The supplied tuned CPT selects FlexCAN A (`1`) and stores `WTF?`. Its computed CVN
+is `0xcee9` while the stored field remains the stock `0x3378`, so the development unlock/CVN bypass
+is operationally required by that tuned artifact as supplied.
+
 `flexcan_a_rx_unlocked_memory_access_0x50_0x57` is enabled only when `ecu_unlocked` is true; CAN mailbox 15 is otherwise not enabled for this path. It is a direct address protocol, not ISO-TP and not UDS:
 
 | ID | Operation | Request shape / bounds observed |
