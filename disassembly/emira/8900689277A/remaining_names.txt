@@ -1,0 +1,79 @@
+# Remaining calibration tables — VVT, Idle, Cooling, Sensors, etc.
+
+# === VVT Control ===
+0946 axis_vvt_target_x_coolant
+0956 tbl_vvt_target_by_coolant
+16a2 axis_vvt_load_comp_x
+16aa tbl_vvt_load_compensation
+23be axis_vvt_load_comp_alt_x
+23c6 tbl_vvt_load_compensation_alt
+4036 axis_vvt_coolant_comp_x
+4046 tbl_vvt_coolant_compensation
+
+# === Idle Speed Governor ===
+# Idle target RPM base
+0376 axis_idle_target_rpm_x
+0386 axis_idle_target_rpm_y
+0396 tbl_idle_target_rpm_base
+0362 axis_idle_target_correction_x
+036a tbl_idle_target_correction
+0702 axis_idle_load_target_x
+070a tbl_idle_load_target
+
+# Idle RPM curve by coolant
+0b6e axis_idle_rpm_coolant_a_x
+0b7e tbl_idle_rpm_by_coolant_a
+13e6 axis_idle_rpm_coolant_b_x
+13f6 tbl_idle_rpm_by_coolant_b
+277e axis_idle_rpm_coolant_c_x
+278e tbl_idle_rpm_by_coolant_c
+3476 axis_idle_rpm_coolant_d_x
+3486 tbl_idle_rpm_by_coolant_d
+
+# Idle RPM targets by operating condition
+0dc6 axis_idle_rpm_target_curve_x
+0dd6 tbl_idle_rpm_target_curve
+17f6 axis_idle_rpm_target_curve2_x
+1816 tbl_idle_rpm_target_curve2
+3966 axis_idle_rpm_target_curve3_x
+3986 tbl_idle_rpm_target_curve3
+40d6 axis_idle_rpm_target_curve4_x
+40f6 tbl_idle_rpm_target_curve4
+
+# Idle vehicle speed compensations
+22ee axis_idle_vss_comp_x
+22fe tbl_idle_vss_compensation
+265e axis_idle_vss_comp2_x
+266e tbl_idle_vss_compensation2
+
+# Idle throttle/airflow
+0c46 axis_idle_airflow_x_rpm
+0c56 tbl_idle_airflow_by_rpm
+0c66 axis_idle_airflow_y
+0c76 tbl_idle_airflow_factor
+1886 axis_idle_throttle_factor_x
+1896 tbl_idle_throttle_factor
+0e4e axis_idle_throttle_pos_x
+0e56 tbl_idle_throttle_position
+
+# Idle MAP/load sensor
+234e axis_idle_map_sensor_x
+235e tbl_idle_map_correction
+
+# Idle RPM delta/timing
+18d6 axis_idle_rpm_delta_x
+18de tbl_idle_rpm_delta
+3a66 axis_idle_rpm_delta2_x
+3a6e tbl_idle_rpm_delta2
+
+# Idle misc
+4056 axis_idle_misc_x
+405a tbl_idle_misc_factor
+
+# === Knock Detection (not yet in XML) ===
+# Tables already named: knock_retard_step, knock_retard_decay, knock_retard_decay_alt
+# Additional knock calibrations:
+# Need to find knock window, knock threshold tables
+
+# === Cooling ===
+# cooling_pwm_ch47 function — find its tables

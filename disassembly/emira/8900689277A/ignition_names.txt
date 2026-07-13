@@ -1,0 +1,12 @@
+# Ignition timing subsystem
+#
+# Runtime variables
+40013a7e ignition_advance_cyl_0
+40013a82 ignition_advance_cyl_1
+40013a86 ignition_advance_cyl_2
+40013a1a ignition_advance_bank_a
+40013a40 ignition_advance_bank_b
+40013a5c ignition_idle_advance_current
+40013a3a ignition_coolant_comp_current
+40013a62 ignition_advance_ramped
+40013a00 ignition_comp_output

@@ -1,0 +1,72 @@
+# Rev limiter subsystem
+#
+# Main function
+00a23eb8 revlimit
+
+# Per-gear trim tables (7 entries, indexed by gear position)
+273e axis_revlimit_trim_per_gear_x
+2745 tbl_revlimit_trim_per_gear
+41fa axis_revlimit_gear_trim_alt_x
+4201 tbl_revlimit_gear_trim_alt
+433e axis_revlimit_airflow_integrator_gain_x
+4345 tbl_revlimit_airflow_gain_from_integrator
+434c axis_revlimit_airflow_rpm_gain_x
+4353 tbl_revlimit_airflow_gain_from_rpm
+435a axis_revlimit_airflow_rpm_delta_gain_x
+4361 tbl_revlimit_airflow_gain_from_rpm_delta
+
+# Base rev limit tables (4x4: coolant temp x timer)
+# Manual, Tour mode
+231e axis_revlimit_speedbase_manual_tour_x_coolant
+2326 axis_revlimit_speedbase_manual_tour_y_timer
+232e tbl_revlimit_speedbase_manual_tour
+# Manual, Sport mode
+39c6 axis_revlimit_speedbase_manual_sport_x_coolant
+39ce axis_revlimit_speedbase_manual_sport_y_timer
+39d6 tbl_revlimit_speedbase_manual_sport
+# IPS, Tour mode
+39f6 axis_revlimit_speedbase_ips_tour_x_coolant
+39fe axis_revlimit_speedbase_ips_tour_y_timer
+3a06 tbl_revlimit_speedbase_ips_tour
+# IPS, Sport mode
+3a26 axis_revlimit_speedbase_ips_sport_x_coolant
+3a2e axis_revlimit_speedbase_ips_sport_y_timer
+3a36 tbl_revlimit_speedbase_ips_sport
+
+# Cold start RPM envelope (4 entries)
+3a56 axis_revlimit_coldstart_envelope_x
+3a5e tbl_revlimit_coldstart_rpm_envelope
+
+# Torque-based warmup offset (8 entries, self-axis lookup)
+860a tbl_revlimit_torque_warmup_offset
+
+# Gear-based offset (8 entries, self-axis lookup)
+862a tbl_revlimit_gear_offset
+
+# Shared escalation maps (also used by FUN_00a16af0, FUN_00a2200c)
+29de axis_revlimit_escalation_timer_x
+29fe axis_revlimit_escalation_value_y
+2c5e axis_revlimit_escalation_timer_alt_x
+2c7e axis_revlimit_escalation_value_alt_y
+
+# Runtime variables
+400063c6 revlimit_trim_per_gear_current
+400063aa revlimit_rpm_speed_estimated
+400063cc revlimit_rpm_speed_estimated_clipped
+400063b0 revlimit_max_with_speedlimit_current
+400063ba revlimit_soft_cut_current
+400063a0 revlimit_coldstart_offset
+400063ae revlimit_coldstart_offset_upper
+400063ce revlimit_coldstart_envelope_min
+400063d6 revlimit_coldstart_envelope_max
+400063c2 revlimit_hard_cut_rpm
+400063e0 revlimit_resume_rpm
+400063be revlimit_fuel_cut_rpm_final
+400036ec revlimit_resume_rpm_final
+400063b4 revlimit_tps_target_rpm
+400036ee revlimit_tps_target_rpm_alt
+400063a6 revlimit_torque_warmup_offset_current
+400063a8 revlimit_gear_offset_current
+400036f6 revlimit_state_flags
+400063c1 revlimit_soft_cut_active
+400036f8 revlimit_limp_mode_active

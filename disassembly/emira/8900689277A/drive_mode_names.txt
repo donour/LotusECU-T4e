@@ -1,0 +1,12 @@
+# Drive mode subsystem
+#
+# State variables
+40003762 drive_mode
+400035e1 drive_mode_index
+4000373e drive_mode_flags
+400065f4 drive_mode_can_index
+400034aa drive_mode_output_flags_a
+400034ab drive_mode_output_flags_b
+
+# Mode-dependent throttle response gain (used in idle_speed_governor)
+40006726 drive_mode_throttle_gain

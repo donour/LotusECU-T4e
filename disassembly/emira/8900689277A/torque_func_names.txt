@@ -1,0 +1,22 @@
+# Torque management function names
+#
+# Main torque limiter (50 Hz) — computes fast & slow torque reduction
+00a70be8 torque_reduction_actuator
+00a70b18 torque_reduction_init
+00a70b9c torque_reduction_apply
+00a6f6d8 torque_cyl_cut_select
+00a6f7a4 torque_monitor_dtc_check
+00a6f6b4 torque_cyl_cut_flag_set
+
+# Main throttle + torque control (50 Hz) — slow path
+00a256f4 throttle_and_torque_control
+
+# Torque → load → TPS chain
+# torque_to_load_target — already named
+# torque_to_load_target_inner — already named
+
+# Ignition blend function (mixes base/MBT/knock-safe)
+00a91be0 ignition_timing_blend
+
+# Main ignition calculation (100 Hz) — applies torque spark retard
+00a92ffc ignition_calc_main

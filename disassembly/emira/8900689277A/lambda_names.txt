@@ -1,0 +1,134 @@
+# Fuel / Lambda / Enrichment subsystem
+#
+# Main functions
+00a32ae8 fuel_lambda_calc
+00a32984 fuel_transient_enrichment
+
+# ---- Calibration struct members ----
+
+# Base lambda target maps (8x8: TPS% x RPM)
+0e66 axis_lambda_base_x_tps
+0e86 axis_lambda_base_y_rpm
+0e86 tbl_lambda_base_target
+
+# Secondary lambda target map (8x8)
+4e9c axis_lambda_base_alt_x_tps
+4ebc axis_lambda_base_alt_y_rpm
+4ebc tbl_lambda_base_target_alt
+
+# Warmup/cold start enrichment (12x12: coolant temp x time from start)
+2db6 axis_lambda_warmup_x_coolant
+2dea axis_lambda_warmup_y_time
+2dea tbl_lambda_warmup_enrichment
+
+# Warmup enrichment manual variant (12x12)
+7f4c axis_lambda_warmup_manual_x_coolant
+7f94 axis_lambda_warmup_manual_y_time
+7f94 tbl_lambda_warmup_enrichment_manual
+
+# Warmup enrichment IPS variant (12x12)
+81d4 axis_lambda_warmup_ips_x_coolant
+821c axis_lambda_warmup_ips_y_time
+821c tbl_lambda_warmup_enrichment_ips
+
+# Lambda target from RPM (8 entries, indexed by RPM/10)
+0f56 axis_lambda_rpm_target_x
+0f5e tbl_lambda_target_by_rpm
+
+# Lambda modifier from RPM (8 entries)
+0f66 axis_lambda_rpm_modifier_x
+0f6e tbl_lambda_modifier_by_rpm
+
+# Lambda correction factor (8 entries)
+270e axis_lambda_correction_factor_x
+2716 tbl_lambda_correction_factor
+
+# Coolant temp enrichment, manual (16 entries, indexed by engine_load_8bit)
+18b6 axis_lambda_coolant_enrich_x_load
+18c6 tbl_lambda_coolant_enrichment_manual
+
+# Coolant temp enrichment, IPS (16 entries)
+5298 axis_lambda_coolant_enrich_ips_x_load
+52a8 tbl_lambda_coolant_enrichment_ips
+
+# Power enrichment (4 entries, indexed by load/4)
+0ab6 axis_lambda_power_enrich_x_load
+0aba tbl_lambda_power_enrichment
+
+# RPM-based enrichment factor (8 entries)
+5b14 axis_lambda_rpm_enrich_x_rpm
+5b24 tbl_lambda_enrichment_by_rpm
+
+# Misc enrichment (6 entries, indexed by DAT_400036c0)
+59b6 axis_lambda_misc_enrich_x
+59bc tbl_lambda_misc_enrichment
+
+# Injector scaling/correction (8 entries, used in inj_base_time_calc)
+18e6 axis_inj_scaling_x
+18ee tbl_inj_scaling_factor
+
+# Warmup lambda modifier for injection time (8x8 u8)
+267e axis_inj_warmup_lambda_x
+2686 axis_inj_warmup_lambda_y
+268e tbl_inj_warmup_lambda_modifier
+
+# Bank-specific lambda target A (8x8 u8, non-bank-2)
+a16 axis_inj_lambda_bank_a_x
+a1e axis_inj_lambda_bank_a_y
+a26 tbl_inj_lambda_target_bank_a
+
+# Bank-specific lambda target B (8x8 u8, bank 2)
+a66 axis_inj_lambda_bank_b_x
+a6e axis_inj_lambda_bank_b_y
+a76 tbl_inj_lambda_target_bank_b
+
+# Throttle transient enrichment (tip-in/tip-out, 8x8 u8)
+f06 axis_fuel_transient_x_rpm
+f0e axis_fuel_transient_y_tps_delta
+f16 tbl_fuel_transient_enrichment
+
+# Large lambda modifier table (20x20 u8)
+fa6 axis_lambda_mod_large_x
+fba axis_lambda_mod_large_y
+fce tbl_lambda_modifier_large
+
+# Secondary large lambda modifier (20x20 u8)
+3a86 axis_lambda_mod_large2_x
+3a9a axis_lambda_mod_large2_y
+3aae tbl_lambda_modifier_large2
+
+# VVT-based lambda correction (8x8 u8)
+67d6 axis_lambda_vvt_correction_x
+67de axis_lambda_vvt_correction_y
+67e6 tbl_lambda_vvt_correction
+
+# Enrichment factor tables (10 entries)
+6100 axis_lambda_enrich_factor_x
+610a tbl_lambda_enrichment_factor
+6114 axis_lambda_enrich_factor2_x
+611e tbl_lambda_enrichment_factor_2
+
+# ---- Runtime variables ----
+40006944 lambda_commanded_bank_a
+40006948 lambda_commanded_bank_b
+4000678a lambda_target_bank_raw
+4000678e lambda_o2_target
+40006786 inj_pulse_width_per_bank
+40006982 lambda_target_from_rpm_time
+4000694c lambda_modifier_blend
+40006978 lambda_factor_filtered
+4000674e lambda_target_rpm_scaled
+40006981 lambda_power_enrich_factor
+40006784 lambda_correction_pct
+40006750 lambda_enrich_rpm_threshold
+400037b4 lambda_power_enrich_load_index
+40003748 lambda_load_calc_input
+40006766 lambda_rpm_timer
+40006968 lambda_update_divider_counter
+40006785 lambda_slow_enrich_increment
+40001ede lambda_slow_enrich_filtered
+400037aa lambda_enrich_final_scaled
+40006963 lambda_rpm_modifier_current
+400037a8 lambda_target_max_bank
+40006979 inj_scaling_current
+40006967 lambda_vvt_correction_current

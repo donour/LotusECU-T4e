@@ -1,0 +1,34 @@
+# Primary ignition maps
+#
+# Base timing — Manual (20x20 u8, RPM x load, u8_angle_1/4-10deg)
+1d5e axis_ign_base_manual_x_rpm
+1d72 axis_ign_base_manual_y_load
+1d86 tbl_ign_base_manual
+
+# Base timing — IPS (20x20 u8)
+49a0 axis_ign_base_ips_x_rpm
+49b4 axis_ign_base_ips_y_load
+49c8 tbl_ign_base_ips
+
+# MBT modeled (20x20 u8)
+19ee axis_ign_mbt_x_rpm
+1a02 axis_ign_mbt_y_load
+1a16 tbl_ign_mbt
+
+# Knock-safe / low octane (20x20 u8)
+3c3e axis_ign_knock_safe_x_rpm
+3c52 axis_ign_knock_safe_y_load
+3c66 tbl_ign_knock_safe
+
+# Minimum timing (16x16 u8, u8_angle_1/4-20deg)
+3356 axis_ign_min_x_rpm
+3366 axis_ign_min_y_load
+3376 tbl_ign_min
+
+# Low-load timing correction (8 entries)
+0db6 axis_ign_low_load_correction_x
+0dbe tbl_ign_low_load_correction
+
+# Function names
+00a92918 ign_get_mbt_or_knock_safe
+00a92820 ign_get_low_load_correction

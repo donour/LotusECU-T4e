@@ -1,0 +1,222 @@
+# REVIEW: lower-confidence matches for manual verification
+# addr	target_name	proposed_name	instr	bytes	reason
+00a006e4	FUN_00a006e4	service_watchdog	4	14	short func: 4 instr < 8
+00a006f8	FUN_00a006f8	get_timebase_lo	2	6	short func: 2 instr < 8
+00a11b08	flash_write_helper_0x10000	flash_write_helper_0x10000	55	172	CAN-ID/address name — verify manually
+00a11c34	flash_write_helper_0x30000	flash_write_helper_0x30000	62	194	CAN-ID/address name — verify manually
+00a279b8	FUN_00a279b8	get_tps	4	14	short func: 4 instr < 8
+00a279c8	FUN_00a279c8	get_tps	4	14	short func: 4 instr < 8
+00a46350	FUN_00a46350	main_task_20hz_0	37	116	weak consensus
+00a47f4c	FUN_00a47f4c	cyl_firing_order_map	8	24	weak consensus
+00a47f64	FUN_00a47f64	cyl_firing_order_map	8	24	weak consensus
+00a4a7d4	libc_min	libc_min	6	14	short func: 6 instr < 8
+00a4a7e4	libc_max	libc_max	6	14	short func: 6 instr < 8
+00a6e420	FUN_00a6e420	get_knock_retard	12	32	weak consensus
+00a6e440	FUN_00a6e440	get_knock_retard	12	32	weak consensus
+00a6e460	FUN_00a6e460	get_knock_retard_cyl	12	34	weak consensus
+00a6e484	FUN_00a6e484	get_knock_retard_cyl	12	34	weak consensus
+00a7ef6c	FUN_00a7ef6c	dtc_get_event_record_ptr	5	18	short func: 5 instr < 8
+00a7f03c	FUN_00a7f03c	dtc_get_template_index_ptr	4	14	short func: 4 instr < 8
+00a7f300	dtc_queue_add?	dtc_queue_add?	59	182	CAN-ID/address name — verify manually
+00a86be4	FUN_00a86be4	get_actual_engine_torque_pct	34	106	weak consensus
+00a86c50	FUN_00a86c50	get_actual_engine_torque_pct	34	106	weak consensus
+00ab0d4e	FUN_00ab0d4e	memcpy	20	60	weak consensus
+
+# REJECTED: over-collision (not applied)
+00a04280	FUN_00a04280	get_ecu_locked_state	9	24	over-collision: 6 targets
+00a065b0	FUN_00a065b0	main_task_20hz_4	8	20	over-collision: 7 targets
+00a065c4	FUN_00a065c4	main_task_20hz_4	8	20	over-collision: 7 targets
+00a0a16c	FUN_00a0a16c	get_module_voltage	5	14	over-collision: 25 targets
+00a0a1a4	FUN_00a0a1a4	get_engine_speed	3	10	over-collision: 25 targets
+00a0a1b0	FUN_00a0a1b0	get_engine_speed	3	10	over-collision: 25 targets
+00a0a1bc	FUN_00a0a1bc	get_engine_speed	3	10	over-collision: 25 targets
+00a0a1c8	FUN_00a0a1c8	get_engine_speed	3	10	over-collision: 25 targets
+00a0f2b8	FUN_00a0f2b8	get_engine_speed	3	10	over-collision: 25 targets
+00a0f2c4	FUN_00a0f2c4	get_engine_speed	3	10	over-collision: 25 targets
+00a0f2e0	FUN_00a0f2e0	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a0f450	FUN_00a0f450	get_module_voltage	5	14	over-collision: 25 targets
+00a0f460	FUN_00a0f460	get_engine_run_time	5	14	over-collision: 7 targets
+00a0f470	FUN_00a0f470	get_engine_run_time	5	14	over-collision: 7 targets
+00a0f4b0	FUN_00a0f4b0	get_module_voltage	5	14	over-collision: 25 targets
+00a0f4d0	FUN_00a0f4d0	get_module_voltage	5	14	over-collision: 25 targets
+00a0f530	FUN_00a0f530	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a0f53c	FUN_00a0f53c	get_engine_speed	3	10	over-collision: 25 targets
+00a111ac	FUN_00a111ac	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a1123c	FUN_00a1123c	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a11248	FUN_00a11248	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a13040	FUN_00a13040	get_module_voltage	5	14	over-collision: 25 targets
+00a16a6c	FUN_00a16a6c	get_engine_speed	3	10	over-collision: 25 targets
+00a16ab4	FUN_00a16ab4	get_module_voltage	5	14	over-collision: 25 targets
+00a1781c	FUN_00a1781c	get_engine_speed	3	10	over-collision: 25 targets
+00a17828	FUN_00a17828	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a17834	FUN_00a17834	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a1784c	FUN_00a1784c	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a17864	FUN_00a17864	get_engine_speed	3	10	over-collision: 25 targets
+00a17870	FUN_00a17870	get_engine_speed	3	10	over-collision: 25 targets
+00a1787c	FUN_00a1787c	get_engine_speed	3	10	over-collision: 25 targets
+00a17888	FUN_00a17888	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a17894	FUN_00a17894	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a19188	FUN_00a19188	get_module_voltage	5	14	over-collision: 25 targets
+00a1b640	FUN_00a1b640	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a1b64c	FUN_00a1b64c	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a1b66c	FUN_00a1b66c	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a1b678	FUN_00a1b678	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a1b690	FUN_00a1b690	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a1cddc	FUN_00a1cddc	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a1ce00	FUN_00a1ce00	get_engine_speed	3	10	over-collision: 25 targets
+00a1ce0c	FUN_00a1ce0c	get_module_voltage	5	14	over-collision: 25 targets
+00a1e5f0	FUN_00a1e5f0	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a1e60c	FUN_00a1e60c	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a1e750	FUN_00a1e750	get_diag_session_state	3	10	over-collision: 12 targets
+00a1e75c	FUN_00a1e75c	get_diag_session_state	3	10	over-collision: 12 targets
+00a1e768	FUN_00a1e768	get_diag_session_state	3	10	over-collision: 12 targets
+00a1e774	FUN_00a1e774	get_engine_speed	3	10	over-collision: 25 targets
+00a1e78c	FUN_00a1e78c	get_diag_session_state	3	10	over-collision: 12 targets
+00a1e7ec	FUN_00a1e7ec	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a1e808	FUN_00a1e808	get_diag_session_state	3	10	over-collision: 12 targets
+00a1e814	FUN_00a1e814	get_diag_session_state	3	10	over-collision: 12 targets
+00a1e820	FUN_00a1e820	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a1e850	FUN_00a1e850	get_engine_speed	3	10	over-collision: 25 targets
+00a1e8b0	FUN_00a1e8b0	get_engine_speed	3	10	over-collision: 25 targets
+00a1e8bc	FUN_00a1e8bc	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a22654	FUN_00a22654	get_module_voltage	5	14	over-collision: 25 targets
+00a25290	FUN_00a25290	get_module_voltage	5	14	over-collision: 25 targets
+00a252a0	FUN_00a252a0	get_module_voltage	5	14	over-collision: 25 targets
+00a2d068	FUN_00a2d068	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a2d1a8	FUN_00a2d1a8	get_module_voltage	5	14	over-collision: 25 targets
+00a2d1e0	FUN_00a2d1e0	get_module_voltage	5	14	over-collision: 25 targets
+00a2d2c0	FUN_00a2d2c0	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a2d2cc	FUN_00a2d2cc	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a2d370	FUN_00a2d370	get_ecu_locked_state	9	24	over-collision: 6 targets
+00a2fd4c	FUN_00a2fd4c	get_ecu_locked_state	9	24	over-collision: 6 targets
+00a2fd64	FUN_00a2fd64	get_ecu_locked_state	9	24	over-collision: 6 targets
+00a31e24	FUN_00a31e24	get_module_voltage	5	14	over-collision: 25 targets
+00a31e34	FUN_00a31e34	get_module_voltage	5	14	over-collision: 25 targets
+00a31e54	FUN_00a31e54	get_module_voltage	5	14	over-collision: 25 targets
+00a31e74	FUN_00a31e74	get_module_voltage	5	14	over-collision: 25 targets
+00a31e84	FUN_00a31e84	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a31e90	FUN_00a31e90	get_module_voltage	5	14	over-collision: 25 targets
+00a31ec0	FUN_00a31ec0	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a31f08	FUN_00a31f08	get_ecu_locked_state	9	24	over-collision: 6 targets
+00a32a40	FUN_00a32a40	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a34bc4	FUN_00a34bc4	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a34bf0	FUN_00a34bf0	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a34c60	FUN_00a34c60	get_engine_speed	3	10	over-collision: 25 targets
+00a34c6c	FUN_00a34c6c	get_engine_speed	3	10	over-collision: 25 targets
+00a34c78	FUN_00a34c78	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a34c84	FUN_00a34c84	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a3e3b0	FUN_00a3e3b0	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a4417c	FUN_00a4417c	get_engine_run_time	5	14	over-collision: 7 targets
+00a454e0	FUN_00a454e0	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a454ec	FUN_00a454ec	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a454f8	FUN_00a454f8	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a45504	FUN_00a45504	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a45510	FUN_00a45510	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a455e4	FUN_00a455e4	get_engine_speed	3	10	over-collision: 25 targets
+00a459d0	FUN_00a459d0	main_task_100hz_3	32	98	over-collision: 7 targets
+00a45f20	FUN_00a45f20	main_task_100hz_3	32	98	over-collision: 7 targets
+00a45f84	FUN_00a45f84	main_task_100hz_3	32	98	over-collision: 7 targets
+00a45fe8	FUN_00a45fe8	main_task_100hz_3	32	98	over-collision: 7 targets
+00a460b0	FUN_00a460b0	main_task_100hz_3	32	98	over-collision: 7 targets
+00a46114	FUN_00a46114	main_task_100hz_8	33	102	over-collision: 3 targets
+00a4617c	FUN_00a4617c	main_task_100hz_3	32	98	over-collision: 7 targets
+00a463c4	FUN_00a463c4	main_task_100hz_3	32	98	over-collision: 7 targets
+00a46428	FUN_00a46428	main_task_100hz_8	33	102	over-collision: 3 targets
+00a46490	FUN_00a46490	main_task_20hz_4	8	20	over-collision: 7 targets
+00a469f4	FUN_00a469f4	main_task_100hz_8	33	102	over-collision: 3 targets
+00a46ce4	FUN_00a46ce4	get_engine_run_time	5	14	over-collision: 7 targets
+00a46cf4	FUN_00a46cf4	get_engine_speed	3	10	over-collision: 25 targets
+00a46f04	FUN_00a46f04	get_o2_sensor_state	4	14	over-collision: 4 targets
+00a47558	FUN_00a47558	get_catalyst_temp	9	26	over-collision: 5 targets
+00a47eb8	FUN_00a47eb8	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a47ec4	FUN_00a47ec4	get_diag_session_state	3	10	over-collision: 12 targets
+00a48200	FUN_00a48200	get_catalyst_temp	9	26	over-collision: 5 targets
+00a4821c	FUN_00a4821c	get_o2_sensor_state	4	14	over-collision: 4 targets
+00a4a6b8	FUN_00a4a6b8	max_clamped_by_limit	13	32	over-collision: 4 targets
+00a4a6d8	FUN_00a4a6d8	max_clamped_by_limit	13	32	over-collision: 4 targets
+00a4a6f8	FUN_00a4a6f8	max_clamped_by_limit	13	32	over-collision: 4 targets
+00a4a718	FUN_00a4a718	max_clamped_by_limit	13	32	over-collision: 4 targets
+00a4b0ac	FUN_00a4b0ac	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a4b5f0	FUN_00a4b5f0	get_o2_lambda_measured	9	26	over-collision: 7 targets
+00a4ddc4	FUN_00a4ddc4	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a4de20	FUN_00a4de20	get_engine_speed	3	10	over-collision: 25 targets
+00a4e684	FUN_00a4e684	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a4e8d0	FUN_00a4e8d0	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a4e8dc	FUN_00a4e8dc	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a4e950	FUN_00a4e950	get_engine_run_time	5	14	over-collision: 7 targets
+00a4e960	FUN_00a4e960	get_engine_run_time	5	14	over-collision: 7 targets
+00a50a54	FUN_00a50a54	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a69684	FUN_00a69684	inj_write_etpu	28	80	over-collision: 3 targets
+00a696d4	FUN_00a696d4	inj_write_etpu	28	80	over-collision: 3 targets
+00a69804	FUN_00a69804	inj_write_etpu	28	80	over-collision: 3 targets
+00a6d304	FUN_00a6d304	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a6fb58	FUN_00a6fb58	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a6fb64	FUN_00a6fb64	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a72cb8	FUN_00a72cb8	trans_is_ips	13	36	over-collision: 5 targets
+00a72d4c	FUN_00a72d4c	trans_is_ips	13	36	over-collision: 5 targets
+00a72d70	FUN_00a72d70	trans_is_ips	13	36	over-collision: 5 targets
+00a72dc8	FUN_00a72dc8	trans_is_ips	13	36	over-collision: 5 targets
+00a72dec	FUN_00a72dec	trans_is_ips	13	36	over-collision: 5 targets
+00a73174	FUN_00a73174	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a73a00	FUN_00a73a00	get_diag_session_state	3	10	over-collision: 12 targets
+00a74c88	FUN_00a74c88	get_diag_session_state	3	10	over-collision: 12 targets
+00a74d44	FUN_00a74d44	main_task_20hz_4	8	20	over-collision: 7 targets
+00a7ecc0	FUN_00a7ecc0	main_task_20hz_4	8	20	over-collision: 7 targets
+00a7eef0	FUN_00a7eef0	get_diag_session_state	3	10	over-collision: 12 targets
+00a7eefc	FUN_00a7eefc	get_o2_sensor_state	4	14	over-collision: 4 targets
+00a7ef34	FUN_00a7ef34	dtc_get_code_mirror_ptr	6	18	over-collision: 3 targets
+00a7ef8c	FUN_00a7ef8c	get_diag_session_state	3	10	over-collision: 12 targets
+00a7efdc	FUN_00a7efdc	dtc_get_code_mirror_ptr	6	18	over-collision: 3 targets
+00a7effc	FUN_00a7effc	dtc_get_event_code_ptr	5	16	over-collision: 3 targets
+00a7f00c	FUN_00a7f00c	dtc_get_code_mirror_ptr	6	18	over-collision: 3 targets
+00a7f020	FUN_00a7f020	dtc_get_event_code_ptr	5	16	over-collision: 3 targets
+00a7f04c	FUN_00a7f04c	dtc_get_event_code_ptr	5	16	over-collision: 3 targets
+00a7f148	FUN_00a7f148	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a7f154	FUN_00a7f154	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a7f160	FUN_00a7f160	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a7f16c	FUN_00a7f16c	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a85434	FUN_00a85434	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a86534	FUN_00a86534	dtc_event_is_active	20	54	over-collision: 3 targets
+00a865a4	FUN_00a865a4	dtc_event_is_active	20	54	over-collision: 3 targets
+00a865dc	FUN_00a865dc	dtc_event_is_active	20	54	over-collision: 3 targets
+00a86930	FUN_00a86930	obd_pid_lookup_routine???	43	142	over-collision: 3 targets
+00a89fcc	FUN_00a89fcc	get_module_voltage	5	14	over-collision: 25 targets
+00a8a094	FUN_00a8a094	main_task_20hz_4	8	20	over-collision: 7 targets
+00a8a0bc	FUN_00a8a0bc	main_task_20hz_4	8	20	over-collision: 7 targets
+00a8a85c	FUN_00a8a85c	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a8a868	FUN_00a8a868	get_ecu_locked_state	9	24	over-collision: 6 targets
+00a8ae00	FUN_00a8ae00	get_accel_pedal_d	9	24	over-collision: 10 targets
+00a8f4bc	FUN_00a8f4bc	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a8f4c8	FUN_00a8f4c8	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a8f4d4	FUN_00a8f4d4	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a8f4e0	FUN_00a8f4e0	get_engine_speed	3	10	over-collision: 25 targets
+00a8f4ec	FUN_00a8f4ec	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a8f4f8	FUN_00a8f4f8	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a8f644	FUN_00a8f644	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a92814	FUN_00a92814	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a93b24	FUN_00a93b24	get_module_voltage	5	14	over-collision: 25 targets
+00a93b34	FUN_00a93b34	get_module_voltage	5	14	over-collision: 25 targets
+00a93b44	FUN_00a93b44	get_module_voltage	5	14	over-collision: 25 targets
+00a93b6c	FUN_00a93b6c	get_module_voltage	5	14	over-collision: 25 targets
+00a93b7c	FUN_00a93b7c	get_module_voltage	5	14	over-collision: 25 targets
+00a93b8c	FUN_00a93b8c	get_module_voltage	5	14	over-collision: 25 targets
+00a93bac	FUN_00a93bac	get_engine_run_time	5	14	over-collision: 7 targets
+00a93cbc	FUN_00a93cbc	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a93cc8	FUN_00a93cc8	get_engine_torque_nm	3	10	over-collision: 13 targets
+00a93cd4	FUN_00a93cd4	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a93ce0	FUN_00a93ce0	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a93cec	FUN_00a93cec	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a9428c	FUN_00a9428c	get_engine_speed	3	10	over-collision: 25 targets
+00a94298	FUN_00a94298	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00a9c77c	FUN_00a9c77c	get_catalyst_temp	9	26	over-collision: 5 targets
+00a9c798	FUN_00a9c798	get_catalyst_temp	9	26	over-collision: 5 targets
+00a9c7b4	FUN_00a9c7b4	get_catalyst_temp	9	26	over-collision: 5 targets
+00a9c7d0	FUN_00a9c7d0	get_o2_sensor_state	4	14	over-collision: 4 targets
+00a9c860	FUN_00a9c860	get_engine_speed	3	10	over-collision: 25 targets
+00aa7448	FUN_00aa7448	obd_pid_lookup_routine???	43	142	over-collision: 3 targets
+00aa8134	FUN_00aa8134	obd_pid_lookup_routine???	43	142	over-collision: 3 targets
+00aad3a4	FUN_00aad3a4	get_engine_torque_nm	3	10	over-collision: 13 targets
+00aad3b0	FUN_00aad3b0	get_engine_torque_nm	3	10	over-collision: 13 targets
+00aaec14	FUN_00aaec14	get_engine_speed	3	10	over-collision: 25 targets
+00ab0344	FUN_00ab0344	get_o2_heater_inhibit	3	10	over-collision: 42 targets
+00ab0518	FUN_00ab0518	get_diag_session_state	3	10	over-collision: 12 targets

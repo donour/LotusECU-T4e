@@ -1,0 +1,43 @@
+# TPS scaling / throttle limit tables
+#
+# Main TPS scaling factor per RPM (16-entry, indexed by engine_speed_8bit)
+# Equivalent to Evora's CAL_tps_scaling_factor_rpm
+# Axis values: [800,800,800,800,1127,1504,1755,2006,2508,3010,3512,4014,4500,5000,5250,7000] RPM
+3fe6 axis_tps_scaling_factor_rpm_x
+4006 tbl_tps_scaling_factor_rpm
+
+# Coolant-based throttle limit (10-entry, indexed by coolant temp)
+1d2e axis_tps_limit_coolant_x
+1d38 tbl_tps_limit_coolant
+
+# Throttle duty-cycle limit for idle speed governor (used by idle_speed_governor)
+# 8-entry tables indexed by torque_spark_retard_x_input
+0de6 axis_tps_idle_limit_x
+0dee tbl_tps_idle_limit_ips_active
+0df6 axis_tps_idle_limit_alt_x
+0dfe tbl_tps_idle_limit_manual_active
+2956 axis_tps_idle_limit_ips_inactive_x
+295e tbl_tps_idle_limit_ips_inactive
+2966 axis_tps_idle_limit_manual_inactive_x
+296e tbl_tps_idle_limit_manual_inactive
+
+# Throttle scaling / DBW limiting calibrations (FUN_00a256f4)
+# 0x18c: max throttle angle limit (ushort) - base max TPS position
+# 0x18e: throttle angle max (ushort)
+# 0x1c4: throttle max from pedal (ushort)
+# 0x213-0x215: per-mode/gear throttle limits (byte)
+# 0x21b: coolant temp threshold for throttle ramp (byte)
+# 0x21c: coolant temp threshold 2 for throttle ramp (byte)
+# 0x21d: throttle ramp rate (byte)
+# 0x21e: alternate throttle limit (ushort)
+# 0x205: throttle limit scaling (byte, << 4)
+# 0xf5: load threshold for throttle limiting (byte)
+# 0xb0: TPS threshold for throttle limiting (byte)
+
+# Runtime variables
+40006486 tps_limit_current
+400064dc tps_target_raw
+4000370e tps_request_final
+4000370a tps_target_clamped
+400063f4 tps_limit_coolant_current
+40006512 tps_limit_from_torque
