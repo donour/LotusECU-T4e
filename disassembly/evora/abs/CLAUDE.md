@@ -89,7 +89,7 @@ The bootloader is **NOT in this image**. It resides at addresses below 0x8000 (l
 | Transport | ISO-TP (ISO 15765-2) |
 | Diagnostic | UDS (ISO 14229-1) |
 | Bootloader | UDS 0x10 (Programming Session) → 0x27 (SecurityAccess) → 0x34/0x36/0x37 (Flash Download) |
-| CAN IDs | **0x7E2** (request), **0x7EA** (response) — ISO 15765-4 physical addressing for chassis/ABS. Functional broadcast: **0x7DF**. Engine ECU uses 0x7E0/0x7E8. **Needs experimental verification** — CAN IDs configured by ERCOSEK COM stack at build time, not visible in application code. |
+| CAN IDs | **0x6F4** (request), **0x6F5** (response) — proprietary, configured by ERCOSEK COM stack at build time. Functional broadcast: **0x7DF**. Engine ECU uses 0x7E0/0x7E8. |
 
 ### Integrity Verification
 
@@ -145,7 +145,7 @@ Value:   10  1A  27  21  3B  17  18  31  32  33  14  3D  3E  23  2E
 | 8 | 0x32 | 0x82 | StopRoutineByLocalId | Default session |
 | 9 | 0x33 | 0x83 | RequestRoutineResults | Default session |
 | 10 | 0x14 | 0x84 | ClearDiagnosticInformation | Default session |
-| 11 | 0x3D | 0x85 | WriteMemoryByAddress | Default session |
+| 11 | 0x3D | 0x85 | WriteMemoryByAddress | Default session; security unconfirmed |
 | 12 | 0x3E | 0x86 | TesterPresent | Default session |
 | 13 | 0x23 | 0x90 | ReadMemoryByAddress | Default, SecLevel1 |
 | 14 | 0x2E | 0x91 | WriteDataByCommonId | Default, SecLevel1 |
@@ -155,7 +155,9 @@ Value:   10  1A  27  21  3B  17  18  31  32  33  14  3D  3E  23  2E
 - Bit 6 (0x40): Allowed in programming session (0x02)
 - Bit 5 (0x20): Allowed in extended session (0x03)
 - Bit 4 (0x10): Allowed in supplier session
-- Bits 3–0: Required security level flags
+- Bits 3–0: Security encoding — exact meaning not yet confirmed for all masks.
+  Services with lower nibble 0x0–0x6 may still require unlock via runtime checks
+  in `security_permission_check` @ 0x68306, independent of the session mask.
 
 **Key observations:**
 - **SecurityAccess (0x27) is only available in the programming session** — you cannot unlock from the default session; send `10 02` first
@@ -427,13 +429,26 @@ Slew rate limit: ±0x42 per cycle, stored at `struct+0xa4`.
 
 ### CAN IDs Not Yet Located
 
-| CAN ID | Source | Content | ABS Handler |
-|--------|--------|---------|-------------|
-| 0x102  | ECU    | Torque data (Alpha-N net, combustion Nm) | Unknown |
-| 0x303  | Yaw Sensor | Yaw rate, lateral acceleration | Unknown (one of FUN_00066118 or FUN_0006f1e8) |
-| 0x114  | ECU    | Tachometer, pedal, drivetrain mode | Not used by ABS? |
+| CAN ID | Source | Content | ABS Handler | Confidence |
+|--------|--------|---------|-------------|:----------:|
+| **0x303** | Yaw Sensor | Yaw rate, lateral acceleration | **FUN_0006f1e8 @ 0x6F1E8** | **HIGH** — same parser descriptor (0x111) as steering handler; 2-field s16 layout matches yaw sensor format |
+| **0x102** | ECU | Torque data (Alpha-N net, combustion Nm) | **FUN_00066118 @ 0x66118** | **MEDIUM** — different parser descriptor (0x030); by elimination from 3 parser sites |
+| 0x114 | ECU | Tachometer, pedal, drivetrain mode | FUN_00066118 @ 0x66118 or separate | **LOW** — mode byte destination at RAM 0x00404F77 is populated by same parser; may share handler1 |
 
-CAN mailbox configuration is handled by the ERCOSEK COM stack, not visible in application code.
+### CAN RX Handler Summary
+
+The ABS has exactly **3 call sites** for `can_message_parser` — all CAN data flows through these:
+
+| Handler | Address | Parser Descriptor | CAN IDs | Layout |
+|---------|---------|:-----------------:|---------|--------|
+| `can_rx_steering_angle_dispatcher` | 0x5BCE0 | **0x111** | **0x84, 0x85** (confirmed by code) | 2-field s16 (angle + rate) |
+| `FUN_00066118` | 0x66118 | **0x030** (at flash 0x8030) | **0x102** (torque), possibly **0x114** (mode) | Multi-field packed (different from steering) |
+| `FUN_0006f1e8` | 0x6F1E8 | **0x111** (same as steering) | **0x303** (yaw sensor) | 2-field s16 (yaw rate + lateral accel) |
+
+**CAN ID mapping is not confirmed from firmware** — CAN IDs are assigned by the
+ERCOSEK COM stack at build time and are not visible in the application code.
+The assignments above are based on: parser descriptor field layout matching,
+data content type matching, and elimination across the 3 parser call sites.
 
 ---
 
@@ -541,35 +556,1306 @@ wheel_differential_monitor()           @ 0x5fa3c
 | `abs_finalization` | 0x4c984 | ABS finalization |
 | `abs_completion` | 0x4ca18 | ABS completion |
 
-### Wheel Speed & Slip
+### Wheel Speed & Slip — Complete Data Flow
+
+The ABS module directly reads 4 wheel speed sensors (hardwired, not CAN). The sensors
+produce raw pulse counts that are captured by the TMS470 timer/capture hardware, then
+filtered, scaled, validated, and transmitted to the ECU over CAN.
+
+#### Data Flow Diagram
+
+```
+WHEEL SPEED SENSORS (hardwired, 4 channels: LF, RF, LR, RR)
+        │
+        ▼
+[TMS470 hardware timer/capture — raw pulse counts]
+        │
+        ▼
+wheel_speed_sensor_filter (FUN_00070fb8):
+  if (raw > 47) return (raw * scaling_factor) >> 16
+  else          return 0  (below minimum threshold)
+        │
+        ▼
+wheel_speed_two_mode_convert (FUN_0007105a):
+  Mode A (raw & 0xA0 == 0xA0):  scaled = raw * 20 - 3200
+  Mode B (otherwise):            scaled = raw * 200
+        │
+        ▼
+Per-Wheel State Structs (wheel_state_ptr_LF/RF/LR/RR)
+  Primary storage fields:
+    +0x5B0:  primary speed (s16)     +0x5BC:  secondary speed (s16)
+    +0x5A6:  additional speed (s16)  +0x5B4:  additional speed (s16)
+    +0x572:  speed comparator value  +0x1BE:  comparator threshold
+  Validity / fault fields:
+    +0xFA:   sensor validity (bit 15 = 0x8000 mask = valid)
+    +0x3DD:  combined fault flag (OR of +0x413 and +0x271)
+    +0x413:  fault source flag A     +0x271:  fault source flag B
+    +0x578:  sensor invalid (< 0 = invalid)
+    +0x40C:  minimum speed to validate (< 0x5A = 90 = too slow)
+    +0x410:  fault flags (0x100=pending, 0x2000=escalated, 0x8000=cleared per cycle)
+    +0x412:  sensor error (bit 7 = confirmed fault)
+        │
+        ├──→ wheel_speed_aggregator (0x20358):
+        │      Cross-wheel statistics into wheel_summary_struct_ptr:
+        │        [6]:   max primary speed    [7]:   min primary speed
+        │        [8]:   max secondary speed  [9]:   min secondary speed
+        │        [10]:  max ch3 speed        [0xB]: min ch3 speed
+        │        [0xC]: max ch4 speed        [0xD]: min ch4 speed
+        │        [0x16]: min all wheel speeds
+        │        [0x17]: max all wheel speeds
+        │        [0x18]: front lateral diff (|LF - RF|)
+        │        [0x19]: rear lateral diff  (|LR - RR|)
+        │        [0x14], [0x15]: filtered/averaged derived speeds
+        │
+        ├──→ Fault Detection:
+        │      calculate_wheel_speed_differentials (0x147D8):
+        │        axle_diff = ((LR+RR) - (LF+RF)) / 2   (clamped to ±320)
+        │        side_diff = ((RF+RR) - (LF+LR)) / 2   (clamped to ±320)
+        │        Low-pass filtered (τ ≈ 32 samples)
+        │      wheelslip (0x148EC): slip ratio calculation
+        │      validate_wheel_speed_sensors (0x14D40): per-wheel fault detection
+        │        → sets +0x412 bit 7 on confirmed fault
+        │        → sets +0x50 bit 5 (0x20) = global ABS fault
+        │
+        └──→ CAN TX Builders:
+              can_tx_build_front_wheel_speeds_0xA2 (0x5B7B0):
+                RF speed, LF speed, vehicle speed → CAN 0xA2 (7 bytes)
+              can_tx_build_rear_wheel_speeds_0xA4 (0x5D9D0):
+                RR speed, LR speed, brake switch → CAN 0xA4 (6 bytes)
+              
+              Both use this pipeline:
+                1. Read speed from per-wheel state (e.g., *DAT_0005db34 = raw_s16)
+                2. Scale: scaled = (raw * 0x8000 - 0xC80000) >> 13
+                3. Clamp: MIN(scaled, MIN_CLAMP) or MAX(scaled, MAX_CLAMP)
+                4. If sensor invalid: use INVALID_SENTINEL instead
+                5. pack_bitfield(buffer, value, bit_offset, 12) — pack 12-bit value
+                6. pack_counter_4bit(buffer, counter, 28, 4) — rolling counter
+                7. XOR checksum across payload bytes
+```
+
+#### Scaling Constants & Sentinel Values
+
+| Symbol | Value | Meaning |
+|--------|-------|---------|
+| Minimum raw threshold | 47 (0x2F) | Below this: treated as invalid/stopped |
+| Invalid speed sentinel | 0x3FFF (16383) | 14-bit CAN invalid marker |
+| Internal sentinel | 0x1680 (5760) | Max valid value; above = invalid |
+| Axle diff clamp | 320 (0x140) | Max F/R speed difference before fault |
+| AXLE_FAULT_THRESHOLD | DAT_0001538c | Counter threshold for fault escalation |
+| MIN_SPEED_VALIDATE | 90 (0x5A) at +0x40C | Min speed for validation to run |
+| Sensor filter scaling | DAT_00070fe4 | Scaling factor for raw pulse → speed |
+| CAN upper clamp | DAT_0005db38 | Max scaled speed for CAN packing |
+| CAN lower clamp | DAT_0005db3c | Min scaled speed for CAN packing |
+
+#### Key Functions
 
 | Name | Address | Role |
 |------|---------|------|
-| `calculate_wheel_speed_differentials` | 0x147d8 | Differential speed calculation |
+| `wheel_speed_sensor_filter` | 0x70fb8 | Raw pulse validation + scaling: `(raw > 47) ? (raw * cal) >> 16 : 0` |
+| `wheel_speed_two_mode_convert` | 0x7105a | Dual-mode speed conversion: mode A (scaled) vs mode B (direct) |
+| `wheel_speed_aggregator` | 0x20358 | Cross-wheel min/max/differential statistics |
+| `calculate_wheel_speed_differentials` | 0x147d8 | Axle and side differentials, clamped to ±320 |
 | `wheelslip` | 0x148ec | Wheel slip calculation |
-| `validate_wheel_speed_sensors` | 0x14d40 | Sensor validity checking |
-| `wheel_speed_aggregator` | 0x20358 | Cross-wheel speed statistics |
-| `wheel_speed_confidence_weights` | 0x21ad4 | Sensor confidence weighting |
-| `wheel_accel_calculate` | 0x6cb2c | Wheel acceleration calculation |
-| `wheel_accel_update` | 0x6cb88 | Wheel acceleration update |
+| `validate_wheel_speed_sensors` | 0x14d40 | Per-wheel sensor validity + fault code generation |
+| `wheel_speed_confidence_weights` | 0x21ad4 | Sensor confidence weighting for control algorithms |
+| `wheel_accel_calculate` | 0x6cb2c | Wheel acceleration from speed deltas |
+| `wheel_accel_update` | 0x6cb88 | Wheel acceleration storage update |
 | `traction_or_stability_sense` | 0x1ae18 | Traction/stability mode selection |
-| `electronic_differential_controller` | 0x3d458 | Electronic diff control |
-| `pressure_distribution_manager` | 0x34714 | Brake pressure distribution |
-| `calculate_wheel_brake_pressure` | 0x31254 | Per-wheel brake pressure calc |
-| `esp_hydraulic_control_update` | 0x312e8 | Hydraulic control update |
+| `can_tx_build_front_wheel_speeds_0xA2` | 0x5b7b0 | Build CAN 0xA2 message: RF, LF, vehicle speed (7 bytes) |
+| `can_tx_build_rear_wheel_speeds_0xA4` | 0x5d9d0 | Build CAN 0xA4 message: RR, LR, brake switch (6 bytes) |
+| `electronic_differential_controller` | 0x3d458 | Electronic diff control using wheel speed data |
+| `pressure_distribution_manager` | 0x34714 | Brake pressure distribution across wheels |
+| `calculate_wheel_brake_pressure` | 0x31254 | Per-wheel brake pressure from ABS state |
+| `esp_hydraulic_control_update` | 0x312e8 | Hydraulic solenoid control from pressure targets |
 
-### Helpers
+#### CAN Message Formats
+
+See `CAN_MESSAGES.md` for full bit-level documentation.
+
+**0xA2 — Front Wheel Speeds (7 bytes, 100 Hz):**
+14-bit fields: RF speed, LF speed, vehicle speed. 4-bit rolling counter. XOR checksum.
+
+**0xA4 — Rear Wheel Speeds (6 bytes, 100 Hz):**
+14-bit fields: RR speed, LR speed. 2-bit brake switch. 4-bit rolling counter. XOR checksum.
+
+ECU-side speed scaling: `kph = ((raw * 50) >> 3) * CAL_wheel_speed_multiplier / 1000`
+
+#### Fault Detection Chain
+
+```
+calculate_wheel_speed_differentials → axle/side diff > threshold?
+  → FUN_00014978: sets +0x50 bit 6 (slip/diff exceeded)
+  → FUN_00014cb8: persistence counter increment (+1 or +2 per cycle)
+  → validate_wheel_speed_sensors: per-wheel +0x412 bit 7 set on confirmed fault
+  → FUN_00014f8c: counter > DAT_0001538c → +0x50 bit 5 = ABS fault
+  → ABS warning light ON
+```
+
+Tuning for different tire sizes: increase axle diff clamp (320 → 400–500) and raise
+fault counter threshold (`DAT_0001538c`). See CAN bus analysis for CAL_wheel_speed_multiplier
+adjustments on the ECU side.
+
+---
+
+## Vehicle Reference Speed (VSS — ABS is the Speedometer)
+
+The Evora has **no transmission VSS**. The ABS module is the sole source of vehicle speed,
+transmitting it to the ECU and instrument cluster via the 14-bit "Car Speed" field in CAN 0xA2.
+
+### Speed Calculation Chain
+
+```
+HARDWARE TIMER CAPTURE (per wheel, 4 channels)
+  │  Timer/capture registers at wheel_timer_capture_base_LF/RF/LR/RR
+  │  +0x538: previous counter    +0x540: current counter
+  │
+  ▼
+PER-WHEEL SPEED (FUN_00057230, runs for each wheel):
+  pulse_delta = counter[+0x540] − prev[+0x598]
+  raw_speed   = pulse_delta >> 8 (sign-extended)
+  clamp(raw_speed, MIN_SPEED, 0x1680)     // 0x1680 = 5760 = ~288 km/h max
+  rate_limit(raw_speed, old_speed, ±0x2C) // ±44 units per cycle
+  store → +0x5AC (current), shift +0x5A8 → +0x59C (3-deep history)
+  copy  → +0x5B0 (primary, used by aggregator and CAN TX)
+  store → +0x5A2 (absolute value for monitoring)
+  store → +0x5A0 (rate-limited value)
+  │
+  ▼
+VEHICLE REFERENCE SPEED SELECTION (in wheel_speed_aggregator):
+  Uses per-wheel field +0x3CE (separate from +0x5B0)
+  vehicle_speed = MIN(LF.+0x3CE, RF.+0x3CE, LR.+0x3CE, RR.+0x3CE)
+  store → wheel_summary_struct[0x16]
+  │
+  ▼
+CAN TX:
+  CAN 0xA2: 14-bit "Car Speed" field
+    scaled = (raw * 0x8000 - 0xC80000) >> 13  ← builder internal scaling
+    pack_bitfield(buffer, scaled, bit_offset, 12)
+  CAN 0xA4: rear speeds + brake switch
+```
+
+### Per-Wheel State Struct (from wheel_state_ptr_*)
+
+| Offset | Type | Field | Notes |
+|--------|------|-------|-------|
+| +0x538 | u32 | timer_counter_prev | Previous timer capture |
+| +0x53C | u32 | timer_aux | Auxiliary timer data |
+| +0x540 | u32 | timer_counter_current | Current timer capture (source for speed) |
+| +0x594 | u32 | filter_accumulator | Filter accumulator (reset on init) |
+| +0x598 | u32 | filtered_counter | Filtered counter for delta calc |
+| +0x59C | s16 | speed_3_cycles_ago | 3-deep shift register |
+| +0x5A0 | s16 | speed_rate_limited | Rate-limited speed (±44/cycle) |
+| +0x5A2 | s16 | speed_abs | Absolute speed for monitoring |
+| +0x5A8 | s16 | speed_prev_cycle | Speed from 1 cycle ago |
+| +0x5AA | s16 | speed_prev_2cycles | Speed from 2 cycles ago |
+| +0x5AC | s16 | **speed_current** | **CURRENT speed** (source of truth) |
+| +0x5AE | s16 | speed_buffered | Buffered copy of current |
+| +0x5B0 | s16 | speed_primary | Primary speed (copy from +0x5AC, used by aggregator) |
+| +0x5B2 | s16 | speed_buffered2 | Buffered copy of primary |
+| +0x5B4 | s16 | speed_aux_ch4 | Additional speed channel 4 |
+| +0x5A6 | s16 | speed_aux_ch3 | Additional speed channel 3 |
+| +0x5BC | s16 | speed_secondary | Secondary speed channel |
+| +0x3CE | s16 | **speed_vehicle_ref** | **Per-wheel value used for vehicle reference speed** |
+| +0x3DC | s16 | speed_threshold_compare | Speed comparison threshold |
+| +0x270 | byte | init_flag | 0x01 = reset filter accumulators |
+| +0x3DD | byte | fault_combined | Combined fault flag |
+| +0x40C | s16 | min_speed_validate | Min speed for validation (must be ≥ 0x5A = 90) |
+| +0x410 | u16 | fault_flags_per_wheel | 0x100=pending, 0x2000=escalated, 0x8000=cleared |
+| +0x412 | byte | sensor_error | Bit 7 = confirmed sensor fault |
+| +0x413 | byte | fault_source_A | Fault source flag A |
+| +0x271 | byte | fault_source_B | Fault source flag B |
+| +0x578 | s16 | sensor_invalid_flag | < 0 = sensor invalid |
+
+### Scaling Constants
+
+| Constant | Value | Where | Meaning |
+|----------|-------|-------|---------|
+| Pulse → speed | `>> 8` | FUN_00057230 | Timer clock divider (timer_freq / 256) |
+| Internal max | 0x1680 (5760) | clamp | ~288 km/h (Evora top speed ≈ 290) |
+| Internal unit | ~0.05 km/h/LSB | derived | 5760 × 0.05 = 288 km/h |
+| CAN builder scale | `(raw × 0x8000 − 0xC80000) >> 13` | CAN TX builders | Internal → 12-bit CAN field |
+| Rate limit | ±0x2C (44) per cycle | FUN_00057230 | At 100 Hz: max accel = 4400 units/s² |
+| Invalid sentinel | 0x3FFF (14-bit CAN) / 0x1680 (internal) | CAN/builder | Speed unavailable |
+| ECU-side scale | `((raw × 50) >> 3) × multiplier / 1000` | Engine ECU | CAN value → km/h |
+
+### Timing / Pulse-to-Speed Physics
+
+The speed calculation depends on hardware parameters that are NOT in this hex file
+(they're set by the timer/capture clock configuration):
+
+```
+Speed [internal units] = (pulses_per_cycle * timer_freq) / (256 * tooth_count)
+                        = pulse_delta >> 8   [with timer_freq and 256 baked in]
+
+Where:
+  pulses_per_cycle = number of tone ring edges in this 10ms cycle
+  timer_freq       = capture timer clock (unknown — set in hardware init)
+  tooth_count      = ABS tone ring teeth (typically 48 or 96 for Bosch systems)
+  >> 8             = divider from timer clock to speed units
+```
+
+The tire circumference affects the relationship between wheel RPM and km/h:
+```
+km/h = (wheel_RPM × tire_circumference_mm × 60) / 1,000,000
+     = (pulses_per_cycle × 100 × tire_circumference_mm × 60) / (tooth_count × 1,000,000)
+```
+
+### Variant Coding (Wheel Size Presets)
+
+The variant/process byte is stored at RAM **0x400061C2**. It is read via diagnostic
+ReadDataByLocalId (0x21) with dataIdentifier **0xF190** and written via
+WriteDataByLocalId (0x3B). The diagnostic handlers at 0x56BA0/0x56BBC are thin
+wrappers around the diagnostic framework.
+
+**The exact bit mapping is not confirmed from the firmware** — the dataIdentifier
+dispatch is handled by the diagnostic state machine (FUN_000642be and callers),
+not by the small per-SID handlers. Confirming which bits control wheel size
+requires either:
+- Testing on actual hardware (read variant byte, change tire size, measure speed)
+- Tracing the full diagnostic data read path from FUN_000642be → dataIdentifier → RAM
+
+**Recommended investigation:** Read variant byte (0x21 F1 90) on a real module,
+then compare the vehicle speed output with GPS speed to determine the current
+scaling. The difference between CAN-reported and GPS speed reveals the tire size
+calibration offset.
+
+### Calibration Records (ABS Control Region 0x47000+)
+
+These 8-byte LE records affect wheel speed and slip behavior:
+
+| CalID | P1 | P2 | P3 | Meaning |
+|-------|----|----|----|---------| 
+| 0x7C49 | 2680 | 4129 | 4416 | Wheel slip calibration |
+| 0x794A | 4728 | 2627 | 977 | ESP threshold calibration |
+| 0x7949 | **320** | 8578 | 992 | **Axle diff clamp** — increase for tolerance |
+| 0x7648 | 120 | 8310 | 30280 | Minimum speed validation |
+| 0x724D | 10360 | 265 | 9171 | Speed threshold |
+
+---
+
+## ABS Anti-Lock Braking — Modulation Logic
+
+The ABS state machine runs at 100 Hz and controls 4 independent wheel channels.
+Each channel has its own state struct and solenoid driver. The algorithm is a
+classic Bosch ABS cycle: **hold → release → reapply**.
+
+### Architecture
+
+```
+abs_state_machine (0x476A4) — main dispatcher
+  │
+  ├── State 1 (INIT):
+  │     abs_state_action × 4      ← reset per-wheel ABS state fields
+  │     abs_initialization
+  │
+  ├── State 2–3 (NORMAL / ABS ACTIVE):
+  │     abs_wheel_processing × 4   ← zero accumulators for this cycle
+  │     abs_state_update × 4       ← per-wheel: decel calc + state transition
+  │       ├── FUN_00045adc          ← wheel deceleration + lockup detection
+  │       ├── FUN_0006a0f4          ← shared control parameter update
+  │       └── FUN_0006c8c4          ← per-wheel state machine transition
+  │     abs_common_processing       ← shared processing (FUN_000626ac)
+  │     abs_finalization × 4        ← per-wheel cleanup
+  │
+  └── State 0x10 (ABS INTERVENTION):
+        abs_state_update × 4
+        abs_common_processing
+        abs_wheel_handler × 4       ← per-wheel modulation
+          ├── FUN_00064de0           ← shared init
+          ├── FUN_0005646c           ← PRESSURE STATE MACHINE (hold/release/apply)
+          └── FUN_000627bc           ← SOLENOID RAMP CONTROLLER (electrical drive)
+        FUN_0004aae8                 ← hydraulic pump control
+```
+
+### Lockup Detection (FUN_00045adc @ 0x45ADC)
+
+Wheel deceleration is computed from the speed accumulator at +0x420, incremented
+by 0x51EC (20,972) per cycle — this accumulates wheel distance traveled. The
+deceleration is compared against calibrated thresholds.
+
+```
+Wheel state at +0x460 encodes the ABS phase:
+  0 = normal (no intervention)
+  1 = pressure HOLD
+  2 = pressure RELEASE  
+  3+ = pressure REAPPLY
+
+Deceleration signal:
+  +0x418: previous accumulator value
+  +0x420: current accumulator (incremented by 0x51EC/cycle)
+  
+  State 0: raw = +0x420
+  State 1: raw = clamp(+0x420, +0x4F8 ± 0x51EC)
+  State 2+: raw = complex comparison of +0x418 and +0x420
+
+  decel_signal = raw + historical_term(+0x41C)
+  
+  If decel_signal < 0xA30000 (10,682,368): use calibrated scaling
+  Else: use fallback value (DAT_00045ddc)
+
+  Result stored at +0x43A → used for lockup threshold comparison
+
+Phase-dependent table lookups:
+  Tables at DAT_00045de4 indexed by state_byte[+0x460]
+  [0]: state-dependent scaling factor (u16)
+  [2]: accumulator weight factor (u32)
+  [6]: deceleration gain factor (u32)
+  [12]: threshold offset
+```
+
+### Pressure State Machine (FUN_0005646c @ 0x5646C)
+
+Classic Bosch ABS per-wheel phase controller. Three timers track the hold/release/apply
+cycle, counting from negative toward zero at 5 units per cycle (50 ms per step at 100 Hz).
+
+```
+PHASE CONTROL:
+
+ENTRY GATE (all must be true):
+  vehicle_speed ≥ 0x2B3 (691 = ~34 km/h)
+  wheel_slip[+0x442] ≥ 0x566 (1382)
+  pressure_accumulator[+0x430] ≥ DAT_00056668
+
+HOLD PHASE (+0x454 timer):
+  On entry: timer = -10 (100 ms initial hold)
+  Decrements 5/cycle toward zero
+  At timer == 0 → phase transitions to release
+
+RELEASE PHASE (+0x456 timer):
+  Default: -20 (-0x14 = 0xFFEC)
+  If state != 0 (ABS active): timer = -20
+  If state == 0 (normal): increment 5/cycle toward zero
+  
+DECELERATION TIMEOUT (+0x458):
+  Default: -60 (-0x3C) or -5 (-0x5)
+  If hold_timer == -20: set to -60 (600 ms max hold)
+  Else: increment 5/cycle toward zero
+
+PRESSURE RELEASE GATE (+0x48C bit 29):
+  Set when: timeout expires AND DAT_0005666c bit 1 set AND not already set
+  If set:
+    State != 0: reset hold=-20, release=-60
+    State == 0: set release=-5
+
+Timer values at 100 Hz:
+  -10 = 100 ms   (initial hold)
+  -20 = 200 ms   (release duration)
+  -60 = 600 ms   (max hold before forced release)
+  -5  = 50 ms    (final release pulse)
+  +5  = 50 ms/step (timer increment rate)
+```
+
+### Solenoid Ramp Controller (FUN_000627bc @ 0x627BC)
+
+Converts pressure targets to solenoid valve electrical drive signals with
+controlled ramp rates.
+
+```
+RAMP CONTROL:
+
+1. Gate: if +0x48C MSB set → reset ramp timer (+0x45A = 0)
+
+2. Target selection:
+   If state bit 6 set (release): target = +0x440 (release pressure)
+   Else (apply):                 target = +0x43E (apply pressure)
+   copy → +0x446 (current ramp target)
+
+3. Pressure ramp rate:
+   rate = ((+0x43E - +0x446) * 5) / (+0x45A + 5)
+   Units: pressure change per cycle
+
+4. Solenoid accumulator:
+   If rate ≈ 0 (within ±5): hold — no accumulator change
+   Else: accumulator[+0x400 + index] += 5
+
+5. Solenoid drive outputs (+0x48C):
+   Bit 25: ENERGIZE — set when rate > 4 AND accumulator > 0x28 (40)
+           Activates solenoid valve (apply or release pressure)
+   Bit 0:  HOLD — set when rate ≈ 0 AND accumulator > 0x28
+           Holds solenoid at current position (maintain pressure)
+
+PHYSICAL MEANING:
+  Accumulator counts solenoid on-time. Each count = one PWM cycle.
+  Rate control prevents pressure spikes by limiting how fast the
+  solenoid can move. The 5-unit increment per cycle gives a controlled
+  ramp to the target pressure.
+```
+
+### Per-Wheel ABS State Struct
+
+| Offset | Type | Field | Purpose |
+|--------|------|-------|---------|
+| +0x400 | s16[] | solenoid_accumulator | Solenoid on-time accumulator per channel |
+| +0x414 | u32 | pressure_shift_0 | Pressure accumulator shift register [0] |
+| +0x418 | u32 | pressure_shift_1 | Pressure accumulator [1] (previous) |
+| +0x41C | u32 | pressure_shift_2 | Pressure accumulator [2] |
+| +0x420 | u32 | decel_accumulator | Wheel distance/speed accumulator (current) |
+| +0x424 | u32 | decel_scaled | Scaled deceleration output |
+| +0x430 | u32 | brake_pressure_accum | Accumulated brake pressure for threshold |
+| +0x43A | s16 | decel_output | Final deceleration signal (to state machine) |
+| +0x43C | s16 | pressure_prev | Previous pressure target |
+| +0x43E | s16 | pressure_target_apply | Target pressure for APPLY phase |
+| +0x440 | s16 | pressure_target_release | Target pressure for RELEASE phase |
+| +0x442 | s16 | wheel_slip | Current wheel slip magnitude |
+| +0x446 | s16 | pressure_ramp_target | Current ramp target (interpolated) |
+| +0x450 | s16 | cycle_permit | Permission flag for this cycle |
+| +0x454 | s16 | timer_hold | Hold phase timer (counts -10 → 0) |
+| +0x456 | s16 | timer_release | Release phase timer (counts -20 → 0) |
+| +0x458 | s16 | timer_decel_timeout | Deceleration timeout (counts -60 or -5 → 0) |
+| +0x45A | s16 | solenoid_ramp_timer | Solenoid ramp counter |
+| +0x45C | s16 | pressure_output | Final pressure output value |
+| +0x460 | byte | **abs_phase_state** | 0=normal, 1=hold, 2=release, 3+=reapply |
+| +0x461 | byte | control_flags | Additional control flags |
+| +0x462 | u16 | solenoid_flags | Solenoid control register (bits encode valve state) |
+| +0x463 | byte | state_flags | Per-cycle state flags (bit 4 = accumulator shift) |
+| +0x468 | u32 | cycle_data | Per-cycle working data |
+| +0x48C | u32 | **solenoid_control** | Bit 31=gate, bit 29=release, bit 25=energize, bit 0=hold |
+| +0x4F8 | u32 | speed_reference | Reference speed for decel comparison |
+
+### Key Thresholds & Calibration
+
+| Constant | Value | Location | Meaning |
+|----------|-------|----------|---------|
+| Min speed for ABS | 0x2B3 (691) | code immediate | ~34 km/h — ABS disabled below this |
+| Slip threshold | 0x566 (1382) | code immediate | Wheel slip must exceed this to trigger |
+| Decel threshold | 0xA30000 | code immediate | 10.7M — deceleration must be below to trigger |
+| Accel increment | 0x51EC (20972) | code immediate | Per-cycle accumulator increment |
+| Hold timer | -10 (-0xA) | code immediate | 100 ms initial hold |
+| Release timer | -20 (-0x14) | code immediate | 200 ms release duration |
+| Timeout timer | -60 (-0x3C) | code immediate | 600 ms max hold before forced release |
+| Timer step | +5 | code immediate | 50 ms per decrement step |
+| Solenoid threshold | 0x28 (40) | code immediate | Min accumulator to activate solenoid |
+| Speed ref threshold | DAT_0005665c | calibration | Reference speed for phase entry |
+| Pressure threshold | DAT_00056668 | calibration | Min brake pressure for intervention |
+| Flag gate | DAT_0005666c | calibration | Bit 1 gates pressure release |
+| Decel tables | DAT_00045de4 | calibration | Phase-dependent lookup tables |
+
+### ABS Cycle Timing (100 Hz)
+
+```
+Time    Phase           Solenoid       Wheel Behavior
+─────────────────────────────────────────────────────────
+0 ms    NORMAL          Off            Decelerating normally
+100 ms  HOLD (entry)    Hold           Lockup detected — hold pressure
+200 ms  HOLD (cont)     Hold           Wheel recovering speed
+300 ms  RELEASE         Release        Release pressure to let wheel spin
+400 ms  RELEASE         Release        Wheel accelerating
+500 ms  REAPPLY         Apply          Reapply pressure gradually
+600 ms  REAPPLY         Apply          Wheel approaching lockup again
+...     (cycle repeats until vehicle stops or brake released)
+```
+
+---
+
+## Road Surface Mu (Friction Coefficient) Estimator
+
+`road_surface_mu_estimator` @ 0x3CCE4 — estimates the tire-road friction coefficient.
+Output is in **Q9 fixed-point format** where **512 = 1.0 = dry tarmac**.
+
+### Algorithm Overview
+
+```
+Speed-indexed base mu table lookup
+        │
+        ├──→ SLIP DETECTION:  longitudinal × lateral < 0 ?
+        │         Yes → tire at friction limit → low-mu fallback
+        │         No  → normal driving → dynamic lower bound
+        │
+        ├──→ LOWER BOUND CALCULATION:
+        │         lateral_accel deviation from reference
+        │         mu_lower = 0x31 − (|Δaccel| × scaling >> 10)
+        │         clamped to [0, current]
+        │
+        └──→ OUTPUT: mu = speed_table_value, clamped ≥ lower_bound
+                  stored at mu_estimator_output_struct[0x17]
+```
+
+### Operating Modes
+
+The mode selector at `mu_estimator_state_ptr + 1` (byte) chooses the estimation strategy:
+
+| Mode | Condition | Base Mu | Lower Bound | Behavior |
+|:----:|-----------|:-------:|:-----------:|----------|
+| 1 | Startup / init | 0x6D (0.213) | 0x21 (0.064) | Fixed conservative value |
+| 2 | Normal driving | Speed table | Dynamic, ≥0x31 | Primary estimation mode |
+| 3 | Axle-specific | Speed table | Dynamic, [0x52, 0x148] | Different axle reference |
+| 4 | Complex | 0xDA (0.426) or table | Multiple gates | Multi-factor with yaw gates |
+| 5+ | Fallback | 0 | 0 | No grip estimate |
+
+### Slip Detection — The Core Physics
+
+The fundamental insight: when a tire is at its friction limit, the longitudinal
+and lateral force components have **opposite signs**. The product becomes negative:
+
+```
+if (longitudinal_force × lateral_force < 0):
+    → Tire is SLIDING (at friction ellipse boundary)
+    → Current mu estimate is too HIGH
+    → Switch to low_surface_mu_fallback
+    → Lower bound = (wheel_slip × scaling) >> 8
+```
+
+This detects the transition from elastic to sliding tire behavior — the fundamental
+indicator that the current friction estimate is wrong.
+
+### Mode 2 — Normal Driving (Detailed)
+
+```
+1. Base mu = lookup_1d(speed_index, mu_speed_lookup_table)
+2. IF longitudinal × lateral < 0 (slip detected):
+     lower_bound = (wheel_data[+0xA0] × slip_scaling) >> 8
+     lower_bound = max(lower_bound, 0x52)    // never below 0.160
+     mu = low_surface_mu_fallback
+3. ELSE (no slip):
+     a) IF gate_bit_1 clear AND factor_product < 1:
+          lower_bound unchanged, clamp ≥ 0x31 (0.096)
+     b) IF gate_bit_1 set AND factor_product < 1:
+          Δaccel = |lateral_accel − reference|
+          lower_bound = 0x31 − (Δaccel × mu_lower_bound_scaling >> 10)
+          lower_bound = max(lower_bound, 0)
+     c) ELSE:
+          lower_bound += 4, clamp ≥ 0x31
+4. lower_bound = max(lower_bound, speed_table_value)
+5. Final output:
+     IF mu_mode_threshold > 0:
+       temp = min(current_mu, 0x19A (410 = 0.801))
+       mu = max(temp, low_surface_mu_fallback)
+     filtered_counter = min(filtered_counter + 1, 0x19 (= 25))
+```
+
+### Mode 4 — Complex Multi-Factor
+
+```
+1. IF longitudinal × lateral < 0 (slip):
+     lower_bound = (wheel_data[+0x9E] × scaling) >> 8
+     lower_bound = max(lower_bound, 0x52)
+     mu = 0xDA (218 = 0.426 — wet road)
+2. ELSE IF DAT_0003d064 + alternate_fixed_mu < 0 OR speed < 0x2D0:
+     Complex set of sub-gates based on yaw sign, lateral sign, mu magnitude
+     May reduce mu by subtracting 0x6D (to model rapidly decreasing grip)
+3. ELSE:
+     Additional gates check for yaw/lateral sign disagreement
+     lower_bound = 8 or calculated from deviation
+     IF DAT_0003d074 bit 3 clear:
+       mu = max(mu, 0xDA)  // saturate to 0.426
+       lower_bound = 0x29 (41 = 0.080)
+     ELSE:
+       mu = min(current_mu, mu_upper_limit)
+       lower_bound = 0
+```
+
+### Key Calibration Values
+
+| Symbol | Address | Meaning |
+|--------|---------|---------|
+| `mu_speed_lookup_table` | DAT_0003d050 | Primary mu vs. speed table (1D interpolated) |
+| `mu_speed_index_input` | DAT_0003d054 | Speed input for table lookup |
+| `low_surface_mu_fallback` | DAT_0003d090 | Mu when slip detected (e.g., gravel/ice) |
+| `alternate_fixed_mu` | DAT_0003d08c | Alternate fixed mu (mode 3/4 certain conditions) |
+| `mu_upper_limit` | DAT_0003d078 | Maximum mu ceiling |
+| `mu_lower_bound_scaling_factor` | DAT_0003d098 | |Δaccel| → lower_bound conversion |
+| `lateral_accel_reference_lower_bound` | DAT_0003d094 | Reference lateral accel value |
+| `mu_mode_threshold` | DAT_0003d09c | Mode 2 threshold (> 0 → use 0x19A fallback) |
+| `mu_longitudinal_factor_ptr` | DAT_0003d060 | Longitudinal force factor (pair with lateral) |
+| `mu_lateral_factor_ptr` | DAT_0003d05c | Lateral force factor |
+| `mu_estimator_state_ptr` | DAT_0003d04c | State struct (mode byte at +1, flags at +0x3F) |
+| `mu_estimator_output_struct` | DAT_0003d048 | Output struct (+0x17 = mu output Q9) |
+| `DAT_0003d064` | — | Mode 4 entry threshold |
+| `DAT_0003d068` | — | Factor pair A (used with DAT_0003d06c) |
+| `DAT_0003d06c` | — | Factor pair B (used with DAT_0003d068) |
+| `DAT_0003d070` | — | Mode 4 sub-gate factor |
+| `DAT_0003d074` | — | Mode 4 flag byte (bit 3 = mu ceiling mode) |
+| `DAT_0003d07c` | — | Pointer to wheel slip/accel data for lower bound |
+| `DAT_0003d080` | — | Scaling factor for slip → lower_bound conversion |
+| `DAT_0003d084` | — | Mode 3 yaw factor A |
+| `DAT_0003d088` | — | Mode 3 yaw factor B |
+
+### Mu Internal Units & Ceiling
+
+The hardcoded mu values use internal units where **512 ≈ μ 1.0** (Q9-like scaling).
+However, **mu_upper_limit = 1038** (≈ μ 2.03) — Bosch built in headroom above 1.0
+for high-grip surfaces, race tires, and aerodynamic downforce.
+
+**Standard calibration clamps practical output to 0x19A (410 = 0.80 μ)** via the
+mode 2/3/4 cleanup code. The 0.80 ceiling is the effective limit unless recalibrated.
+
+| Internal | Physical μ | Surface / Use |
+|:--------:|:----------:|---------------|
+| 0x6D (109) | 0.21 | Gravel / packed snow |
+| 0xDA (218) | 0.43 | Wet road |
+| 0x19A (410) | 0.80 | Damp tarmac (standard calibration ceiling) |
+| 0x200 (512) | 1.00 | Dry tarmac baseline |
+| 0x29A (666) | 1.30 | Race tires on prepared surface |
+| 0x40E (1038) | 2.03 | **Maximum allowed** (hardware ceiling) |
+
+### How Mu Affects ESP Behavior
+
+The mu estimate flows into two paths:
+1. **vehicle_dynamics_model**: multiplies `road_surface_coupling_coefficient` (5675 at 0x293E0)
+   into the yaw error → lateral force conversion (Phase 7)
+2. **ESP yaw stability controller**: scales intervention thresholds — lower mu → earlier,
+   gentler intervention; higher mu → more permissive, allows more slip
+
+To raise the effective μ for track use:
+- Increase values in `mu_speed_lookup_table` (flash 0xA72BC, but this is a table-of-tables)
+- Or raise the 0x19A (410) clamp in the mode 2/3/4 cleanup code (hardcoded, needs hex patch)
+- `mu_upper_limit` (1038) already allows headroom — no patch needed there
+
+---
+
+## Torque Reduction Path — ESP → ECU Engine Power Cut
+
+When the ESP intervenes, it can request the engine ECU to reduce torque. This is
+the safety backstop: if differential braking alone can't stabilize the car, cutting
+engine power removes the energy source driving the instability.
+
+### Data Flow
+
+```
+esp_yaw_stability_controller
+  │
+  ├── Bit 0: intervention_magnitude >= DAT_00032f58 (3391)
+  │          Set in ALL modes → mild torque reduction
+  │
+  └── Bit 3: intervention counter > 39 cycles (~390ms)
+             Set in TOUR mode only → aggressive torque cut
+  │
+  ▼
+ESP state struct offset +0x1E:  torque_request_flags (byte)
+  │
+  ▼
+can_tx_prepare_slot7_esp_status (0x3FF90)
+  │  reads torque_request_flags from ESP state
+  │  also reads per-wheel pressure flags, status bytes
+  │
+  ▼
+can_tx_build_esp_status_0xA8 (0x62F0C)
+  │  packs flags into CAN message buffer
+  │
+  ▼
+CAN 0xA8 (6 bytes, 100 Hz) → Engine ECU
+  │
+  ▼
+ECU receives CAN 0xA8, checks torque flags
+  If bit 0 set → mild throttle reduction
+  If bit 3 set → aggressive throttle cut + ignition retard
+```
+
+### Torque Request Flags (ESP State +0x1E)
+
+| Bit | Mask | Set When | Mode | Action |
+|:---:|:----:|----------|:----:|--------|
+| 0 | 0x01 | `|intervention_magnitude| >= 3391` | **All** | Mild torque reduction |
+| 3 | 0x08 | Intervention counter > 39 cycles | **Tour only** | Aggressive torque cut |
+
+### CAN 0xA8 — ESP/ABS Status Message
+
+The torque request is embedded in CAN 0xA8 byte 1 alongside ESP/ABS status:
+
+| CAN Byte | Bit | Signal | Meaning |
+|----------|:---:|--------|---------|
+| byte[1] | 3 | ESP Active | ESP intervention in progress |
+| byte[1] | 5 | ABS Active | ABS intervention in progress |
+| byte[1] | 6 | (aux status) | Additional torque/ESP flag |
+| byte[1] | 7 | (aux status) | Additional ABS flag |
+
+The torque_request_flags from the ESP state struct are processed through
+a complex prioritization function (at line ~13000 in esp_yaw_stability_controller)
+that resolves competing requests (ESP yaw, ABS, EDL, wheel-speed faults) into
+CAN byte 1 bits. This function checks drive mode, vehicle speed, yaw rate
+magnitude, per-wheel slip, and multiple status flags before setting each bit.
+
+Additional conditions that influence CAN 0xA8 byte 1:
+- **pbVar5[1] |= 0x80**: torque_request_flags == 0 (no active intervention)
+- **pbVar5[1] |= 0x40**: Sport/Race mode, yaw conditions met
+- **pbVar5[1] |= 0x08**: yaw rate magnitude exceeds threshold — ESP ACTIVE
+- **pbVar5[1] |= 0x20**: speed + differential conditions met — ABS ACTIVE
+
+### Torque Reduction vs ESP Braking
+
+The ESP uses a layered safety strategy:
+
+| Layer | Tour Mode | Sport/Race Mode |
+|-------|-----------|-----------------|
+| **1. Differential braking** | Full correction (base + sensor scaling) | Base correction only |
+| **2. Mild torque reduction** | Bit 0 set immediately on intervention | Bit 0 set immediately |
+| **3. Aggressive torque cut** | Bit 3 after ~390ms sustained | **NEVER** — skipped entirely |
+| **Net effect** | Brakes + engine cut → aggressive recovery | Brakes only (mild torque cut) → driver keeps power |
+
+### ECU-Side Response
+
+The engine ECU (EFI Technology, MPC5534) receives CAN 0xA8 and applies:
+- **Bit 0 active**: Throttle reduction (limit to partial opening) or mild ignition retard
+- **Bit 3 active**: Aggressive ignition retard (multi-cylinder cut) + throttle to idle
+
+The ECU's torque model coordinates this with its own traction control (if equipped,
+GT430 only). The ESP torque request takes priority over driver demand.
+
+---
+
+## Drive Mode Propagation — Tour / Sport / Race / TC_Off
+
+The drive mode byte arrives from the ECU on CAN 0x114 and propagates through
+the ABS, gating three major subsystems: bicycle model, ESP controller, and
+EDL/traction control.
+
+### Data Flow
+
+```
+CAN 0x114 (ECU)
+  │  mode byte:  0x10=Race, 0x08=Sport, 0x01=TC_Off, 0x00=Tour
+  ▼
+DAT_0006d2b4 (RAM 0x00404F77) — received CAN mode byte
+  │
+  ▼
+can_mode_dispatcher (0x6D228)
+  │  stores mode value at RAM 0x00404FB4
+  │  sets status bits at yaw_pi_state[0x2B]:
+  │    bit 7 (0x80) = Race
+  │    bit 6 (0x40) = Sport
+  │    bit 5 (0x20) = TC_Off
+  │    none       = Tour
+  │  calls FUN_0003dfb6() on mode transition → reloads calibration tables
+  │
+  ▼
+yaw_pi_state[0x16..0x17] and yaw_sensor_state_struct[0x16..0x17]
+  (mode info propagates to both structs via FUN_0003dfb6)
+  │
+  ├──→ BICYCLE MODEL (vehicle_dynamics_model)
+  │       Gate: yaw_pi[0x17] | yaw_pi[0x16] >> 5 & 1
+  │       Tour:  bit 5 = 0 → steering adaptation SKIPPED
+  │       Sport: bit 5 = 1 → steering adaptation RUNS
+  │       Effect: conservative reference yaw vs. permissive
+  │
+  ├──→ ESP YAW CONTROLLER (esp_yaw_stability_controller)
+  │       Gate: yaw_sensor_state_struct[0x16] == 0 ?
+  │       Tour (==0):  FULL correction — sensor scaling + counter + torque escalation
+  │       Sport (!=0): REDUCED — base brake only, no counter, no torque escalation
+  │       Effect: ~30-40% less brake pressure, no sustained engine cut
+  │
+  ├──→ EDL / TRACTION (FUN_000469f0)
+  │       Gate: yaw_pi[0x16] bits 11, 14
+  │       Affects electronic differential lock thresholds
+  │       Mode-dependent calibration tables swapped by FUN_0003dfb6
+  │
+  └──→ INTERVENTION PRIORITIZATION (in torque reduction path)
+          Gate: yaw_pi[0x15] >> 3 & 1
+          Additional: yaw_pi[0x16] >> 11 & 1
+          Affects: CAN 0xA8 byte 1 torque reduction bits
+```
+
+### Mode Status Bit Map
+
+| Bit | yaw_pi[0x2B] | Mode | Gate Active |
+|:---:|:------------:|------|:-----------:|
+| 7 | 0x80 | **Race** | Steering adapt + reduced ESP + EDL sport |
+| 6 | 0x40 | **Sport** | Steering adapt + reduced ESP + EDL sport |
+| 5 | 0x20 | **TC_Off** | Steering adapt + reduced ESP + TC disabled |
+| — | 0x00 | **Tour** | Conservative — full ESP, no steering adapt |
+
+### Per-Subsystem Effects
+
+#### 1. Bicycle Model — Steering Gradient Adaptation
+
+**Gate location:** `vehicle_dynamics_model` Phase 12 (line 32660)
+
+```c
+if (((yaw_pi[0x17] | yaw_pi[0x16]) >> 5 & 1) == 0) {
+    goto skip_adaptation;  // TOUR: skip entirely
+}
+// SPORT/RACE: run speed-dependent correction
+```
+
+| Mode | Steering Adaptation | Reference Yaw | ESP Result |
+|------|:-------------------:|---------------|------------|
+| Tour | **SKIPPED** | Conservative (understeer-biased) | Intervenes EARLIER |
+| Sport | **RUNS** | Speed-corrected (permissive) | Intervenes LATER |
+| Race | **RUNS** | Speed-corrected (permissive) | Intervenes LATER |
+| TC_Off | **RUNS** | Speed-corrected | Intervenes LATER, TC disabled |
+
+**Additional gates** (all must pass):
+- `yaw_pi[0x15] >> 3 & 1` = yaw rate status must be set
+- Steering correction NOT already active
+- Speed >= 346 (~17 km/h)
+- Steering counter |value| > 24 (sustained cornering)
+
+#### 2. ESP Yaw Stability Controller — Intervention Response
+
+**Gate location:** `esp_yaw_stability_controller` (line 40147)
+
+```c
+if (yaw_sensor_state_struct[0x16] == 0) {
+    // TOUR MODE — full intervention:
+    //   1. sensor_based_correction_scaling * sensor / speed → extra brake
+    //   2. brake_pressure += yaw_term + speed_term + limit
+    //   3. counter += 1 or 2 (escalation tracking)
+    //   4. After 39 cycles → torque_request_flags |= 8 (aggressive cut)
+}
+// SPORT/RACE/TC_OFF — this entire block is SKIPPED
+//   → base brake pressure only
+//   → no counter escalation
+//   → no sustained engine torque reduction
+```
+
+**What's mode-independent** (runs before the gate, all modes):
+- Yaw error threshold comparison (+2004/−2003 deadband)
+- Intervention permission gate
+- Base brake pressure calculation
+- Torque request flag bit 0 (mild reduction)
+
+#### 3. EDL / Traction Control
+
+**Gate location:** `FUN_000469f0` @ 0x469F0
+
+Mode-dependent calibration tables are swapped by `FUN_0003dfb6` on mode transition.
+Per-wheel EDL parameters (slip targets, intervention thresholds) are reloaded from
+mode-specific flash tables into runtime RAM at:
+- `DAT_00046ca0 + 0x276`: mode status word
+- `DAT_00046ca0 + 0xEA`: primary EDL output
+- `DAT_00046ca0 + 0x104`: alternate EDL output
+
+#### 4. Torque Reduction Path
+
+Mode affects CAN 0xA8 byte 1 composition:
+- All modes: bit 0 (mild torque reduction) on intervention
+- **Tour only**: bit 3 (aggressive torque cut) after 390ms sustained intervention
+- Sport/Race: bit 3 NEVER set — driver maintains engine power through slides
+
+### Mode Transition Function (FUN_0003dfb6 @ 0x3DFB6)
+
+Called on first entry to a new drive mode. Reloads mode-specific calibration tables:
+- EDL per-wheel slip targets
+- Traction control thresholds
+- Per-wheel intervention parameters
+- Updates yaw_sensor_state_struct[0x16..0x17] with mode byte
+- Updates yaw_pi_state[0x16..0x17] with status flags
+
+The function reads calibration data from flash tables indexed by drive mode and
+copies them to runtime structs that are used by the EDL controller and ESP
+intervention logic. This is how Sport mode gets different calibration values
+without having separate code paths.
+
+---
+
+## Steering Angle Pipeline — CAN 0x85 → Bicycle Model
+
+### Data Flow
+
+```
+CAN 0x85 (SAS — Steering Angle Sensor)
+  │  2-field s16 layout: steering angle + angular rate
+  ▼
+can_rx_steering_angle_dispatcher (0x5BCE0)
+  │  Gate: can_id_byte >= 0x84 && can_id_byte < 0x86
+  │  Parser: can_message_parser(&data, 0x111)
+  │  Max message length check: < 0x140
+  ▼
+Steering state struct (base = DAT_00032a7c, RAM 0x00404xxx)
+  │  Raw CAN fields deposited at specific offsets by parser
+  │  +0x86: raw steering angle (u16 from CAN)
+  │  +0x88: raw angular rate (u16 from CAN)
+  │  +0x8C: steering delta (s16, change from previous)
+  ▼
+can_steering_angle_receive_handler (0x32658)
+  │  Validates: steering magnitude < 0x4D (77 = ~7.7°)
+  │  Checks status flags at +0x78, +0x98
+  │  Applies scaling: angle * calibration / divisor
+  │  Stores filtered result at +0x6C, +0x74
+  ▼
+steering_angle_slew_rate_limiter (0x6CA94)
+  │  Rate limit: ±0x42 (66) per cycle at 100 Hz
+  │  Max steering rate: 6600 units/s ≈ 660 °/s
+  │  Filter counter at +0x78 (+200/cycle during filtering)
+  │  Filtered output at +0xA4
+  ▼
+vehicle_state[+0x22] — steering angle δ (s16)
+  │  Further processing: scaled by steering ratio
+  │
+  ├──→ vehicle_state[+0x26] — effective steering angle (tire-corrected)
+  │      δ_eff = (value >> 6) + offset
+  │
+  └──→ Bicycle model core:
+         ψ_ref = v × δ_eff / L_eff
+         Used in both front AND rear lateral force calculations
+         Input to steering direction counter at vehicle_state[+0xC4]
+```
+
+### Key Functions
+
+| Function | Address | Role |
+|----------|---------|------|
+| `can_rx_steering_angle_dispatcher` | 0x5BCE0 | CAN RX dispatcher for 0x84/0x85 |
+| `can_steering_angle_receive_handler` | 0x32658 | Validate + process raw CAN data |
+| `steering_angle_slew_rate_limiter` | 0x6CA94 | Rate-limit ±0x42/cycle, output filtered angle |
+| `can_tx_init_steering_angle_0x85` | 0x60C16 | Initialize steering angle TX (ABS→SAS request) |
+
+### Steering State Struct (DAT_00032a7c)
+
+| Offset | Type | Field | Purpose |
+|--------|------|-------|---------|
+| +0x6C | s16 | filtered_output_A | Processed steering value (path A) |
+| +0x74 | s16 | filtered_output_B | Processed steering value (path B) |
+| +0x78 | u16 | filter_counter | +200 per cycle while filtering, checks bit 3 |
+| +0x7B | byte | check_flags | Bit 3 masks validity path |
+| +0x7D | byte | status_byte | Must be 1 for slew limiter to run |
+| +0x86 | u16 | raw_steering_angle | Raw CAN 0x85 data (from parser) |
+| +0x88 | u16 | raw_steering_rate | Raw angular rate (from parser) |
+| +0x8A | s16 | delta_threshold | If |delta| <= this, no filtering needed |
+| +0x8C | s16 | steering_delta | Change from previous filtered value |
+| +0x90 | s16 | target_magnitude | Reference magnitude for comparison |
+| +0x98 | byte | init_flag | 0x01 = initialization complete |
+| +0xA0 | u32 | control_flags | Bit 27 (0x08000000) = slew limiter enable |
+| +0xA4 | s16 | **filtered_steering** | **SLEW-LIMITED OUTPUT** → feeds vehicle_state[0x22] |
+
+### Slew Rate Limiter Detail
+
+```
+Algorithm (runs at 100 Hz):
+
+1. GATE CHECK:
+   if ((control_flags[+0xA0] & 0x08000000) == 0) return;  // disabled
+   if (status_byte[+0x7D] != 1) return;                     // not ready
+
+2. THRESHOLD CHECK:
+   delta = |steering_delta[+0x8C]|
+   if (delta <= threshold[+0x8A]) {
+       clear control bit 3;  // small change — no filtering needed
+       return;
+   }
+
+3. RATE LIMIT:
+   if (filtered[+0xA4] < 0) {
+       filtered -= 0x42;    // decreasing: move toward target at -66/cycle
+       if (target <= filtered) goto clamp;
+   } else {
+       filtered += 0x42;    // increasing: move toward target at +66/cycle
+       if (filtered <= target) goto clamp;
+   }
+   filtered = target;       // clamp to target (within 0x42)
+   
+clamp:
+   filter_counter[+0x78] += 200;  // increment filter activity counter
+```
+
+**Slew rate:** ±0x42 (66) per cycle. At 100 Hz = ±6600 units/s.
+If 1 unit = 0.1° steering wheel: ±660 °/s — matches human max steering rate (~500-800 °/s).
+
+### Scaling
+
+The raw CAN 0x85 value is processed through:
+1. CAN parser extracts 16-bit signed fields
+2. Validation gate: raw angle magnitude < 0x4D (77) — prevents garbage data
+3. Scaling: `angle * calibration / divisor` (exact formula in receive handler)
+4. Slew limiter output: filtered angle at +0xA4
+5. Bicycle model input: vehicle_state[0x22], then tire-corrected to vehicle_state[0x26]
+
+**Inferred unit:** 0.1° steering wheel angle per LSB. At ±0x42/cycle slew rate:
+660 units/s × 0.1°/unit = 66°/s — consistent with the actual rate limit.
+
+---
+
+## Hydraulic Control — Pressure Targets → Solenoid Valves
+
+The final stage of the ABS/ESP control chain. Converts per-wheel brake pressure
+targets (from the ESP yaw controller and ABS state machine) into solenoid valve
+electrical commands that physically modulate brake pressure at each wheel.
+
+### Architecture
+
+```
+ESP yaw controller          ABS state machine
+  puVar5[1] = diff press    per-wheel pressure targets
+  puVar5[3] = base press         │
+       │                         │
+       └─────────┬───────────────┘
+                 │
+                 ▼
+     brake_pressure_distribution (0x2F8A4)
+       Routes base + differential to target wheels
+       Routes base only to non-target wheels (holding)
+       │
+       ▼
+     pressure_distribution_manager (0x34714)
+       Coordinates pressure across all 4 wheels
+       │
+       ▼
+     esp_hydraulic_control_update (0x312E8)
+       │
+       ├── Pump pressure measurement (FUN_0003a26c)
+       ├── Pressure averaging (10-value history)
+       ├── IIR low-pass filter (τ = ~512/51 ≈ 10 cycles)
+       │
+       └── calculate_wheel_brake_pressure × 4
+             │
+             ├── Scale: target × master_pressure >> 15
+             ├── Clamp to minimum threshold (+0x604)
+             ├── Accumulate solenoid status (4 valves per wheel)
+             └── Build solenoid control word (+0x56C)
+                   │
+                   ▼
+               HYDRAULIC UNIT
+               (inlet/outlet valves, pump motor)
+```
+
+### Master Pressure Calculation
+
+```c
+// 5-channel pressure shift register (at DAT_000316e8):
+//   +0x08..+0x12: new pressure values (5 channels, s16)
+//   +0x14..+0x1C: previous (shifted each cycle)
+//   +0x1E..+0x26: current
+//   +0x28..+0x30: history
+//
+// Each cycle:
+//   history ← current ← previous ← new
+
+// Compute new pressures:
+for (ch = 0; ch < 5; ch++) {
+    pressure[ch] = raw_input[ch][+0x1E] - offset[DAT_000316f4];
+}
+
+// Average of 4 wheel channels:
+avg_pressure = (ch0 + ch1 + ch2 + ch3) >> 2;
+
+// Scale to master pressure:
+master_pressure = avg_pressure * 0x181 >> 13;  // ×385 / 8192
+
+// 10-value rolling average:
+smoothed_pressure = sum(all_10_history_values) / 10;
+
+// Pump pressure:
+pump_pressure = FUN_0003a26c();  // reads pump pressure sensor
+if (pump_pressure < 0) pump_pressure = 0;
+if (pump_pressure < 0x76 && gate_flag) pump_pressure = 0;  // below 118 units
+
+// IIR filter on pump pressure:
+pump_filtered += (pump_pressure - pump_filtered) * 0x33 >> 9;
+// τ = 512/51 ≈ 10 cycles ≈ 100ms at 100Hz
+
+// Per-wheel solenoid scaling:
+solenoid_drive = (*DAT_00031700 + 0x6E) * pump_filtered >> 10;
+```
+
+### Per-Wheel Brake Pressure (calculate_wheel_brake_pressure)
+
+```c
+// Input: param_3 = wheel state struct, DAT_000316e4 = master pressure
+// Output: per-wheel pressure + solenoid control word
+
+// 1. Scale target pressure:
+scaled = (input_pressure[+0x30] * master_pressure) >> 15;
+
+// 2. Clamp to minimum:
+if (scaled < min_threshold[+0x604]) {
+    scaled = min_threshold[+0x604];
+}
+
+// 3. Store final pressure:
+pressure_output[+0x53C] = scaled;
+
+// 4. Accumulate 4 valve status bytes:
+valve_sum = status[+0x534] + status[+0x535] + status[+0x536] + status[+0x537];
+
+// 5. Build solenoid control word:
+control[+0x56C] = ~((valve_sum | (valve_sum | valve_sum >> 2) >> 2) << 12) & 0x20000000
+                | control[+0x56C] & 0x9FFFFFFF
+                | (valve_sum & 0x800000) << 7;
+```
+
+### Valve Control Bits (Solenoid Control Word +0x56C)
+
+The 32-bit solenoid control word drives the hydraulic modulator:
+
+| Bit | Mask | Solenoid | Function |
+|:---:|:----:|----------|----------|
+| 29 | 0x20000000 | Inlet valve | Isolates wheel from master cylinder (hold/release) |
+| 25 | 0x02000000 | Outlet valve | Releases pressure to accumulator/reservoir |
+| Others | — | Pump + aux | Pump motor, prime valve, accumulator control |
+
+The 4 status bytes at +0x534–+0x537 track per-valve state through the ABS cycle:
+- **Inlet valve**: OPEN during normal braking and APPLY phase, CLOSED during HOLD and RELEASE
+- **Outlet valve**: CLOSED during normal braking, OPEN during RELEASE to dump pressure
+- **Pump**: Active during REAPPLY to build pressure back up
+
+### Per-Wheel Hydraulic State Struct
+
+| Offset | Type | Field | Purpose |
+|--------|------|-------|---------|
+| +0x30 | s16 | input_pressure_target | Pressure target from ESP/ABS (input) |
+| +0x534 | byte | valve_status_0 | Solenoid valve 0 status |
+| +0x535 | byte | valve_status_1 | Solenoid valve 1 status |
+| +0x536 | byte | valve_status_2 | Solenoid valve 2 status |
+| +0x537 | byte | valve_status_3 | Solenoid valve 3 status |
+| +0x53C | s16 | pressure_output | Final pressure to wheel |
+| +0x554 | u8 | valve_sum | Sum of 4 valve status bytes |
+| +0x56A | s16 | pressure_scaled | Scaled pressure (before clamp) |
+| +0x56C | u32 | **solenoid_control** | **Solenoid PWM control word → hardware** |
+| +0x604 | s16 | pressure_min_threshold | Minimum pressure clamp |
+
+### Master Pressure State Struct (DAT_000316e8)
+
+| Offset | Type | Content |
+|--------|------|---------|
+| +0x04 | s16 | 10-value rolling average pressure |
+| +0x06 | s16 | IIR filtered pump pressure |
+| +0x08–+0x12 | s16[5] | New pressure values (5 channels) |
+| +0x14–+0x1C | s16[5] | Previous pressure values |
+| +0x1E–+0x26 | s16[5] | Current pressure values (source from ESP/ABS) |
+| +0x28–+0x30 | s16[5] | History pressure values |
+
+### ABS Cycle → Solenoid States
+
+| ABS Phase | Inlet Valve | Outlet Valve | Pump | Wheel Pressure |
+|-----------|:-----------:|:------------:|:----:|:--------------:|
+| Normal braking | OPEN | CLOSED | OFF | Master cylinder |
+| **HOLD** | CLOSED | CLOSED | OFF | Constant |
+| **RELEASE** | CLOSED | **OPEN** | OFF | Decreasing |
+| **REAPPLY** | OPEN | CLOSED | **ON** | Increasing |
+
+### Pressure Units
+
+Internal brake pressure unit: estimated **0.01 bar per LSB**
+- Base offset 236 ≈ 2.4 bar (minimum usable)
+- Differential offset 471 ≈ 4.7 bar (minimum for effective yaw moment)
+- Max correction 6600 ≈ 66 bar (within typical automotive max ~80-100 bar)
+
+### Helpers — Utility Function Catalog
+
+The codebase contains ~9,944 functions (2,056 Ghidra-recognized). ~5,472 are still auto-named
+(FUN_ prefix). Call-frequency analysis reveals the most-used utility functions:
+
+#### High-Call-Count Utilities
+
+| Name | Address | Calls | Role |
+|------|---------|:-----:|------|
+| `thunk_lookup_1d` | 0x72470 | 190 | Thunk → `lookup_1d_linear_interpolation`. #1 most-called. |
+| `ercosek_svc7_activate_task` | 0x46868 | 112 | ERCOSEK OS call — SVC #7 (ActivateTask/SetEvent). Called via thunks @ 0x4698E and 0x71AE8. |
+| `scale_bytes_4wide` | 0x55d98 | 80 | Per-byte processing of two 32-bit values through `scale_byte_pair` |
+| `process_four_fields` | 0x1f9b0 | 50 | 4-field data processing from char-indexed struct |
+| `interpolate_2d` | 0x1fb20 | — | 2D bilinear interpolation: `(x-x0)*(y1-y0)/(x1-x0) + y0` |
+| `lookup_1d_linear_interpolation` | 0x6dcc8 | — | 1D table lookup with linear interpolation between axis points |
+| `math_operation_helper` | 0x6e7a8 | — | sqrt-like operation via lookup table (sum of squares → interpolated root) |
+
+#### Bitfield & CAN Packing
 
 | Name | Address | Role |
 |------|---------|------|
-| `comparator_with_deadband` | 0x1be10 | Hysteresis comparator |
-| `saturate_add_byte` | 0x6c7b8 | Saturating byte addition |
-| `enable_flag` | 0x41200 | Set flag bit |
-| `clear_bit` | 0x4120c | Clear flag bit |
-| `find_first_bitfield_zero` | 0x413ee | Find first zero in bitfield |
-| `zero_out_ptr_fields` | 0x26170 | Initialize pointer fields to NULL |
-| `initialize_two_16bit_arrays` | 0x2618e | Array initialization |
-| `math_operation_helper` | 0x6e7a8 | Math helper |
+| `pack_bitfield` | 0x50d64 | Pack unsigned value into buffer at bit offset. Used by all CAN TX builders. Signature: `(buffer, value, bit_offset, bit_width)` |
+| `pack_counter_4bit` | 0x50dd6 | Pack 4-bit rolling counter at bit offset. Used by CAN TX builders. |
+
+#### ERCOSEK OS Service Calls
+
+The ARM `SVC` (software interrupt) instructions invoke the ERCOSEK kernel:
+
+| SVC # | Wrapper Function | Purpose |
+|:-----:|------------------|---------|
+| 0 | `ercosek_svc_can_init` @ 0x6db88 | CAN init/reset |
+| 6 | `ercosek_svc_can_tx_trigger` @ 0x6db50 | CAN TX trigger (also calls SVC #7) |
+| 7 | `ercosek_svc7_activate_task` @ 0x46868 | ActivateTask / SetEvent — the main OS task activation call |
+
+The SVC handler itself is in the boot ROM / ERCOSEK kernel below 0x8000.
+`ercosek_message_dispatch` @ 0x715d0 is a jump-table-based message/task dispatcher.
+
+#### Thunk Table (0x724xx Range)
+
+The TI compiler generates a thunk table for indirect function access. Each thunk is a
+2-instruction function that jumps to the real target. This is typical of the TI TMS470
+run-time library linking model:
+
+| Thunk Address | Real Target | Notes |
+|:---:|-------------|-------|
+| 0x72470 | `lookup_1d_linear_interpolation` | 190 calls |
+| 0x7245c | `scale_bytes_4wide` | 6 calls |
+| 0x72484 | FUN_0006d700 | 4 calls |
+| 0x72498 | FUN_000645cc | 3 calls |
+| 0x724ac | FUN_0005b2c8 | 4 calls |
+| 0x724c0 | FUN_0006d72c | 4 calls |
+| 0x724d4 | FUN_0006d758 | 4 calls |
+| 0x7240c | FUN_0006d758 (alt) | 9 calls |
+| 0x72420 | FUN_000686b4 | 4 calls |
+| 0x72430 | FUN_0006874a | 2 calls |
+
+#### Arithmetic & Bit Operations
+
+| Name | Address | Role |
+|------|---------|------|
+| `comparator_with_deadband` | 0x1be10 | Hysteresis comparator: `|diff| > 5` with direction memory |
+| `saturate_add_byte` | 0x6c7b8 | Saturating byte addition: `val += inc; if overflow, clamp` |
+| `enable_flag` | 0x41200 | Set a bit in a flags word: `flags \|= 1 << bit_index` |
+| `clear_bit` | 0x4120c | Clear a bit: `flags &= ~(1 << bit_index)` |
+| `find_first_bitfield_zero` | 0x413ee | Find first zero bit in 32-bit field (returns 0–31 or 0xFF) |
+| `fixed_multiply_scaled` | 0x56a8a | Fixed-point multiply with scaling (17 calls) |
+| `fixed_multiply_scaled_v2` | 0x56a60 | Variant with different scaling (15 calls) |
+
+#### Memory & Init
+
+| Name | Address | Role |
+|------|---------|------|
+| `libc_memset` | 0x86a0 | Byte-by-byte memset. The compiler did NOT inline/optimize this. |
+| `libc_memcpy` | 0x86ac | Byte-by-byte memcpy. TMS470 compiler default — no memcpy inlining. |
+| `zero_out_ptr_fields` | 0x26170 | Zero-initialize pointer arrays |
+| `initialize_two_16bit_arrays` | 0x2618e | Initialize two parallel 16-bit arrays from a source |
+
+---
+
+## Watchdog Subsystem
+
+The ESP8 uses a **two-stage watchdog**: a hardware WDT on the TMS470 plus a software
+counter for ERCOSEK task supervision.
+
+### Architecture
+
+```
+Task A ──→ watchdog_feed() ──→ hw_kick + counter++
+Task B ──→ watchdog_feed() ──→ hw_kick + counter++
+Task C ──→ watchdog_feed() ──→ hw_kick + counter++
+...
+Main Loop ──→ watchdog_check() ──→ counter--
+                 if counter == 0 → watchdog_trigger_reset() → SYSTEM RESET
+```
+
+The software counter at `DAT_00008468` (byte) must stay above zero. Each task calls
+`watchdog_feed` when it completes a cycle (incrementing the counter). The main loop
+periodically decrements it. If the decrement hits zero, the tasks aren't completing
+fast enough → system reset.
+
+There are **40 call sites** (via `thunk_watchdog_feed` @ 0x9664) spread across the
+codebase — one per ERCOSEK task or major code path.
+
+### Hardware WDT Register
+
+The TMS470 watchdog is fed by writing to a memory-mapped register. The value written
+encodes the ARM CPSR (Current Program Status Register) flags:
+
+| Bit | CPSR Flag | Meaning |
+|-----|-----------|---------|
+| 31 | N | Negative |
+| 30 | Z | Zero |
+| 29 | C | Carry |
+| 28 | V | Overflow |
+| 27 | Q | Saturation |
+
+- **Feed value:** `(CPSR_flags << 27) | 0x80` — bit 7 set = keep alive
+- **Reset value:** `(CPSR_flags << 27)` — bit 7 clear = trigger reset
+
+### Functions
+
+| Name | Address | Role |
+|------|---------|------|
+| `watchdog_feed_hw` | 0x837c | Returns `(CPSR_flags << 27) \| 0x80` — hardware WDT feed value |
+| `watchdog_trigger_reset` | 0x836c | Returns `(CPSR_flags << 27)` — writing this triggers reset |
+| `watchdog_increment_` | 0x8410 | Hardware feed + increment software counter |
+| `watchdog_check` | 0x842c | Decrement software counter; trigger reset if zero |
+| `watchdog_init` | 0x846c | Initialize WDT hardware and software counter |
+| `thunk_watchdog_feed` | 0x9664 | Thunk wrapper → `watchdog_increment_` (40 call sites) |
+
+### Call Pattern
+
+The 40 `thunk_watchdog_feed` calls are distributed across task functions. Each call
+represents a task checkpoint: "I'm alive, keep the watchdog fed." The main loop's
+`watchdog_check` call verifies that ALL tasks are making progress. This is a standard
+ERCOSEK task monitoring pattern — each periodic task feeds the watchdog, and the
+supervisor task reaps the counter.
 
 ---
 

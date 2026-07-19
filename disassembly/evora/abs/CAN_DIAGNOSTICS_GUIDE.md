@@ -8,7 +8,7 @@ over CAN bus using **KWP2000 (ISO 14230)** over **ISO-TP (ISO 15765-2)**.
 **Module:** Bosch ESP8.1 ABS — Texas Instruments TMS470 (ARM7TDMI, big-endian), ERCOSEK RTOS.  
 **This is the ABS/ESP module only** — not the engine ECU. The ECU is a separate
 module (EFI Technology, MPC5534) on the same CAN bus but uses different diagnostic
-CAN IDs (engine = 0x7E0/0x7E8, ABS = 0x7E2/0x7EA per ISO 15765-4).
+CAN IDs (engine = 0x7E0/0x7E8, ABS = 0x6F4/0x6F5 per ISO 15765-4).
 
 ---
 
@@ -19,34 +19,23 @@ CAN IDs (engine = 0x7E0/0x7E8, ABS = 0x7E2/0x7EA per ISO 15765-4).
 | Parameter | Value |
 |-----------|-------|
 | Bus speed | 500 kbps |
-| Diagnostic CAN IDs (ABS) | **0x7E2** (tester → ABS), **0x7EA** (ABS → tester) |
+| Diagnostic CAN IDs (ABS) | **0x6F4** (tester → ABS), **0x6F5** (ABS → tester) |
 | Diagnostic CAN IDs (functional) | **0x7DF** (broadcast — all modules listen) |
 | Transport | ISO-TP (ISO 15765-2) — CAN multi-frame |
 | Protocol | KWP2000 (ISO 14230) — normal addressing mode |
 | Addressing | 11-bit CAN IDs |
 
-### Diagnostic CAN ID Assignment (ISO 15765-4)
-
-Per the ISO 15765-4 standard for OBD-II physical addressing:
+### Diagnostic CAN ID Assignment
 
 | Module | Request ID | Response ID |
 |--------|-----------|-------------|
-| **Engine ECU** | **0x7E0** | **0x7E8** |
-| Transmission | 0x7E1 | 0x7E9 |
-| **ABS / ESP (this module)** | **0x7E2** | **0x7EA** |
-| Body / restraint | 0x7E3 | 0x7EB |
-| Functional (all modules) | **0x7DF** | — |
+| Engine ECU | 0x7E0 | 0x7E8 |
+| **ABS / ESP (this module)** | **0x6F4** | **0x6F5** |
+| Functional (all modules) | 0x7DF | — |
 
-> **Important:** The engine ECU uses 0x7E0/0x7E8. The ABS uses 0x7E2/0x7EA.
-> Do not send ABS diagnostic requests to 0x7E0 — the ECU will reject them
-> (NRC 0x11, serviceNotSupported) since the ECU and ABS have different SID tables.
->
-> **If the ABS does not respond on 0x7E2:** try functional addressing on 0x7DF.
-> In some vehicle architectures, both modules may share CAN IDs with addressing
-> bytes in the KWP2000 data. The IDs above assume normal addressing mode.
-> **This needs experimental verification on a real vehicle** — the ERCOSEK COM
-> stack configures CAN IDs at build time and these are not visible in the
-> application firmware.
+> **Confirmed on vehicle.** The ABS does NOT use ISO 15765-4 standard IDs.
+> It uses proprietary CAN IDs 0x6F4/0x6F5 configured at build time by the
+> ERCOSEK COM stack. The engine ECU uses standard 0x7E0/0x7E8.
 
 ### Tools
 
@@ -92,16 +81,16 @@ fragments and reassembles them.
 
 ```
 → Tester sends ReadEcuIdentification (20-byte request doesn't fit in SF):
-  0x7E2  10 14  1A 87 FF FF FF FF    (FF: total length = 0x014 = 20 bytes)
-  0x7EA  30 00 00 00 00 00 00 00    (FC: clear to send, no block size limit)
-  0x7E2  21  xx xx xx xx xx xx xx    (CF seq=1, bytes 7–13 of payload)
-  0x7E2  22  xx xx xx xx xx xx xx    (CF seq=2, bytes 14–20 of payload)
+  0x6F4  10 14  1A 87 FF FF FF FF    (FF: total length = 0x014 = 20 bytes)
+  0x6F5  30 00 00 00 00 00 00 00    (FC: clear to send, no block size limit)
+  0x6F4  21  xx xx xx xx xx xx xx    (CF seq=1, bytes 7–13 of payload)
+  0x6F4  22  xx xx xx xx xx xx xx    (CF seq=2, bytes 14–20 of payload)
 
 ← ABS responds (response also multi-frame if >7 bytes):
-  0x7EA  10 2A  5A 87 01 42 42 36    (FF: total length = 0x02A = 42 bytes)
-  0x7E2  30 00 00 00 00 00 00 00    (FC: tester grants send)
-  0x7EA  21  xx xx xx xx xx xx xx    (CF seq=1)
-  0x7EA  22  xx xx xx xx xx xx xx    (CF seq=2)
+  0x6F5  10 2A  5A 87 01 42 42 36    (FF: total length = 0x02A = 42 bytes)
+  0x6F4  30 00 00 00 00 00 00 00    (FC: tester grants send)
+  0x6F5  21  xx xx xx xx xx xx xx    (CF seq=1)
+  0x6F5  22  xx xx xx xx xx xx xx    (CF seq=2)
   ...etc...
 ```
 
@@ -207,7 +196,7 @@ dispatch table at `0xB90DC`. No others will work — you'll get NRC 0x11
 | **0x32** | StopRoutineByLocalId | ✓ | — | — | — | Stop routine, any time |
 | **0x33** | RequestRoutineResults | ✓ | — | — | — | Poll routine results |
 | **0x3B** | WriteDataByLocalId | — | ✓ | ✓ | Level 1 | Write calibration / recode |
-| **0x3D** | WriteMemoryByAddress | ✓ | — | — | — | Write RAM/flash by address |
+| **0x3D** | WriteMemoryByAddress | ✓ | — | — | **?** | Write RAM/flash; mask=0x85 (default only). Security requirement unconfirmed — likely has runtime address-range checks. See §6. |
 | **0x3E** | TesterPresent | ✓ | ✓ | ✓ | — | Session keep-alive |
 
 > **Not supported:**
@@ -280,13 +269,13 @@ full permutation, SBOX[0x00] = 0x00.
 ```
 ======= STEP 1: Enter Programming Session =======
 
-→ CAN ID: 0x7E2
+→ CAN ID: 0x6F4
   Data:   02 10 02
           │  │  └── sessionType: 0x02 = programmingSession
           │  └───── SID: 0x10 = StartDiagnosticSession
           └──────── PCI: single frame, 2 data bytes
 
-← CAN ID: 0x7EA
+← CAN ID: 0x6F5
   Data:   06 50 02 00 32 00 C8
           │  │  │  └─────────┘
           │  │  │     P2 timing (may vary by firmware)
@@ -297,13 +286,13 @@ full permutation, SBOX[0x00] = 0x00.
 
 ======= STEP 2: Request Seed (SecurityAccess Level 1) =======
 
-→ CAN ID: 0x7E2
+→ CAN ID: 0x6F4
   Data:   02 27 01
           │  │  └── securityAccessType: 0x01 = requestSeed
           │  └───── SID: 0x27 = SecurityAccess
           └──────── PCI: single frame, 2 data bytes
 
-← CAN ID: 0x7EA
+← CAN ID: 0x6F5
   Data:   06 67 01 11 22 33 44
           │  │  │  └────────┘
           │  │  │     seed bytes (fixed: 0x11, 0x22, 0x33, 0x44)
@@ -324,7 +313,7 @@ full permutation, SBOX[0x00] = 0x00.
 
 ======= STEP 4: Send Key =======
 
-→ CAN ID: 0x7E2
+→ CAN ID: 0x6F4
   Data:   06 27 02 D0 BD 6D 67
           │  │  │  └────────┘
           │  │  │     computed key (4 bytes)
@@ -332,7 +321,7 @@ full permutation, SBOX[0x00] = 0x00.
           │  └───── SID: 0x27
           └──────── PCI: single frame, 6 data bytes
 
-← CAN ID: 0x7EA
+← CAN ID: 0x6F5
   Data:   02 67 02
           │  │  └── securityAccessType echoed
           │  └───── SID | 0x40 = positive response → UNLOCKED
@@ -566,8 +555,8 @@ def compute_key(seed: bytes) -> bytes:
 class ESP8Client:
     """KWP2000 diagnostic client for Bosch ESP8 ABS over ISO-TP."""
 
-    TX_ID = 0x7E2   # ABS physical request (ISO 15765-4)
-    RX_ID = 0x7EA   # ABS physical response
+    TX_ID = 0x6F4   # ABS physical request (ISO 15765-4)
+    RX_ID = 0x6F5   # ABS physical response
     TIMEOUT = 1.0  # seconds
 
     def __init__(self, channel: str = "can0"):
@@ -881,7 +870,7 @@ Bus constructor.
 │ Bosch ESP8 ABS — KWP2000 Diagnostic Quick Ref    │
 ├──────────────────────────────────────────────────┤
 │ Module:    ESP8.1 (TMS470/ARM7TDMI, ERCOSEK)    │
-│ CAN IDs:   TX=0x7E2, RX=0x7EA (ISO 15765-4 ABS)     │
+│ CAN IDs:   TX=0x6F4, RX=0x6F5 (ISO 15765-4 ABS)     │
 │ Bus:       500 kbps, 11-bit IDs                  │
 │ Transport: ISO-TP (ISO 15765-2)                  │
 │ Protocol:  KWP2000 (ISO 14230)                   │
