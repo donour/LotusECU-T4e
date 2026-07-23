@@ -1,12 +1,13 @@
-# T6e ECU EEPROM Corruption: Sudden Power Loss Bricking
+# T6 ECU EEPROM Corruption: Sudden Power Loss Bricking
 
 ## Platform
 
-- **ECU**: Lotus/EFI Technology T6e engine management
+- **ECU**: Lotus/EFI Technology T6 engine management
 - **MCU**: Freescale MPC5534 (PowerPC e200z3 core)
 - **Flash**: C55FMC embedded flash with 8-bit ECC per 64-bit double-word
 - **Firmware**: B13200091 (2011 Lotus Evora NA, US Federal)
 - **Analysis date**: July 2026
+- **Author**: Donour Sizemore
 
 ## Symptoms
 
@@ -203,24 +204,24 @@ Because the machine check fires during `EEPROM_load()` (step 3 in `init_devices`
 
 ```
 0x00000000 ┌──────────────────────────┐
-           │  Bootloader + Startup     │  Flash block 0 (64 KB)
-           │  (Reset vector, IVOR      │  NOT affected by EEPROM writes
-           │   handlers, C runtime)    │
+           │  Bootloader + Startup    │  Flash block 0 (64 KB)
+           │  (Reset vector, IVOR     │  NOT affected by EEPROM writes
+           │   handlers, C runtime)   │
 0x00010000 ├──────────────────────────┤
-           │  EEPROM: LEA Base         │  Flash sector #4 (48 KB)
-           │  Learned Adaptive Values  │  Written by EEPROM_save() →
-           │  (6736 bytes used of      │  EEPROM_write() at shutdown
-           │   48 KB sector)           │  ⚠ VULNERABLE TO POWER LOSS
+           │  EEPROM: LEA Base        │  Flash sector #4 (48 KB)
+           │  Learned Adaptive Values │  Written by EEPROM_save() →
+           │  (6736 bytes used of     │  EEPROM_write() at shutdown
+           │   48 KB sector)          │  ⚠ VULNERABLE TO POWER LOSS
 0x0001C000 ├──────────────────────────┤
-           │  EEPROM: Variant Coding   │  Flash sector #8 (16 KB)
-           │  COD (VIN, options, CRC)  │  Written by
-           │  (68 bytes used)          │  EEPROM_commit_coding_to_flash()
+           │  EEPROM: Variant Codin   │  Flash sector #8 (16 KB)
+           │  COD (VIN, options, CRC  │  Written by
+           │  (68 bytes used)         │  EEPROM_commit_coding_to_flash()
 0x00020000 ├──────────────────────────┤
-           │  Calibration Data (CAL_*) │  Flash — read-only at runtime
-           │  Tables, constants, axes  │
+           │  Calibration Data (CAL_*)│  Flash — read-only at runtime
+           │  Tables, constants, axes │
 0x00040000 ├──────────────────────────┤
-           │  Main Application Code    │  Flash — read-only
-           │  (FUN_* functions)        │
+           │  Main Application Code   │  Flash — read-only
+           │  (FUN_* functions)       │
            └──────────────────────────┘
 ```
 
@@ -263,17 +264,15 @@ if ((_core_block_invalid) || ...) {
 
 ## Variants Affected
 
-All T6e-based ECUs share this EEPROM architecture:
+All T6-based ECUs share this EEPROM architecture:
 
 | Variant | Vehicle | Affected? |
 |---|---|---|
 | B13200091 | Evora NA (2011) | **Yes** — this analysis |
 | C132E0271 | Evora 400 (2017) | **Likely** — same `EEPROM_save()` flow |
 | C132E0278 | Evora GT430 (2019) | **Likely** — same `init_flash_helper` handler (`000427c4`) |
-| E132E0288 | Evora GT (2020–2021) | **Likely** — same T6e architecture |
-| Emira (8900689277A) | Emira V6 | **Unknown** — MPC5777C, different flash controller, different EEPROM strategy |
+| E132E0288 | Evora GT (2020–2021) | **Likely** — same T6 architecture |
 
-The Emira firmware copies a 64 KB calibration block to RAM at startup (`0x4002e000`), which is a fundamentally different approach — the entire calibration lives in RAM during operation. This may make it immune to this specific failure mode, but the variant would need separate analysis.
 
 ## Recovery Options
 
@@ -282,7 +281,7 @@ The Emira firmware copies a 64 KB calibration block to RAM at startup (`0x4002e0
 1. **Reflash the ECU** — A full flash image write erases and re-programs all sectors, including the corrupted `0x10000` area
 2. There is no software-only recovery short of reflashing, since the ECU never boots far enough to respond to diagnostic commands
 
-### For Firmware Engineers (Hypothetical Fix)
+### For Firmware Engineers (Hypothetical Fixes)
 
 1. **Dual-copy EEPROM (A/B scheme)**
    - Write to alternate location, verify, then update a version counter or magic number
@@ -300,50 +299,8 @@ The Emira firmware copies a 64 KB calibration block to RAM at startup (`0x4002e0
    - The next boot would see all-0xFF data, fail the CRC check, and run `lea_cold_init()` — recovering automatically
    - This is the **minimum change** that would prevent bricking
 
-4. **Hold-up capacitance**
-   - Hardware fix: add enough capacitance on the ECU power supply to complete the EEPROM write
-   - The write takes ~100-500 ms; a capacitor bank sized for that duration at the ECU's quiescent current would prevent the partial-write scenario entirely
-
-5. **Defer EEPROM writes to stable conditions**
+4. **Defer EEPROM writes to stable conditions**
    - Instead of writing immediately on voltage drop, write periodically when conditions are stable
    - Accept that the last few seconds of learned data may be lost on power failure
    - This is the approach used by many production ECUs
 
-## Key Addresses and Symbols
-
-| Address | Symbol | Description |
-|---|---|---|
-| `0x00000150` | `FUN_00000150` | C runtime entry (called from bootloader reset vector) |
-| `0x00000474` | `FUN_00000474` | Segment init (copy .data, zero .bss) |
-| `0x000012f4` | `FUN_000012f4` | Timebase reset |
-| `0x00010000` | `EEPROM_lea_base` | **LEA flash storage** — 6736 bytes, corrupted by power loss |
-| `0x0001C000` | COD flash base | Variant coding (VIN, options, CRC) in flash |
-| `0x000427c4` | `FUN_000427c4` / `init_flash_helper` | Machine check / flash fault handler |
-| `0x000576d0` | `FUN_000576d0` | Flash cleanup + infinite loop |
-| `0x40002D40` | `LEA_base` | **LEA RAM copy** — 32 bytes (program name) + learned data |
-| `0x400087E0` | `COD_base` | Variant coding in RAM (struct_variant_coding_t6e, 68 bytes) |
-| `0x40008800` | `COD_model_name` | COD model field at offset 0x20 (used for version mismatch check) |
-| `0x40008828` | `DAT_40008828` | Separate 32-byte buffer — copy of LEA program name from flash |
-| `0xFFF48000` | INTC base | Interrupt controller registers |
-| `0xFFFC0000` | FlexCAN A base | CAN controller registers |
-
-## References
-
-- `B13200091.c:7784` — `FUN_00000150` (C runtime entry)
-- `B13200091.c:13353` — `init_devices()` (device initialization sequence)
-- `B13200091.c:13360-13363` — Flash erase flags set/clear around `EEPROM_load()`
-- `B13200091.c:13404` — `main()` (main loop, 1000 Hz)
-- `B13200091.c:13470-13472` — `EEPROM_commit_coding_to_flash()` called from main loop
-- `B13200091.c:19410` — `EEPROM_save()` (triggered at shutdown)
-- `B13200091.c:19432` — `EEPROM_load()` (called at boot, BEFORE CAN init)
-- `B13200091.c:21236` — `EEPROM_write()` (erase + write, the vulnerability)
-- `B13200091.c:21269` — `load_saved_LEA()` (reads from `EEPROM_lea_base` = `0x10000`)
-- `B13200091.c:21293` — `FUN_000576d0()` (infinite loop — crash handler)
-- `B13200091.c:21389` — `shutdown()` (detects low voltage, triggers `EEPROM_save()`)
-- `B13200091.c:54289` — `copyCOD2RAM()` (reads COD + LEA program name from flash)
-- `B13200091.c:54341` — `EEPROM_commit_coding_to_flash()` (COD flash write)
-- `B13200091.c:20857` — `flash_erase()` (C55FMC block erase with unlock passwords)
-- `B13200091.c:21160` — `flash_write()` (C55FMC double-word programming)
-- `data_symbols.tsv:858` — `EEPROM_lea_base` = `0x00010000`
-- `data_symbols.tsv:10541` — `LEA_base` = `0x40002D40`
-- `data_symbols.tsv:11856` — `COD_base` = `0x400087E0`
