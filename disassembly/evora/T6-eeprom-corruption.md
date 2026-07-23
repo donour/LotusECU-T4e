@@ -110,52 +110,58 @@ This erases the flash sector spanning `0x10000–0x1BFFF`.
 
 **The vulnerability window is the entire duration of `flash_write()`.** Writing 6736 bytes to C55FMC flash takes hundreds of milliseconds. If power is lost at any point during this write, some 64-bit double-words are programmed (with correct ECC for their new data) while others remain in the erased state (all `0xFF` with ECC for erased state). The result is an inconsistent ECC panorama across the sector.
 
-### Step 4 — Next Boot: ECC Machine Check
+### Step 4 — Next Boot: ECC Machine Check in copyCOD2RAM()
 
 On the next power-up, execution proceeds through the bootloader (stored in a separate flash block at `0x00000–0x0FFFF`, unaffected) and reaches `main()`.
 
-`main()` calls `init_devices()` at `B13200091.c:13353`:
+`main()` calls `init_devices()` at `B13200091.c:13353`, whose **first** call is `copyCAL2RAM()`:
 
 ```c
 void init_devices(void) {
-    copyCAL2RAM();                         // 1. Copy calibration → RAM (different flash area)
-    init_gear_cal();
-    init_obd_ii_config();
-    init_intc_1();                         // 2. Configure interrupt controller
-    flash_erase_pending_flags = flash_erase_pending_flags | 1;
-    EEPROM_load();                         // 3. ← READS FROM 0x10000 — MACHINE CHECK!
-    flash_erase_pending_flags = flash_erase_pending_flags & 0xfe;
-    set_spr_IVOR2();
-    init_siu();                            //    (SIU init — configures pin mux, pads)
-    init_eDMA();
-    init_eqADC();
-    init_pinmux_and_iosetup();
-    ...                                    //    various peripheral inits
-    init_flexcan_a();                      // 4. CAN init — BUT WE NEVER GET HERE
-    init_flexcan_filters();
+    copyCAL2RAM();                         // 1. ← Calls copyCOD2RAM() — READS 0x10000!
+    init_gear_cal();                       //    NEVER REACHED
+    init_obd_ii_config();                  //    NEVER REACHED
+    ...
+    init_flexcan_a();                      //    NEVER REACHED
     ...
 }
 ```
 
-`EEPROM_load()` at `B13200091.c:19432` calls `load_saved_LEA(LEA_base, 0x1a50)` at line 19449, which reads from the `EEPROM_lea_base` pointer — confirmed in the symbol table as flash address `0x00010000`:
-
-```
-# data_symbols.tsv:858
-00010000    EEPROM_lea_base    char[32]    32    USER_DEFINED
-```
+`copyCAL2RAM()` at `B13200091.c:13282` calls `copyCOD2RAM()`:
 
 ```c
-int load_saved_LEA(char *param, int size) {
-    pcVar4 = EEPROM_lea_base;              // = 0x00010000 (flash)
-    while (size-- != 0) {
-        *param++ = *pcVar4++;              // ← Reads partially programmed flash
-    }
+void copyCAL2RAM(void) {
+    // ... calibration copy, init_intc_1() ...
+    flash_erase_pending_flags = flash_erase_pending_flags | 0b00000010;  // SET BIT 1 (COD) ONLY
+    copyCOD2RAM();                         // ← READS FROM 0x10000 — MACHINE CHECK!
+    flash_erase_pending_flags = flash_erase_pending_flags & 0b11111101;  // NEVER REACHED
+    ...
 }
+```
+
+`copyCOD2RAM()` at `B13200091.c:54289` begins by reading the LEA flash area:
+
+```c
+void copyCOD2RAM(void) {
+    // FIRST action: copy 32 bytes from 0x10000 (LEA flash) to RAM
+    for (i = 0; i < 0x20; i = i + 1) {
+        (&DAT_40008828)[i] = *(undefined1 *)(i + 0x10000);  // ← READS CORRUPTED FLASH
+    }
+    // THEN: read COD from 0x1C000, CRC check, rebuild if needed
+    // ... NEVER REACHED ...
+}
+```
+
+This is the **first read from `0x10000` in the entire boot sequence**, and it happens *before* `EEPROM_load()` at line 13361. Critically, at this point:
+
+```
+flash_erase_pending_flags = 0b00000010   (only bit 1 set — marks COD sector 0x1C000)
+                                       (bit 0 NOT set — LEA sector 0x10000 is NOT marked)
 ```
 
 **The MPC5534 flash controller detects an ECC error on read.** The C55FMC flash uses 8 bits of ECC per 64-bit double-word. A double-word that was partially programmed (new data written but ECC not finalized, or adjacent words in mixed states) produces an uncorrectable ECC error. This triggers **IVOR1 — Machine Check exception** on the PowerPC e200z3 core.
 
-### Step 5 — Machine Check Handler: Infinite Loop
+### Step 5 — Machine Check Handler: Erases the WRONG Sector, Then Hangs
 
 The machine check handler (`FUN_000427c4`, named `init_flash_helper` in the C132E0278 variant symbol table) calls `FUN_000576d0()` at `B13200091.c:21293`:
 
@@ -163,18 +169,19 @@ The machine check handler (`FUN_000427c4`, named `init_flash_helper` in the C132
 void FUN_000576d0(void) {
     set_spr154_2c52();                       // Unlock flash controller
 
+    // flash_erase_pending_flags == 0b00000010 at this point
     if ((flash_erase_pending_flags & 1) != 0) {
-        watchdog_retrigger();
-        flash_erase(0, 0, 4);               // Erase LEA sector (0x10000)
+        // BIT 0 = 0 → DOES NOT EXECUTE
+        flash_erase(0, 0, 4);               // Erase LEA sector (0x10000) — SKIPPED
     }
     if ((flash_erase_pending_flags & 2) != 0) {
-        watchdog_retrigger();
-        flash_erase(0, 0, 8);               // Erase COD sector (0x1C000)
+        // BIT 1 = 1 → EXECUTES
+        flash_erase(0, 0, 8);               // Erase COD sector (0x1C000) — ERASES WRONG SECTOR
     }
 
     watchdog_retrigger();
-    FUN_000573b4();                          // Clean up flash controller state
-    set_spr154_6c54();                       // Re-lock flash controller
+    FUN_000573b4();
+    set_spr154_6c54();
 
     do {
         // WARNING: Do nothing block with infinite loop
@@ -182,23 +189,34 @@ void FUN_000576d0(void) {
 }
 ```
 
-The handler attempts to recover by erasing the corrupted sectors (making them readable as all-0xFF), but then **hangs forever in an infinite loop**. Critically:
+**The handler erases the COD sector (`0x1C000`) but leaves the corrupted LEA sector (`0x10000`) untouched.** The COD sector wasn't the problem — it may have been perfectly intact, or if it was also corrupted, erasing it is harmless. But the LEA sector, which contains the partially programmed double-words causing the ECC error, is never erased.
 
-- The watchdog is **not** retriggered inside the infinite loop
-- No software reset is triggered
-- The CPU remains in this state until power is physically cycled — but cycling power restarts the same sequence, hitting the same corrupted flash
+The handler then enters an infinite loop. The watchdog is not retriggered, no software reset is triggered. The CPU is frozen.
 
-Because the machine check fires during `EEPROM_load()` (step 3 in `init_devices`), the handler runs before `init_flexcan_a()` (step 4). The ECU never initializes CAN, never enters the main loop, and never starts the engine.
+### Step 6 — Why Power Cycling (and a Plain Reset) Don't Fix It
 
-### Step 6 — The ECU is Bricked
+This is the critical insight that explains the permanent bricking:
+
+```
+Power cycle → Bootloader → main() → init_devices() → copyCAL2RAM()
+    → copyCOD2RAM() → reads 0x10000 → SAME ECC ERROR
+    → machine check handler → flash_erase_pending_flags still == 0b00000010
+    → erases COD sector again (already erased) → leaves LEA sector corrupted
+    → infinite loop
+```
+
+**Every boot follows the exact same path.** The LEA sector at `0x10000` is never marked for erase (`flash_erase_pending_flags` bit 0 is never set before the read that triggers the exception), so the machine check handler never erases it. The corruption is permanent.
+
+The only way out is a full reflash, which performs a bulk erase of all flash sectors (including `0x10000`) before reprogramming.
 
 | Symptom | Mechanism |
 |---|---|
 | **"ECM Comms Error"** | `init_flexcan_a()` at line 13381 is never reached |
 | **No engine start** | `main()` loop at line 13419 is never entered |
-| **Persists across power cycles** | Corrupted flash is permanent; every boot hits the same ECC error |
+| **Persists across power cycles** | LEA sector corruption survives; handler erases the wrong sector on every boot |
+| **A plain reset wouldn't fix it either** | Same code path, same flags, same wrong sector erased |
 | **Bootloader works** | Bootloader at `0x00000–0x0FFFF` is in a different flash block |
-| **Reflash fixes** | Bulk erase clears all sectors; reprogramming writes correct ECC for every double-word |
+| **Reflash fixes** | Bulk erase clears ALL sectors; reprogramming writes correct ECC for every double-word |
 
 ## Flash Memory Layout
 
@@ -232,24 +250,67 @@ Both the LEA sector (`0x10000`) and COD sector (`0x1C000`) are within **flash bl
 
 ## Why the CRC Check Doesn't Prevent This
 
-`EEPROM_load()` does contain integrity checks. After loading the data from flash, it computes CRC16 over both the core block (5384 bytes) and the full block (6732 bytes) and compares against the saved CRCs:
+`EEPROM_load()` does contain integrity checks — after loading the data from flash it computes CRC16 over both the core block (5384 bytes) and full block (6732 bytes) and compares against saved CRCs:
 
 ```c
 // B13200091.c:19457-19471
 _saved_crc_core = _LEA_crc_core;
 _crc_core = CRC16((byte *)LEA_base, 5384);
-// ...
-_core_block_invalid = false;
-if ((_saved_crc_core != _crc_core) || (DAT_40004244 != 0x1508)) {
-    _core_block_invalid = true;
-}
-// ...
-if ((_core_block_invalid) || ...) {
-    lea_cold_init();           // Reset LEA to defaults
-}
+// ... CRC comparison, conditional lea_cold_init() on mismatch ...
 ```
 
-**But the CRC check never executes** — the machine check exception fires during `load_saved_LEA()` at the first read of a corrupted double-word, *before* the CRC computation can run. The integrity check is structurally incapable of catching ECC errors because reading the data to verify it is what triggers the fault.
+**But `EEPROM_load()` is never reached.** The machine check exception fires earlier, during `copyCOD2RAM()` inside `copyCAL2RAM()` — the very first call in `init_devices()`. `copyCOD2RAM()` does its own CRC check on the COD area (at `0x1C000`), but the ECC error fires on the LEA area (at `0x10000`) *before* any integrity check runs. The integrity checks are structurally incapable of catching ECC errors because reading the data to verify it is what triggers the fault.
+
+Additionally, the 32-byte read in `copyCOD2RAM()` that triggers the exception has no CRC or integrity check at all — it is a raw copy of the program name prefix from the LEA flash into RAM, intended for the `prog_version_mismatch` comparison later in the same function.
+
+## Why the Handler Erases the Wrong Sector
+
+This is the core of the bug. The machine check handler uses `flash_erase_pending_flags` to decide which flash sectors to erase before hanging. But the flags are only set immediately before the corresponding EEPROM operation — and they're cleared immediately after. At the exact moment the first read from the corrupted `0x10000` area occurs, only the COD flag is set.
+
+### flash_erase_pending_flags Bit Assignments
+
+| Bit | Value | Sector | Address Range | Purpose |
+|---|---|---|---|---|
+| 0 | `0b00000001` | LEA | `0x10000–0x1BFFF` | Learned adaptive values |
+| 1 | `0b00000010` | COD | `0x1C000–0x1FFFF` | Variant coding (VIN, options) |
+
+### Flag State at Each Boot Stage
+
+```
+BOOT SEQUENCE                          flash_erase_pending_flags
+───────────                            ────────────────────────
+Power-on reset                         0b00000000  (BSS zero-init)
+
+main()
+  └─ init_devices()
+       └─ copyCAL2RAM()
+            ├─ init_intc_1()           0b00000000
+            ├─ SET flags |= bit 1      0b00000010  ← COD flag set
+            ├─ copyCOD2RAM()
+            │    └─ READS 0x10000      *** ECC EXCEPTION ***
+            │         Handler sees:     0b00000010
+            │         → Erases COD?    YES (bit 1 = 1)
+            │         → Erases LEA?    NO  (bit 0 = 0)
+            │         → Infinite loop
+            │
+            ├─ CLEAR bit 1             NEVER REACHED
+            └─ set_spr_IVOR2()         NEVER REACHED
+
+       └─ EEPROM_load()                NEVER REACHED
+            (would have set bit 0 before reading 0x10000,
+             but the ECC error already fired in copyCOD2RAM)
+```
+
+The fix embedded in the normal code path is visible by looking at what `init_devices()` **intended** to do later:
+
+```c
+// B13200091.c:13360-13362 — NEVER REACHED when LEA is corrupted
+flash_erase_pending_flags = flash_erase_pending_flags | 1;   // SET bit 0 (LEA)
+EEPROM_load();                  // reads 0x10000 — safe if handler had bit 0
+flash_erase_pending_flags = flash_erase_pending_flags & 0xfe; // CLEAR bit 0
+```
+
+If `EEPROM_load()` were the first to read `0x10000` (instead of `copyCOD2RAM()`), the handler would correctly erase the LEA sector. The bug is that `copyCOD2RAM()` reads `0x10000` **earlier**, before bit 0 is set, so the handler erases the wrong sector.
 
 ## Conditions Required for the Bug
 
@@ -294,10 +355,12 @@ All T6-based ECUs share this EEPROM architecture:
    - On boot, replay or discard incomplete journals
    - The MPC5534's 16 KB minimum erase sector makes this challenging
 
-3. **Fix the machine check handler**
-   - Instead of `while(true)`, trigger a software reset after erasing the bad sector
-   - The next boot would see all-0xFF data, fail the CRC check, and run `lea_cold_init()` — recovering automatically
-   - This is the **minimum change** that would prevent bricking
+3. **Fix the machine check handler to erase the correct sector**
+   - The handler currently erases only the sector(s) marked in `flash_erase_pending_flags`, but bit 0 (LEA) is never set before the first read from `0x10000`
+   - **Fix A (minimal)**: In `copyCAL2RAM()`, set `flash_erase_pending_flags \|= 1` (LEA) alongside bit 1 (COD) before calling `copyCOD2RAM()`, so the handler erases both sectors
+   - **Fix B (handler-only)**: Change the machine check handler to always erase the LEA sector (`flash_erase(0, 0, 4)`) unconditionally when a machine check fires during boot, regardless of `flash_erase_pending_flags`
+   - **Fix C**: After erasing, trigger a software reset instead of entering the infinite loop. The next boot would see all-0xFF data in both sectors, fail the CRC checks, rebuild COD from defaults, and run `lea_cold_init()` — recovering automatically
+   - Any of these paired with Fix C (reset instead of hang) would make the ECU self-recovering
 
 4. **Defer EEPROM writes to stable conditions**
    - Instead of writing immediately on voltage drop, write periodically when conditions are stable
