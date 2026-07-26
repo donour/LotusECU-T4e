@@ -418,6 +418,16 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		{"All Modes", "3"}
 	};
 
+	/* Selects which FlexCAN controller carries the diagnostic/telemetry frames.
+	 * 0 disables flexcan_diagnostics_tx() and the timeslot scheduler entirely,
+	 * 1 routes them through the FlexCAN A mailboxes, 2 through FlexCAN C.
+	 * Note that 2 also takes CAN C away from the TPMS module. */
+	private static final String[][] FLEXCAN_BUS_SELECT = {
+		{"Disabled", "00"},
+		{"FlexCAN A", "01"},
+		{"FlexCAN C", "02"}
+	};
+
 
 
 	/******************************/
@@ -784,8 +794,10 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				addXmlSwitch(doc, parent, s, OBD2LEVEL_T6);
 			else if (s.datatype.equals("enum_oil_pressure_sensor_mode"))
 				addXmlSwitch(doc, parent, s, OIL_PRESSURE_SENSOR_MODE);
-			else if (s.datatype.equals("enum_exhaust_stationary_override")) 
+			else if (s.datatype.equals("enum_exhaust_stationary_override"))
 				addXmlSwitch(doc, parent, s, EXHAUST_VALVE_OVERRIDE_MODE);
+			else if (s.datatype.equals("enum_flexcan_bus_select"))
+				addXmlSwitch(doc, parent, s, FLEXCAN_BUS_SELECT);
 			else if ("CAL_obd2_monitors".equals(s.name))
 				addXmlSwitch(doc, parent, s, OBD2MONITORS);
 			else if ("CAL_ecu_unlock_magic".equals(s.name))
