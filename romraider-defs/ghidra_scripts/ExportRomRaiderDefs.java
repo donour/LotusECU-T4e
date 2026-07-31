@@ -290,6 +290,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_pressure_4mbar","uint8","mbar","x*4","x/4","0","4","40","Millibar"),
 		new DF("u8_pressure_8mbar","uint8","mbar","x*8","x/8","0","8","80","Millibar"),
 		new DF("u8_pressure_50mbar","uint8","mbar","x*50","x/50","0","50","200","Millibar"),
+		new DF("u8_pressure_100mbar","uint8","mbar","x*100","x/100","0","100","500","Millibar"),
+		new DF("u8_pressure_100mbar","uint8","psi","x*1.450377","x/1.450377","0.00","1.45","7.25","PSI"),
 		new DF("u8_lambda_1/100","uint8","λ","x/100","x*100","0.00","0.01","0.1","Lambda"),
 		new DF("u8_afr_1/20+5","uint8","A/F","(x/20)+5","(x-5)*20","0.00","0.05","0.5","AFR"),
 		new DF("u8_afr_1/20+5","uint8","λ","((x/20)+5)/14.6","((x*14.6)-5)*20","0.000","0.005","0.05","Lambda"),
