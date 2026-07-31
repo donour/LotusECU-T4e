@@ -2063,41 +2063,299 @@ Permission byte `*DAT_00032f48` bit 5 AND yaw rate exceeds `*(short *)(DAT_00032
 
 ## Road Surface Mu (Friction) Estimator — `road_surface_mu_estimator` @ 0x3cce4
 
-**Output** — `DAT_0003d048[0x17]` = mu in **Q9 format** (0x200 = 512 = 1.0 grip)
+### Architecture Overview
 
-Fixed mu reference values:
-| Hex | Q9 float | Condition |
-|-----|----------|-----------|
-| `0x6d` | ≈0.21 | Mode 1 (startup/init) |
-| `0x31` | ≈0.096 | Minimum lower bound |
-| `0x52` | ≈0.16 | Alternate lower bound |
-| `0xda` | ≈0.43 | Mode 4 fixed (wet/damp) |
-| `0x200` | 1.0 | Dry tarmac (no scaling) |
+The mu estimator runs in a **separate task** from the main ESP control loop. It is called at
+`FUN_000713b4` (invoked from `FUN_00069b50`), which sequences:
+```
+FUN_00072318()  → sensor preprocessing
+FUN_00059808()  → sensor preprocessing
+FUN_00072a14()  → state updates
+FUN_0006afbc()  → state updates
+FUN_0003426c()  → mode selection & gate logic (sets mu_estimator_state_ptr+1)
+road_surface_mu_estimator()  → THE ESTIMATOR
+FUN_0006cf44()  → mu consumer: scales ESP control parameters by mu
+FUN_00072a20()  → mu consumer
+FUN_0006f254()  → mu consumer
+```
 
-**Gate:** bit 2 of `*(byte *)(DAT_0003d04c + 0x3f)` — if clear, all outputs zeroed.
+The main ESP loop (in a different task) runs `vehicle_dynamics_model()` which computes the
+lateral and longitudinal force factors that the mu estimator reads. These are written to shared
+RAM by the dynamics model and read asynchronously by the mu estimator.
 
-**Mode byte:** `*(char *)(DAT_0003d04c + 1)` (1–4):
-- **Mode 1**: Fixed mu = 0x6d, lower bound = 0x21 (startup)
-- **Mode 2**: Table lookup mu (normal); `DAT_0003d090` if slip detected
-- **Mode 3**: Table lookup (different axle), `DAT_0003d090` if slip; `DAT_0003d08c` if large yaw
-- **Mode 4**: Complex; 0xda or `DAT_0003d08c` or table lookup depending on gating
+### Pointer-Based Architecture
 
-Slip detection: `*DAT_0003d060 * *DAT_0003d05c < 0` (longitudinal × lateral sign flip)
+The mu estimator uses a **two-level pointer scheme**. All configuration variables are stored
+in flash (0x0003D048–0x0003D09C) as 32-bit values. Some are **direct calibration constants**
+(values < 0x10000); others are **RAM pointers** (0x0040xxxx range) or **flash table pointers**
+(0x000Axxxx range). At runtime, the estimator reads the flash pointer to get the RAM address,
+then dereferences it to read/write the actual data.
 
-### Mu Calibration Constants
+### Output Struct — `mu_estimator_output_struct` → RAM 0x004042F2
 
-| Address | Role |
-|---------|------|
-| `mu_speed_lookup_table` (`DAT_0003d050`) | Speed-indexed mu lookup table (1D) |
-| `mu_speed_index_input` (`DAT_0003d054`) | Speed index input for mu table |
-| `low_surface_mu_fallback` (`DAT_0003d090`) | Low surface mu (fixed fallback when slip detected) — calibratable |
-| `alternate_fixed_mu` (`DAT_0003d08c`) | Alternate fixed mu (used in modes 3/4) — calibratable |
-| `mu_upper_limit` (`DAT_0003d078`) | Mu upper limit / ceiling |
-| `lateral_accel_reference_lower_bound` (`DAT_0003d094`) | Lateral accel reference value for lower bound calculation |
-| `mu_lower_bound_scaling_factor` (`DAT_0003d098`) | Scaling factor: lower_bound = 0x31 − \|Δaccel\| × DAT_0003d098 >> 10 |
-| `mu_mode_threshold` (`DAT_0003d09c`) | Mode 2/4 threshold: if > 0 use 0x19a (410) else use DAT_0003d090 |
-| `mu_longitudinal_factor_ptr` (`DAT_0003d060`) | Longitudinal factor for slip detection |
-| `mu_lateral_factor_ptr` (`DAT_0003d05c`) | Lateral factor for slip detection |
+The flash at 0x0003D048 contains the RAM address `0x004042F2`. This struct is accessed as
+`short*` with both negative and positive offsets:
+
+| Offset | Physical Address | Field | Description |
+|--------|-----------------|-------|-------------|
+| `[-0x52]` | 0x40424E | cycle_accumulator (s16) | Per-cycle counter, fed to filtered mu output |
+| `[-0x4F]` | 0x404254 | filtered_mu (s16) | Filtered mu value, clamped to 0x19 (25) |
+| `[-0x49]` | 0x404260 | secondary_mu (s16) | Set to 8 in mode 3 alternate path |
+| `[-0x45]` | 0x404268 | **lower_bound** (s16) | Minimum mu — dynamically computed |
+| `[-0x38]` | 0x40427E | factor_product (s16) | Used with mu_longitudinal_factor_ptr[1] |
+| `[0]` | 0x4042F2 | per_cycle_output (s16) | Working output for current cycle |
+| `[9]` | 0x404304 | flag_field (s16) | Checked in mode 4 sub-gate |
+| `[0x12]` | 0x404316 | tertiary_mu (s16) | Set to alternate_fixed_mu in mode 3 |
+| `[0x17]` | 0x404320 | **PRIMARY MU OUTPUT** (s16) | **THE estimated μ in Q9 format** |
+
+### State Struct — `mu_estimator_state_ptr` → RAM 0x0040443C
+
+The flash at 0x0003D04C contains the RAM address `0x0040443C`:
+
+| Offset | Address | Type | Description |
+|--------|---------|------|-------------|
+| `+0` | 0x40443C | byte | Mode byte (written by sensor processing before estimator runs) |
+| `+1` | 0x40443D | byte | **Operating mode** (1–4, 5+) — set by `FUN_0003426c()` |
+| `+0x3F` | 0x40447B | byte | **Gate flags**: bit2=enable, bit1=alt_gating, bit3=mode_flag |
+
+### Slip Detection: The Tire Friction Ellipse
+
+The fundamental detection mechanism across all modes is:
+
+```c
+if ((int)*mu_longitudinal_factor_ptr * (int)*mu_lateral_factor_ptr < 0)
+```
+
+This checks if the **sign product of longitudinal and lateral force factors is negative**.
+When a tire is below its friction limit, longitudinal and lateral forces change together
+(same sign). At the friction limit, they **trade off** — more longitudinal force reduces
+available lateral force and vice versa — producing opposite signs.
+
+### Five-Mode Algorithm (Detailed)
+
+#### Mode 1 (Startup/Init — mode byte = 1)
+```
+lower_bound = 0x21 (33, Q9 = 0.064)
+mu = 0x6D (109, Q9 = 0.213)
+```
+Fixed values during initialization before sensor data is valid.
+
+#### Mode 2 (Normal Operation — mode byte = 2)
+Two paths based on slip detection:
+
+**Path A — Slip detected** (longitudinal × lateral < 0):
+```
+lower_bound = (wheel_slip_data[+0xA0] × DAT_0003d080) >> 8
+lower_bound = max(lower_bound, 0x52)  // floor at 0.16 μ
+mu = low_surface_mu_fallback (5461)   // SENTINEL — see cleanup below
+```
+
+**Path B — No slip** (normal grip):
+```
+mu = lookup_1d(speed, mu_speed_lookup_table)  // primary table lookup
+```
+Then two sub-paths based on gate flag bit1 (alt_gating):
+
+*Normal sub-path* (bit1 clear):
+```
+if (DAT_0003d068 × DAT_0003d06c < 1):   // factor product near-zero
+    lower_bound = previous, min 0x31 (0.096 μ)
+else:
+    lower_bound = previous + 4, max 0x21
+```
+
+*Alt-gating sub-path* (bit1 set):
+```
+if (psVar2[-0x38] × mu_longitudinal_factor_ptr[1] < 1):
+    lower_bound = 0x31 − (|lateral_ref − DAT_0003d068[1]| × scaling >> 10)
+    lower_bound = max(lower_bound, 0)
+else:
+    lower_bound = previous + 4, min 0x31
+```
+
+**Mode 2 cleanup** (always executed):
+```
+mu_mode_threshold > 0 → temp = 0x19A (410, Q9 = 0.80)  // THIS PATH ALWAYS TAKEN
+mu = clamp(mu, temp, current)  // ceiling at 410 (0.80 μ) from mode 2 path
+filtered_mu = min(cycle_accumulator >> 7, 0x19)
+```
+
+**Critical insight**: `low_surface_mu_fallback = 5461` is a **sentinel** — it's never actually
+used as a mu value because `mu_mode_threshold = 5462 > 0` always forces the override to
+`0x19A = 410` (μ ≈ 0.80). This is Intel's calibration choice for this vehicle. The sentinel
+exists so that if `mu_mode_threshold` were zeroed, the raw 5461 value would be used (likely
+triggering a detectable fault condition).
+
+#### Mode 3 (Alternate Axle — mode byte = 3)
+Similar slip detection to mode 2, with additional yaw-based gating:
+
+**Slip path**: lower_bound from wheel_slip[+0xA0] × scaling >> 8, clamped [0x52, 0x148], mu = low_surface_mu_fallback
+**No-slip path**: 
+```
+if (DAT_0003d084 × DAT_0003d088 < 0):  // axle force sign mismatch
+    if (|DAT_0003d084| > 0x1800):
+        lower_bound = 8
+        mu = alternate_fixed_mu (819, Q9 = 1.60)
+    else:
+        mu = lookup_1d(speed, mu_speed_lookup_table)
+        lower_bound = previous, min 0x31
+```
+Then post-processing: if mode == 3 AND product(DAT_0003d088, DAT_0003d084) ≥ 0:
+`secondary_mu = 8, tertiary_mu = alternate_fixed_mu`
+
+#### Mode 4 (Complex/Dynamic — mode byte = 4)
+The most complex mode with multiple sub-gates:
+
+**Slip path**: lower_bound from wheel_slip[+0x9E] × scaling >> 8, mu = 0xDA (218, Q9 = 0.43)
+
+**No-slip path** — multiple conditions evaluated in order:
+1. If (*DAT_0003d064 + alternate_fixed_mu < 0) OR (speed < 0x2D0) → check factor product
+2. If (|DAT_0003d068| < 0x114) AND (|DAT_0003d068| < DAT_0003d068[2]) AND (product > 0):
+   → reduce mu by 0x6D, OR set mu = 0xDA if lateral product < 0
+3. If (DAT_0003d068 × mu_lateral_factor_ptr < 0) OR (flag_field[9] > 0):
+   → lower_bound = 0x52
+4. If DAT_0003d074 bit 3 == 0 (mu ceiling disabled):
+   → mu = max(mu, 0xDA), lower_bound = 0x29
+5. Else (mu ceiling enabled):
+   → mu = max(current_mu, mu_upper_limit), lower_bound = 0
+
+#### Mode 5+ (Default — mode byte ≥ 5)
+All outputs zeroed.
+
+### Flash-Extracted Calibration Values
+
+All values confirmed by reading Intel HEX at addresses 0x0003D048–0x0003D09C.
+**TMS470 is big-endian** — all 32-bit values are MSB-first.
+
+#### Pointer Variables (contain RAM or flash addresses)
+
+| Flash Addr | Ghidra Label | Stored Value | Points To | Type |
+|------------|-------------|-------------|-----------|------|
+| 0x0003D048 | `mu_estimator_output_struct` | `0x004042F2` | RAM output struct | short* base |
+| 0x0003D04C | `mu_estimator_state_ptr` | `0x0040443C` | RAM state struct | byte* base |
+| 0x0003D050 | `mu_speed_lookup_table` | `0x000A72BC` | **Flash** mu table | table-of-tables |
+| 0x0003D054 | `mu_speed_index_input` | `0x0040516A` | RAM speed value | short* |
+| 0x0003D058 | `DAT_0003d058` | `0x000A7668` | **Flash** 2nd lookup table | table-of-tables |
+| 0x0003D05C | `mu_lateral_factor_ptr` | `0x00404904` | RAM lateral factor | int* |
+| 0x0003D060 | `mu_longitudinal_factor_ptr` | `0x00404496` | RAM longitudinal factor | int* (array[2+]) |
+| 0x0003D064 | `DAT_0003d064` | `0x00404972` | RAM mode 4 threshold | short* |
+| 0x0003D068 | `DAT_0003d068` | `0x00404918` | RAM factor pair A | short* (array[3+]) |
+| 0x0003D06C | `DAT_0003d06c` | `0x0040490A` | RAM factor pair B | short* |
+| 0x0003D070 | `DAT_0003d070` | `0x00404914` | RAM mode 4 sub-gate | short* |
+| 0x0003D074 | `DAT_0003d074` | `0x00404EFC` | RAM flag byte | byte* |
+| 0x0003D07C | `DAT_0003d07c` | `0x004022C4` | RAM wheel slip data | int* (struct) |
+| 0x0003D080 | `DAT_0003d080` | `0x00404484` | RAM slip→lower_bound scale | short* |
+| 0x0003D084 | `DAT_0003d084` | `0x004048F2` | RAM mode 3 factor A | short* |
+| 0x0003D088 | `DAT_0003d088` | `0x00403C4A` | RAM mode 3 factor B | short* |
+
+#### Scalar Calibration Constants (direct values, not pointers)
+
+| Flash Addr | Label | Raw Value | Q9 Interpretation | Role |
+|------------|-------|-----------|-------------------|------|
+| 0x0003D078 | `mu_upper_limit` | **1038** | 1038/512 = **μ 2.03** | Absolute ceiling on mu output |
+| 0x0003D08C | `alternate_fixed_mu` | **819** | 819/512 = **μ 1.60** | Fixed mu for mode 3 yaw path, mode 4 |
+| 0x0003D090 | `low_surface_mu_fallback` | **5461** | N/A — **SENTINEL** | Overridden by 0x19A (410) due to mu_mode_threshold > 0 |
+| 0x0003D094 | `lateral_accel_reference_lower_bound` | **737** | ~1.44 in raw units | Reference for lateral accel deviation |
+| 0x0003D098 | `mu_lower_bound_scaling_factor` | **22753** | Gain: ×22753>>10 | Converts |Δaccel| to lower_bound reduction |
+| 0x0003D09C | `mu_mode_threshold` | **5462** | Boolean: always true | >0 → use 0x19A (410) clamp in mode 2/4 cleanup |
+
+### Mu Tables (Flash Table-of-Tables)
+
+Both `mu_speed_lookup_table` (0x000A72BC) and `DAT_0003d058` (0x000A7668) are NOT flat
+arrays — they use a **table-of-tables** structure traversed by `thunk_lookup_1d()`. Each
+table consists of header records with count/type fields followed by pointers to sub-tables
+stored as absolute flash addresses within the same region.
+
+Raw first 12 entries at 0xA72BC: [2, 0, 10, 0x72C8, 10, 0x72CC, 1325, 2016, 55, 82, 3, 0, ...]
+The values 0x72C8 and 0x72CC are **self-referential pointers** to offsets within the table.
+Values like 1325 (Q9 = 2.59) and 2016 (Q9 = 3.94) and 55 (Q9 = 0.107) look like mu data
+extracted by the traversal.
+
+### Input Data Flow
+
+The lateral and longitudinal force factors are computed in **`vehicle_dynamics_model()`**
+(ESP main loop, separate task), which:
+
+1. Computes **lateral force** from yaw sensor + bicycle model:
+   - Reads `yaw_measured_ch1_ptr` and `yaw_measured_ch2_ptr` (dual-channel yaw sensor)
+   - Computes `lateral_force_accumulator` (updated with LP filter)
+   - Computes `filtered_lateral_accel` (exponential filter: `val += (new - val) >> 2`)
+   - Uses `yaw_rate_to_lateral_force_scale_factor` and `tire_lateral_stiffness`
+
+2. Computes **longitudinal force** in `wheel_axle_force_processing()`:
+   - From wheel speed differentials and axle torque estimates
+   - The axle-level differentials are filtered and sign-checked
+
+3. The **speed index** at RAM 0x40516A is the vehicle reference speed used as the
+   X-axis for mu table lookups.
+
+The mu estimator **reads** these pre-computed values through its flash-resident pointers.
+This is an asynchronous producer-consumer pattern — the dynamics model writes to RAM at
+one rate, and the mu estimator reads from the same RAM at a (potentially different) rate.
+
+### Output Data Flow
+
+The mu value at `output_struct[0x17]` (RAM 0x404320) feeds into the ESP controller through
+several paths:
+
+1. **`FUN_0006cf44()`** — Scales ESP intervention parameters by mu:
+   - Higher mu → more permissive ESP thresholds
+   - Computes `(0x80 - slip) * param / 128` for 6 control parameters
+
+2. **`road_surface_coupling_coefficient`** (at 0x293E0, value 5675) — Used in
+   `vehicle_dynamics_model()` for yaw→force conversion: `__aeabi_idiv(coupling × param, divisor)`
+
+3. **`yaw_correction_brake_pressure_output[0x17]`** in `esp_yaw_stability_controller()` —
+   Reads at `[0x17]` (same offset!) as divisor for `max_corrective_yaw_rate_numerator`,
+   scaling the maximum corrective yaw moment by available grip.
+
+### Q9 Format Summary
+
+All mu values use Q9 fixed-point: **value / 512 = μ**
+
+| Condition | Raw Value | μ |
+|-----------|----------|-----|
+| Mode 1 startup | 0x6D = 109 | 0.213 |
+| Mode 2 clamp (effective) | 0x19A = 410 | 0.80 |
+| Mode 4 fixed (wet) | 0xDA = 218 | 0.43 |
+| Minimum lower bound | 0x31 = 49 | 0.096 |
+| Alternate fixed mu | 0x333 = 819 | 1.60 |
+| Absolute ceiling | 0x40E = 1038 | 2.03 |
+| Dry tarmac (reference) | 0x200 = 512 | 1.00 |
+
+### To Modify Mu Calibration
+
+**Increase maximum mu** (for sticky tires / track use):
+- Raise `mu_upper_limit` at flash **0x0003D078** — current value 1038 (μ 2.03). Set to
+  1536 (μ 3.0) for maximum headroom.
+- Increase 0x19A (410) clamp in the mode 2/4 cleanup path — this is the effective
+  per-cycle ceiling. Patch the immediate value `0x19A` in the binary at the mode 2
+  cleanup code site (around 0x3CEF0).
+- The `mu_speed_lookup_table` at flash 0x000A72BC is a table-of-tables — modifying it
+  requires understanding the structured format.
+
+**Change slip detection sensitivity**:
+- Adjust `DAT_0003d080` (slip→lower_bound scaling): currently points to RAM 0x404484;
+  the value there is computed at runtime. The calibration influences how aggressively
+  slip reduces the lower bound.
+
+**Disable mu estimator** (always use fixed mu):
+- Set gate flag bit 2 at `mu_estimator_state_ptr + 0x3F` to 0.
+- Or force mode byte to 1 (startup/fixed).
+
+### Unresolved Questions
+
+1. **Mode byte setting**: `FUN_0003426c()` writes the mode byte to `mu_estimator_state_ptr+1`
+   (RAM 0x40443D). The exact conditions that trigger mode transitions (1→2, 2→3, 3→4)
+   need further tracing through this function.
+
+2. **Table-of-tables format**: The `thunk_lookup_1d()` function's traversal algorithm for
+   the structured table format at 0xA72BC and 0xA7668 is not fully decoded. The tables
+   appear to be self-describing (count + pointer records followed by data).
+
+3. **mu_longitudinal_factor_ptr[1]**: The second element (at RAM 0x40449A) is used in
+   mode 2 alt-gating with `psVar2[-0x38]` but its physical meaning is not confirmed.
+   Likely a delayed/filtered version of the longitudinal factor.
 
 ---
 
@@ -2422,7 +2680,11 @@ new_multiplier = old_multiplier × (new_circumference / old_circumference)
 
 - **Ghidra:** `~/Desktop/lotus/lotus_t6e/ghidra_11.4.2_PUBLIC/`
 - **Project:** `~/Desktop/lotus/lotus_t6e/lotus_ecu/` → "Lotus ECU" (shared project)
-- **Program:** `/PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex`
+- **Program:** `/PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex` (big-endian ARM:BE:32:v4t — **this is the correct import**)
+  - **CRITICAL:** The TMS470 ARM7TDMI uses **big-endian data** (BE-32 mode). Importing as little-endian (`.hex.LE`) breaks all pointer dereferences because every 32-bit literal pool entry gets byte-swapped. The `.hex.LE` program exists in the project but produces garbage decompilation (13 functions fail, 5,390 warnings, frequent `halt_baddata()`).
+  - Use `"PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex"` (no .LE suffix) with `-recursive` to match.
+  - **Import command** (if re-creating from hex): `-import <hex> -processor "ARM:BE:32:v4t" -overwrite`
+  - **Always run `FixEabiIdiv.py` after import** — critical for clean decompilation.
 - **Scripts:** `disassembly/ghidra_scripts/` (in this repo)
 - **Workspace:** `disassembly/evora/abs/`
 
@@ -2475,24 +2737,48 @@ Lines starting with `#` are comments. Blank lines are ignored.
 
 ### Headless Workflow
 
+**All commands use the BE program (big-endian import). The LE program produces broken decompilation.**
+
 ```bash
+GHIDRA_HOME="/c/Users/donour/Desktop/lotus/lotus_t6e/ghidra_11.4.2_PUBLIC"
+# For convenience, use the .bat wrapper via cmd /c from PowerShell (see _run_ghidra_*.bat)
+
 # Read-only access (server connection error is non-fatal):
-GHIDRA="/c/Users/donour/Desktop/lotus/lotus_t6e/ghidra_11.4.2_PUBLIC/support/analyzeHeadless"
-$GHIDRA "$PROJECT_DIR" "Lotus ECU" -process "$PROGRAM" -readOnly \
+$GHIDRA_HOME/support/analyzeHeadless.bat "$PROJECT_DIR" "Lotus ECU" -process "PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex" -recursive -readOnly \
   -scriptPath "$SCRIPT_DIR" -preScript ProbeProgram.py -noanalysis
 
 # Apply names (writable — save succeeds locally even with server offline):
-$GHIDRA "$PROJECT_DIR" "Lotus ECU" -process "$PROGRAM" \
-  -scriptPath "$SCRIPT_DIR" -preScript ApplyNamesFile.py "$NAMES_FILE" -noanalysis
+$GHIDRA_HOME/support/analyzeHeadless.bat "$PROJECT_DIR" "Lotus ECU" -process "PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex" -recursive \
+  -scriptPath "$SCRIPT_DIR" -postScript ApplyNamesFile.py "$NAMES_FILE" -noanalysis
+
+# Export C:
+$GHIDRA_HOME/support/analyzeHeadless.bat "$PROJECT_DIR" "Lotus ECU" -process "PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex" -recursive -readOnly \
+  -scriptPath "$SCRIPT_DIR" -postScript ExportC.py "$OUT_FILE" -noanalysis
 ```
+
+**Import from scratch** (if program needs to be re-created):
+```bash
+$GHIDRA_HOME/support/analyzeHeadless.bat "$PROJECT_DIR" "Lotus ECU" \
+  -import "$HEX_FILE" -processor "ARM:BE:32:v4t" -overwrite \
+  -scriptPath "$SCRIPT_DIR" -postScript FixEabiIdiv.py
+```
+
+**Important notes:**
+- Always use `-recursive` — Ghidra 11.4.x on Windows rejects leading `/` in `-process` paths.
+- **Batch file method is more reliable on Windows**: Create a `.bat` file and run via `Start-Process` from PowerShell.
+- The server connection error `alcantor.dedyn.io:13100` is non-fatal — local saves still succeed.
+- The old LE program (`PRJ_CodeBlock_BB68638_V0201_ECC_CSW_S.hex.LE`) exists but produces garbage decompilation — do not use it.
+- **Always run `FixEabiIdiv.py` after any new import.**
 
 ### Naming Files in This Workspace
 
 | File | Contents |
 |------|----------|
-| `apply_names.txt` | 106 core function + data label names |
+| `apply_names.txt` | 320 core function + data label names |
 | `apply_can_names.txt` | 38 CAN subsystem names |
 | `typed_labels.tsv` | User-defined data labels (exported) |
+| `CAN_FAULT_DIAGNOSTICS.md` | CAN messages, fault detection, diagnostic handler — comprehensive |
+| `ESP_END_TO_END_ANALYSIS.md` | Complete ESP control loop: sensors → bicycle model → controller → hydraulics |
 
 ### Current Project Stats
 
@@ -2509,6 +2795,17 @@ $GHIDRA "$PROJECT_DIR" "Lotus ECU" -process "$PROGRAM" \
 |------|-------------|
 | `CLAUDE.md` | This file — firmware reference and analysis notes |
 | `CAN_MESSAGES.md` | Detailed CAN message bit-level documentation |
+| `CAN_FAULT_DIAGNOSTICS.md` | CAN message catalog, fault detection, diagnostic protocol, warning lamps |
+| `CAN_ANALYSIS_STATUS.md` | CAN analysis status and next steps |
+| `CAN_DIAGNOSTICS_GUIDE.md` | KWP2000 diagnostic protocol over ISO-TP — complete guide |
+| `YAW_CONTROL_ANALYSIS.md` | Bicycle model, understeer/oversteer, yaw stability control |
+| `ESP_END_TO_END_ANALYSIS.md` | **End-to-end ESP trace**: sensor → bicycle model → yaw error → PI controller → brake pressure → torque reduction |
+| `CAN_REFLASH_ANALYSIS.md` | Bootloader architecture, signature, reflash procedure, recovery |
+| `ACTUATOR_ROUTINES_GUIDE.md` | **Practical CAN guide**: pump/valve/bleeding control, Python client, CAN traces |
+| `EDC_ANALYSIS.md` | Electronic Differential Controller — brake-based LSD simulation |
+| `VARIANT_CODING.md` | Variant coding byte, calibration records, data ID map, recoding guide |
+| `_run_ghidra_names.bat` | Apply labels to Ghidra project (one-click) |
+| `_run_ghidra_export.bat` | Export C from Ghidra project (one-click) |
 | `CAN_ANALYSIS_STATUS.md` | CAN subsystem analysis status and next steps |
 | `CAN_DIAGNOSTICS_GUIDE.md` | **Practical CAN diagnostics & security unlock guide** |
 | `YAW_CONTROL_ANALYSIS.md` | Full mathematical analysis of yaw stability control |
