@@ -165,6 +165,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_factor_1/2048","uint16","%","x*100/2048","x*2048/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/4095","uint16","%","x*100/4095","x*4095/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/10000","uint16","%","x/10","x*10","0.00","0.1","1","Percent"),
+		new DF("i16_percent_1/10","int16","%","x/10","x*10","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/65536","uint16","%","x*100/65536","x*65536/100","0.00","0.1","1","Percent"),
 		new DF("u8_accel_1/255g","uint8","G","x/255","x*255","0.000","0.004","0.04","G"),
 		new DF("u8_accel_1/200g","uint8","G","x/200","x*200","0.000","0.005","0.05","G"),
