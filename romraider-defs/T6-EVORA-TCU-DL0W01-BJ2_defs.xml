@@ -1,0 +1,2797 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<roms>
+ <rom>
+  <romid>
+   <xmlid>T6-EVORA-TCU-DL0W01-BJ2</xmlid>
+   <market>Fed</market>
+   <make>Lotus</make>
+   <model>Evora GT</model>
+   <submodel>2020</submodel>
+   <transmission>AT</transmission>
+   <filesize>64kb</filesize>
+   <memmodel>MPC5534</memmodel>
+   <flashmethod>CRP</flashmethod>
+   <internalidaddress>0x5804</internalidaddress>
+   <internalidstring>LOTUS EVORA GT430 MY20 FED</internalidstring>
+   <noRamOffset>1</noRamOffset>
+  </romid>
+  <table category="actuator" endian="big" name="actuator: fault mask" sizex="1" storageaddress="0x01F0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fault mask</data>
+   </table>
+   <description/>
+  </table>
+  <table category="actuator" endian="big" name="actuator: output min duty" sizex="1" storageaddress="0x02EA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>output min duty</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: correction clamp" sizex="1" storageaddress="0x025E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>correction clamp</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: correction default" sizex="1" storageaddress="0x027C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>correction default</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: feedback target" sizex="1" storageaddress="0x025D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>feedback target</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: inhibit load" sizex="1" storageaddress="0x01E3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>inhibit load</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: input rpm min" sizex="1" storageaddress="0x0278" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>input rpm min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: input rpm min" sizex="1" storageaddress="0x027A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>input rpm min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: input shaft load max" sizex="1" storageaddress="0x0277" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4" format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>input shaft load max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: input shaft load min" sizex="1" storageaddress="0x0275" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4" format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>input shaft load min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: max learned correction threshold" sizex="1" storageaddress="0x027F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>max learned correction threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: p gain" sizex="1" storageaddress="0x0266" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/200" fineincrement="1" format="0.0" to_byte="x*200/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>p gain</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: runtime min hours" sizex="1" storageaddress="0x025B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>runtime min hours</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: runtime min seconds x3600" sizex="1" storageaddress="0x0238" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>runtime min seconds x3600</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: sample check interval" sizex="1" storageaddress="0x01E4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sample check interval</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: sample count max" sizex="1" storageaddress="0x0262" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sample count max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: sample count min" sizex="1" storageaddress="0x0260" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sample count min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="adapt" endian="big" name="adapt: sample count phase2" sizex="1" storageaddress="0x0280" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sample count phase2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="can" endian="big" name="can: paddle debounce normal" sizex="1" storageaddress="0x00D3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>paddle debounce normal</data>
+   </table>
+   <description/>
+  </table>
+  <table category="can" endian="big" name="can: paddle debounce shift" sizex="1" storageaddress="0x010E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>paddle debounce shift</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill learn decay" sizex="1" storageaddress="0x02A0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill learn decay</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill learn enable mask" sizex="1" storageaddress="0x029B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill learn enable mask</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill learn min temp" sizex="1" storageaddress="0x029E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill learn min temp</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill learn rate" sizex="1" storageaddress="0x029F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill learn rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill learn sample window" sizex="1" storageaddress="0x02A1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill learn sample window</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill pressure min 1" sizex="1" storageaddress="0x02A2" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill pressure min 1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill pressure min 2" sizex="1" storageaddress="0x02A4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill pressure min 2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill pressure min 3" sizex="1" storageaddress="0x02A6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill pressure min 3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill pressure min 4" sizex="1" storageaddress="0x02A8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill pressure min 4</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill pressure min 5" sizex="1" storageaddress="0x02AA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill pressure min 5</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: fill pressure min 6" sizex="1" storageaddress="0x02AC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fill pressure min 6</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: hold pressure base" sizex="1" storageaddress="0x01D3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold pressure base</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: hold pressure diminish rate" sizex="1" storageaddress="0x0304" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold pressure diminish rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: hold pressure engine braking" sizex="1" storageaddress="0x0301" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold pressure engine braking</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: hold pressure gear1" sizex="1" storageaddress="0x01DA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold pressure gear1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: hold pressure gear2 6" sizex="1" storageaddress="0x01DB" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold pressure gear2 6</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: hold pressure ramp" sizex="1" storageaddress="0x01D4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold pressure ramp</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press curve cd62" sizex="8" storageaddress="0x3F12" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press curve cd62 axis" sizex="8" storageaddress="0x3F0A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press curve ce32" sizex="8" storageaddress="0x3FE2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press curve ce32 axis" sizex="8" storageaddress="0x3FDA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 1 2" sizex="8" storageaddress="0x3F22" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 1 2 axis" sizex="8" storageaddress="0x3F1A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 2 3" sizex="8" storageaddress="0x3F42" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 2 3 axis" sizex="8" storageaddress="0x3F3A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 3 4" sizex="8" storageaddress="0x3F62" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 3 4 axis" sizex="8" storageaddress="0x3F5A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 4 5" sizex="8" storageaddress="0x3F82" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 4 5 axis" sizex="8" storageaddress="0x3F7A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 5 6" sizex="8" storageaddress="0x3FA2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing 5 6 axis" sizex="8" storageaddress="0x3F9A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing default" sizex="8" storageaddress="0x3FC2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press offgoing default axis" sizex="8" storageaddress="0x3FBA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 1 2" sizex="8" storageaddress="0x3F32" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 1 2 axis" sizex="8" storageaddress="0x3F2A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 2 3" sizex="8" storageaddress="0x3F52" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 2 3 axis" sizex="8" storageaddress="0x3F4A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 3 4" sizex="8" storageaddress="0x3F72" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 3 4 axis" sizex="8" storageaddress="0x3F6A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 4 5" sizex="8" storageaddress="0x3F92" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 4 5 axis" sizex="8" storageaddress="0x3F8A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 5 6" sizex="8" storageaddress="0x3FB2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming 5 6 axis" sizex="8" storageaddress="0x3FAA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming default" sizex="8" storageaddress="0x3FD2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: press oncoming default axis" sizex="8" storageaddress="0x3FCA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure ramp delay ms" sizex="1" storageaddress="0x02F8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pressure ramp delay ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure ramp hold ms" sizex="1" storageaddress="0x02FA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pressure ramp hold ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure ramp mode" sizex="1" storageaddress="0x02FC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pressure ramp mode</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure ramp rate down" sizex="1" storageaddress="0x0298" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pressure ramp rate down</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure ramp rate up" sizex="1" storageaddress="0x0296" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pressure ramp rate up</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure slew rate max" sizex="1" storageaddress="0x02E8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pressure slew rate max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure target sport" sizex="8" sizey="8" storageaddress="0x134A" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x132A" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="rpm" sizey="8" storageaddress="0x133A" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: pressure target tour" sizex="8" sizey="8" storageaddress="0x10CA" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x10AA" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="rpm" sizey="8" storageaddress="0x10BA" storagetype="uint16" type="Y Axis">
+    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: slip adapt i gain" sizex="1" storageaddress="0x01EC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip adapt i gain</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: slip adapt max" sizex="1" storageaddress="0x01EE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip adapt max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: slip adapt p gain" sizex="1" storageaddress="0x01EA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip adapt p gain</data>
+   </table>
+   <description/>
+  </table>
+  <table category="clutch" endian="big" name="clutch: unknown1" sizex="6" storageaddress="0x0A1E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="throttle rate" sizex="6" storageaddress="0x0A12" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 1" sizex="1" storageaddress="0x01F8" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 10" sizex="1" storageaddress="0x020A" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 10</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 11" sizex="1" storageaddress="0x020C" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 11</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 12" sizex="1" storageaddress="0x020E" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 12</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 2" sizex="1" storageaddress="0x01FA" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 3" sizex="1" storageaddress="0x01FC" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 4" sizex="1" storageaddress="0x01FE" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 4</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 5" sizex="1" storageaddress="0x0200" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 5</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 6" sizex="1" storageaddress="0x0202" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 6</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 7" sizex="1" storageaddress="0x0204" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 7</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 8" sizex="1" storageaddress="0x0206" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 8</data>
+   </table>
+   <description/>
+  </table>
+  <table category="coding" endian="big" name="coding: gear param 9" sizex="1" storageaddress="0x0208" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Degree" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear param 9</data>
+   </table>
+   <description/>
+  </table>
+  <table category="cruise" endian="big" name="cruise: decel hysteresis" sizex="1" storageaddress="0x0237" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="G" coarseincrement="0.05" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="G"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>decel hysteresis</data>
+   </table>
+   <description/>
+  </table>
+  <table category="cruise" endian="big" name="cruise: decel threshold" sizex="1" storageaddress="0x0232" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="G" coarseincrement="0.05" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="G"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>decel threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="cruise" endian="big" name="cruise: shift aggressiveness" sizex="1" storageaddress="0x025A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>shift aggressiveness</data>
+   </table>
+   <description/>
+  </table>
+  <table category="cruise" endian="big" name="cruise: speed target unknown" sizex="2" storageaddress="0x0235" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: 2to1 high load max speed" sizex="1" storageaddress="0x0251" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>2to1 high load max speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: 2to1 max speed" sizex="1" storageaddress="0x00F3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>2to1 max speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: curve blend auto" sizex="8" storageaddress="0x494E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: curve blend manual" sizex="8" storageaddress="0x493E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: kickdown decel threshold" sizex="1" storageaddress="0x0300" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="G" coarseincrement="0.05" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="G"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>kickdown decel threshold</data>
+   </table>
+   <description>gates an automatic deceleration kickdown — when the driver lifts off the throttle and the car decelerates hard enough, the TCU forces a downshift to the lowest allowed gear for engine braking (or to prep for re-acceleration).</description>
+  </table>
+  <table category="downshift" endian="big" name="downshift: limiter overrev aggression" sizex="8" storageaddress="0x0B22" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="decel load" sizex="8" storageaddress="0x0B1A" storagetype="uint8" type="X Axis">
+    <scaling category="G" coarseincrement="0.05" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="G"/>
+   </table>
+   <description>controls how close to the rev limiter the TCU allows when selecting the minimum gear.</description>
+  </table>
+  <table category="downshift" endian="big" name="downshift: min speed" sizex="1" storageaddress="0x01DF" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>min speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: schedule min rpm" sizex="1" storageaddress="0x02F5" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>schedule min rpm</data>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: speed hysteresis" sizex="1" storageaddress="0x4501" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed hysteresis</data>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: throttle axis auto" sizex="8" storageaddress="0x4946" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="downshift" endian="big" name="downshift: throttle axis manual" sizex="8" storageaddress="0x4936" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style aggressiveness blend" sizex="1" storageaddress="0x0227" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style aggressiveness blend</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style decay rate" sizex="1" storageaddress="0x0223" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style decay rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style economy threshold" sizex="1" storageaddress="0x0214" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style economy threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style initial value" sizex="1" storageaddress="0x022D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style initial value</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style max load" sizex="1" storageaddress="0x021F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style max load</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style max rpm" sizex="1" storageaddress="0x0222" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style max rpm</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style min duration" sizex="1" storageaddress="0x022C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style min duration</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style min load" sizex="1" storageaddress="0x021E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style min load</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style min rpm" sizex="1" storageaddress="0x0220" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style min rpm</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style smoothing factor" sizex="1" storageaddress="0x022B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style smoothing factor</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style sport threshold" sizex="1" storageaddress="0x0212" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="G" coarseincrement="0.05" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="G"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style sport threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="drive" endian="big" name="drive: style update rate" sizex="1" storageaddress="0x0210" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>style update rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="driving" endian="big" name="driving: intensity raw multiplier" sizex="1" storageaddress="0x021C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>intensity raw multiplier</data>
+   </table>
+   <description/>
+  </table>
+  <table category="driving" endian="big" name="driving: intensity rpm gain" sizex="4" storageaddress="0x09BA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="rpm" sizex="4" storageaddress="0x09B6" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="300" expression="x*30" fineincrement="30" format="0" to_byte="x/30" units="rpm"/>
+   </table>
+   <description/>
+  </table>
+  <table category="driving" endian="big" name="driving: shift aggressiveness blend" sizex="4" storageaddress="0x097A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="driving intensity" sizex="4" storageaddress="0x0976" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <description/>
+  </table>
+  <table category="element" endian="big" name="element: adapt confidence threshold" sizex="1" storageaddress="0x01F6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt confidence threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="element" endian="big" name="element: adapt max correction" sizex="1" storageaddress="0x01F3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt max correction</data>
+   </table>
+   <description/>
+  </table>
+  <table category="element" endian="big" name="element: adapt min sample age" sizex="1" storageaddress="0x01CC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt min sample age</data>
+   </table>
+   <description/>
+  </table>
+  <table category="element" endian="big" name="element: adapt min samples" sizex="1" storageaddress="0x01F4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt min samples</data>
+   </table>
+   <description/>
+  </table>
+  <table category="flexcan" endian="big" name="flexcan: bus select" sizex="1" storageaddress="0x01F1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>bus select</data>
+   </table>
+   <description/>
+  </table>
+  <table category="garage" endian="big" name="garage: engage speed" sizex="1" storageaddress="0x00C9" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>engage speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: hold neutral max speed" sizex="1" storageaddress="0x00F4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>hold neutral max speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio 1" sizex="1" storageaddress="0x023C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio 1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio 2" sizex="1" storageaddress="0x023E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio 2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio 3" sizex="1" storageaddress="0x0240" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio 3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio 4" sizex="1" storageaddress="0x0242" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio 4</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio 5" sizex="1" storageaddress="0x0244" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio 5</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio 6" sizex="1" storageaddress="0x0246" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio 6</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio REV" sizex="1" storageaddress="0x0248" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio REV</data>
+   </table>
+   <description/>
+  </table>
+  <table category="gear" endian="big" name="gear: ratio error max pct" sizex="1" storageaddress="0x0306" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio error max pct</data>
+   </table>
+   <description/>
+  </table>
+  <table category="input" endian="big" name="input: shaft speed min" sizex="1" storageaddress="0x55D0" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>shaft speed min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="input" endian="big" name="input: speed glitch tol pct" sizex="1" storageaddress="0x55BF" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed glitch tol pct</data>
+   </table>
+   <description/>
+  </table>
+  <table category="input" endian="big" name="input: speed iir coef" sizex="1" storageaddress="0x55BE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed iir coef</data>
+   </table>
+   <description/>
+  </table>
+  <table category="line" endian="big" name="line: pressure base factor" sizex="8" storageaddress="0x093E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="input shaft load" sizex="8" storageaddress="0x0936" storagetype="uint8" type="X Axis">
+    <scaling category="nm" coarseincrement="12.94" expression="(x*660/255)-60" fineincrement="2.59" format="0" to_byte="(x+60)*255/660" units="Newton meter"/>
+   </table>
+   <description/>
+  </table>
+  <table category="line" endian="big" name="line: pressure rpm factor" sizex="8" sizey="8" storageaddress="0x0B9A" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="input shaft load" sizex="8" storageaddress="0x0B8A" storagetype="uint8" type="X Axis">
+    <scaling category="nm" coarseincrement="12.94" expression="(x*660/255)-60" fineincrement="2.59" format="0" to_byte="(x+60)*255/660" units="Newton meter"/>
+   </table>
+   <table endian="big" name="rpm range" sizey="8" storageaddress="0x0B92" storagetype="uint8" type="Y Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <description/>
+  </table>
+  <table category="line" endian="big" name="line: pressure temp factor" sizex="8" storageaddress="0x45F6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="oil temp" sizex="8" storageaddress="0x45EE" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0717 cfg" sizey="1" storageaddress="0x540C" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0718 cfg" sizey="1" storageaddress="0x540B" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0721 cfg" sizey="1" storageaddress="0x5428" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0722 cfg" sizey="1" storageaddress="0x5429" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0723 cfg" sizey="1" storageaddress="0x541E" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0812 cfg" sizey="1" storageaddress="0x5413" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P081C cfg" sizey="1" storageaddress="0x5414" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P081D cfg" sizey="1" storageaddress="0x5415" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0853 cfg" sizey="1" storageaddress="0x5416" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" name="obd: P0894 cfg" sizey="1" storageaddress="0x5434" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" endian="big" name="obd: actuator test timeout" sizex="1" storageaddress="0x5586" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>actuator test timeout</data>
+   </table>
+   <description/>
+  </table>
+  <table category="obd" name="obd: ii standards supported" sizey="1" storageaddress="0x569E" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Non-emissions 1-trip"/>
+   <state data="11" name="Emissions Type A (1-trip MIL)"/>
+   <state data="12" name="Emissions Type B (2-trip MIL)"/>
+   <state data="13" name="Emissions Type B (2-trip MIL alt)"/>
+   <state data="21" name="Non-emissions Mode08 test"/>
+   <state data="53" name="Emissions Type B continuous"/>
+   <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
+   <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
+   <description/>
+  </table>
+  <table category="obd" endian="big" name="obd: slip monitor threshold" sizex="1" storageaddress="0x01E5" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip monitor threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="oil" endian="big" name="oil: temp unknown" sizex="1" storageaddress="0x5588" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>temp unknown</data>
+   </table>
+   <description/>
+  </table>
+  <table category="output" endian="big" name="output: rpm min for shift gating" sizex="1" storageaddress="0x0086" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>rpm min for shift gating</data>
+   </table>
+   <description/>
+  </table>
+  <table category="output" endian="big" name="output: shaft speed gate" sizex="1" storageaddress="0x55CE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>shaft speed gate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="output" endian="big" name="output: shaft speed min" sizex="1" storageaddress="0x55E4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>shaft speed min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="output" endian="big" name="output: speed glitch tol pct" sizex="1" storageaddress="0x55DD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed glitch tol pct</data>
+   </table>
+   <description/>
+  </table>
+  <table category="output" endian="big" name="output: speed iir coef" sizex="1" storageaddress="0x55DC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed iir coef</data>
+   </table>
+   <description/>
+  </table>
+  <table category="overrev" endian="big" name="overrev: shift margin" sizex="1" storageaddress="0x0230" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>shift margin</data>
+   </table>
+   <description/>
+  </table>
+  <table category="power" endian="big" name="power: off delay seconds x200" sizex="1" storageaddress="0x0269" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>off delay seconds x200</data>
+   </table>
+   <description/>
+  </table>
+  <table category="power" endian="big" name="power: off sequencing timeout" sizex="1" storageaddress="0x02FD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>off sequencing timeout</data>
+   </table>
+   <description/>
+  </table>
+  <table category="revlimit" endian="big" name="revlimit: min" sizex="1" storageaddress="0x5627" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="300" expression="x*30" fineincrement="30" format="0" to_byte="x/30" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>min</data>
+   </table>
+   <description>If the ecu-configured Engine Speed limit is below this value or above the hardcoded 7150, then the TCU will fault and set a limp-mode revlimit of 3000 rpm.</description>
+  </table>
+  <table category="rpm" endian="big" name="rpm: clutch apply" sizex="1" storageaddress="0x0116" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>clutch apply</data>
+   </table>
+   <description/>
+  </table>
+  <table category="rpm" endian="big" name="rpm: clutch release" sizex="1" storageaddress="0x0118" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>clutch release</data>
+   </table>
+   <description/>
+  </table>
+  <table category="rpm" endian="big" name="rpm: engage min" sizex="1" storageaddress="0x00F8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>engage min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="rpm" endian="big" name="rpm: engine running" sizex="1" storageaddress="0x558A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>engine running</data>
+   </table>
+   <description/>
+  </table>
+  <table category="rpm" endian="big" name="rpm: gear1 engage min" sizex="1" storageaddress="0x02FE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear1 engage min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="rpm" endian="big" name="rpm: threshold unknown2" sizex="1" storageaddress="0x022E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>threshold unknown2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: drive position raw" sizex="1" storageaddress="0x01B4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>drive position raw</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: max move time ms" sizex="1" storageaddress="0x01B0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>max move time ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: neutral position raw" sizex="1" storageaddress="0x01B6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>neutral position raw</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: park position raw" sizex="1" storageaddress="0x01B2" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>park position raw</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: pid derivative max" sizex="1" storageaddress="0x01A8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pid derivative max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: pid proportional gain" sizex="1" storageaddress="0x01AA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pid proportional gain</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: position tolerance" sizex="1" storageaddress="0x01AD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>position tolerance</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: positioning timeout mult" sizex="1" storageaddress="0x01BB" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>positioning timeout mult</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: ramp interval ms" sizex="1" storageaddress="0x01AE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ramp interval ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: recovery delay mult" sizex="1" storageaddress="0x01B1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>recovery delay mult</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: reverse position raw" sizex="1" storageaddress="0x01B8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>reverse position raw</data>
+   </table>
+   <description/>
+  </table>
+  <table category="selector" endian="big" name="selector: settle time ms" sizex="1" storageaddress="0x01AC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>settle time ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="sensor" endian="big" name="sensor: oil temp" sizex="33" storageaddress="0x048E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="°C"/>
+   <table name="signal" sizex="33" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <data>512</data>
+    <data>544</data>
+    <data>576</data>
+    <data>608</data>
+    <data>640</data>
+    <data>672</data>
+    <data>704</data>
+    <data>736</data>
+    <data>768</data>
+    <data>800</data>
+    <data>832</data>
+    <data>864</data>
+    <data>896</data>
+    <data>928</data>
+    <data>960</data>
+    <data>992</data>
+    <data>1024</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="sensor" endian="big" name="sensor: oil temp fallback" sizex="1" storageaddress="0x5589" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degree Celsius" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="°C"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>oil temp fallback</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adapt gain neg" sizex="8" storageaddress="0x45E6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="shift quality error" sizex="8" storageaddress="0x45DE" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adapt gain pos" sizex="8" storageaddress="0x094E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="shift quality error" sizex="8" storageaddress="0x0946" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adapt hysteresis step" sizex="1" storageaddress="0x01E6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt hysteresis step</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adapt inhibit default" sizex="1" storageaddress="0x01D1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt inhibit default</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adapt mode" sizex="1" storageaddress="0x01CF" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adapt mode</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: aggressiveness blend" sizex="1" storageaddress="0x02F4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>aggressiveness blend</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" name="shift: auto torque phase enable" sizey="1" storageaddress="0x0147" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Enabled"/>
+   <description/>
+  </table>
+  <table category="shift" name="shift: auto upshift at revlimit enable" sizey="1" storageaddress="0x0250" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Enabled"/>
+   <description/>
+  </table>
+  <table category="shift" name="shift: closed loop enable" sizey="1" storageaddress="0x00F5" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Enabled"/>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: coast downshift delay" sizex="1" storageaddress="0x01D9" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>coast downshift delay</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: crawl gear select speed" sizex="1" storageaddress="0x00F2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>crawl gear select speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn coast flags" sizex="1" storageaddress="0x008F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn coast flags</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn coast pressure step" sizex="1" storageaddress="0x008E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn coast pressure step</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn coast ramp timeout" sizex="1" storageaddress="0x008C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn coast ramp timeout</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn coast sentinel" sizex="1" storageaddress="0x0091" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn coast sentinel</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn coast speed guard hi" sizex="1" storageaddress="0x0088" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn coast speed guard hi</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn coast speed guard lo" sizex="1" storageaddress="0x008A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn coast speed guard lo</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power flags" sizex="1" storageaddress="0x0085" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power flags</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power pressure step" sizex="1" storageaddress="0x0084" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power pressure step</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power ramp timeout" sizex="1" storageaddress="0x0082" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power ramp timeout</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power sentinel" sizex="1" storageaddress="0x0087" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power sentinel</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power speed guard hi" sizex="1" storageaddress="0x007E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power speed guard hi</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power speed guard lo" sizex="1" storageaddress="0x0080" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power speed guard lo</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: dn power timer threshold" sizex="1" storageaddress="0x007D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dn power timer threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec clutch overlap window" sizex="1" storageaddress="0x02F2" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec clutch overlap window</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec coast threshold" sizex="1" storageaddress="0x01E7" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec coast threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec completion threshold" sizex="1" storageaddress="0x01C5" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec completion threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec engage min pressure" sizex="1" storageaddress="0x0307" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec engage min pressure</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec engagement rate" sizex="1" storageaddress="0x0224" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec engagement rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec fill time ms" sizex="1" storageaddress="0x01C1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec fill time ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec hold time ms" sizex="1" storageaddress="0x01C3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec hold time ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec min hold pressure" sizex="1" storageaddress="0x0259" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec min hold pressure</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec offgoing release pressure" sizex="1" storageaddress="0x02EC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec offgoing release pressure</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec oncoming apply pressure" sizex="1" storageaddress="0x02EE" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec oncoming apply pressure</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec pressure offset" sizex="1" storageaddress="0x0228" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec pressure offset</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec ramp rate" sizex="1" storageaddress="0x01C2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec ramp rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec reengage delay ms" sizex="1" storageaddress="0x01BF" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec reengage delay ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec release rate" sizex="1" storageaddress="0x01C4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec release rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec slip correction gain" sizex="1" storageaddress="0x0229" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec slip correction gain</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec slip gain" sizex="1" storageaddress="0x01C9" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec slip gain</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec slip target rpm" sizex="1" storageaddress="0x02F0" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec slip target rpm</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec slip threshold rpm" sizex="1" storageaddress="0x01C8" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec slip threshold rpm</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec speed match timeout" sizex="1" storageaddress="0x01BE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec speed match timeout</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: exec torque reduction pct" sizex="1" storageaddress="0x01CD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>exec torque reduction pct</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: gear loss debounce time" sizex="1" storageaddress="0x01D0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gear loss debounce time</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: gears per shift" sizex="1" storageaddress="0x0183" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>gears per shift</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: guard rpm unknown" sizex="8" storageaddress="0x0B32" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
+   <table endian="big" name="decel magnitude" sizex="8" storageaddress="0x0B2A" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: lever debounce ms" sizex="1" storageaddress="0x0265" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>lever debounce ms</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: lever target tolerance" sizex="1" storageaddress="0x01BA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>lever target tolerance</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: load min execute" sizex="1" storageaddress="0x025C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>load min execute</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: lockout time" sizex="1" storageaddress="0x018E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>lockout time</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: neutral release timer from drive" sizex="8" storageaddress="0x4726" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="oil temp" sizex="8" storageaddress="0x471E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: neutral release timer from drive rev" sizex="8" storageaddress="0x4736" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="oil temp" sizex="8" storageaddress="0x472E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: output rpm stopped" sizex="1" storageaddress="0x007C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>output rpm stopped</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: profile adapt default" sizex="20" storageaddress="0x0282" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="20" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <data>512</data>
+    <data>544</data>
+    <data>576</data>
+    <data>608</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: quality accum bound" sizex="1" storageaddress="0x0193" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>quality accum bound</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: ratio learning delay" sizex="1" storageaddress="0x030A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio learning delay</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: ratio locked timer" sizex="1" storageaddress="0x0309" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ratio locked timer</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: relearn escalation delay" sizex="1" storageaddress="0x0276" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>relearn escalation delay</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched downshift aggress x1" sizex="1" storageaddress="0x0270" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched downshift aggress x1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched downshift aggress x2" sizex="1" storageaddress="0x0271" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched downshift aggress x2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched downshift aggress x3" sizex="1" storageaddress="0x0272" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched downshift aggress x3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched downshift aggress x4" sizex="1" storageaddress="0x0273" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched downshift aggress x4</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched downshift aggress x5" sizex="1" storageaddress="0x0274" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched downshift aggress x5</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched upshift aggress x1" sizex="1" storageaddress="0x026B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched upshift aggress x1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched upshift aggress x2" sizex="1" storageaddress="0x026D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched upshift aggress x2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched upshift aggress x3" sizex="1" storageaddress="0x026E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched upshift aggress x3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched upshift aggress x4" sizex="1" storageaddress="0x026F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched upshift aggress x4</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: sched upshift aggress x5" sizex="1" storageaddress="0x027E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>sched upshift aggress x5</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: schedule hysteresis rpm" sizex="1" storageaddress="0x01D6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>schedule hysteresis rpm</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: schedule unknown1" sizex="16" storageaddress="0x0F8A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="carspeed" sizex="16" storageaddress="0x0F6A" storagetype="uint16" type="X Axis">
+    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: select gear confirm time auto" sizex="1" storageaddress="0x0302" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>select gear confirm time auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip release threshold dn coast" sizex="1" storageaddress="0x008D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip release threshold dn coast</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip release threshold dn power" sizex="1" storageaddress="0x0083" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip release threshold dn power</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold adaptive 1 2" sizex="8" sizey="8" storageaddress="0x147A" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x146A" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="input speed" sizey="8" storageaddress="0x1472" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold adaptive 2 3" sizex="8" sizey="8" storageaddress="0x14CA" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x14BA" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="input speed" sizey="8" storageaddress="0x14C2" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold adaptive 3 4" sizex="8" sizey="8" storageaddress="0x151A" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x150A" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="input speed" sizey="8" storageaddress="0x1512" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold adaptive 4 5" sizex="8" sizey="8" storageaddress="0x156A" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x155A" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="input speed" sizey="8" storageaddress="0x1562" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold adaptive 5 6" sizex="8" sizey="8" storageaddress="0x15BA" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="load" sizex="8" storageaddress="0x15AA" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <table endian="big" name="input speed" sizey="8" storageaddress="0x15B2" storagetype="uint8" type="Y Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold static 1 2" sizex="1" storageaddress="0x0029" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip threshold static 1 2</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold static 2 3" sizex="1" storageaddress="0x0047" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip threshold static 2 3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold static 3 4" sizex="1" storageaddress="0x006F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip threshold static 3 4</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold static 4 5" sizex="1" storageaddress="0x0097" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip threshold static 4 5</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: slip threshold static 5 6" sizex="1" storageaddress="0x01E0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip threshold static 5 6</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 1 2 auto" sizex="1" storageaddress="0x4508" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 1 2 auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 1 2 manual" sizex="8" storageaddress="0x4756" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table endian="big" name="oil temp" sizex="8" storageaddress="0x474E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 2 3 auto" sizex="1" storageaddress="0x4509" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 2 3 auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 2 3 manual" sizex="1" storageaddress="0x4503" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 2 3 manual</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 3 4 auto" sizex="1" storageaddress="0x450A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 3 4 auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 3 4 manual" sizex="1" storageaddress="0x4504" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 3 4 manual</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 4 5 auto" sizex="1" storageaddress="0x450B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 4 5 auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 4 5 manual" sizex="1" storageaddress="0x4505" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 4 5 manual</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 5 6 auto" sizex="1" storageaddress="0x450C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 5 6 auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed 5 6 manual" sizex="1" storageaddress="0x4506" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed 5 6 manual</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: speed guard margin" sizex="1" storageaddress="0x003D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed guard margin</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: target speed blend" sizex="1" storageaddress="0x01DD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>target speed blend</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: target speed offset" sizex="1" storageaddress="0x01C0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>target speed offset</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" name="shift: torque phase enable" sizey="1" storageaddress="0x00FB" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Enabled"/>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: up coast sentinel" sizex="1" storageaddress="0x0096" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>up coast sentinel</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: up coast speed guard hi" sizex="1" storageaddress="0x0092" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>up coast speed guard hi</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: up coast speed guard lo" sizex="1" storageaddress="0x0094" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>up coast speed guard lo</data>
+   </table>
+   <description/>
+  </table>
+  <table category="slip" endian="big" name="slip: input speed min" sizex="1" storageaddress="0x5660" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>input speed min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="slip" endian="big" name="slip: output speed min" sizex="1" storageaddress="0x565E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>output speed min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="solenoid" endian="big" name="solenoid: current dither amplitude" sizex="1" storageaddress="0x02E6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Ampere" coarseincrement="0.2" expression="x/1000" fineincrement="0.01" format="0.00" to_byte="x*1000" units="A"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>current dither amplitude</data>
+   </table>
+   <description/>
+  </table>
+  <table category="solenoid" endian="big" name="solenoid: ramp max rate" sizex="1" storageaddress="0x029C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ramp max rate</data>
+   </table>
+   <description/>
+  </table>
+  <table category="solenoid" endian="big" name="solenoid: ramp step up" sizex="1" storageaddress="0x029A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ramp step up</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: coast unlock load" sizex="1" storageaddress="0x0267" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="G" coarseincrement="0.05" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="G"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>coast unlock load</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: coast unlock speed" sizex="1" storageaddress="0x026C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>coast unlock speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup engage speed" sizex="1" storageaddress="0x0225" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup engage speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup load threshold" sizex="1" storageaddress="0x015B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup load threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup max" sizex="1" storageaddress="0x010C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup min" sizex="1" storageaddress="0x010A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/4095" fineincrement="0.1" format="0.00" to_byte="x*4095/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup ramp loaded" sizex="1" storageaddress="0x0120" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup ramp loaded</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup ramp normal" sizex="1" storageaddress="0x0108" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup ramp normal</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: creep lockup release speed" sizex="1" storageaddress="0x0226" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>creep lockup release speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: lockup inhibit time" sizex="1" storageaddress="0x0090" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>lockup inhibit time</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: lockup min speed" sizex="1" storageaddress="0x011A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>lockup min speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: slu fixed demand" sizex="1" storageaddress="0x0114" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Ampere" coarseincrement="0.2" expression="x/1000" fineincrement="0.01" format="0.00" to_byte="x*1000" units="A"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slu fixed demand</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcc" endian="big" name="tcc: unlock min speed" sizex="1" storageaddress="0x011B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>unlock min speed</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcu" endian="big" name="tcu: display toggle period" sizex="1" storageaddress="0x5671" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>display toggle period</data>
+   </table>
+   <description>dashboard indicator toggle period — controls how fast a status bit alternates in the CAN 0x250 message sent to the instrument cluster.
+
+if (countdown == 0) {
+    toggle_bit ^= 1;                              // flip
+    countdown = CAL_display_toggle_period;         // reload
+}
+
+Used for blinking the gear display or warning indicator on the dash (e.g., flashing PRND during a fault or shift-in-progress). The type u8_time_10ms is correct.</description>
+  </table>
+  <table category="tcu" endian="big" name="tcu: siu gpio output config" sizex="1" storageaddress="0x01F2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>siu gpio output config</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tcu" endian="big" name="tcu: speed to rpm conversion factor" sizex="1" storageaddress="0x0124" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed to rpm conversion factor</data>
+   </table>
+   <description/>
+  </table>
+  <table category="throttle" endian="big" name="throttle: rate threshold unknown1" sizex="1" storageaddress="0x026A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>rate threshold unknown1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="torque" name="torque: managed shift enable" sizey="1" storageaddress="0x0308" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Enabled"/>
+   <description/>
+  </table>
+  <table category="torque" endian="big" name="torque: model k factor" sizex="8" storageaddress="0x0AD2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="speed ratio" sizex="8" storageaddress="0x0ACA" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <description/>
+  </table>
+  <table category="tps" endian="big" name="tps: threshold unknown1" sizex="1" storageaddress="0x00F7" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>threshold unknown1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="trans" endian="big" name="trans: slip detect threshold" sizex="1" storageaddress="0x01F7" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>slip detect threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="trans" endian="big" name="trans: temp filter coeff" sizex="1" storageaddress="0x0128" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>temp filter coeff</data>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: aggressiveness auto" sizex="1" storageaddress="0x01D2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>aggressiveness auto</data>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: curve blend auto" sizex="8" storageaddress="0x492E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: curve blend manual" sizex="8" storageaddress="0x491E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: max rpm auto" sizex="1" storageaddress="0x450D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="(x*25)+1000" fineincrement="25" format="0" to_byte="(x-1000)/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>max rpm auto</data>
+   </table>
+   <description> the maximum engine speed at which an upshift will occur. It anchors the top end of the shift schedule.</description>
+  </table>
+  <table category="upshift" endian="big" name="upshift: max rpm manual" sizex="1" storageaddress="0x4507" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="(x*25)+1000" fineincrement="25" format="0" to_byte="(x-1000)/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>max rpm manual</data>
+   </table>
+   <description>the maximum engine speed at which an upshift will occur. It anchors the top end of the shift schedule.</description>
+  </table>
+  <table category="upshift" endian="big" name="upshift: revlimit offset" sizex="6" storageaddress="0x31D0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="25" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="rpm"/>
+   <table endian="big" name="gear" sizex="6" storageaddress="0x31CA" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: rpm threshold unknown" sizex="1" storageaddress="0x44AF" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*25" fineincrement="25" format="0" to_byte="x/25" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>rpm threshold unknown</data>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: throttle axis auto" sizex="8" storageaddress="0x4926" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="upshift" endian="big" name="upshift: throttle axis manual" sizex="8" storageaddress="0x4916" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="vehicle" endian="big" name="vehicle: load averaging period" sizex="1" storageaddress="0x022A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>load averaging period</data>
+   </table>
+   <description/>
+  </table>
+  <table category="vehicle" endian="big" name="vehicle: load iir filter coeff" sizex="1" storageaddress="0x01E8" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>load iir filter coeff</data>
+   </table>
+   <description/>
+  </table>
+  <table category="vehicle" endian="big" name="vehicle: load update interval" sizex="1" storageaddress="0x01E9" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>load update interval</data>
+   </table>
+   <description/>
+  </table>
+  <table category="vehicle" endian="big" name="vehicle: platform type" sizex="1" storageaddress="0x0268" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>platform type</data>
+   </table>
+   <description/>
+  </table>
+  <table category="vehicle" endian="big" name="vehicle: speed auto shift min" sizex="1" storageaddress="0x01DC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed auto shift min</data>
+   </table>
+   <description/>
+  </table>
+ </rom>
+ <rom>
+  <romid>
+   <xmlid>T6-EVORA--F430-TCU - Learned data</xmlid>
+   <market>World</market>
+   <make>Lotus</make>
+   <model>Evora GT</model>
+   <submodel>2012-2022</submodel>
+   <transmission>MT</transmission>
+   <filesize>48kb</filesize>
+   <memmodel>MPC5534</memmodel>
+   <flashmethod>CRP</flashmethod>
+   <internalidaddress>0x0</internalidaddress>
+   <internalidstring>T6-EVORA-TCU</internalidstring>
+   <noRamOffset>1</noRamOffset>
+  </romid>
+  <table category="shift" endian="big" name="shift: adaptation" sizex="1" storageaddress="0x082E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adaptation</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adaptation history" sizex="32" storageaddress="0x0A7C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="32" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <data>512</data>
+    <data>544</data>
+    <data>576</data>
+    <data>608</data>
+    <data>640</data>
+    <data>672</data>
+    <data>704</data>
+    <data>736</data>
+    <data>768</data>
+    <data>800</data>
+    <data>832</data>
+    <data>864</data>
+    <data>896</data>
+    <data>928</data>
+    <data>960</data>
+    <data>992</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: adaptation history crc" sizex="1" storageaddress="0x0ABC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>adaptation history crc</data>
+   </table>
+   <description/>
+  </table>
+  <table category="shift" name="shift: adaptation history valid" sizey="1" storageaddress="0x07F3" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="Enabled"/>
+   <description/>
+  </table>
+  <table category="shift" endian="big" name="shift: profile adapt" sizex="1" storageaddress="0x0720" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>profile adapt</data>
+   </table>
+   <description/>
+  </table>
+ </rom>
+</roms>
