@@ -1549,13 +1549,6 @@ Unit is x / 4.83 mpg</description>
    <state data="01" name="Enabled"/>
    <description>Calibration: exhaust flap tour mode enable (boolean flag).</description>
   </table>
-  <table category="fuel" endian="big" name="fuel: learn time step" sizex="1" storageaddress="0x00BD" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn time step</data>
-   </table>
-   <description>Calibration: fuel learn time step.</description>
-  </table>
   <table category="fuel" endian="big" name="fuel: level change threshold" sizex="1" storageaddress="0x0201" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2500,6 +2493,27 @@ Unit is x / 4.83 mpg</description>
     <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    </table>
    <description>Calibration: injector flow rate (mg/s; 8-element array).</description>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn offset maf max" sizex="1" storageaddress="0x01D6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn offset maf max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn time step" sizex="1" storageaddress="0x00BD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn time step</data>
+   </table>
+   <description>Calibration: fuel learn time step.</description>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 2 maf min" sizex="1" storageaddress="0x01DC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 2 maf min</data>
+   </table>
+   <description/>
   </table>
   <table category="inj" endian="big" name="inj: max duty cycle limit" sizex="1" storageaddress="0x0065" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
