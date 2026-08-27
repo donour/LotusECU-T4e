@@ -916,7 +916,9 @@ public class ExportRomRaiderDefs extends GhidraScript {
 
 		Syms [] all = getSymbols();
 
-		File inxml = new File(all[0].base.xmlid+"_defs.inc");
+		File scriptDir = getSourceFile().getParentFile().getParentFile().getFile(false);
+
+		File inxml = new File(scriptDir, all[0].base.xmlid+"_defs.inc");
 		if (inxml.isFile()) {
 			println("Use template " + inxml.getAbsolutePath());
 			doc = builder.parse(inxml);
@@ -943,7 +945,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "1");
 
-		File outxml = new File(all[0].base.xmlid+"_defs.xml");
+		File outxml = new File(scriptDir, all[0].base.xmlid+"_defs.xml");
 
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(outxml);
