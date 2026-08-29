@@ -173,6 +173,52 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	};
 
 	/******************************/
+	/* Struct-typed calibrations  */
+	/******************************/
+
+	/* A few calibrations are declared as a small struct of homogeneous members
+	 * rather than as a scalar or an array.  getDataformat() cannot resolve a
+	 * struct name, and SymRec's [N] regex does not match one either, so without
+	 * a handler these fall through to "Ignoring unknown format" and never reach
+	 * the definition at all.
+	 *
+	 * Each member becomes one cell of a 2D table with a Static X axis, which is
+	 * the shape RomRaider wants for a fixed set of named values.  Members must
+	 * be contiguous and share one scalar type. */
+	private static class StructDF {
+		final String datatype;   /* scalar type shared by every member */
+		final String axisName;
+		final String[] labels;   /* one per member, in declaration order */
+
+		StructDF(String datatype, String axisName, String... labels) {
+			this.datatype = datatype;
+			this.axisName = axisName;
+			this.labels = labels;
+		}
+	}
+
+	private static final StructDF getStructFormat(String datatype) {
+		/* struct o2_narrowband_threshold {
+		 *     u16_voltage_5/1023v rich;   member 0, +0, stock 123 = 0.601 V
+		 *     u16_voltage_5/1023v lean;   member 1, +2, stock  66 = 0.323 V
+		 * };
+		 *
+		 * The two switch points of a narrowband O2 sensor, 4 bytes big endian.
+		 * A narrowband sensor reads high when rich, and the firmware compares
+		 * them accordingly - see obd_ii_o2_monitors():
+		 *     v < .lean  -> declare LEAN   (member 1, 0.32 V)
+		 *     .rich < v  -> declare RICH   (member 0, 0.60 V)
+		 *
+		 * Labels follow member order and carry the compare direction, which is
+		 * the half a tuner needs and which the member names alone do not say. */
+		if (datatype.equals("o2_narrowband_threshold"))
+			return new StructDF("u16_voltage_5/1023v", "switch point",
+			                    "rich above", "lean below");
+
+		return null;
+	};
+
+	/******************************/
 	/* Datatype formatting        */
 	/******************************/
 
@@ -222,6 +268,11 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_factor_1/4095","uint16","%","x*100/4095","x*4095/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/10000","uint16","%","x/10","x*10","0.00","0.1","1","Percent"),
 		new DF("i16_percent_1/10","int16","%","x/10","x*10","0.00","0.1","1","Percent"),
+		/* Short-term fuel trim.  Distinct from i16_factor_1/20 above, which is the
+		 * closed-loop PID gain type - here the raw value already IS percent/20, so
+		 * CAL_inj_stft_limit = 600 reads as the expected +/-30%, not 3000%.
+		 * Fine increment is exactly one raw count. */
+		new DF("i16_percent_1/20","int16","%","x/20","x*20","0.00","0.05","1","Percent"),
 		new DF("u8_percent_100/256-50","uint8","%","(x*100/256)-50","(x+50)*256/100","0.00","0.390625","2","Percent"),
 		new DF("u16_factor_1/65536","uint16","%","x*100/65536","x*65536/100","0.00","0.1","1","Percent"),
 		new DF("u8_accel_1/255g","uint8","G","x/255","x*255","0.000","0.004","0.04","G"),
@@ -895,6 +946,33 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		parent.appendChild(e);
 	}
 
+	private static void addXmlStruct(Document doc, Element parent, SymRec s, StructDF sd) throws Exception {
+		List<DF> df = getDataformat(sd.datatype);
+		if (df == null)
+			throw new Exception("Unknown struct member format: "+s.name+" ("+sd.datatype+")");
+
+		Element e = doc.createElement("table");
+		e.setAttribute("type", "2D");
+		e.setAttribute("name", s.prettyName());
+		e.setAttribute("category", s.category);
+		e.setAttribute("storagetype", df.get(0).storageType);
+		e.setAttribute("endian", "big");
+		e.setAttribute("sizex", String.valueOf(sd.labels.length));
+		e.setAttribute("userlevel", "1");
+		e.setAttribute("storageaddress", String.format("0x%04X", s.offset));
+		for (DF d : df) d.addXmlScaling(doc, e);
+
+		Element ex = doc.createElement("table");
+		ex.setAttribute("type", "Static X Axis");
+		ex.setAttribute("name", sd.axisName);
+		ex.setAttribute("sizex", String.valueOf(sd.labels.length));
+		for (String l : sd.labels) createTextChild(doc, ex, "data", l);
+		e.appendChild(ex);
+
+		createTextChild(doc, e, "description", s.comment);
+		parent.appendChild(e);
+	}
+
 	private void doDefs(Document doc, Element parent, Syms s2) throws Exception {
 		for (SymRec s : s2.syms) {
 			if (s.datatype.equals("bool"))
@@ -925,6 +1003,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				addXmlSwitch(doc, parent, s, KNOCK_MODE);
 			else if ("CAL_load_use_speed_density".equals(s.name))
 				addXmlSwitch(doc, parent, s, LOAD_MODE);
+			else if (getStructFormat(s.datatype) != null)
+				addXmlStruct(doc, parent, s, getStructFormat(s.datatype));
 			else if (s.dataformats == null)
 				println("WARNING - Ignoring unknown format: "+s.name+" ("+s.datatype+")");
 			else if (s.name.startsWith("CAL_misc_shift_lights_before_rev_limit"))

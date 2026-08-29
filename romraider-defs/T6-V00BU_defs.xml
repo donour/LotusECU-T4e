@@ -246,12 +246,19 @@
    </table>
    <description>Calibration: A/C throttle position inhibit timer. Tunable map/constant (not a live channel); log to see throttle/pedal demand and throttle response.</description>
   </table>
-  <table category="accel" endian="big" name="accel: pedal correlation max diff" sizex="1" storageaddress="0x4404" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
+  <table category="accessory" endian="big" name="accessory: output rpm inhibit off" sizex="1" storageaddress="0x02FA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>pedal correlation max diff</data>
+    <data>output rpm inhibit off</data>
    </table>
    <description/>
+  </table>
+  <table category="accessory" endian="big" name="accessory: output rpm inhibit on" sizex="1" storageaddress="0x02FB" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>output rpm inhibit on</data>
+   </table>
+   <description>Calibration: seat heater RPM threshold. Tunable map/constant (not a live channel); adjust to change this behavior. (RPM; raw*4)</description>
   </table>
   <table category="acis" endian="big" name="acis: close load" sizex="1" storageaddress="0x01B6" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
@@ -280,20 +287,6 @@
     <data>open rpm</data>
    </table>
    <description>Calibration: acis open RPM. Tunable map/constant (not a live channel); adjust to change this behavior. (RPM)</description>
-  </table>
-  <table category="air" endian="big" name="air: temp intake limit" sizex="1" storageaddress="0x43FE" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>temp intake limit</data>
-   </table>
-   <description/>
-  </table>
-  <table category="air" endian="big" name="air: temp intake threshold" sizex="1" storageaddress="0x43FF" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>temp intake threshold</data>
-   </table>
-   <description/>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed sport" sizex="2" storageaddress="0x452E" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -356,20 +349,6 @@
    <scaling category="Millisecond" coarseincrement="10" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="ms"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>yaw timeout</data>
-   </table>
-   <description/>
-  </table>
-  <table category="cat" endian="big" name="cat: o2 switch thresh ips" sizex="8" storageaddress="0x5280" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="flow" sizex="8" storageaddress="0x5278" storagetype="uint8" type="X Axis">
-    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
-   </table>
-   <description/>
-  </table>
-  <table category="cat" endian="big" name="cat: o2 switch thresh manual" sizex="8" storageaddress="0x58A4" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="flow" sizex="8" storageaddress="0x589C" storagetype="uint8" type="X Axis">
-    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
    </table>
    <description/>
   </table>
@@ -522,13 +501,6 @@
    </table>
    <description>Calibration: closedloop integration period. Tunable map/constant (not a live channel); log to watch O2 feedback trim the mixture and confirm the loop is active. (ms; raw*5)</description>
   </table>
-  <table category="closedloop" endian="big" name="closedloop: max tipin enrichment" sizex="1" storageaddress="0x453E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>max tipin enrichment</data>
-   </table>
-   <description/>
-  </table>
   <table category="closedloop" endian="big" name="closedloop: max tipout enleanment" sizex="1" storageaddress="0x4540" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -599,13 +571,6 @@
    </table>
    <description>Calibration: closedloop O2 switch threshold. Tunable map/constant (not a live channel); log to watch O2 feedback trim the mixture and confirm the loop is active.</description>
   </table>
-  <table category="closedloop" endian="big" name="closedloop: o2 switch threshold ips" sizex="1" storageaddress="0x453D" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>o2 switch threshold ips</data>
-   </table>
-   <description/>
-  </table>
   <table category="closedloop" endian="big" name="closedloop: o2 warmup time" sizex="1" storageaddress="0x0130" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -654,10 +619,10 @@
    </table>
    <description>Calibration: closedloop proportional gain rich table. Tunable map/constant (not a live channel); log to watch O2 feedback trim the mixture and confirm the loop is active.</description>
   </table>
-  <table category="closedloop" endian="big" name="closedloop: stft idle max limit" sizex="1" storageaddress="0x453C" storagetype="uint8" type="2D" userlevel="1">
+  <table category="closedloop" endian="big" name="closedloop: stft filter unknown" sizex="1" storageaddress="0x00A3" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>stft idle max limit</data>
+    <data>stft filter unknown</data>
    </table>
    <description/>
   </table>
@@ -686,13 +651,6 @@
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table endian="big" name="unknown" sizex="16" storageaddress="0x2C9E" storagetype="uint16" type="X Axis">
     <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   </table>
-   <description/>
-  </table>
-  <table category="closeloop" endian="big" name="closeloop: stft filter unknown" sizex="1" storageaddress="0x00A3" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>stft filter unknown</data>
    </table>
    <description/>
   </table>
@@ -1241,6 +1199,13 @@
    </table>
    <description>Calibration: cruise speed deadband. Tunable map/constant (not a live channel); log to debug cruise engagement and speed holding. (km/h)</description>
   </table>
+  <table category="cruise" endian="big" name="cruise: speed decrement" sizex="1" storageaddress="0x0212" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="0.1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed decrement</data>
+   </table>
+   <description/>
+  </table>
   <table category="cruise" endian="big" name="cruise: speed decrement" sizex="1" storageaddress="0x0219" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -1254,6 +1219,13 @@
     <data>speed error limit</data>
    </table>
    <description>Calibration: cruise speed error limit. Tunable map/constant (not a live channel); log to debug cruise engagement and speed holding. (km/h)</description>
+  </table>
+  <table category="cruise" endian="big" name="cruise: speed increment" sizex="1" storageaddress="0x0211" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="0.1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed increment</data>
+   </table>
+   <description/>
   </table>
   <table category="cruise" endian="big" name="cruise: speed increment" sizex="1" storageaddress="0x0218" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="km/h"/>
@@ -1297,6 +1269,13 @@
     <data>tps override threshold</data>
    </table>
    <description>Calibration: cruise throttle position override threshold. Tunable map/constant (not a live channel); log to see throttle/pedal demand and throttle response. (0-1; raw/255)</description>
+  </table>
+  <table category="cruise" endian="big" name="cruise: unknown2" sizex="1" storageaddress="0x00C2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>unknown2</data>
+   </table>
+   <description/>
   </table>
   <table category="dca" endian="big" name="dca: activate timer" sizex="1" storageaddress="0x02C7" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Millisecond" coarseincrement="10" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="ms"/>
@@ -1882,6 +1861,27 @@
    </table>
    <description/>
   </table>
+  <table category="evap" endian="big" name="evap: fuel used window level high" sizex="1" storageaddress="0x453C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel used window level high</data>
+   </table>
+   <description/>
+  </table>
+  <table category="evap" endian="big" name="evap: fuel used window level low" sizex="1" storageaddress="0x453D" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel used window level low</data>
+   </table>
+   <description/>
+  </table>
+  <table category="evap" endian="big" name="evap: fuel used window level mid" sizex="1" storageaddress="0x453E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel used window level mid</data>
+   </table>
+   <description/>
+  </table>
   <table category="evap" endian="big" name="evap: leak test fuel level max" sizex="1" storageaddress="0x44B3" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Gallon" coarseincrement="1" expression="x" fineincrement="0.1" format="0" to_byte="x" units="l"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2095,20 +2095,6 @@
    </table>
    <description/>
   </table>
-  <table category="fuel" endian="big" name="fuel: learn step timeout" sizex="1" storageaddress="0x00BC" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Millisecond" coarseincrement="10" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="ms"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn step timeout</data>
-   </table>
-   <description/>
-  </table>
-  <table category="fuel" endian="big" name="fuel: learn time step" sizex="1" storageaddress="0x00BE" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn time step</data>
-   </table>
-   <description/>
-  </table>
   <table category="fuel" endian="big" name="fuel: level change threshold" sizex="1" storageaddress="0x0223" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Liter" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="l"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2193,19 +2179,40 @@
    </table>
    <description>Calibration: fuel usage to flow scaling. Tunable map/constant (not a live channel); log to follow fuel delivery and mixture control.</description>
   </table>
-  <table category="gpdo" endian="big" name="gpdo: 7c 7d rpm off threshold" sizex="1" storageaddress="0x02FA" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>7c 7d rpm off threshold</data>
+  <table category="idle" endian="big" name="idle: air base ips ingear sport" sizex="16" storageaddress="0x425E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/256" fineincrement="0.1" format="0.0" to_byte="x*256/100" units="mg/s"/>
+   <table endian="big" name="rpm" sizex="16" storageaddress="0x423E" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    </table>
    <description/>
   </table>
-  <table category="gpdo" endian="big" name="gpdo: 7c 7d rpm on threshold" sizex="1" storageaddress="0x02FB" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>7c 7d rpm on threshold</data>
+  <table category="idle" endian="big" name="idle: air base ips ingear tour" sizex="16" storageaddress="0x3986" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/256" fineincrement="0.1" format="0.0" to_byte="x*256/100" units="mg/s"/>
+   <table endian="big" name="rpm" sizex="16" storageaddress="0x3966" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    </table>
-   <description>Calibration: seat heater RPM threshold. Tunable map/constant (not a live channel); adjust to change this behavior. (RPM; raw*4)</description>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air base ips neutral sport" sizex="16" storageaddress="0x416E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/256" fineincrement="0.1" format="0.0" to_byte="x*256/100" units="mg/s"/>
+   <table endian="big" name="rpm" sizex="16" storageaddress="0x414E" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air base ips neutral tour" sizex="16" storageaddress="0x40F6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/256" fineincrement="0.1" format="0.0" to_byte="x*256/100" units="mg/s"/>
+   <table endian="big" name="rpm" sizex="16" storageaddress="0x40D6" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air base manual" sizex="16" storageaddress="0x1816" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/256" fineincrement="0.1" format="0.0" to_byte="x*256/100" units="mg/s"/>
+   <table endian="big" name="rpm" sizex="16" storageaddress="0x17F6" storagetype="uint16" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   </table>
+   <description/>
   </table>
   <table category="idle" endian="big" name="idle: air control unknown" sizex="1" storageaddress="0x016F" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2228,6 +2235,20 @@
    </table>
    <description/>
   </table>
+  <table category="idle" endian="big" name="idle: air hi rpm adder" sizex="16" storageaddress="0x22FE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   <table endian="big" name="rpm" sizex="16" storageaddress="0x22EE" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air hi rpm adder speed min" sizex="1" storageaddress="0x00DE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>air hi rpm adder speed min</data>
+   </table>
+   <description/>
+  </table>
   <table category="idle" endian="big" name="idle: air integral step" sizex="16" storageaddress="0x0C76" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table endian="big" name="speed error" sizex="16" storageaddress="0x0C66" storagetype="uint8" type="X Axis">
@@ -2241,13 +2262,6 @@
     <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    </table>
    <description>Calibration: idle air prop gain. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/255)</description>
-  </table>
-  <table category="idle" endian="big" name="idle: car moving threshold" sizex="1" storageaddress="0x00DF" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>car moving threshold</data>
-   </table>
-   <description/>
   </table>
   <table category="idle" endian="big" name="idle: carspeed comp decay step" sizex="1" storageaddress="0x01B8" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
@@ -2305,6 +2319,20 @@
    </table>
    <description>Calibration: idle compensation carspeed manual. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (RPM; raw*4)</description>
   </table>
+  <table category="idle" endian="big" name="idle: comp decay period" sizex="1" storageaddress="0x019B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>comp decay period</data>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: comp decay period ac" sizex="1" storageaddress="0x00DF" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>comp decay period ac</data>
+   </table>
+   <description/>
+  </table>
   <table category="idle" endian="big" name="idle: comp ecu voltage" sizex="8" storageaddress="0x0C2E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table endian="big" name="voltage" sizex="8" storageaddress="0x0C26" storagetype="uint8" type="X Axis">
@@ -2349,6 +2377,13 @@
    </table>
    <description>Calibration: idle compensation timer carspeed manual. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (RPM; raw*8)</description>
   </table>
+  <table category="idle" endian="big" name="idle: control entry offset" sizex="1" storageaddress="0x0173" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>control entry offset</data>
+   </table>
+   <description/>
+  </table>
   <table category="idle" endian="big" name="idle: coolant fallback temp" sizex="1" storageaddress="0x455C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2383,41 +2418,6 @@
     <data>flow integral adj max</data>
    </table>
    <description>Calibration: idle flow integral adj max. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (mg/s; raw*100)</description>
-  </table>
-  <table category="idle" endian="big" name="idle: ign comp by target speed ips" sizex="16" storageaddress="0x1816" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="manual" sizex="16" storageaddress="0x17F6" storagetype="uint16" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   </table>
-   <description/>
-  </table>
-  <table category="idle" endian="big" name="idle: ign comp by target speed manual" sizex="16" storageaddress="0x3986" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="rpm" sizex="16" storageaddress="0x3966" storagetype="uint16" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   </table>
-   <description/>
-  </table>
-  <table category="idle" endian="big" name="idle: ign comp ips" sizex="16" storageaddress="0x425E" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="target rpm" sizex="16" storageaddress="0x423E" storagetype="uint16" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   </table>
-   <description/>
-  </table>
-  <table category="idle" endian="big" name="idle: ign comp sport" sizex="16" storageaddress="0x416E" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="target rpm" sizex="16" storageaddress="0x414E" storagetype="uint16" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   </table>
-   <description/>
-  </table>
-  <table category="idle" endian="big" name="idle: ign comp tour" sizex="16" storageaddress="0x40F6" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="target rpm" sizex="16" storageaddress="0x40D6" storagetype="uint16" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   </table>
-   <description/>
   </table>
   <table category="idle" endian="big" name="idle: learn integral max" sizex="1" storageaddress="0x006E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2528,26 +2528,22 @@
    </table>
    <description>Calibration: idle target manual tour. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (RPM; raw*4+500)</description>
   </table>
+  <table category="idle" endian="big" name="idle: tps from air demand" sizex="8" sizey="8" storageaddress="0x0DD6" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="idle air" sizex="8" storageaddress="0x0DC6" storagetype="uint8" type="X Axis">
+    <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   </table>
+   <table endian="big" name="vacuum" sizey="8" storageaddress="0x0DCE" storagetype="uint8" type="Y Axis">
+    <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
+   </table>
+   <description>Calibration: throttle position idle target. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/255)</description>
+  </table>
   <table category="idle" endian="big" name="idle: tps max" sizex="1" storageaddress="0x0190" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>tps max</data>
    </table>
    <description>Calibration: idle throttle position max. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/1023)</description>
-  </table>
-  <table category="idle" endian="big" name="idle: tps max opening" sizex="1" storageaddress="0x019B" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>tps max opening</data>
-   </table>
-   <description/>
-  </table>
-  <table category="idle" endian="big" name="idle: unknown1" sizex="1" storageaddress="0x0174" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>unknown1</data>
-   </table>
-   <description/>
   </table>
   <table category="idle" endian="big" name="idle: unknown10" sizex="1" storageaddress="0x4DB5" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2556,8 +2552,8 @@
    </table>
    <description/>
   </table>
-  <table category="idle" endian="big" name="idle: unknown2" sizex="1" storageaddress="0x0173" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="idle" endian="big" name="idle: unknown2" sizex="1" storageaddress="0x0174" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>unknown2</data>
    </table>
@@ -2794,6 +2790,13 @@
    </table>
    <description>Calibration: ignition compensation throttle position rate. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4)</description>
   </table>
+  <table category="ign" endian="big" name="ign: dfco recovery hold time" sizex="1" storageaddress="0x00E4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dfco recovery hold time</data>
+   </table>
+   <description>For up to 3 seconds after a fuel cut ends, the ignition target keeps slewing on its normal path instead of handing authority to the idle spark controller — even once RPM has fallen far enough that idle mode would otherwise take over.</description>
+  </table>
   <table category="ign" endian="big" name="ign: dwell time" sizex="8" sizey="8" storageaddress="0x19AE" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Microsecond" coarseincrement="200" expression="x*64" fineincrement="64" format="0" to_byte="x/64" units="us"/>
    <table endian="big" name="rpm" sizex="8" storageaddress="0x199E" storagetype="uint8" type="X Axis">
@@ -2910,20 +2913,6 @@
     <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description>Calibration: ignition trim per cylinder. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4-32)</description>
-  </table>
-  <table category="ign" endian="big" name="ign: zero gear" sizex="1" storageaddress="0x0212" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>zero gear</data>
-   </table>
-   <description/>
-  </table>
-  <table category="ign" endian="big" name="ign: zero load threshold" sizex="1" storageaddress="0x0211" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>zero load threshold</data>
-   </table>
-   <description/>
   </table>
   <table category="ign" endian="big" name="ign: zero rpm threshold" sizex="1" storageaddress="0x00D5" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -3139,7 +3128,35 @@
    </table>
    <description/>
   </table>
+  <table category="inj" endian="big" name="inj: fuel learn step timeout" sizex="1" storageaddress="0x00BC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millisecond" coarseincrement="10" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="ms"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn step timeout</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn stft lean limit" sizex="1" storageaddress="0x01E8" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x/20" fineincrement="0.05" format="0.00" to_byte="x*20" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn stft lean limit</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn stft rich limit" sizex="1" storageaddress="0x01EA" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x/20" fineincrement="0.05" format="0.00" to_byte="x*20" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn stft rich limit</data>
+   </table>
+   <description/>
+  </table>
   <table category="inj" endian="big" name="inj: fuel learn time step" sizex="1" storageaddress="0x00BD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn time step</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn time step" sizex="1" storageaddress="0x00BE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel learn time step</data>
@@ -3208,6 +3225,13 @@
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
    <description>Calibration: injector startup enrichment offset. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (us; raw*256)</description>
+  </table>
+  <table category="inj" endian="big" name="inj: stft limit" sizex="1" storageaddress="0x014E" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x/20" fineincrement="0.05" format="0.00" to_byte="x*20" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>stft limit</data>
+   </table>
+   <description>Calibration: injector stft limit. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (raw/20)</description>
   </table>
   <table category="inj" endian="big" name="inj: warmup factor ips" sizex="12" sizey="16" storageaddress="0x04C2" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/64" fineincrement="1" format="0" to_byte="x*64/100" units="%"/>
@@ -3375,13 +3399,6 @@
     <data>overrun hysteresis timer</data>
    </table>
    <description>Calibration: injtip overrun hysteresis timer. Tunable map/constant (not a live channel); log to debug transient (tip-in/out) fueling stumbles and surge. (ms; raw*5)</description>
-  </table>
-  <table category="injtip" endian="big" name="injtip: overrun inhibit timer" sizex="1" storageaddress="0x00E4" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>overrun inhibit timer</data>
-   </table>
-   <description>Calibration: injtip overrun inhibit timer. Tunable map/constant (not a live channel); log to debug transient (tip-in/out) fueling stumbles and surge. (ms; raw*5)</description>
   </table>
   <table category="injtip" endian="big" name="injtip: time base" sizex="1" storageaddress="0x017A" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Microsecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="us"/>
@@ -4099,6 +4116,22 @@
    </table>
    <description>Calibration: misfire sensitivity manual. Tunable map/constant (not a live channel); log to find misfires and which cylinder is responsible.</description>
   </table>
+  <table category="o2" endian="big" name="o2: threshold postcat" sizex="2" storageaddress="0x447E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="switch point" sizex="2" type="Static X Axis">
+    <data>rich above</data>
+    <data>lean below</data>
+   </table>
+   <description>Calibration: O2 threshold postcat. Tunable map/constant (not a live channel); adjust to change this behavior.</description>
+  </table>
+  <table category="o2" endian="big" name="o2: threshold precat" sizex="2" storageaddress="0x4478" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="switch point" sizex="2" type="Static X Axis">
+    <data>rich above</data>
+    <data>lean below</data>
+   </table>
+   <description>Calibration: O2 threshold precat. Tunable map/constant (not a live channel); adjust to change this behavior.</description>
+  </table>
   <table category="obd" endian="big" name="obd: P0171 learn time threshold" sizex="1" storageaddress="0x4402" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Microsecond" coarseincrement="100" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="us"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -4296,6 +4329,15 @@
    <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
    <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
    <description>Calibration that arms/thresholds the P0071 monitor (ambient air temp sensor rationality). Fixed value -- it sets when that DTC trips, not a live channel.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0071 air temp limit" sizex="2" storageaddress="0x43FE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
   </table>
   <table category="obd" endian="big" name="obd: ii P0071 maturing limit" sizex="1" storageaddress="0x4DFE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -5419,6 +5461,20 @@
    </table>
    <description/>
   </table>
+  <table category="obd" endian="big" name="obd: ii P0420 precat switch target ips" sizex="8" storageaddress="0x5280" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="maf flow" sizex="8" storageaddress="0x5278" storagetype="uint8" type="X Axis">
+    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
+   </table>
+   <description/>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0420 precat switch target manual" sizex="8" storageaddress="0x58A4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table endian="big" name="maf flow" sizex="8" storageaddress="0x589C" storagetype="uint8" type="X Axis">
+    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
+   </table>
+   <description/>
+  </table>
   <table category="obd" name="obd: ii P0430" sizey="1" storageaddress="0x4BB5" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
    <state data="01" name="Non-emissions 1-trip"/>
@@ -5526,6 +5582,13 @@
    <state data="91" name="Emissions Type A critical (1-trip MIL priority)"/>
    <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
    <description>Calibration that arms/thresholds the P0451 monitor (EVAP pressure sensor rationality). Fixed value -- it sets when that DTC trips, not a live channel.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0451 debounce count" sizex="1" storageaddress="0x4561" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii P0451 debounce count</data>
+   </table>
+   <description/>
   </table>
   <table category="obd" name="obd: ii P0452" sizey="1" storageaddress="0x4BC5" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
@@ -6652,6 +6715,13 @@
    <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
    <description>Calibration that arms/thresholds the U0513 monitor (bad data from convenience module). Fixed value -- it sets when that DTC trips, not a live channel.</description>
   </table>
+  <table category="obd" endian="big" name="obd: ii accel pedal correlation max diff" sizex="1" storageaddress="0x4404" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii accel pedal correlation max diff</data>
+   </table>
+   <description/>
+  </table>
   <table category="obd" endian="big" name="obd: ii adc maf unknown1" sizex="1" storageaddress="0x4386" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -6824,6 +6894,20 @@
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii o2 precat diag timer</data>
+   </table>
+   <description/>
+  </table>
+  <table category="obd" endian="big" name="obd: ii o2 response car speed max" sizex="1" storageaddress="0x43D3" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii o2 response car speed max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="obd" endian="big" name="obd: ii o2 response car speed min" sizex="1" storageaddress="0x43D2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii o2 response car speed min</data>
    </table>
    <description/>
   </table>
@@ -8283,13 +8367,6 @@
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: accel pedal zero calibrate timer" sizex="1" storageaddress="0x00C2" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>accel pedal zero calibrate timer</data>
-   </table>
-   <description/>
-  </table>
   <table category="tps" endian="big" name="tps: brake safety floor" sizex="1" storageaddress="0x0285" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -8339,29 +8416,12 @@
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: delta rate limit plus4" sizex="1" storageaddress="0x00DE" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>delta rate limit plus4</data>
-   </table>
-   <description/>
-  </table>
   <table category="tps" endian="big" name="tps: delta rate window size" sizex="1" storageaddress="0x017B" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>delta rate window size</data>
    </table>
    <description>Calibration: throttle position delta rate window size. Tunable map/constant (not a live channel); log to see throttle/pedal demand and throttle response.</description>
-  </table>
-  <table category="tps" endian="big" name="tps: idle target" sizex="8" sizey="8" storageaddress="0x0DD6" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
-   <table endian="big" name="idle air" sizex="8" storageaddress="0x0DC6" storagetype="uint8" type="X Axis">
-    <scaling category="Gram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g/s"/>
-   </table>
-   <table endian="big" name="vacuum" sizey="8" storageaddress="0x0DCE" storagetype="uint8" type="Y Axis">
-    <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
-   </table>
-   <description>Calibration: throttle position idle target. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/255)</description>
   </table>
   <table category="tps" endian="big" name="tps: idle target cranking" sizex="4" sizey="16" storageaddress="0x1792" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
@@ -8693,6 +8753,13 @@
    </table>
    <description>Calibration: vehicle speed limit enforce margin. Tunable map/constant (not a live channel); adjust to change this behavior. (km/h; raw/100)</description>
   </table>
+  <table category="vehicle" endian="big" name="vehicle: speed unknown1" sizex="1" storageaddress="0x438C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>speed unknown1</data>
+   </table>
+   <description/>
+  </table>
   <table category="vehicle" endian="big" name="vehicle: standing start throttle threshold" sizex="1" storageaddress="0x025C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="G" coarseincrement="0.04" expression="x/255" fineincrement="0.004" format="0.000" to_byte="x*255" units="G"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -8827,24 +8894,24 @@
    </table>
    <description/>
   </table>
-  <table category="wheelspeed" endian="big" name="wheelspeed: smoothing" sizex="1" storageaddress="0x007F" storagetype="uint8" type="2D" userlevel="1">
+  <table category="wheel" endian="big" name="wheel: speed smoothing" sizex="1" storageaddress="0x007F" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>smoothing</data>
+    <data>speed smoothing</data>
    </table>
    <description>Calibration: unused wheelspeed smoothing. Tunable map/constant (not a live channel); adjust to change this behavior. (0-1; raw/255)</description>
   </table>
-  <table category="wheelspeed" endian="big" name="wheelspeed: vss pulses per rev" sizex="1" storageaddress="0x004A" storagetype="uint8" type="2D" userlevel="1">
+  <table category="wheel" endian="big" name="wheel: speed vss pulses per rev" sizex="1" storageaddress="0x004A" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>vss pulses per rev</data>
+    <data>speed vss pulses per rev</data>
    </table>
    <description>Calibration: vss pulses per rev. Tunable map/constant (not a live channel); adjust to change this behavior.</description>
   </table>
-  <table category="wheelspeed" endian="big" name="wheelspeed: vss tire circumference" sizex="1" storageaddress="0x0048" storagetype="uint16" type="2D" userlevel="1">
+  <table category="wheel" endian="big" name="wheel: speed vss tire circumference" sizex="1" storageaddress="0x0048" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>vss tire circumference</data>
+    <data>speed vss tire circumference</data>
    </table>
    <description>Calibration: vss tire circumference. Tunable map/constant (not a live channel); adjust to change this behavior.</description>
   </table>
@@ -8918,34 +8985,6 @@
    </table>
    <description>Engine run timer total. Log to follow core engine state.</description>
   </table>
-  <table category="fuel" endian="big" name="fuel: learn zone 2 bank1" sizex="1" storageaddress="0x0260" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn zone 2 bank1</data>
-   </table>
-   <description/>
-  </table>
-  <table category="fuel" endian="big" name="fuel: learn zone 2 bank2" sizex="1" storageaddress="0x0262" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn zone 2 bank2</data>
-   </table>
-   <description>Fuel learn zone 2 bank2. Log to follow fuel delivery and mixture control.</description>
-  </table>
-  <table category="fuel" endian="big" name="fuel: learn zone 3 bank1" sizex="1" storageaddress="0x0261" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn zone 3 bank1</data>
-   </table>
-   <description/>
-  </table>
-  <table category="fuel" endian="big" name="fuel: learn zone 3 bank2" sizex="1" storageaddress="0x0263" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>learn zone 3 bank2</data>
-   </table>
-   <description/>
-  </table>
   <table category="idle" endian="big" name="idle: cold learning coolant" sizex="1" storageaddress="0x0984" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -8964,6 +9003,34 @@
    <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>learn ac on</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 2 bank1" sizex="1" storageaddress="0x0260" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 2 bank1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 2 bank2" sizex="1" storageaddress="0x0262" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 2 bank2</data>
+   </table>
+   <description>Fuel learn zone 2 bank2. Log to follow fuel delivery and mixture control.</description>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 3 bank1" sizex="1" storageaddress="0x0261" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 3 bank1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 3 bank2" sizex="1" storageaddress="0x0263" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 3 bank2</data>
    </table>
    <description/>
   </table>
@@ -9015,963 +9082,207 @@
    </table>
    <description>Learned value: torque torque to throttle position scaling. A value the ECU learns over time -- log it to track adaptation and spot a developing fault. (0-1; raw/100)</description>
   </table>
-  <table category="misfire" endian="big" name="misfire: baseline cyl1" sizex="153" storageaddress="0x0578" storagetype="uint8" type="2D" userlevel="1">
+  <table category="misfire" endian="big" name="misfire: baseline cyl1" sizex="17" sizey="9" storageaddress="0x0578" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="153" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
+   <table name="rpm" sizex="17" type="Static X Axis">
+    <data>5000</data>
+    <data>5125</data>
+    <data>5250</data>
+    <data>5375</data>
+    <data>5500</data>
+    <data>5625</data>
+    <data>5750</data>
+    <data>5875</data>
+    <data>6000</data>
+    <data>6125</data>
+    <data>6250</data>
+    <data>6375</data>
+    <data>6500</data>
+    <data>6625</data>
+    <data>6750</data>
+    <data>6875</data>
+    <data>7000</data>
+   </table>
+   <table name="load (mg/stroke)" sizey="9" type="Static Y Axis">
     <data>128</data>
-    <data>160</data>
     <data>192</data>
-    <data>224</data>
     <data>256</data>
-    <data>288</data>
     <data>320</data>
-    <data>352</data>
     <data>384</data>
-    <data>416</data>
     <data>448</data>
-    <data>480</data>
     <data>512</data>
-    <data>544</data>
     <data>576</data>
-    <data>608</data>
     <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <data>1024</data>
-    <data>1056</data>
-    <data>1088</data>
-    <data>1120</data>
-    <data>1152</data>
-    <data>1184</data>
-    <data>1216</data>
-    <data>1248</data>
-    <data>1280</data>
-    <data>1312</data>
-    <data>1344</data>
-    <data>1376</data>
-    <data>1408</data>
-    <data>1440</data>
-    <data>1472</data>
-    <data>1504</data>
-    <data>1536</data>
-    <data>1568</data>
-    <data>1600</data>
-    <data>1632</data>
-    <data>1664</data>
-    <data>1696</data>
-    <data>1728</data>
-    <data>1760</data>
-    <data>1792</data>
-    <data>1824</data>
-    <data>1856</data>
-    <data>1888</data>
-    <data>1920</data>
-    <data>1952</data>
-    <data>1984</data>
-    <data>2016</data>
-    <data>2048</data>
-    <data>2080</data>
-    <data>2112</data>
-    <data>2144</data>
-    <data>2176</data>
-    <data>2208</data>
-    <data>2240</data>
-    <data>2272</data>
-    <data>2304</data>
-    <data>2336</data>
-    <data>2368</data>
-    <data>2400</data>
-    <data>2432</data>
-    <data>2464</data>
-    <data>2496</data>
-    <data>2528</data>
-    <data>2560</data>
-    <data>2592</data>
-    <data>2624</data>
-    <data>2656</data>
-    <data>2688</data>
-    <data>2720</data>
-    <data>2752</data>
-    <data>2784</data>
-    <data>2816</data>
-    <data>2848</data>
-    <data>2880</data>
-    <data>2912</data>
-    <data>2944</data>
-    <data>2976</data>
-    <data>3008</data>
-    <data>3040</data>
-    <data>3072</data>
-    <data>3104</data>
-    <data>3136</data>
-    <data>3168</data>
-    <data>3200</data>
-    <data>3232</data>
-    <data>3264</data>
-    <data>3296</data>
-    <data>3328</data>
-    <data>3360</data>
-    <data>3392</data>
-    <data>3424</data>
-    <data>3456</data>
-    <data>3488</data>
-    <data>3520</data>
-    <data>3552</data>
-    <data>3584</data>
-    <data>3616</data>
-    <data>3648</data>
-    <data>3680</data>
-    <data>3712</data>
-    <data>3744</data>
-    <data>3776</data>
-    <data>3808</data>
-    <data>3840</data>
-    <data>3872</data>
-    <data>3904</data>
-    <data>3936</data>
-    <data>3968</data>
-    <data>4000</data>
-    <data>4032</data>
-    <data>4064</data>
-    <data>4096</data>
-    <data>4128</data>
-    <data>4160</data>
-    <data>4192</data>
-    <data>4224</data>
-    <data>4256</data>
-    <data>4288</data>
-    <data>4320</data>
-    <data>4352</data>
-    <data>4384</data>
-    <data>4416</data>
-    <data>4448</data>
-    <data>4480</data>
-    <data>4512</data>
-    <data>4544</data>
-    <data>4576</data>
-    <data>4608</data>
-    <data>4640</data>
-    <data>4672</data>
-    <data>4704</data>
-    <data>4736</data>
-    <data>4768</data>
-    <data>4800</data>
-    <data>4832</data>
-    <data>4864</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
-  <table category="misfire" endian="big" name="misfire: baseline cyl2" sizex="153" storageaddress="0x0612" storagetype="uint8" type="2D" userlevel="1">
+  <table category="misfire" endian="big" name="misfire: baseline cyl2" sizex="17" sizey="9" storageaddress="0x0612" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="153" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
+   <table name="rpm" sizex="17" type="Static X Axis">
+    <data>5000</data>
+    <data>5125</data>
+    <data>5250</data>
+    <data>5375</data>
+    <data>5500</data>
+    <data>5625</data>
+    <data>5750</data>
+    <data>5875</data>
+    <data>6000</data>
+    <data>6125</data>
+    <data>6250</data>
+    <data>6375</data>
+    <data>6500</data>
+    <data>6625</data>
+    <data>6750</data>
+    <data>6875</data>
+    <data>7000</data>
+   </table>
+   <table name="load (mg/stroke)" sizey="9" type="Static Y Axis">
     <data>128</data>
-    <data>160</data>
     <data>192</data>
-    <data>224</data>
     <data>256</data>
-    <data>288</data>
     <data>320</data>
-    <data>352</data>
     <data>384</data>
-    <data>416</data>
     <data>448</data>
-    <data>480</data>
     <data>512</data>
-    <data>544</data>
     <data>576</data>
-    <data>608</data>
     <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <data>1024</data>
-    <data>1056</data>
-    <data>1088</data>
-    <data>1120</data>
-    <data>1152</data>
-    <data>1184</data>
-    <data>1216</data>
-    <data>1248</data>
-    <data>1280</data>
-    <data>1312</data>
-    <data>1344</data>
-    <data>1376</data>
-    <data>1408</data>
-    <data>1440</data>
-    <data>1472</data>
-    <data>1504</data>
-    <data>1536</data>
-    <data>1568</data>
-    <data>1600</data>
-    <data>1632</data>
-    <data>1664</data>
-    <data>1696</data>
-    <data>1728</data>
-    <data>1760</data>
-    <data>1792</data>
-    <data>1824</data>
-    <data>1856</data>
-    <data>1888</data>
-    <data>1920</data>
-    <data>1952</data>
-    <data>1984</data>
-    <data>2016</data>
-    <data>2048</data>
-    <data>2080</data>
-    <data>2112</data>
-    <data>2144</data>
-    <data>2176</data>
-    <data>2208</data>
-    <data>2240</data>
-    <data>2272</data>
-    <data>2304</data>
-    <data>2336</data>
-    <data>2368</data>
-    <data>2400</data>
-    <data>2432</data>
-    <data>2464</data>
-    <data>2496</data>
-    <data>2528</data>
-    <data>2560</data>
-    <data>2592</data>
-    <data>2624</data>
-    <data>2656</data>
-    <data>2688</data>
-    <data>2720</data>
-    <data>2752</data>
-    <data>2784</data>
-    <data>2816</data>
-    <data>2848</data>
-    <data>2880</data>
-    <data>2912</data>
-    <data>2944</data>
-    <data>2976</data>
-    <data>3008</data>
-    <data>3040</data>
-    <data>3072</data>
-    <data>3104</data>
-    <data>3136</data>
-    <data>3168</data>
-    <data>3200</data>
-    <data>3232</data>
-    <data>3264</data>
-    <data>3296</data>
-    <data>3328</data>
-    <data>3360</data>
-    <data>3392</data>
-    <data>3424</data>
-    <data>3456</data>
-    <data>3488</data>
-    <data>3520</data>
-    <data>3552</data>
-    <data>3584</data>
-    <data>3616</data>
-    <data>3648</data>
-    <data>3680</data>
-    <data>3712</data>
-    <data>3744</data>
-    <data>3776</data>
-    <data>3808</data>
-    <data>3840</data>
-    <data>3872</data>
-    <data>3904</data>
-    <data>3936</data>
-    <data>3968</data>
-    <data>4000</data>
-    <data>4032</data>
-    <data>4064</data>
-    <data>4096</data>
-    <data>4128</data>
-    <data>4160</data>
-    <data>4192</data>
-    <data>4224</data>
-    <data>4256</data>
-    <data>4288</data>
-    <data>4320</data>
-    <data>4352</data>
-    <data>4384</data>
-    <data>4416</data>
-    <data>4448</data>
-    <data>4480</data>
-    <data>4512</data>
-    <data>4544</data>
-    <data>4576</data>
-    <data>4608</data>
-    <data>4640</data>
-    <data>4672</data>
-    <data>4704</data>
-    <data>4736</data>
-    <data>4768</data>
-    <data>4800</data>
-    <data>4832</data>
-    <data>4864</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
-  <table category="misfire" endian="big" name="misfire: baseline cyl3" sizex="153" storageaddress="0x06AC" storagetype="uint8" type="2D" userlevel="1">
+  <table category="misfire" endian="big" name="misfire: baseline cyl3" sizex="17" sizey="9" storageaddress="0x06AC" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="153" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
+   <table name="rpm" sizex="17" type="Static X Axis">
+    <data>5000</data>
+    <data>5125</data>
+    <data>5250</data>
+    <data>5375</data>
+    <data>5500</data>
+    <data>5625</data>
+    <data>5750</data>
+    <data>5875</data>
+    <data>6000</data>
+    <data>6125</data>
+    <data>6250</data>
+    <data>6375</data>
+    <data>6500</data>
+    <data>6625</data>
+    <data>6750</data>
+    <data>6875</data>
+    <data>7000</data>
+   </table>
+   <table name="load (mg/stroke)" sizey="9" type="Static Y Axis">
     <data>128</data>
-    <data>160</data>
     <data>192</data>
-    <data>224</data>
     <data>256</data>
-    <data>288</data>
     <data>320</data>
-    <data>352</data>
     <data>384</data>
-    <data>416</data>
     <data>448</data>
-    <data>480</data>
     <data>512</data>
-    <data>544</data>
     <data>576</data>
-    <data>608</data>
     <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <data>1024</data>
-    <data>1056</data>
-    <data>1088</data>
-    <data>1120</data>
-    <data>1152</data>
-    <data>1184</data>
-    <data>1216</data>
-    <data>1248</data>
-    <data>1280</data>
-    <data>1312</data>
-    <data>1344</data>
-    <data>1376</data>
-    <data>1408</data>
-    <data>1440</data>
-    <data>1472</data>
-    <data>1504</data>
-    <data>1536</data>
-    <data>1568</data>
-    <data>1600</data>
-    <data>1632</data>
-    <data>1664</data>
-    <data>1696</data>
-    <data>1728</data>
-    <data>1760</data>
-    <data>1792</data>
-    <data>1824</data>
-    <data>1856</data>
-    <data>1888</data>
-    <data>1920</data>
-    <data>1952</data>
-    <data>1984</data>
-    <data>2016</data>
-    <data>2048</data>
-    <data>2080</data>
-    <data>2112</data>
-    <data>2144</data>
-    <data>2176</data>
-    <data>2208</data>
-    <data>2240</data>
-    <data>2272</data>
-    <data>2304</data>
-    <data>2336</data>
-    <data>2368</data>
-    <data>2400</data>
-    <data>2432</data>
-    <data>2464</data>
-    <data>2496</data>
-    <data>2528</data>
-    <data>2560</data>
-    <data>2592</data>
-    <data>2624</data>
-    <data>2656</data>
-    <data>2688</data>
-    <data>2720</data>
-    <data>2752</data>
-    <data>2784</data>
-    <data>2816</data>
-    <data>2848</data>
-    <data>2880</data>
-    <data>2912</data>
-    <data>2944</data>
-    <data>2976</data>
-    <data>3008</data>
-    <data>3040</data>
-    <data>3072</data>
-    <data>3104</data>
-    <data>3136</data>
-    <data>3168</data>
-    <data>3200</data>
-    <data>3232</data>
-    <data>3264</data>
-    <data>3296</data>
-    <data>3328</data>
-    <data>3360</data>
-    <data>3392</data>
-    <data>3424</data>
-    <data>3456</data>
-    <data>3488</data>
-    <data>3520</data>
-    <data>3552</data>
-    <data>3584</data>
-    <data>3616</data>
-    <data>3648</data>
-    <data>3680</data>
-    <data>3712</data>
-    <data>3744</data>
-    <data>3776</data>
-    <data>3808</data>
-    <data>3840</data>
-    <data>3872</data>
-    <data>3904</data>
-    <data>3936</data>
-    <data>3968</data>
-    <data>4000</data>
-    <data>4032</data>
-    <data>4064</data>
-    <data>4096</data>
-    <data>4128</data>
-    <data>4160</data>
-    <data>4192</data>
-    <data>4224</data>
-    <data>4256</data>
-    <data>4288</data>
-    <data>4320</data>
-    <data>4352</data>
-    <data>4384</data>
-    <data>4416</data>
-    <data>4448</data>
-    <data>4480</data>
-    <data>4512</data>
-    <data>4544</data>
-    <data>4576</data>
-    <data>4608</data>
-    <data>4640</data>
-    <data>4672</data>
-    <data>4704</data>
-    <data>4736</data>
-    <data>4768</data>
-    <data>4800</data>
-    <data>4832</data>
-    <data>4864</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
-  <table category="misfire" endian="big" name="misfire: baseline cyl4" sizex="153" storageaddress="0x0746" storagetype="uint8" type="2D" userlevel="1">
+  <table category="misfire" endian="big" name="misfire: baseline cyl4" sizex="17" sizey="9" storageaddress="0x0746" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="153" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
+   <table name="rpm" sizex="17" type="Static X Axis">
+    <data>5000</data>
+    <data>5125</data>
+    <data>5250</data>
+    <data>5375</data>
+    <data>5500</data>
+    <data>5625</data>
+    <data>5750</data>
+    <data>5875</data>
+    <data>6000</data>
+    <data>6125</data>
+    <data>6250</data>
+    <data>6375</data>
+    <data>6500</data>
+    <data>6625</data>
+    <data>6750</data>
+    <data>6875</data>
+    <data>7000</data>
+   </table>
+   <table name="load (mg/stroke)" sizey="9" type="Static Y Axis">
     <data>128</data>
-    <data>160</data>
     <data>192</data>
-    <data>224</data>
     <data>256</data>
-    <data>288</data>
     <data>320</data>
-    <data>352</data>
     <data>384</data>
-    <data>416</data>
     <data>448</data>
-    <data>480</data>
     <data>512</data>
-    <data>544</data>
     <data>576</data>
-    <data>608</data>
     <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <data>1024</data>
-    <data>1056</data>
-    <data>1088</data>
-    <data>1120</data>
-    <data>1152</data>
-    <data>1184</data>
-    <data>1216</data>
-    <data>1248</data>
-    <data>1280</data>
-    <data>1312</data>
-    <data>1344</data>
-    <data>1376</data>
-    <data>1408</data>
-    <data>1440</data>
-    <data>1472</data>
-    <data>1504</data>
-    <data>1536</data>
-    <data>1568</data>
-    <data>1600</data>
-    <data>1632</data>
-    <data>1664</data>
-    <data>1696</data>
-    <data>1728</data>
-    <data>1760</data>
-    <data>1792</data>
-    <data>1824</data>
-    <data>1856</data>
-    <data>1888</data>
-    <data>1920</data>
-    <data>1952</data>
-    <data>1984</data>
-    <data>2016</data>
-    <data>2048</data>
-    <data>2080</data>
-    <data>2112</data>
-    <data>2144</data>
-    <data>2176</data>
-    <data>2208</data>
-    <data>2240</data>
-    <data>2272</data>
-    <data>2304</data>
-    <data>2336</data>
-    <data>2368</data>
-    <data>2400</data>
-    <data>2432</data>
-    <data>2464</data>
-    <data>2496</data>
-    <data>2528</data>
-    <data>2560</data>
-    <data>2592</data>
-    <data>2624</data>
-    <data>2656</data>
-    <data>2688</data>
-    <data>2720</data>
-    <data>2752</data>
-    <data>2784</data>
-    <data>2816</data>
-    <data>2848</data>
-    <data>2880</data>
-    <data>2912</data>
-    <data>2944</data>
-    <data>2976</data>
-    <data>3008</data>
-    <data>3040</data>
-    <data>3072</data>
-    <data>3104</data>
-    <data>3136</data>
-    <data>3168</data>
-    <data>3200</data>
-    <data>3232</data>
-    <data>3264</data>
-    <data>3296</data>
-    <data>3328</data>
-    <data>3360</data>
-    <data>3392</data>
-    <data>3424</data>
-    <data>3456</data>
-    <data>3488</data>
-    <data>3520</data>
-    <data>3552</data>
-    <data>3584</data>
-    <data>3616</data>
-    <data>3648</data>
-    <data>3680</data>
-    <data>3712</data>
-    <data>3744</data>
-    <data>3776</data>
-    <data>3808</data>
-    <data>3840</data>
-    <data>3872</data>
-    <data>3904</data>
-    <data>3936</data>
-    <data>3968</data>
-    <data>4000</data>
-    <data>4032</data>
-    <data>4064</data>
-    <data>4096</data>
-    <data>4128</data>
-    <data>4160</data>
-    <data>4192</data>
-    <data>4224</data>
-    <data>4256</data>
-    <data>4288</data>
-    <data>4320</data>
-    <data>4352</data>
-    <data>4384</data>
-    <data>4416</data>
-    <data>4448</data>
-    <data>4480</data>
-    <data>4512</data>
-    <data>4544</data>
-    <data>4576</data>
-    <data>4608</data>
-    <data>4640</data>
-    <data>4672</data>
-    <data>4704</data>
-    <data>4736</data>
-    <data>4768</data>
-    <data>4800</data>
-    <data>4832</data>
-    <data>4864</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
-  <table category="misfire" endian="big" name="misfire: baseline cyl5" sizex="153" storageaddress="0x07E0" storagetype="uint8" type="2D" userlevel="1">
+  <table category="misfire" endian="big" name="misfire: baseline cyl5" sizex="17" sizey="9" storageaddress="0x07E0" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="153" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
+   <table name="rpm" sizex="17" type="Static X Axis">
+    <data>5000</data>
+    <data>5125</data>
+    <data>5250</data>
+    <data>5375</data>
+    <data>5500</data>
+    <data>5625</data>
+    <data>5750</data>
+    <data>5875</data>
+    <data>6000</data>
+    <data>6125</data>
+    <data>6250</data>
+    <data>6375</data>
+    <data>6500</data>
+    <data>6625</data>
+    <data>6750</data>
+    <data>6875</data>
+    <data>7000</data>
+   </table>
+   <table name="load (mg/stroke)" sizey="9" type="Static Y Axis">
     <data>128</data>
-    <data>160</data>
     <data>192</data>
-    <data>224</data>
     <data>256</data>
-    <data>288</data>
     <data>320</data>
-    <data>352</data>
     <data>384</data>
-    <data>416</data>
     <data>448</data>
-    <data>480</data>
     <data>512</data>
-    <data>544</data>
     <data>576</data>
-    <data>608</data>
     <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <data>1024</data>
-    <data>1056</data>
-    <data>1088</data>
-    <data>1120</data>
-    <data>1152</data>
-    <data>1184</data>
-    <data>1216</data>
-    <data>1248</data>
-    <data>1280</data>
-    <data>1312</data>
-    <data>1344</data>
-    <data>1376</data>
-    <data>1408</data>
-    <data>1440</data>
-    <data>1472</data>
-    <data>1504</data>
-    <data>1536</data>
-    <data>1568</data>
-    <data>1600</data>
-    <data>1632</data>
-    <data>1664</data>
-    <data>1696</data>
-    <data>1728</data>
-    <data>1760</data>
-    <data>1792</data>
-    <data>1824</data>
-    <data>1856</data>
-    <data>1888</data>
-    <data>1920</data>
-    <data>1952</data>
-    <data>1984</data>
-    <data>2016</data>
-    <data>2048</data>
-    <data>2080</data>
-    <data>2112</data>
-    <data>2144</data>
-    <data>2176</data>
-    <data>2208</data>
-    <data>2240</data>
-    <data>2272</data>
-    <data>2304</data>
-    <data>2336</data>
-    <data>2368</data>
-    <data>2400</data>
-    <data>2432</data>
-    <data>2464</data>
-    <data>2496</data>
-    <data>2528</data>
-    <data>2560</data>
-    <data>2592</data>
-    <data>2624</data>
-    <data>2656</data>
-    <data>2688</data>
-    <data>2720</data>
-    <data>2752</data>
-    <data>2784</data>
-    <data>2816</data>
-    <data>2848</data>
-    <data>2880</data>
-    <data>2912</data>
-    <data>2944</data>
-    <data>2976</data>
-    <data>3008</data>
-    <data>3040</data>
-    <data>3072</data>
-    <data>3104</data>
-    <data>3136</data>
-    <data>3168</data>
-    <data>3200</data>
-    <data>3232</data>
-    <data>3264</data>
-    <data>3296</data>
-    <data>3328</data>
-    <data>3360</data>
-    <data>3392</data>
-    <data>3424</data>
-    <data>3456</data>
-    <data>3488</data>
-    <data>3520</data>
-    <data>3552</data>
-    <data>3584</data>
-    <data>3616</data>
-    <data>3648</data>
-    <data>3680</data>
-    <data>3712</data>
-    <data>3744</data>
-    <data>3776</data>
-    <data>3808</data>
-    <data>3840</data>
-    <data>3872</data>
-    <data>3904</data>
-    <data>3936</data>
-    <data>3968</data>
-    <data>4000</data>
-    <data>4032</data>
-    <data>4064</data>
-    <data>4096</data>
-    <data>4128</data>
-    <data>4160</data>
-    <data>4192</data>
-    <data>4224</data>
-    <data>4256</data>
-    <data>4288</data>
-    <data>4320</data>
-    <data>4352</data>
-    <data>4384</data>
-    <data>4416</data>
-    <data>4448</data>
-    <data>4480</data>
-    <data>4512</data>
-    <data>4544</data>
-    <data>4576</data>
-    <data>4608</data>
-    <data>4640</data>
-    <data>4672</data>
-    <data>4704</data>
-    <data>4736</data>
-    <data>4768</data>
-    <data>4800</data>
-    <data>4832</data>
-    <data>4864</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
-  <table category="misfire" endian="big" name="misfire: baseline cyl6" sizex="153" storageaddress="0x087A" storagetype="uint8" type="2D" userlevel="1">
+  <table category="misfire" endian="big" name="misfire: baseline cyl6" sizex="17" sizey="9" storageaddress="0x087A" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="153" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
+   <table name="rpm" sizex="17" type="Static X Axis">
+    <data>5000</data>
+    <data>5125</data>
+    <data>5250</data>
+    <data>5375</data>
+    <data>5500</data>
+    <data>5625</data>
+    <data>5750</data>
+    <data>5875</data>
+    <data>6000</data>
+    <data>6125</data>
+    <data>6250</data>
+    <data>6375</data>
+    <data>6500</data>
+    <data>6625</data>
+    <data>6750</data>
+    <data>6875</data>
+    <data>7000</data>
+   </table>
+   <table name="load (mg/stroke)" sizey="9" type="Static Y Axis">
     <data>128</data>
-    <data>160</data>
     <data>192</data>
-    <data>224</data>
     <data>256</data>
-    <data>288</data>
     <data>320</data>
-    <data>352</data>
     <data>384</data>
-    <data>416</data>
     <data>448</data>
-    <data>480</data>
     <data>512</data>
-    <data>544</data>
     <data>576</data>
-    <data>608</data>
     <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <data>1024</data>
-    <data>1056</data>
-    <data>1088</data>
-    <data>1120</data>
-    <data>1152</data>
-    <data>1184</data>
-    <data>1216</data>
-    <data>1248</data>
-    <data>1280</data>
-    <data>1312</data>
-    <data>1344</data>
-    <data>1376</data>
-    <data>1408</data>
-    <data>1440</data>
-    <data>1472</data>
-    <data>1504</data>
-    <data>1536</data>
-    <data>1568</data>
-    <data>1600</data>
-    <data>1632</data>
-    <data>1664</data>
-    <data>1696</data>
-    <data>1728</data>
-    <data>1760</data>
-    <data>1792</data>
-    <data>1824</data>
-    <data>1856</data>
-    <data>1888</data>
-    <data>1920</data>
-    <data>1952</data>
-    <data>1984</data>
-    <data>2016</data>
-    <data>2048</data>
-    <data>2080</data>
-    <data>2112</data>
-    <data>2144</data>
-    <data>2176</data>
-    <data>2208</data>
-    <data>2240</data>
-    <data>2272</data>
-    <data>2304</data>
-    <data>2336</data>
-    <data>2368</data>
-    <data>2400</data>
-    <data>2432</data>
-    <data>2464</data>
-    <data>2496</data>
-    <data>2528</data>
-    <data>2560</data>
-    <data>2592</data>
-    <data>2624</data>
-    <data>2656</data>
-    <data>2688</data>
-    <data>2720</data>
-    <data>2752</data>
-    <data>2784</data>
-    <data>2816</data>
-    <data>2848</data>
-    <data>2880</data>
-    <data>2912</data>
-    <data>2944</data>
-    <data>2976</data>
-    <data>3008</data>
-    <data>3040</data>
-    <data>3072</data>
-    <data>3104</data>
-    <data>3136</data>
-    <data>3168</data>
-    <data>3200</data>
-    <data>3232</data>
-    <data>3264</data>
-    <data>3296</data>
-    <data>3328</data>
-    <data>3360</data>
-    <data>3392</data>
-    <data>3424</data>
-    <data>3456</data>
-    <data>3488</data>
-    <data>3520</data>
-    <data>3552</data>
-    <data>3584</data>
-    <data>3616</data>
-    <data>3648</data>
-    <data>3680</data>
-    <data>3712</data>
-    <data>3744</data>
-    <data>3776</data>
-    <data>3808</data>
-    <data>3840</data>
-    <data>3872</data>
-    <data>3904</data>
-    <data>3936</data>
-    <data>3968</data>
-    <data>4000</data>
-    <data>4032</data>
-    <data>4064</data>
-    <data>4096</data>
-    <data>4128</data>
-    <data>4160</data>
-    <data>4192</data>
-    <data>4224</data>
-    <data>4256</data>
-    <data>4288</data>
-    <data>4320</data>
-    <data>4352</data>
-    <data>4384</data>
-    <data>4416</data>
-    <data>4448</data>
-    <data>4480</data>
-    <data>4512</data>
-    <data>4544</data>
-    <data>4576</data>
-    <data>4608</data>
-    <data>4640</data>
-    <data>4672</data>
-    <data>4704</data>
-    <data>4736</data>
-    <data>4768</data>
-    <data>4800</data>
-    <data>4832</data>
-    <data>4864</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
@@ -14364,13 +13675,6 @@
    </table>
    <description>Lifetime distance accumulator (odometer-style).</description>
   </table>
-  <table category="perf" endian="big" name="perf: stat extra1" sizex="1" storageaddress="0x0D34" storagetype="uint32" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>stat extra1</data>
-   </table>
-   <description/>
-  </table>
   <table category="perf" endian="big" name="perf: stat gear1 hi" sizex="1" storageaddress="0x0D0C" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -14672,81 +13976,17 @@
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: fault bank1 data" sizex="32" storageaddress="0x0D3C" storagetype="uint16" type="2D" userlevel="1">
+  <table category="tps" endian="big" name="tps: calib pass first attempt" sizex="1" storageaddress="0x0E4A" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="32" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <data>256</data>
-    <data>288</data>
-    <data>320</data>
-    <data>352</data>
-    <data>384</data>
-    <data>416</data>
-    <data>448</data>
-    <data>480</data>
-    <data>512</data>
-    <data>544</data>
-    <data>576</data>
-    <data>608</data>
-    <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>calib pass first attempt</data>
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: fault bank2 data" sizex="32" storageaddress="0x0D7C" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
-   <table name="signal" sizex="32" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <data>256</data>
-    <data>288</data>
-    <data>320</data>
-    <data>352</data>
-    <data>384</data>
-    <data>416</data>
-    <data>448</data>
-    <data>480</data>
-    <data>512</data>
-    <data>544</data>
-    <data>576</data>
-    <data>608</data>
-    <data>640</data>
-    <data>672</data>
-    <data>704</data>
-    <data>736</data>
-    <data>768</data>
-    <data>800</data>
-    <data>832</data>
-    <data>864</data>
-    <data>896</data>
-    <data>928</data>
-    <data>960</data>
-    <data>992</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+  <table category="tps" endian="big" name="tps: calib retry count" sizex="1" storageaddress="0x0E42" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>calib retry count</data>
    </table>
    <description/>
   </table>
@@ -14757,14 +13997,67 @@
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: fault recovery count" sizex="1" storageaddress="0x0E46" storagetype="uint16" type="2D" userlevel="1">
+  <table category="tps" endian="big" name="tps: fault event index" sizex="32" storageaddress="0x0DFC" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>fault recovery count</data>
+   <table name="signal" sizex="32" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <data>512</data>
+    <data>544</data>
+    <data>576</data>
+    <data>608</data>
+    <data>640</data>
+    <data>672</data>
+    <data>704</data>
+    <data>736</data>
+    <data>768</data>
+    <data>800</data>
+    <data>832</data>
+    <data>864</data>
+    <data>896</data>
+    <data>928</data>
+    <data>960</data>
+    <data>992</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: fault sensor data" sizex="32" storageaddress="0x0DBC" storagetype="uint16" type="2D" userlevel="1">
+  <table category="tps" endian="big" name="tps: fault ff adc ch3" sizex="1" storageaddress="0x0E40" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fault ff adc ch3</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tps" endian="big" name="tps: fault ff ecu voltage" sizex="1" storageaddress="0x0E3E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Volt" coarseincrement="0.2" expression="x*18/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/18" units="v"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fault ff ecu voltage</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tps" endian="big" name="tps: fault ff engine runtime" sizex="1" storageaddress="0x0D34" storagetype="uint32" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fault ff engine runtime</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tps" endian="big" name="tps: fault log track a" sizex="32" storageaddress="0x0D7C" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    <table name="signal" sizex="32" type="Static X Axis">
     <data>0</data>
@@ -14803,7 +14096,53 @@
    </table>
    <description/>
   </table>
-  <table category="tps" endian="big" name="tps: fault trim data" sizex="32" storageaddress="0x0DFC" storagetype="uint16" type="2D" userlevel="1">
+  <table category="tps" endian="big" name="tps: fault log track b" sizex="32" storageaddress="0x0DBC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="signal" sizex="32" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <data>512</data>
+    <data>544</data>
+    <data>576</data>
+    <data>608</data>
+    <data>640</data>
+    <data>672</data>
+    <data>704</data>
+    <data>736</data>
+    <data>768</data>
+    <data>800</data>
+    <data>832</data>
+    <data>864</data>
+    <data>896</data>
+    <data>928</data>
+    <data>960</data>
+    <data>992</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
+  <table category="tps" endian="big" name="tps: fault recovery count" sizex="1" storageaddress="0x0E46" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fault recovery count</data>
+   </table>
+   <description/>
+  </table>
+  <table category="tps" endian="big" name="tps: fault trace track a" sizex="32" storageaddress="0x0D3C" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="signal" sizex="32" type="Static X Axis">
     <data>0</data>
