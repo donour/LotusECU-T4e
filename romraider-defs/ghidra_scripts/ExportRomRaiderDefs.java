@@ -117,6 +117,62 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	};
 
 	/******************************/
+	/* Custom 3D static axes      */
+	/******************************/
+
+	/* Some 3D maps are indexed by arithmetic on a runtime value rather than by
+	 * a breakpoint array stored in the image, so there is no _X_/_Y_ symbol to
+	 * pair with.  RomRaider still needs explicit breakpoints, so we synthesise
+	 * them from the index arithmetic found in the firmware.
+	 *
+	 * A Static axis carries literal labels (see getCustomAxis above), so the
+	 * breakpoints are emitted already converted to engineering units and no
+	 * <scaling> is attached - the axis name carries the unit instead. */
+	private static class Static3D {
+		final int sizex, sizey;
+		final String namex, namey;
+		final int startx, stepx, starty, stepy;
+
+		Static3D(int sizex, String namex, int startx, int stepx,
+				int sizey, String namey, int starty, int stepy) {
+			this.sizex = sizex; this.namex = namex;
+			this.startx = startx; this.stepx = stepx;
+			this.sizey = sizey; this.namey = namey;
+			this.starty = starty; this.stepy = stepy;
+		}
+
+		String[] axisX() {
+			String[] v = new String[sizex];
+			for (int i = 0; i < sizex; i++) v[i] = String.valueOf(startx + i*stepx);
+			return v;
+		}
+
+		String[] axisY() {
+			String[] v = new String[sizey];
+			for (int i = 0; i < sizey; i++) v[i] = String.valueOf(starty + i*stepy);
+			return v;
+		}
+	}
+
+	private static final Static3D getStatic3D(String n) {
+		/* Per-cylinder misfire crank baseline, 153 bytes = 17 RPM x 9 load,
+		 * row major with RPM as the fast axis.  Index arithmetic is in
+		 * misfire_detect_per_cylinder_200hz():
+		 *
+		 *   rpm_bin  = (engine_speed_3       - 0x90) >> 2   valid 0x90..0xD3
+		 *   load_bin = (load_mass_per_stroke - 0x20) >> 4   valid 0x20..0xAF
+		 *   index    = rpm_bin + load_bin * 17
+		 *
+		 * engine_speed_3    is u8_rspeed_125/4+500rpm -> 5000..7000 rpm / 125
+		 * load_mass_per_stroke is u8_load_4mg/stroke  -> 128..640 mg/stroke / 64 */
+		if (n.startsWith("LEA_misfire_baseline_cyl"))
+			return new Static3D(17, "rpm",             5000, 125,
+			                     9, "load (mg/stroke)", 128,  64);
+
+		return null;
+	};
+
+	/******************************/
 	/* Datatype formatting        */
 	/******************************/
 
@@ -319,6 +375,11 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_slip_1/128pct","uint8","%","x/128","x*128","0.00","0.01","0.1","Wheelslip"),
 		new DF("u16_slip_1/8pct","uint16","%","x/8","x*8","0.00","1","2","Wheelslip"),
 		new DF("i16_misfire_threshold_raw","uint16","microseconds","(x - 32768) * 3 / 10","(x * 10 / 3) + 32768","0.0","1","2","MisfireThreshold"),
+		/* Offset-binary byte, neutral 128.  Held as the top byte of a signed 16-bit
+		 * IIR accumulator: unpacked as (x-128)*256, repacked as (accum>>8)+128.
+		 * Left in raw counts - the absolute microsecond scale would need the crank
+		 * timer tick confirmed. */
+		new DF("u8_misfire_baseline_1-128","uint8","counts","x-128","x+128","0","1","8","MisfireBaseline"),
 
 		
 		// TODO: this struct was an experiment and doesn't really work. It should really
@@ -800,6 +861,40 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		parent.appendChild(e);
 	}
 
+	private static void addXml3DStatic(Document doc, Element parent, SymRec s, Static3D a) throws Exception {
+		if (s.size != a.sizex * a.sizey)
+			throw new Exception("Invalid static 3D size: "+s.name+" ("+s.size+" != "+a.sizex+"*"+a.sizey+")");
+
+		Element e = doc.createElement("table");
+		e.setAttribute("type", "3D");
+		e.setAttribute("name", s.prettyName());
+		e.setAttribute("category", s.category);
+		e.setAttribute("storagetype", s.dataformats.get(0).storageType);
+		e.setAttribute("endian", "big");
+		e.setAttribute("sizex", String.valueOf(a.sizex));
+		e.setAttribute("sizey", String.valueOf(a.sizey));
+		e.setAttribute("userlevel", "1");
+		e.setAttribute("storageaddress", String.format("0x%04X", s.offset));
+		for (DF df : s.dataformats) df.addXmlScaling(doc, e);
+
+		Element ex = doc.createElement("table");
+		ex.setAttribute("type", "Static X Axis");
+		ex.setAttribute("name", a.namex);
+		ex.setAttribute("sizex", String.valueOf(a.sizex));
+		for (String v : a.axisX()) createTextChild(doc, ex, "data", v);
+		e.appendChild(ex);
+
+		Element ey = doc.createElement("table");
+		ey.setAttribute("type", "Static Y Axis");
+		ey.setAttribute("name", a.namey);
+		ey.setAttribute("sizey", String.valueOf(a.sizey));
+		for (String v : a.axisY()) createTextChild(doc, ey, "data", v);
+		e.appendChild(ey);
+
+		createTextChild(doc, e, "description", s.comment);
+		parent.appendChild(e);
+	}
+
 	private void doDefs(Document doc, Element parent, Syms s2) throws Exception {
 		for (SymRec s : s2.syms) {
 			if (s.datatype.equals("bool"))
@@ -834,6 +929,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				println("WARNING - Ignoring unknown format: "+s.name+" ("+s.datatype+")");
 			else if (s.name.startsWith("CAL_misc_shift_lights_before_rev_limit"))
 				addXml2DFixed(doc, parent, s, "Gear Number", getDataformat("uint8_t"));
+			else if (getStatic3D(s.name) != null)
+				addXml3DStatic(doc, parent, s, getStatic3D(s.name));
 			else {
 				SymRec sx = s2.Xsyms.get(s.name);
 				SymRec sy = s2.Ysyms.get(s.name);
