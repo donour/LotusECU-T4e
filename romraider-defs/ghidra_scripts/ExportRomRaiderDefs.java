@@ -320,6 +320,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_rspeed_125/4+500rpm","uint16","rpm","(x*125/4)+500","(x-500)*4/125","0","32","100","RPM"),
 		new DF("u8_rspeed_10+6000rpm","uint8","rpm","(x*10)+6000","(x-6000)/10","0","10","100","RPM"),
 		new DF("u8_rspeed_25rpm+1000","uint8","rpm","(x*25)+1000","(x-1000)/25","0","25","100","RPM"),
+		new DF("u16_freq_hz","uint16","Hz","x","x","0","1","100","Hertz"),
 		new DF("u16_length_mm","uint16","cm","x/10","x*10","0.0","0.1","2","Centimeter"),
 		new DF("u8_speed_kph","uint8","km/h","x","x","0","1","10","km/h"),
 		new DF("u8_speed_1/10kph","uint8","km/h","x/10","x*10","0.0","0.1","1","km/h"),
