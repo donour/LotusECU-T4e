@@ -275,6 +275,12 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("i16_percent_1/20","int16","%","x/20","x*20","0.00","0.05","1","Percent"),
 		new DF("u8_percent_100/256-50","uint8","%","(x*100/256)-50","(x+50)*256/100","0.00","0.390625","2","Percent"),
 		new DF("u16_factor_1/65536","uint16","%","x*100/65536","x*65536/100","0.00","0.1","1","Percent"),
+		/* Volumetric efficiency for the estimated-MAP model (CAL_load_map_estimate_ve).
+		 * engine_load() divides load by (raw+153) * iat_ratio * 29565 - with 576 cc per
+		 * cylinder that is VE = (raw+153)/199.1, i.e. half-percent steps offset by 76.5%.
+		 * The u16 form is the runtime copy (map_estimate_ve_x2), already offset. */
+		new DF("u8_ve_1/2+76.5pct","uint8","%","(x+153)/2","(x*2)-153","0.0","0.5","5","Volumetric Efficiency"),
+		new DF("u16_ve_1/2pct","uint16","%","x/2","x*2","0.0","0.5","5","Volumetric Efficiency"),
 		new DF("u8_accel_1/255g","uint8","G","x/255","x*255","0.000","0.004","0.04","G"),
 		new DF("u8_accel_1/200g","uint8","G","x/200","x*200","0.000","0.005","0.05","G"),
 		new DF("i16_accel_1/200g","int16","G","x/200","x*200","0.000","0.005","0.05","G"),
@@ -311,6 +317,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_rspeed_50rpm","uint8","rpm","x*50","x/50","0","50","100","RPM"),
 		new DF("u8_rspeed_-128","uint8","rpm","x-128","x+128","0","1","5","RPM"),
 		new DF("u8_rspeed_4-512rpm","uint8","rpm","(x*4)-512","(x+512)/4","0","4","16","RPM"),
+		new DF("u8_rspeed_accel_1/168","uint8","%","x*100/168","x*168/100","0.0","1","5","Percent"),
 		new DF("u16_rspeed_rpm","uint16","rpm","x","x","0","10","100","RPM"),
 		new DF("u16_rspeed_1/4rpm","uint16","rpm","x/4","x*4","0","10","100","RPM"),
 		new DF("u16_rspeed_4rpm","uint16","rpm","x*4","x/4","0","10","100","RPM"),
@@ -393,6 +400,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_volume_liter","uint8","l","x","x","0","1","10","Liter"),
 		new DF("u8_volume_1/10gallon","uint8","l","x","x","0","0.1","1","Gallon"),
 		new DF("u16_volume_1/10gallon","uint16","l","x","x","0","0.1","1","Gallon"),
+		new DF("u16_fuel_density_0_075g/L","uint16","g/L","x*0.075","x/0.075","0.000","0.075","1","Gram/Liter"),
 		new DF("u8_dt_factor_1/100/5ms","uint8","%/5ms","x","x","0","1","5","Percent/5ms"),
 		new DF("u8_dt_factor_1/1023/5ms","uint8","%/5ms","x*100/1023","x*1023/100","0.00","0.1","1","Percent/5ms"),
 		new DF("u16_ratio_rpm/kph","uint16","rpm/km/h","x","x","0","1","5","Gear Ratio"),
@@ -405,6 +413,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_pressure_mbar","uint8","mbar","x","x","0","1","10","Millibar"),
 		new DF("u8_pressure_2mbar","uint8","mbar","x*2","x/2","0","2","20","Millibar"),
 		new DF("u8_pressure_4mbar","uint8","mbar","x*4","x/4","0","4","40","Millibar"),
+		new DF("u16_pressure_4mbar","uint16","mbar","x*4","x/4","0","4","40","Millibar"),
 		new DF("u8_pressure_8mbar","uint8","mbar","x*8","x/8","0","8","80","Millibar"),
 		new DF("u8_pressure_50mbar","uint8","mbar","x*50","x/50","0","50","200","Millibar"),
 		new DF("u8_pressure_100mbar","uint8","mbar","x*100","x/100","0","100","500","Millibar"),

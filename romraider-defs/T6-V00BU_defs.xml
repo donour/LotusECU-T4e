@@ -29,6 +29,13 @@
    </table>
    <description>Calibration: A/C compressor soft engage time. Tunable map/constant (not a live channel); log to see A/C clutch engagement and its load/idle impact.</description>
   </table>
+  <table category="ac" endian="big" name="ac: compressor speed filter coeff" sizex="1" storageaddress="0x0227" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>compressor speed filter coeff</data>
+   </table>
+   <description/>
+  </table>
   <table category="ac" endian="big" name="ac: evap freeze inhibit delay" sizex="1" storageaddress="0x00C4" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -584,20 +591,6 @@
     <data>o2 rich threshold</data>
    </table>
    <description>Calibration: closedloop O2 rich threshold. Tunable map/constant (not a live channel); log to watch O2 feedback trim the mixture and confirm the loop is active. (V; raw*5/1023)</description>
-  </table>
-  <table category="closedloop" endian="big" name="closedloop: o2 sensor threshold lean" sizex="1" storageaddress="0x01F1" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>o2 sensor threshold lean</data>
-   </table>
-   <description/>
-  </table>
-  <table category="closedloop" endian="big" name="closedloop: o2 sensor threshold rich" sizex="1" storageaddress="0x01F0" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>o2 sensor threshold rich</data>
-   </table>
-   <description/>
   </table>
   <table category="closedloop" endian="big" name="closedloop: o2 sensor voltage switch rich" sizex="1" storageaddress="0x014C" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
@@ -1585,13 +1578,6 @@
    </table>
    <description/>
   </table>
-  <table category="ecu" endian="big" name="ecu: engine running period max" sizex="1" storageaddress="0x0126" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>engine running period max</data>
-   </table>
-   <description/>
-  </table>
   <table category="ecu" endian="big" name="ecu: engine speed decel hysteresis rpm" sizex="1" storageaddress="0x02DC" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -1699,6 +1685,13 @@
     <data>obd engine off gate delay</data>
    </table>
    <description>Calibration: ECU OBD engine off gate delay. Tunable map/constant (not a live channel); mostly housekeeping/diagnostic state.</description>
+  </table>
+  <table category="ecu" endian="big" name="ecu: starter max engage after run" sizex="1" storageaddress="0x0120" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>starter max engage after run</data>
+   </table>
+   <description/>
   </table>
   <table category="ecu" endian="big" name="ecu: system voltage threshold" sizex="1" storageaddress="0x43B8" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -1944,11 +1937,26 @@
    <description/>
   </table>
   <table category="evap" endian="big" name="evap: purge filter alpha" sizex="1" storageaddress="0x00AA" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Millisecond" coarseincrement="10" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="ms"/>
+   <scaling category="Percent" coarseincrement="5" expression="x*100/256" fineincrement="1" format="0.0" to_byte="x*256/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>purge filter alpha</data>
    </table>
-   <description/>
+   <description>Evap purge vacuum filter coefficient (alpha/256 per 100 ms update).</description>
+  </table>
+  <table category="evap" endian="big" name="evap: purge flow max duty" sizex="8" storageaddress="0x2C56" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Dutycycle" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0" to_byte="x*255/100" units="%"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>Max evap purge duty allowed vs filtered manifold vacuum (flow limit). 0 when vacuum = 0.</description>
   </table>
   <table category="evap" endian="big" name="evap: purge flow vacuum min" sizex="1" storageaddress="0x44B4" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2020,12 +2028,40 @@
    </table>
    <description/>
   </table>
+  <table category="evap" endian="big" name="evap: purge min load" sizex="1" storageaddress="0x44AA" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>purge min load</data>
+   </table>
+   <description/>
+  </table>
+  <table category="evap" endian="big" name="evap: purge power enrich suspend hold" sizex="1" storageaddress="0x01D4" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>purge power enrich suspend hold</data>
+   </table>
+   <description>It sets how long evap purge stays suspended after power enrichment ends</description>
+  </table>
+  <table category="evap" endian="big" name="evap: purge power enrich suspend timeout" sizex="1" storageaddress="0x01D5" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>purge power enrich suspend timeout</data>
+   </table>
+   <description>timeout in the purge state machine</description>
+  </table>
   <table category="evap" endian="big" name="evap: purge pwm freq" sizex="1" storageaddress="0x0122" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>purge pwm freq</data>
    </table>
    <description>Calibration: EVAP purge pwm freq. Tunable map/constant (not a live channel); adjust to change this behavior.</description>
+  </table>
+  <table category="evap" endian="big" name="evap: purge vacuum min" sizex="1" storageaddress="0x44AC" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>purge vacuum min</data>
+   </table>
+   <description/>
   </table>
   <table category="evap" endian="big" name="evap: state timer threshold" sizex="1" storageaddress="0x4458" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2045,13 +2081,6 @@
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>vacuum threshold</data>
-   </table>
-   <description/>
-  </table>
-  <table category="evap" endian="big" name="evap: vacuum unknown1" sizex="1" storageaddress="0x01D5" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>vacuum unknown1</data>
    </table>
    <description/>
   </table>
@@ -2198,12 +2227,12 @@
    </table>
    <description/>
   </table>
-  <table category="fuel" endian="big" name="fuel: usage to flow scaling" sizex="1" storageaddress="0x453A" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="fuel" endian="big" name="fuel: usage density" sizex="1" storageaddress="0x453A" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Gram/Liter" coarseincrement="1" expression="x*0.075" fineincrement="0.075" format="0.000" to_byte="x/0.075" units="g/L"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>usage to flow scaling</data>
+    <data>usage density</data>
    </table>
-   <description>Fuel density used to convert injector mass flow × pulse width into volumetric fuel consumption for the trip computer / dash economy.</description>
+   <description>Fuel density for the trip computer (raw × 0.075 g/L; stock 9867 = 740 g/L). The ECU never uses it for fuelling. It only converts injector flow × commanded pulse into reported fuel consumption: the dash economy figure (CAN 0x400) and the fuel-used counter that times the P0461 fuel-level sender check. The commanded pulse includes injector deadtime, so each injection over-reports by roughly CAL_inj_flow_rate × deadtime of fuel that was never injected. That error grows in proportion to injector flow, but the real fuel per injection stays the same. Leave this at the true fuel density unless you change injectors. After a swap to higher-flow injectors (or any big flow or deadtime change), the dash will read high consumption, worst at idle and light load, and P0461 may set falsely because the counter fills before the fuel level has had time to move. To restore stock-like readings, raise this value by about (new_flow × (fuel_time + new_deadtime)) ÷ (old_flow × (old_fuel_time + old_deadtime)) at a typical cruise point. For stock → ID1050-XDS that is about 1.6–1.75×, or roughly 16300. Then fine-tune against a measured fill-up. A single value can't be exact at every load, because the deadtime share of the pulse falls as load rises.</description>
   </table>
   <table category="gear" endian="big" name="gear: advisory upshift rpm gear1" sizex="1" storageaddress="0x45D4" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
@@ -2429,6 +2458,34 @@
    </table>
    <description/>
   </table>
+  <table category="idle" endian="big" name="idle: air comp bay fan" sizex="8" storageaddress="0x2716" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   <table endian="big" name="time" sizex="8" storageaddress="0x270E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air comp fan 1" sizex="8" storageaddress="0x189E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   <table endian="big" name="time" sizex="8" storageaddress="0x1896" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air comp fan 2" sizex="8" storageaddress="0x18AE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   <table endian="big" name="time" sizex="8" storageaddress="0x18A6" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: air comp misfire" sizex="8" storageaddress="0x42A6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   <table endian="big" name="cyl count" sizex="8" storageaddress="0x429E" storagetype="uint8" type="X Axis">
+    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   </table>
+   <description/>
+  </table>
   <table category="idle" endian="big" name="idle: air control unknown" sizex="1" storageaddress="0x016F" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2520,28 +2577,28 @@
    <description/>
   </table>
   <table category="idle" endian="big" name="idle: comp ac load" sizex="8" storageaddress="0x188E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
    <table endian="big" name="ac load" sizex="8" storageaddress="0x1886" storagetype="uint8" type="X Axis">
     <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    </table>
    <description>Calibration: idle compensation A/C load. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls.</description>
   </table>
   <table category="idle" endian="big" name="idle: comp baro" sizex="8" storageaddress="0x07FC" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="5" expression="x-128" fineincrement="1" format="0" to_byte="x+128" units="rpm"/>
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table endian="big" name="baro" sizex="8" storageaddress="0x07F4" storagetype="uint8" type="X Axis">
     <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
    </table>
    <description>Calibration: idle compensation barometric. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (RPM; raw-128)</description>
   </table>
   <table category="idle" endian="big" name="idle: comp car speed ips" sizex="8" storageaddress="0x3A7E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
    <table endian="big" name="carspeed" sizex="8" storageaddress="0x3A76" storagetype="uint8" type="X Axis">
     <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
    </table>
    <description>Calibration: idle compensation car speed IPS. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (RPM)</description>
   </table>
   <table category="idle" endian="big" name="idle: comp car speed manual" sizex="8" storageaddress="0x18EE" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
    <table endian="big" name="carspeed" sizex="8" storageaddress="0x18E6" storagetype="uint8" type="X Axis">
     <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
    </table>
@@ -2633,6 +2690,20 @@
    </table>
    <description>Calibration: idle coolant fallback temperature. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (deg C; raw*5/8-40)</description>
   </table>
+  <table category="idle" endian="big" name="idle: dashpot decel threshold" sizex="1" storageaddress="0x00D9" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/168" fineincrement="1" format="0.0" to_byte="x*168/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>dashpot decel threshold</data>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: dashpot rpm lift max" sizex="8" storageaddress="0x0DAE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="rpm"/>
+   <table endian="big" name="rpm" sizex="8" storageaddress="0x0DA6" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <description/>
+  </table>
   <table category="idle" endian="big" name="idle: exit rpm offset" sizex="1" storageaddress="0x00D8" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2660,6 +2731,27 @@
     <data>flow integral adj max</data>
    </table>
    <description>Calibration: idle flow integral adj max. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (mg/s; raw*100)</description>
+  </table>
+  <table category="idle" endian="big" name="idle: high rpm transient air comp" sizex="1" storageaddress="0x00DB" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>high rpm transient air comp</data>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: ign control entry offset" sizex="1" storageaddress="0x0110" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ign control entry offset</data>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: ign control exit offset" sizex="1" storageaddress="0x0111" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ign control exit offset</data>
+   </table>
+   <description/>
   </table>
   <table category="idle" endian="big" name="idle: learn coolant min" sizex="1" storageaddress="0x02BE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
@@ -2822,24 +2914,10 @@
    </table>
    <description/>
   </table>
-  <table category="idle" endian="big" name="idle: unknown3" sizex="1" storageaddress="0x0111" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>unknown3</data>
-   </table>
-   <description/>
-  </table>
   <table category="idle" endian="big" name="idle: unknown3" sizex="1" storageaddress="0x016E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>unknown3</data>
-   </table>
-   <description/>
-  </table>
-  <table category="idle" endian="big" name="idle: unknown4" sizex="1" storageaddress="0x0110" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>unknown4</data>
    </table>
    <description/>
   </table>
@@ -3188,6 +3266,36 @@
    </table>
    <description>Calibration: injector AFR base. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (AFR; raw/20+5)</description>
   </table>
+  <table category="inj" endian="big" name="inj: afterstart comp air temp" sizex="10" sizey="10" storageaddress="0x05AE" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/32" fineincrement="1" format="0" to_byte="x*32/100" units="%"/>
+   <table endian="big" name="iat" sizex="10" storageaddress="0x059A" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <table endian="big" name="maf accum" sizey="10" storageaddress="0x05A4" storagetype="uint8" type="Y Axis">
+    <scaling category="Gram" coarseincrement="40" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="g"/>
+   </table>
+   <description>Calibration: injector cranking enrichment2. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (0-1; raw/32)</description>
+  </table>
+  <table category="inj" endian="big" name="inj: afterstart enrichment coolant ips" sizex="12" sizey="14" storageaddress="0x0A42" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/32" fineincrement="1" format="0" to_byte="x*32/100" units="%"/>
+   <table endian="big" name="coolant" sizex="12" storageaddress="0x0A28" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <table endian="big" name="maf accum" sizey="14" storageaddress="0x0A34" storagetype="uint8" type="Y Axis">
+    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
+   </table>
+   <description>Calibration: injector cranking enrichment coolant IPS. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (0-1; raw/32)</description>
+  </table>
+  <table category="inj" endian="big" name="inj: afterstart enrichment coolant manual" sizex="12" sizey="14" storageaddress="0x0980" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/32" fineincrement="1" format="0" to_byte="x*32/100" units="%"/>
+   <table endian="big" name="coolant" sizex="12" storageaddress="0x0966" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <table endian="big" name="maf accum" sizey="14" storageaddress="0x0972" storagetype="uint8" type="Y Axis">
+    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
+   </table>
+   <description>Calibration: injector cranking enrichment coolant manual. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (0-1; raw/32)</description>
+  </table>
   <table category="inj" endian="big" name="inj: angle" sizex="16" sizey="16" storageaddress="0x5D84" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Degree" coarseincrement="8" expression="x*720/256" fineincrement="2" format="0" to_byte="x*256/720" units="°"/>
    <table endian="big" name="engine speed" sizex="16" storageaddress="0x5D64" storagetype="uint8" type="X Axis">
@@ -3240,16 +3348,6 @@
    </table>
    <description/>
   </table>
-  <table category="inj" endian="big" name="inj: cranking comp air temp" sizex="10" sizey="10" storageaddress="0x05AE" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/32" fineincrement="1" format="0" to_byte="x*32/100" units="%"/>
-   <table endian="big" name="iat" sizex="10" storageaddress="0x059A" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <table endian="big" name="maf accum" sizey="10" storageaddress="0x05A4" storagetype="uint8" type="Y Axis">
-    <scaling category="Gram" coarseincrement="40" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="g"/>
-   </table>
-   <description>Calibration: injector cranking enrichment2. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (0-1; raw/32)</description>
-  </table>
   <table category="inj" endian="big" name="inj: cranking enrich mass accum" sizex="10" storageaddress="0x50AA" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table endian="big" name="mass" sizex="10" storageaddress="0x50A0" storagetype="uint8" type="X Axis">
@@ -3273,26 +3371,6 @@
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
    <description>Calibration: injector cranking enrichment air temperature. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target.</description>
-  </table>
-  <table category="inj" endian="big" name="inj: cranking enrichment coolant ips" sizex="12" sizey="14" storageaddress="0x0A42" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/32" fineincrement="1" format="0" to_byte="x*32/100" units="%"/>
-   <table endian="big" name="coolant temp" sizex="12" storageaddress="0x0A28" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <table endian="big" name="maf accum" sizey="14" storageaddress="0x0A34" storagetype="uint8" type="Y Axis">
-    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
-   </table>
-   <description>Calibration: injector cranking enrichment coolant IPS. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (0-1; raw/32)</description>
-  </table>
-  <table category="inj" endian="big" name="inj: cranking enrichment coolant manual" sizex="12" sizey="14" storageaddress="0x0980" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/32" fineincrement="1" format="0" to_byte="x*32/100" units="%"/>
-   <table endian="big" name="coolant temp" sizex="12" storageaddress="0x0966" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <table endian="big" name="maf accum" sizey="14" storageaddress="0x0972" storagetype="uint8" type="Y Axis">
-    <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
-   </table>
-   <description>Calibration: injector cranking enrichment coolant manual. Tunable map/constant (not a live channel); log to verify injector pulse width and fuel delivery vs target. (0-1; raw/32)</description>
   </table>
   <table category="inj" endian="big" name="inj: deadtime base" sizex="8" sizey="8" storageaddress="0x268E" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Microsecond" coarseincrement="200" expression="x*20" fineincrement="20" format="0" to_byte="x/20" units="us"/>
@@ -3391,19 +3469,12 @@
    </table>
    <description/>
   </table>
-  <table category="inj" endian="big" name="inj: fuel learn time step" sizex="1" storageaddress="0x00BD" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="inj" endian="big" name="inj: fuel learn zone 1 offset step" sizex="1" storageaddress="0x00BD" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Microsecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="us"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>fuel learn time step</data>
+    <data>fuel learn zone 1 offset step</data>
    </table>
-   <description/>
-  </table>
-  <table category="inj" endian="big" name="inj: fuel learn time step" sizex="1" storageaddress="0x00BE" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>fuel learn time step</data>
-   </table>
-   <description/>
+   <description>This is the step size of the idle/low-load injector offset learn.</description>
   </table>
   <table category="inj" endian="big" name="inj: fuel learn zone 2 load max" sizex="1" storageaddress="0x01DE" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/stroke"/>
@@ -3433,10 +3504,31 @@
    </table>
    <description/>
   </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 3 load min" sizex="1" storageaddress="0x01E4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/stroke"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 3 load min</data>
+   </table>
+   <description/>
+  </table>
   <table category="inj" endian="big" name="inj: fuel learn zone 3 maf min" sizex="1" storageaddress="0x01E2" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel learn zone 3 maf min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 3 max" sizex="1" storageaddress="0x01F0" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 3 max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 3 min" sizex="1" storageaddress="0x01F1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 3 min</data>
    </table>
    <description/>
   </table>
@@ -3449,6 +3541,13 @@
   </table>
   <table category="inj" endian="big" name="inj: soak time max" sizex="1" storageaddress="0x0304" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>soak time max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: soak time max" sizex="1" storageaddress="0x030C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>soak time max</data>
    </table>
@@ -4027,12 +4126,23 @@
    </table>
    <description>Calibration: load alphaN hold time. Tunable map/constant (not a live channel); log engine load -- the main axis for fueling and ignition. (ms; raw*5)</description>
   </table>
-  <table category="load" endian="big" name="load: alphaN learning rpm rate max" sizex="1" storageaddress="0x0120" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>alphaN learning rpm rate max</data>
+  <table category="load" endian="big" name="load: alphaN learn ratio deadband" sizex="2" storageaddress="0x0160" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
-   <description/>
+   <description>Calibration: throttle position idle to current ratio threshold. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls.</description>
+  </table>
+  <table category="load" endian="big" name="load: alphaN learn trim limits" sizex="2" storageaddress="0x007B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>Calibration: torque torque to throttle position scaling RPM range unknown. Tunable map/constant (not a live channel); log to see throttle/pedal demand and throttle response. (RPM; raw*125/4+500)</description>
   </table>
   <table category="load" endian="big" name="load: alphaN max rpm" sizex="1" storageaddress="0x019E" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -4055,13 +4165,6 @@
    </table>
    <description>Calibration: load alphaN throttle position rate opening threshold. Tunable map/constant (not a live channel); log to see throttle/pedal demand and throttle response. (0-1; raw/255)</description>
   </table>
-  <table category="load" endian="big" name="load: cylinder volume" sizex="1" storageaddress="0x0227" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>cylinder volume</data>
-   </table>
-   <description/>
-  </table>
   <table category="load" endian="big" name="load: filter coeff" sizex="1" storageaddress="0x004C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -4076,8 +4179,15 @@
    </table>
    <description/>
   </table>
-  <table category="load" endian="big" name="load: learning holdoff delay" sizex="1" storageaddress="0x0166" storagetype="uint16" type="2D" userlevel="1">
+  <table category="load" endian="big" name="load: learning engine accel max" sizex="1" storageaddress="0x0126" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>learning engine accel max</data>
+   </table>
+   <description/>
+  </table>
+  <table category="load" endian="big" name="load: learning holdoff delay" sizex="1" storageaddress="0x0166" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>learning holdoff delay</data>
    </table>
@@ -4091,7 +4201,7 @@
    <description/>
   </table>
   <table category="load" endian="big" name="load: learning stabilization delay" sizex="1" storageaddress="0x015E" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>learning stabilization delay</data>
    </table>
@@ -4104,7 +4214,7 @@
    </table>
    <description/>
   </table>
-  <table category="load" endian="big" name="load: map estimate base" sizex="16" sizey="16" storageaddress="0x3EE6" storagetype="uint8" type="3D" userlevel="1">
+  <table category="load" endian="big" name="load: map estimate intercept" sizex="16" sizey="16" storageaddress="0x3EE6" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Millibar" coarseincrement="20" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="mbar"/>
    <table endian="big" name="load" sizex="16" storageaddress="0x3EC6" storagetype="uint8" type="X Axis">
     <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
@@ -4112,21 +4222,14 @@
    <table endian="big" name="rpm" sizey="16" storageaddress="0x3ED6" storagetype="uint8" type="Y Axis">
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
-   <description>Calibration: load MAP estimate base. Tunable map/constant (not a live channel); log engine load -- the main axis for fueling and ignition.</description>
+   <description>Estimated-MAP model intercept (mbar; raw*2). Rows = rpm (Y), cols = load (X); stock rows are constant across load, so effectively intercept vs rpm. Scaled by baro/1013 and added to the load/VE term: MAP_est = intercept*baro/1013 + load*R*T/(VE*Vd). Not a live channel.</description>
   </table>
-  <table category="load" endian="big" name="load: map estimate load rpm factor" sizex="16" storageaddress="0x1416" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="load" endian="big" name="load: map estimate ve" sizex="16" storageaddress="0x1416" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Volumetric Efficiency" coarseincrement="5" expression="(x+153)/2" fineincrement="0.5" format="0.0" to_byte="(x*2)-153" units="%"/>
    <table endian="big" name="rpm" sizex="16" storageaddress="0x1406" storagetype="uint8" type="X Axis">
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
-   <description>Calibration: load MAP estimate load RPM factor. Tunable map/constant (not a live channel); log engine load -- the main axis for fueling and ignition.</description>
-  </table>
-  <table category="load" endian="big" name="load: obd divisor" sizex="16" storageaddress="0x1566" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table endian="big" name="rpm" sizex="16" storageaddress="0x1556" storagetype="uint8" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
-   </table>
-   <description>Calibration: load OBD divisor. Tunable map/constant (not a live channel); log engine load -- the main axis for fueling and ignition.</description>
+   <description>Volumetric efficiency vs rpm for the estimated-MAP model (VE% = (raw+153)/2; exact (raw+153)/199.1 for 576 cc/cyl). Slope term: dMAP = load_mg*29565/((raw+153)*iat_ratio). Not a live channel.</description>
   </table>
   <table category="load" endian="big" name="load: source selection threshold by tps" sizex="16" storageaddress="0x176E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
@@ -4785,42 +4888,146 @@
    <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
    <description>Calibration that arms/thresholds the P0106 monitor (MAP/baro rationality). Fixed value -- it sets when that DTC trips, not a live channel.</description>
   </table>
-  <table category="obd" endian="big" name="obd: ii P0106 map corr highload" sizex="8" sizey="8" storageaddress="0x5AB4" storagetype="uint8" type="3D" userlevel="1">
+  <table category="obd" endian="big" name="obd: ii P0106 baro corr highload" sizex="64" storageaddress="0x5AB4" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Millibar" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="mbar"/>
-   <table endian="big" name="rpm" sizex="8" storageaddress="0x5AA4" storagetype="uint8" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
-   </table>
-   <table endian="big" name="load" sizey="8" storageaddress="0x5AAC" storagetype="uint8" type="Y Axis">
-    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
-   </table>
-   <description/>
-  </table>
-  <table category="obd" endian="big" name="obd: ii P0106 rpm window" sizex="2" storageaddress="0x4452" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
+   <table name="signal" sizex="64" type="Static X Axis">
     <data>0</data>
     <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <data>512</data>
+    <data>544</data>
+    <data>576</data>
+    <data>608</data>
+    <data>640</data>
+    <data>672</data>
+    <data>704</data>
+    <data>736</data>
+    <data>768</data>
+    <data>800</data>
+    <data>832</data>
+    <data>864</data>
+    <data>896</data>
+    <data>928</data>
+    <data>960</data>
+    <data>992</data>
+    <data>1024</data>
+    <data>1056</data>
+    <data>1088</data>
+    <data>1120</data>
+    <data>1152</data>
+    <data>1184</data>
+    <data>1216</data>
+    <data>1248</data>
+    <data>1280</data>
+    <data>1312</data>
+    <data>1344</data>
+    <data>1376</data>
+    <data>1408</data>
+    <data>1440</data>
+    <data>1472</data>
+    <data>1504</data>
+    <data>1536</data>
+    <data>1568</data>
+    <data>1600</data>
+    <data>1632</data>
+    <data>1664</data>
+    <data>1696</data>
+    <data>1728</data>
+    <data>1760</data>
+    <data>1792</data>
+    <data>1824</data>
+    <data>1856</data>
+    <data>1888</data>
+    <data>1920</data>
+    <data>1952</data>
+    <data>1984</data>
+    <data>2016</data>
     <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
-   <description/>
+   <description>P0106 high-load correction (mbar) subtracted from the baro estimate; rows = load (Y), cols = rpm (X). Zero in stock cal.</description>
   </table>
-  <table category="obd" endian="big" name="obd: ii P0106 tps window" sizex="2" storageaddress="0x4454" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
-   </table>
-   <description/>
-  </table>
-  <table category="obd" endian="big" name="obd: ii P0106 vacuum error limits" sizex="2" storageaddress="0x4468" storagetype="uint16" type="2D" userlevel="1">
+  <table category="obd" endian="big" name="obd: ii P0106 baro error limits" sizex="2" storageaddress="0x4468" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    <table name="signal" sizex="2" type="Static X Axis">
     <data>0</data>
     <data>32</data>
     <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
-   <description/>
+   <description>P0106 limits on baro sensor - baro estimate (mbar): [0] max positive, [1] max negative.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 highload rpm window" sizex="2" storageaddress="0x4485" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>P0106 high-load test rpm window [lo, hi]; also needs tps &gt; CAL_sensor_P0106_min_tps_threshold(rpm).</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 intake pressure drop" sizex="8" storageaddress="0x59FC" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="mbar"/>
+   <table endian="big" name="maf flow" sizex="8" storageaddress="0x59F4" storagetype="uint8" type="X Axis">
+    <scaling category="Gram/Second" coarseincrement="10" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="g/s"/>
+   </table>
+   <description>P0106: pressure drop upstream of the throttle (air filter/MAF/intake) vs MAF flow (mbar), added to the baro estimate.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 partload rpm window" sizex="2" storageaddress="0x4452" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>P0106 part-load test rpm window [lo, hi]; also the interpolation endpoints for the throttle-vacuum tables.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 partload tps rate max" sizex="1" storageaddress="0x4456" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii P0106 partload tps rate max</data>
+   </table>
+   <description>P0106 part-load test: max |tps_delta_rate| (steady throttle).</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 partload tps window" sizex="2" storageaddress="0x4454" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>P0106 part-load test TPS window [lo, hi].</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 throttle vacuum rpm hi" sizex="8" sizey="8" storageaddress="0x5A64" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
+   <table endian="big" name="tps" sizex="8" storageaddress="0x5A54" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <table endian="big" name="load" sizey="8" storageaddress="0x5A5C" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   </table>
+   <description>P0106 part-load expected vacuum across the throttle (4 mbar) vs TPS (X) and load (Y) at the high end of CAL_obd_ii_P0106_partload_rpm_window.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii P0106 throttle vacuum rpm lo" sizex="8" sizey="8" storageaddress="0x5A14" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
+   <table endian="big" name="tps" sizex="8" storageaddress="0x5A04" storagetype="uint8" type="X Axis">
+    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   </table>
+   <table endian="big" name="load" sizey="8" storageaddress="0x5A0C" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   </table>
+   <description>P0106 part-load expected vacuum across the throttle (4 mbar) vs TPS (X) and load (Y) at the low end of CAL_obd_ii_P0106_partload_rpm_window.</description>
   </table>
   <table category="obd" name="obd: ii P0107" sizey="1" storageaddress="0x4B5A" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
@@ -7114,6 +7321,29 @@
    </table>
    <description/>
   </table>
+  <table category="obd" endian="big" name="obd: ii calc load wot airmass" sizex="16" storageaddress="0x1566" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
+   <table name="signal" sizex="16" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <data>320</data>
+    <data>352</data>
+    <data>384</data>
+    <data>416</data>
+    <data>448</data>
+    <data>480</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>WOT peak air charge at STP vs rpm; denominator of J1979 calculated load (PID 0x04). 255 = divisor × 255/64 mg.</description>
+  </table>
   <table category="obd" endian="big" name="obd: ii cat mon post dfco holdoff prescaler" sizex="1" storageaddress="0x43A7" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -7272,32 +7502,19 @@
    </table>
    <description/>
   </table>
+  <table category="obd" endian="big" name="obd: ii idle error fail count" sizex="1" storageaddress="0x43F2" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Count" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii idle error fail count</data>
+   </table>
+   <description/>
+  </table>
   <table category="obd" endian="big" name="obd: ii knock no activity count" sizex="1" storageaddress="0x45A1" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii knock no activity count</data>
    </table>
    <description/>
-  </table>
-  <table category="obd" endian="big" name="obd: ii map plausibility unknown" sizex="8" sizey="8" storageaddress="0x5A14" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
-   <table endian="big" name="tps" sizex="8" storageaddress="0x5A04" storagetype="uint8" type="X Axis">
-    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
-   </table>
-   <table endian="big" name="load" sizey="8" storageaddress="0x5A0C" storagetype="uint8" type="Y Axis">
-    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
-   </table>
-   <description>Calibration: OBD MAP plausibility unknown. Tunable map/constant (not a live channel); adjust to change this behavior. (mbar; raw*4)</description>
-  </table>
-  <table category="obd" endian="big" name="obd: ii map plausibility unknown2" sizex="8" sizey="8" storageaddress="0x5A64" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Millibar" coarseincrement="40" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mbar"/>
-   <table endian="big" name="tps" sizex="8" storageaddress="0x5A54" storagetype="uint8" type="X Axis">
-    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
-   </table>
-   <table endian="big" name="load" sizey="8" storageaddress="0x5A5C" storagetype="uint8" type="Y Axis">
-    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="mg/stroke"/>
-   </table>
-   <description>Calibration: OBD MAP plausibility unknown2. Tunable map/constant (not a live channel); adjust to change this behavior. (mbar; raw*4)</description>
   </table>
   <table category="obd" endian="big" name="obd: ii mode2f coil test interval" sizex="1" storageaddress="0x4459" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -7485,15 +7702,6 @@
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii rpm unknown1</data>
-   </table>
-   <description/>
-  </table>
-  <table category="obd" endian="big" name="obd: ii rpm unknown3" sizex="2" storageaddress="0x4485" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description/>
   </table>
@@ -7688,13 +7896,6 @@
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>flow proportional term</data>
-   </table>
-   <description/>
-  </table>
-  <table category="revlimit" endian="big" name="revlimit: fuelcut hysteresis" sizex="1" storageaddress="0x01D4" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>fuelcut hysteresis</data>
    </table>
    <description/>
   </table>
@@ -8312,24 +8513,24 @@
    </table>
    <description/>
   </table>
+  <table category="sensor" endian="big" name="sensor: o2 heater softstart duration" sizex="1" storageaddress="0x0090" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>o2 heater softstart duration</data>
+   </table>
+   <description/>
+  </table>
+  <table category="sensor" endian="big" name="sensor: o2 heater softstart pwm period" sizex="1" storageaddress="0x008F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>o2 heater softstart pwm period</data>
+   </table>
+   <description/>
+  </table>
   <table category="sensor" endian="big" name="sensor: o2 heater undercurrent threshold" sizex="1" storageaddress="0x4416" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>o2 heater undercurrent threshold</data>
-   </table>
-   <description/>
-  </table>
-  <table category="sensor" endian="big" name="sensor: o2 heater warmup duration" sizex="1" storageaddress="0x008F" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>o2 heater warmup duration</data>
-   </table>
-   <description/>
-  </table>
-  <table category="sensor" endian="big" name="sensor: o2 heater warmup duration unknown" sizex="1" storageaddress="0x0090" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>o2 heater warmup duration unknown</data>
    </table>
    <description/>
   </table>
@@ -8339,13 +8540,6 @@
     <data>o2 lean voltage threshold</data>
    </table>
    <description/>
-  </table>
-  <table category="sensor" endian="big" name="sensor: obd ii p0106 maf pressure correction" sizex="8" storageaddress="0x59FC" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Millibar" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="mbar"/>
-   <table endian="big" name="maf flow" sizex="8" storageaddress="0x59F4" storagetype="uint8" type="X Axis">
-    <scaling category="Gram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g/s"/>
-   </table>
-   <description>Calibration that arms/thresholds the P0106 monitor (MAP/baro rationality). Fixed value -- it sets when that DTC trips, not a live channel.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: pps correlation enable max" sizex="1" storageaddress="0x4430" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -8358,6 +8552,13 @@
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>pps correlation max delta</data>
+   </table>
+   <description/>
+  </table>
+  <table category="sensor" endian="big" name="sensor: pps unknown1" sizex="1" storageaddress="0x00BE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>pps unknown1</data>
    </table>
    <description/>
   </table>
@@ -8518,15 +8719,6 @@
    </table>
    <description>Calibration: torque torque to load. Tunable map/constant (not a live channel); log to follow the ECU torque estimate and any torque limiting. (mg/stroke; raw*4)</description>
   </table>
-  <table category="torque" endian="big" name="torque: torque to tps scaling rpm range unknown" sizex="2" storageaddress="0x007B" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
-   </table>
-   <description>Calibration: torque torque to throttle position scaling RPM range unknown. Tunable map/constant (not a live channel); log to see throttle/pedal demand and throttle response. (RPM; raw*125/4+500)</description>
-  </table>
   <table category="torque" endian="big" name="torque: tps gain" sizex="1" storageaddress="0x020B" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -8677,15 +8869,6 @@
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
    <description>Calibration: throttle position idle target cranking. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/1023)</description>
-  </table>
-  <table category="tps" endian="big" name="tps: idle to current ratio threshold" sizex="2" storageaddress="0x0160" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
-   </table>
-   <description>Calibration: throttle position idle to current ratio threshold. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls.</description>
   </table>
   <table category="tps" endian="big" name="tps: limit idle request max" sizex="1" storageaddress="0x0202" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
@@ -9202,8 +9385,8 @@
    </table>
    <description/>
   </table>
-  <table category="idle" endian="big" name="idle: cold learning coolant" sizex="1" storageaddress="0x0984" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="idle" endian="big" name="idle: cold learning coolant" sizex="1" storageaddress="0x0984" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/1024" fineincrement="0.1" format="0.0" to_byte="x*1024/100" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>cold learning coolant</data>
    </table>
@@ -13757,8 +13940,8 @@
    </table>
    <description>Stored monitor/maturation state for U0513 (bad data from convenience module). Log it to catch this fault maturing during a drive.</description>
   </table>
-  <table category="obd" endian="big" name="obd: ii idle learn" sizex="1" storageaddress="0x0574" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
+  <table category="obd" endian="big" name="obd: ii idle learn" sizex="1" storageaddress="0x0574" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/1024" fineincrement="0.1" format="0.0" to_byte="x*1024/100" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii idle learn</data>
    </table>
@@ -13851,6 +14034,13 @@
    </table>
    <description/>
   </table>
+  <table category="obd" endian="big" name="obd: monitor flag A" sizex="1" storageaddress="0x15AC" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>monitor flag A</data>
+   </table>
+   <description/>
+  </table>
   <table category="obd" endian="big" name="obd: monitor flag B" sizex="1" storageaddress="0x15AE" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -13865,10 +14055,24 @@
    </table>
    <description/>
   </table>
+  <table category="obd" endian="big" name="obd: monitor flag E" sizex="1" storageaddress="0x15B4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>monitor flag E</data>
+   </table>
+   <description/>
+  </table>
   <table category="obd" endian="big" name="obd: monitor flag F" sizex="1" storageaddress="0x15B6" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>monitor flag F</data>
+   </table>
+   <description/>
+  </table>
+  <table category="obd" endian="big" name="obd: monitor flag H" sizex="1" storageaddress="0x15BA" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/1024" fineincrement="0.1" format="0.0" to_byte="x*1024/100" units="mg/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>monitor flag H</data>
    </table>
    <description/>
   </table>

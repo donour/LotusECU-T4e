@@ -1872,6 +1872,20 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: idle low car speed exit (km/h).</description>
   </table>
+  <table category="idle" endian="big" name="idle: rpm ramp step" sizex="1" storageaddress="0x0204" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>rpm ramp step</data>
+   </table>
+   <description/>
+  </table>
+  <table category="idle" endian="big" name="idle: rpm ramp step ips" sizex="1" storageaddress="0x026A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>rpm ramp step ips</data>
+   </table>
+   <description/>
+  </table>
   <table category="idle" endian="big" name="idle: sensor fault coolant temp" sizex="1" storageaddress="0x455C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2382,13 +2396,6 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: injector coldstart enrichment (64-element array).</description>
   </table>
-  <table category="inj" endian="big" name="inj: comp iat" sizex="8" storageaddress="0x18EE" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
-   <table endian="big" name="iat" sizex="8" storageaddress="0x18E6" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <description>Calibration: injector compensation intake air temp (val/100; 8-element array).</description>
-  </table>
   <table category="inj" endian="big" name="inj: comp power enrich from ign retard" sizex="1" storageaddress="0x00BB" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -2466,6 +2473,21 @@ Unit is x / 4.83 mpg</description>
     <scaling category="Millibar" coarseincrement="200" expression="x*50" fineincrement="50" format="0" to_byte="x/50" units="mbar"/>
    </table>
    <description>Calibration: injector time base (µs = val*20; 64-element array).</description>
+  </table>
+  <table category="inj" endian="big" name="inj: deadtime comp iat" sizex="8" storageaddress="0x18EE" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table name="signal" sizex="8" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description>Calibration: injector compensation intake air temp (val/100; 8-element array).</description>
   </table>
   <table category="inj" endian="big" name="inj: efficiency" sizex="20" sizey="20" storageaddress="0x0FCE" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/200" fineincrement="1" format="0.0" to_byte="x*200/100" units="%"/>
