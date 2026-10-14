@@ -57,16 +57,47 @@ Emira: calibration is copied to RAM at `0x4002e000` (64 KB block) at startup.
 
 ### Execution Rate Structure
 
-The firmware schedules tasks at multiple rates from a 1000 Hz base loop:
+No RTOS. Foreground/background design (verified in B13200091; other variants appear to follow the
+same pattern but check before relying on it):
 
-| Rate    | Period  | Key Tasks                                                         |
-|---------|---------|-------------------------------------------------------------------|
-| 1000 Hz | 1 ms    | Ignition/injection scheduling, knock detection, engine speed, TC |
-| 200 Hz  | 5 ms    | Closed-loop O2 fuel control, sensor sampling, CAN timeout checks |
-| 100 Hz  | 10 ms   | VVT, OBD monitors, cooling, idle control, throttle               |
-| 50 Hz   | 20 ms   | Torque management, rev limiter, diagnostics                       |
-| 10 Hz   | 100 ms  | CAN transmit (cluster, IPS), slow monitors, adaptive updates      |
-| 1 Hz    | 1000 ms | Runtime counters, cruise control, EEPROM writes, long-term learn  |
+1. **`main()` super-loop** (background, free-running, no fixed period). Each pass: knock DSP
+   (Goertzel/FFT), watchdog, ADC sample/convert, engine speed/load, `shutdown`, `fan_control`,
+   `idle`, `evap*`, `injtip`, `closedloop`, `injection`, `ignition`, `HC08_com`, `vvt`, `knock`,
+   `torque_model`, `cruise_control`, `revlimit`, `ac_compressor`, EEPROM commit. Loop duration is
+   logged in `loop_duration_main_*`. Functions without a rate suffix (e.g. `vvt()`, `revlimit()`)
+   are NOT fixed-rate; they time things using counters maintained by the ISR tasks below.
+2. **`interrupt_timer_2000hz`**: the only periodic tick. eMIOS UC22 in OPWFM mode (1 MHz counter,
+   period B = 500 → 2 kHz), INTC vector 208, priority 1 (lowest, so all eTPU/CAN ISRs pre-empt it).
+   It acknowledges itself by writing FLAG in `EMIOS_CSR22`. It contains 11 nested rate tasks, each
+   profiled with TCR1 timestamps (0.1 µs) in `task_last_execution_time[12]` /
+   `task_max_execution_time[12]`:
+
+| Slot | Rate     | Period | Counter (addr, reload)            | Work                                                                 |
+|------|----------|--------|-----------------------------------|----------------------------------------------------------------------|
+| 11   | —        | —      | —                                 | ISR entry-to-entry period (jitter min/max in `etpu_elapsed_min/max`) |
+| 0    | 2 kHz    | 0.5 ms | every tick                        | High-speed CAN logger timeslots, `O2_heater_500us`; times whole ISR  |
+| 1    | 1 kHz    | 1 ms   | 0x4000135F, 2                     | `tps_control_1000hz`, `obd_ii_mixture_tests`                         |
+| 2    | 200 Hz   | 5 ms   | 0x40001360, 10                    | Bulk of periodic work (see below)                                    |
+| 3    | 100 Hz   | 10 ms  | 0x40001358, 2 (inside 200 Hz)     | Input debounce, clutch sensor, cruise/IPS bits, engine-speed ref, IMU |
+| 4    | 50 Hz    | 20 ms  | 0x40001359, 4 (inside 200 Hz)     | Only arms CAN-logger timeslots 2–3                                   |
+| 5    | 20 Hz    | 50 ms  | 0x4000135A, 10 (inside 200 Hz)    | Only arms CAN-logger timeslots 4–5                                   |
+| 6    | 10 Hz    | 100 ms | 0x40001356 (u16), 20 (inside 200 Hz) | Run/fan timers, cluster/TPMS/exhaust valve, EVAP, O2 fuel learn, knock thresholds, VVT zero timers, slip/steering rate |
+| 7    | 5 Hz     | 200 ms | 0x4000135B, 2 (inside 10 Hz)      | `o2_sensors_fault_detection_all`                                      |
+| 8    | 3.33 Hz  | 300 ms | 0x4000135C, 3 (inside 10 Hz)      | eMIOS sensor watchdog, A/C speed timeout, service coding             |
+| 9    | 2 Hz     | 500 ms | 0x4000135D, 5 (inside 10 Hz)      | Only arms CAN-logger timeslot 8                                      |
+| 10   | 1 Hz     | 1 s    | 0x4000135E, 10 (inside 10 Hz)     | Only arms CAN-logger timeslot 9                                      |
+
+200 Hz block: pedal/TPS target (`accel_pedal_200hz`), car speed, ignition retard/recovery,
+idle airflow decay, closed-loop O2, injection, tip-in/out rate logic, cat/misfire/IAT monitors,
+Mode $2F, EVAP, `vvt_200hz`, knock retard decay, torque model, `revlimit_200hz`, cruise, A/C,
+CAN timeouts, CAN 0x102 TX, OBD send, O2 heater soft start, alpha-N/load-to-TPS learning.
+
+3. **Event interrupts**: eTPU crank (ch 0, `etpu_ch0_crank_isr`), cams (ch 1/2/13/14), spark
+   (ch 18–23, `etpu_cylN_fire_handler`), knock window (ch 31, priority 15 = highest), MAF period,
+   eMIOS wheel speed, FlexCAN A/C (priority 2–3), eSCI A (HC08 link).
+
+Function-name rate suffixes are analyst-assigned and occasionally wrong (e.g.
+`idle_airflow_decay_manager_1000hz` runs in the 200 Hz block); trust the scheduler, not the name.
 
 ---
 
