@@ -5109,7 +5109,7 @@
 "CAL_cruise_maf_feedforward_X_carspeed","4000eca8","Data Label","u8_speed_kph[8]","X-axis breakpoints for the 'cruise MAF feedforward' table. Defines the lookup grid (not a live channel); change only when re-axing the map. (km/h)"
 "CAL_cruise_maf_feedforward","4000ecb0","Data Label","u8_flow_g/s[8]"," Role in cruise logic
 
-  When the cruise controller enters ""speed acquisition"" mode (flag 0x2000000 in obd_ii_cruise_status)\, it uses this table to know the expected
+  When the cruise controller enters \"speed acquisition\" mode (flag 0x2000000 in obd_ii_cruise_status)\, it uses this table to know the expected
   steady-state airflow at the target speed. It then ramps u16_flow_10mg_s_400014b0 (the working MAF setpoint) down toward that target\, with a
   proportional blend when the vehicle is still below the target speed (lines 51007–51027). Once the actual MAF drops below the feedforward
   target\, the flag clears and the PID takes over.

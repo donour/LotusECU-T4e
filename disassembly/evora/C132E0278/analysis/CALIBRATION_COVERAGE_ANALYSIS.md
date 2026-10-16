@@ -107,7 +107,7 @@ Counts below are CSV name-prefix counts; they measure named coverage, not correc
 Current C still assigns zero to the primary dual-MAF charge and subsequent density-normalized
 coordinates (`load_measured_maf`, `load_unknown`, `load_u8_tmp`). A comment proposes a charge
 reconstruction; it is not a restored expression. Recover the original instructions before exposing
-those unresolved coordinates. See the [definition review](GT430_ROMRAIDER_REVIEW.md#remaining-binary-verification).
+those unresolved coordinates. See the [definition notes](../../../../romraider-defs/README.md#binary-verification-still-needed).
 
 ### Ignition and knock
 
@@ -120,7 +120,7 @@ The CSV distinguishes adjacent stopped-coolant minimum/maximum addresses, and th
 uses those distinct labels. Current C still compares the minimum twice, producing an impossible
 literal condition; the executable operands are unresolved. The reviewed startup TPS factor and
 cold-start axis corrections follow their consumers and corroborated layout, rather than treating
-that gate as repaired. See the [definition review](GT430_ROMRAIDER_REVIEW.md).
+that gate as repaired. See the [definition notes](../../../../romraider-defs/README.md#gt430-and-na091-definitions).
 
 ### Throttle, torque, and load
 

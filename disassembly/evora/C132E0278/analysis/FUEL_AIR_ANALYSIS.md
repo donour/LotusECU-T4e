@@ -74,7 +74,7 @@ Relevant scheduler evidence:
   near `C132E0278.c:22279`. Comparison exports and surrounding data flow motivate the proposed
   reconstruction, but original GT430 instructions are required to verify it. These placeholders
   do not establish zero measured charge at runtime. See the
-  [current definition review](GT430_ROMRAIDER_REVIEW.md#remaining-binary-verification).
+  [current definition notes](../../../../romraider-defs/README.md#binary-verification-still-needed).
 
 The next two lost outputs (`load_unknown` and `load_u8_tmp`) feed the torque-to-TPS learning and
 mapping tables. Early Evora code density-normalizes MAF charge by standard pressure and temperature,
@@ -224,7 +224,7 @@ physical unit. The `u16_mass_100ug` label conflicts with an apparent 10 microgra
 of the air/AFR/flow-to-pulse arithmetic. Confirm upstream units and operation widths in the original
 program before selecting either mass scale; retain the existing shared types in the meantime.
 The intermediate concentration/integrator scale also remains unknown. See the
-[fuel-mass verification item](GT430_ROMRAIDER_REVIEW.md#remaining-binary-verification).
+[fuel-mass verification item](../../../../romraider-defs/README.md#binary-verification-still-needed).
 
 ## Charge-air temperature and cooling
 
@@ -320,7 +320,7 @@ not proven hardware documentation.
    zero assignments at these outputs.
 2. Determine the physical scales of purge mass and its concentration integrator. Producer/consumer
    and bank allocation are traced, but the output-mass and intermediate fixed-point units remain
-   unresolved. Follow the [binary verification ledger](GT430_ROMRAIDER_REVIEW.md#remaining-binary-verification).
+   unresolved. Follow the [binary verification notes](../../../../romraider-defs/README.md#binary-verification-still-needed).
 3. Resolve the exact purpose of `inj_efficiency`: its table and bounds are clear, but whether it
    represents injector characterization, global flow correction, or a composite scale remains open.
 4. Map `fuel_control_mode_flags` and `injection_flags` bit-by-bit from all writers.
@@ -348,5 +348,5 @@ completed C repairs. The recirculation-pump command path also narrows the superc
 
 The next high-value evidence is original GT430 instructions/p-code for the MAF and CAC operations,
 physical-unit confirmation for purge mass, and wiring or hardware evidence for supercharger bypass
-plumbing. The [definition review](GT430_ROMRAIDER_REVIEW.md#remaining-binary-verification) tracks the
+plumbing. The [definition notes](../../../../romraider-defs/README.md#binary-verification-still-needed) tracks the
 remaining binary checks.

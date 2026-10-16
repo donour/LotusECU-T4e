@@ -74,7 +74,7 @@ The base target is combined with operating-state-specific corrections:
 
 The routine chooses explicit operating modes (`IGN_IDLE`, `IGN_IDLE_AC`, `IGN_CRUISE`, `IGN_CRUISE_AC`, `IGN_NORMAL`, startup-normal, fixed and cold-start). `ign_adv_min` comes from the normal or engine-off minimum timing table and clamps torque retard where applicable.
 
-Current C still renders the stopped-coolant startup gate as `min < temperature && temperature < min`; distinct CSV minimum/maximum labels do not repair that condition. The reviewed XML separately corrects the startup TPS table to an unsigned base-timing retention fraction (`factor/255`, neutral raw 255) and the cold-start coolant axis to the pointer-selected `+5` byte position. See the [definition review](GT430_ROMRAIDER_REVIEW.md) for consumer/layout evidence and remaining machine-code checks.
+Current C still renders the stopped-coolant startup gate as `min < temperature && temperature < min`; distinct CSV minimum/maximum labels do not repair that condition. The reviewed XML separately corrects the startup TPS table to an unsigned base-timing retention fraction (`factor/255`, neutral raw 255) and the cold-start coolant axis to the pointer-selected `+5` byte position. See the [definition notes](../../../../romraider-defs/README.md#gt430-and-na091-definitions) for consumer/layout evidence and remaining machine-code checks.
 
 ### Per-cylinder corrections and hardware boundary
 
