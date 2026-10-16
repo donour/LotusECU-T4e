@@ -71,7 +71,7 @@ Counts below are CSV name-prefix counts; they measure named coverage, not correc
 | Knock | 44 | High for thresholds, gains and learned retard behavior |
 | Rev limit | 43 | Medium-high after airflow PI tracing; escalation/state details still dense |
 | Closed loop | 42 | High for gains/thresholds; IPS scalar timing units partly internal |
-| Load | 38 | High except the lost MAF density-normalized lookup coordinate |
+| Load | 38 | Partial: primary MAF charge and density-normalized lookup arithmetic remain lost |
 | Cooling | 38 | High for fan/pump surfaces; some hysteresis flags raw |
 | ECU/general | 36 | Mixed; useful scalars plus coding/diagnostic behavior |
 | Cruise | 31 | Medium-high, outside core power tuning |
@@ -104,8 +104,10 @@ Counts below are CSV name-prefix counts; they measure named coverage, not correc
 - Fuel-pressure target `[rpm][load]`, feed-forward pump command, proportional and integral terms.
 - MAF voltage scaling and Alpha-N/load/VE maps.
 
-The primary dual-MAF charge expression is restored. The later density-normalized MAF coordinate used
-for torque-to-TPS learning remains unresolved and should not be exposed.
+Current C still assigns zero to the primary dual-MAF charge and subsequent density-normalized
+coordinates (`load_measured_maf`, `load_unknown`, `load_u8_tmp`). A comment proposes a charge
+reconstruction; it is not a restored expression. Recover the original instructions before exposing
+those unresolved coordinates. See the [definition notes](../../../../romraider-defs/README.md#binary-verification-still-needed).
 
 ### Ignition and knock
 
@@ -114,8 +116,11 @@ for torque-to-TPS learning remains unresolved and should not be exposed.
 - Knock detection windows, RPM/load thresholds, enable/inhibit surfaces, retard/decay and octane
   learning limits.
 
-This audit also resolves the adjacent stopped-coolant thresholds as distinct minimum and maximum
-bounds; the previous duplicate name generated an impossible condition in C.
+The CSV distinguishes adjacent stopped-coolant minimum/maximum addresses, and the reviewed XML
+uses those distinct labels. Current C still compares the minimum twice, producing an impossible
+literal condition; the executable operands are unresolved. The reviewed startup TPS factor and
+cold-start axis corrections follow their consumers and corroborated layout, rather than treating
+that gate as repaired. See the [definition notes](../../../../romraider-defs/README.md#gt430-and-na091-definitions).
 
 ### Throttle, torque, and load
 
@@ -189,10 +194,10 @@ thresholds. Address adjacency alone is insufficient to type them safely.
 Five CAL names still occur at different CSV addresses:
 
 - upstream/downstream or monitor-specific rich/lean O2 voltage thresholds;
-- manual and IPS shift-light offset axis/payload pairs;
+- manual and IPS shift-light offset axis/payload pairs (now separated in XML using the fixed-bin helper and NA/later-GT corroboration);
 - severe-misfire one-cut thresholds.
 
-These require address-specific call-site or raw instruction recovery. A definition generator must
+The remaining O2 and severe-misfire identities require address-specific call-site or raw instruction recovery. A definition generator must
 key by address and reject duplicate names rather than silently overwrite one entry.
 
 ### Decompiler and storage limitations

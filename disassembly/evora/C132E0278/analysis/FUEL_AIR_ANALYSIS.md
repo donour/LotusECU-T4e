@@ -68,10 +68,13 @@ Relevant scheduler evidence:
   manifold absolute temperature. The use of 287 J/(kg*K) is visible directly in the arithmetic.
 - Alpha-N charge: `CAL_load_alphaN_base[rpm][TPS]`, corrected by ambient or manifold air density and
   `LEA_load_alphaN_learned_trim[rpm][TPS]`.
-- Measured charge: the average of the two MAF flows multiplied by adjusted engine period. The
-  decompiler lost this mul/div idiom, but the recovered expression is now restored in the C export:
-  `avg(MAF1, MAF2) * engine_speed_period_adj / 100000`. The same structure is present in the later
-  GT firmware, and the early Evora export has instruction-level notes for the corresponding idiom.
+- Measured charge: a comment proposes the reconstruction
+  `avg(MAF1, MAF2) * engine_speed_period_adj / 100000`. This expression is not restored in the
+  current C export: `load_measured_maf`, `load_unknown`, and `load_u8_tmp` are still assigned zero
+  near `C132E0278.c:22279`. Comparison exports and surrounding data flow motivate the proposed
+  reconstruction, but original GT430 instructions are required to verify it. These placeholders
+  do not establish zero measured charge at runtime. See the
+  [current definition notes](../../../../romraider-defs/README.md#binary-verification-still-needed).
 
 The next two lost outputs (`load_unknown` and `load_u8_tmp`) feed the torque-to-TPS learning and
 mapping tables. Early Evora code density-normalizes MAF charge by standard pressure and temperature,
@@ -211,14 +214,17 @@ Pass-two tracing identifies the producer, not merely the consumer, of
    purge flow is nonzero and the error direction agrees with bank trim movement. The integrator is
    clamped from zero to a calibrated maximum.
 4. The per-bank integrator is scaled into modeled purge fuel flow, multiplied by engine period, and
-   divided by 250000 to yield `u16_mass_100ug` per-cylinder-event fuel mass.
+   divided by 250000 to produce the modeled per-cylinder-event purge mass. The export labels that
+   result `u16_mass_100ug`, but this type name does not establish its physical scale.
 5. `injection()` subtracts that mass from the normal air/AFR-derived request independently for each
    bank.
 
-This establishes the output unit with high confidence: the final value uses the same
-`u16_mass_100ug` type and arithmetic domain as `inj_fuel_mass_required`. The intermediate
-concentration/integrator scale is still unknown; it should not yet be labeled as a physical percent
-or hydrocarbon fraction.
+The consumer establishes a shared arithmetic domain with `inj_fuel_mass_required`, not a verified
+physical unit. The `u16_mass_100ug` label conflicts with an apparent 10 micrograms/count interpretation
+of the air/AFR/flow-to-pulse arithmetic. Confirm upstream units and operation widths in the original
+program before selecting either mass scale; retain the existing shared types in the meantime.
+The intermediate concentration/integrator scale also remains unknown. See the
+[fuel-mass verification item](../../../../romraider-defs/README.md#binary-verification-still-needed).
 
 ## Charge-air temperature and cooling
 
@@ -240,10 +246,11 @@ firmware estimates manifold temperature from engine-air temperature and
 The pump feedback path has SPI driver-status checks, measured-duty reconstruction, command/feedback
 tolerance checking, and P023B/P023C-related debounce state in `cac_diagnostic_1000hz()`.
 
-The PWM transition variable at `0x40001b0c` is now retyped from `bool` to
-`cac_pwm_output_sequence_state` (`uint8_t`). The original export incremented it and rendered three
-successive comparisons as `== true`; this is the characteristic result of applying a boolean type to
-comparisons against 1, 2, and 3. The reconstructed sequence is:
+The current C export still types `cac_pump_pwm_initialized` as `bool` and renders three successive
+comparisons as `== true` (`C132E0278.c:20319`, `:20323`, `:20327`). A multi-state output sequencer is
+inferred from its increments and comparison exports, but the proposed retyping/branch restoration is
+not present in this export. The following sequence is a reconstruction requiring original
+instruction/type verification, not a literal reading of those boolean branches:
 
 ```text
 0: initialize eMIOS, enter state 1
@@ -252,17 +259,21 @@ comparisons against 1, 2, and 3. The reconstructed sequence is:
 3: apply normal inverse-mapped PWM
 ```
 
-Any zero-to-nonzero requested-output transition restarts at state 1. The later Evora GT export has
-the identical collapsed sequence, supporting common intent. The exact electrical reason for the
-high/low preamble is not stated, but the state values and output order are high-confidence.
+The reconstructed sequence restarts at state 1 on a zero-to-nonzero output request. The later
+Evora GT export has the same collapsed comparisons, supporting a shared pattern but not resolving
+the literal branch constants. State values, output order and electrical purpose need verification.
 
 ### Search for a supercharger bypass or recirculation actuator
 
 No ECU-controlled supercharger bypass/recirculation actuator is visible in this firmware export.
-The ambiguous GPDO `0xb7` feedback previously named `recirculation_pump_state_???_or_acis` is now
-resolved as `cooling_recirc_pump_output_state`: every writer is in `cooling_pump_control()`, which
-uses coolant/air temperature, after-run timers, transmission-cooling demand, and Mode 2F bit
-`0x400000`. The output is therefore a liquid-cooling recirculation pump, not a charge bypass.
+The GPDO `0xb7` state is reconstructed from the commanded output, not independent flow feedback.
+Its writers in `cooling_pump_control()` use coolant/air temperature, after-run timers,
+transmission-cooling demand and Mode 2F bit `0x400000`, supporting a cooling-recirculation command
+rather than a charge-bypass interpretation. The proposed name `cooling_recirc_pump_output_state`
+is not present in current C; the export still retains the ambiguous
+`recirculation_pump_state_???_or_acis` label. The symbol CSV already uses
+`cooling_recirc_pump_output_state` at RAM `0x40001A83`; this is annotation drift
+between the exports. Physical wiring remains a separate check.
 
 Cross-variant pin comparison also prevents a false positive: on the early naturally aspirated
 firmware, GPDO `0xc9` is ACIS and GPDO `0x8f` is an intake flapper. On GT430, `0xc9` is configured for
@@ -297,19 +308,21 @@ not proven hardware documentation.
 - Added stage comments at differential-pressure calculation, closed-loop/power-enrichment delay,
   purge subtraction, trim/additive-offset ordering, and output-window limiting.
 - Added load-path comments describing dual-MAF use and Alpha-N selection.
-- Added charge-cooler comments documenting temperature scheduling, fail-safe behavior, Mode 2F, and
-  its recovered three-state output sequencer.
-- Restored the dual-MAF charge expression while leaving the subsequent density-normalized lookup
-  coordinate unresolved rather than importing unverified constants from another build.
-- Renamed and documented both bank-indexed purge learning/mass functions and resolved GPDO `0xb7`
-  as coolant recirculation-pump feedback in both C and the symbol CSV.
+- Documented charge-cooler temperature scheduling, fail-safe behavior and Mode 2F. The proposed
+  multi-state output sequence remains a reconstruction; current C still contains boolean branches.
+- Documented a plausible dual-MAF charge expression. Current C still assigns zero to that output
+  and the following density-normalized lookup coordinates; none is restored as verified arithmetic.
+- Documented the bank-indexed purge learning/mass functions and GPDO `0xb7` as the coolant
+  recirculation-pump command/state path. Reading the commanded GPIO does not establish flow feedback.
 
 ## Unresolved areas and next steps
 
-1. Recover the GT430 instructions for the second missing MAF idiom: density normalization and the
-   clamped 8-bit torque-to-TPS lookup coordinate. The primary dual-MAF charge is now restored.
-2. Determine the physical scale of the purge concentration integrator. Its input, bank allocation,
-   output mass unit, and consumer are resolved, but the intermediate fixed-point unit is not.
+1. Recover the GT430 instructions for both the primary dual-MAF charge expression and subsequent
+   density normalization/clamped 8-bit torque-to-TPS lookup coordinate. Current C still contains
+   zero assignments at these outputs.
+2. Determine the physical scales of purge mass and its concentration integrator. Producer/consumer
+   and bank allocation are traced, but the output-mass and intermediate fixed-point units remain
+   unresolved. Follow the [binary verification notes](../../../../romraider-defs/README.md#binary-verification-still-needed).
 3. Resolve the exact purpose of `inj_efficiency`: its table and bounds are clear, but whether it
    represents injector characterization, global flow correction, or a composite scale remains open.
 4. Map `fuel_control_mode_flags` and `injection_flags` bit-by-bit from all writers.
@@ -318,24 +331,24 @@ not proven hardware documentation.
 
 ## Confidence
 
-- High: normal pulse construction order; pressure-dependent dead-time/flow; purge subtraction and
-  production; bank trims; pulse clamps; primary dual-MAF expression; Alpha-N/MAF selection;
-  charge-cooler temperature scheduling and PWM state order; GPDO `0xb7` coolant-pump identity.
+- High: normal pulse construction order; pressure-dependent dead-time/flow; traced purge producer
+  and subtraction; bank trims; pulse clamps; Alpha-N/MAF selection; charge-cooler temperature
+  scheduling; GPDO `0xb7` coolant-pump command identity.
 - Medium-high: interpretation of AFR departure as power enrichment and the entry-delay behavior;
   bank-balance ratio as an effective injector-flow split.
 - Medium: physical meaning of the injector-efficiency table and some startup correction names.
-- Low/not asserted: unidentified `DAT_*` calibration semantics, purge-integrator physical scale,
-  GT430 MAF density-normalization constants, and the inferred hardware arrangement of the
-  supercharger bypass.
+- Low/not asserted: unidentified `DAT_*` calibration semantics, physical purge-mass/integrator
+  units, the reconstructed primary MAF expression and density-normalization constants, literal CAC
+  state-machine branches, and the inferred hardware arrangement of the supercharger bypass.
 
 ## Marginal value of pass two
 
-This pass closed three operationally important gaps: measured charge is no longer zero in the C
-export, purge subtraction now has a traced producer and bank-specific learning loop, and the
-charge-cooler PWM output no longer contains impossible boolean branches. It also eliminated the
-ambiguous “recirculation/ACIS” output as a possible supercharger-control lead.
+This pass traces the purge producer and bank-specific learning loop and proposes reconstructions
+for missing MAF arithmetic and the CAC output sequencer. The current export still has zero MAF
+assignments and repeated boolean CAC comparisons, so those reconstructions must not be reported as
+completed C repairs. The recirculation-pump command path also narrows the supercharger-control search.
 
-Further work from this export alone now has lower marginal value. The next high-value evidence is
-external to the decompiled C: GT430 raw instructions/p-code for the second MAF idiom, and vehicle
-wiring or hardware documentation for supercharger bypass plumbing. Renaming the remaining purge
-`DAT_*` state without either source would mostly replace address labels with speculative terms.
+The next high-value evidence is original GT430 instructions/p-code for the MAF and CAC operations,
+physical-unit confirmation for purge mass, and wiring or hardware evidence for supercharger bypass
+plumbing. The [definition notes](../../../../romraider-defs/README.md#binary-verification-still-needed) tracks the
+remaining binary checks.
