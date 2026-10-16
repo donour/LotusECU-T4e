@@ -200,19 +200,9 @@ wiring also need matching image or bench evidence. The
 [NA injector guide](../disassembly/evora/B13200091/TuningInjectors.md) explains
 additive trims, eligibility-dependent learning and possible limit overshoot.
 
-## Regenerating Evora definitions
-
-The C/CSV semantic annotations are historical and still disagree with several
-corrected XML types and axes. In particular, the GT cold-start label is misplaced,
-startup TPS is typed as an angle instead of an unsigned factor, pressure offsets
-have unsigned annotations, and generic array axes can become voltage grids.
-The exporter also has a duplicate datatype registration that produces identical
-scalings. A fresh export can therefore restore incorrect metadata; this PR does
-not yet prevent regeneration drift. CSV/C annotation alignment and an exporter
-that preserves these corrections are separate follow-up work.
-
-Align the Ghidra annotations and exporter before accepting a regeneration, then
-compare ROM ids, payload addresses/dimensions, signedness, axis references and
-the conversions documented above. Preserve actual alternative units and the
-GT430 patched torque-cap warnings. XML parsing alone cannot verify these
-semantics or establish that the executable matches the definition.
+CSV/C annotation alignment and exporter protection are provided separately in
+[PR #7](https://github.com/donour/LotusECU-T4e/pull/7). Merge or apply these
+corrected XML definitions before that follow-up. Until both changes are present,
+a fresh export can still restore incorrect metadata. The follow-up documents
+the required Ghidra annotation updates and preserves the reviewed XML metadata;
+it does not establish that executable bytes match the definition.
