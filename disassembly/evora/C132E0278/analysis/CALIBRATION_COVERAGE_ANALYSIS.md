@@ -194,10 +194,10 @@ thresholds. Address adjacency alone is insufficient to type them safely.
 Five CAL names still occur at different CSV addresses:
 
 - upstream/downstream or monitor-specific rich/lean O2 voltage thresholds;
-- manual and IPS shift-light offset axis/payload pairs;
+- manual and IPS shift-light offset axis/payload pairs (now separated in XML using the fixed-bin helper and NA/later-GT corroboration);
 - severe-misfire one-cut thresholds.
 
-These require address-specific call-site or raw instruction recovery. A definition generator must
+The remaining O2 and severe-misfire identities require address-specific call-site or raw instruction recovery. A definition generator must
 key by address and reject duplicate names rather than silently overwrite one entry.
 
 ### Decompiler and storage limitations

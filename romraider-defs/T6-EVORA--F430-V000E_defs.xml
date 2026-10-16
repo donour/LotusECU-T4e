@@ -466,11 +466,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: cluster fuel usage reset request timer (ms = val*100).</description>
   </table>
   <table category="cluster" endian="big" name="cluster: oil pressure warn threshold" sizex="8" storageaddress="0x6098" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   <scaling category="Millibar" coarseincrement="64" expression="x*16" fineincrement="16" format="0" to_byte="x/16" units="mbar"/>
    <table endian="big" name="engine speed" sizex="8" storageaddress="0x6090" storagetype="uint8" type="X Axis">
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
-   <description>Calibration: cluster oil pressure warn threshold (RPM = val*125/4+500; 8-element array).</description>
+   <description>Minimum analog oil pressure for the cluster warning (mbar = raw*16), indexed by engine speed. The consumer shifts the interpolated byte left four bits before comparing it with converted oil pressure; the RPM axis is unchanged.</description>
   </table>
   <table category="cluster" endian="big" name="cluster: shift light deadband rpm" sizex="1" storageaddress="0x018A" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -479,65 +479,47 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: cluster shift light deadband RPM (RPM).</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: shiftlight rpm offset ips" sizex="8" storageaddress="0x4026" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+  <table category="cluster" endian="big" name="cluster: shiftlight gear breakpoints ips" sizex="8" storageaddress="0x4026" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
+   <table name="point" sizex="8" type="Static X Axis">
+    <data>Point 1</data>
+    <data>Point 2</data>
+    <data>Point 3</data>
+    <data>Point 4</data>
+    <data>Point 5</data>
+    <data>Point 6</data>
+    <data>Point 7</data>
+    <data>Point 8</data>
    </table>
-   <description>Calibration: cluster shiftlight RPM offset IPS (8-element array).</description>
+   <description>Stored gear breakpoints for the IPS shiftlight-offset lookup. This is a separate view of the same eight bytes used by the offset table axis. Point labels identify storage positions. The lookup selects the first breakpoint at or above the requested gear, capped at the final point, without interpolation.</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: shiftlight rpm offset ips" sizex="8" storageaddress="0x402E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+  <table category="cluster" endian="big" name="cluster: shiftlight stage spacing ips" sizex="8" storageaddress="0x402E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="8" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="rpm"/>
+   <table endian="big" name="gear" sizex="8" storageaddress="0x4026" storagetype="uint8" type="X Axis">
+    <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
    </table>
-   <description>Calibration: cluster shiftlight RPM offset IPS (RPM = val*8; 8-element array).</description>
+   <description>Shiftlight stage spacing S = raw*2 RPM. Upward transitions occur when the tachometer RPM strictly exceeds the hard rev limit minus 4*S, 3*S and 2*S; downward transitions additionally subtract the separate RPM deadband. The former raw*8 display represented only the first-light lead. Stored gear breakpoints at 0x4026 select the first breakpoint at or above the requested gear, capped at the final point, without interpolation. The separate breakpoint table exposes the same axis bytes.</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: shiftlight rpm offset manual" sizex="8" storageaddress="0x1546" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+  <table category="cluster" endian="big" name="cluster: shiftlight gear breakpoints manual" sizex="8" storageaddress="0x1546" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
+   <table name="point" sizex="8" type="Static X Axis">
+    <data>Point 1</data>
+    <data>Point 2</data>
+    <data>Point 3</data>
+    <data>Point 4</data>
+    <data>Point 5</data>
+    <data>Point 6</data>
+    <data>Point 7</data>
+    <data>Point 8</data>
    </table>
-   <description>Calibration: cluster shiftlight RPM offset manual (8-element array).</description>
+   <description>Stored gear breakpoints for the MANUAL shiftlight-offset lookup. This is a separate view of the same eight bytes used by the offset table axis. Point labels identify storage positions. The lookup selects the first breakpoint at or above the requested gear, capped at the final point, without interpolation.</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: shiftlight rpm offset manual" sizex="8" storageaddress="0x154E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+  <table category="cluster" endian="big" name="cluster: shiftlight stage spacing manual" sizex="8" storageaddress="0x154E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="8" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="rpm"/>
+   <table endian="big" name="gear" sizex="8" storageaddress="0x1546" storagetype="uint8" type="X Axis">
+    <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
    </table>
-   <description>Calibration: cluster shiftlight RPM offset manual (RPM = val*8; 8-element array).</description>
+   <description>Shiftlight stage spacing S = raw*2 RPM. Upward transitions occur when the tachometer RPM strictly exceeds the hard rev limit minus 4*S, 3*S and 2*S; downward transitions additionally subtract the separate RPM deadband. The former raw*8 display represented only the first-light lead. Stored gear breakpoints at 0x1546 select the first breakpoint at or above the requested gear, capped at the final point, without interpolation. The separate breakpoint table exposes the same axis bytes.</description>
   </table>
   <table category="cluster" name="cluster: test enable???" sizey="1" storageaddress="0x4384" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
@@ -573,11 +555,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: clutch variance threshold.</description>
   </table>
   <table category="cooling" endian="big" name="cooling: engine bay fan enable delay" sizex="1" storageaddress="0x0158" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Second" coarseincrement="0.1" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>engine bay fan enable delay</data>
    </table>
-   <description>Calibration: cooling engine bay fan enable delay.</description>
+   <description>Engine-bay fan enable delay (seconds = raw/200). The saturating delay counter increments in the nominal 200 Hz task and is reset when the relay request is off; the fan enable path compares this threshold directly with that counter.</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan ac off" sizex="8" sizey="8" storageaddress="0x5080" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Dutycycle" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0" to_byte="x*255/100" units="%"/>
@@ -670,10 +652,9 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan low rpm hysteresis threshold" sizex="2" storageaddress="0x02FE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="transition" sizex="2" type="Static X Axis">
+    <data>Enter low-RPM inhibit</data>
+    <data>Clear low-RPM inhibit</data>
    </table>
    <description>Calibration: cooling fan low RPM hysteresis threshold (RPM = val*4; 2-element array).</description>
   </table>
@@ -734,11 +715,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: cooling recirc RPM enable engine on (RPM).</description>
   </table>
   <table category="cooling" endian="big" name="cooling: recirc timer" sizex="1" storageaddress="0x010C" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
+   <scaling category="Second" coarseincrement="25" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>recirc timer</data>
    </table>
-   <description>Calibration: cooling recirc timer (s).</description>
+   <description>Programmed recirculation-pump afterrun duration (seconds = raw*5). The consumer reloads raw*1000 countdown ticks and decrements them in the nominal 200 Hz task, subject to its shutdown and afterrun conditions.</description>
   </table>
   <table category="cooling" endian="big" name="cooling: thermostat open" sizex="1" storageaddress="0x44CE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
@@ -1733,12 +1714,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: idle compensation accelerator pedal position (8-element array).</description>
   </table>
-  <table category="idle" endian="big" name="idle: comp baro2" sizex="8" storageaddress="0x0DD6" storagetype="int16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="idle" endian="big" name="idle: comp baro2" sizex="8" storageaddress="0x0DD6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x-32768" fineincrement="1" format="0" to_byte="x+32768" units="#"/>
    <table endian="big" name="ambient baro" sizex="8" storageaddress="0x0DC6" storagetype="uint16" type="X Axis">
     <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    </table>
-   <description>Calibration: idle compensation baro2 (8-element array).</description>
+   <description>Offset-binary signed idle correction counts indexed by ambient pressure. The unsigned word lookup is decoded with XOR 0x8000 and signed extension, equivalent to raw minus 32768. These are controller counts; no physical airflow unit is asserted.</description>
   </table>
   <table category="idle" endian="big" name="idle: comp carspeed ips" sizex="8" storageaddress="0x3A6E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
@@ -1754,12 +1735,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: idle compensation carspeed manual (RPM = val*4; 8-element array).</description>
   </table>
-  <table category="idle" endian="big" name="idle: comp ecu voltage" sizex="8" storageaddress="0x235E" storagetype="int16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="idle" endian="big" name="idle: comp ecu voltage" sizex="8" storageaddress="0x235E" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x-32768" fineincrement="1" format="0" to_byte="x+32768" units="#"/>
    <table endian="big" name="voltage" sizex="8" storageaddress="0x234E" storagetype="uint16" type="X Axis">
     <scaling category="Volt" coarseincrement="0.2" expression="x*18/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/18" units="v"/>
    </table>
-   <description>Calibration: idle compensation ECU voltage (8-element array).</description>
+   <description>Offset-binary signed idle correction counts indexed by ECU supply voltage. The unsigned word lookup is decoded with XOR 0x8000 and signed extension, equivalent to raw minus 32768. These are controller counts; no physical airflow unit is asserted.</description>
   </table>
   <table category="idle" endian="big" name="idle: comp fan" sizex="8" storageaddress="0x1896" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -6852,11 +6833,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: sensor intake air scaling (32-element array).</description>
   </table>
   <table category="sensor" endian="big" name="sensor: intake air temp filter scaling" sizex="1" storageaddress="0x0085" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.0390625" format="0.000" to_byte="x*2560/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>intake air temp filter scaling</data>
    </table>
-   <description>Calibration: sensor intake air temperature filter scaling (val/100).</description>
+   <description>New-sample weight for the valid intake/manifold-air temperature filter (raw/2560). Both the accumulator recurrence and its decoded output use a denominator of 2560.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: intake air temp voltage threshold" sizex="2" storageaddress="0x4462" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
@@ -7206,11 +7187,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: slip steering angle maximum (° = val/10).</description>
   </table>
   <table category="slip" endian="big" name="slip: steering angle smooth factor" sizex="1" storageaddress="0x45ED" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/256" fineincrement="0.390625" format="0.000" to_byte="x*256/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>steering angle smooth factor</data>
    </table>
-   <description>Calibration: slip steering angle smooth factor (val/255).</description>
+   <description>New-sample weight for the gear-advisory steering-motion filter (raw/256). The consumer combines the previous accumulator with the positive change in absolute steering angle; this is not an adjustable DPM wheel-slip setting.</description>
   </table>
   <table category="slip" endian="big" name="slip: steering increase factor min" sizex="1" storageaddress="0x45EC" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
@@ -7331,14 +7312,14 @@ Unit is x / 4.83 mpg</description>
    <description/>
   </table>
   <table category="torque" endian="big" name="torque: external request overshoot margin" sizex="16" sizey="16" storageaddress="0x5EB4" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <scaling category="nm" coarseincrement="9" expression="x*9/5" fineincrement="1.8" format="0.0" to_byte="x*5/9" units="Newton meter"/>
    <table endian="big" name="rpm" sizex="16" storageaddress="0x5E94" storagetype="uint8" type="X Axis">
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
    <table endian="big" name="torque" sizey="16" storageaddress="0x5EA4" storagetype="uint8" type="Y Axis">
     <scaling category="nm" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="Newton meter"/>
    </table>
-   <description>Calibration: torque external request overshoot margin (val/100; 256-element array).</description>
+   <description>Additive external torque-request margin (Nm = raw*180/100). The consumer interpolates the byte map, converts its result to an integer Nm margin and adds that margin to the requested torque; it does not multiply the request by a percentage. The display shows the pre-truncation conversion.</description>
   </table>
   <table category="torque" endian="big" name="torque: hysteresis threshold1" sizex="1" storageaddress="0x02D8" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="nm" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="Newton meter"/>
@@ -7543,11 +7524,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: torque torque to throttle position scaling RPM range (RPM = val*125/4+500; 2-element array).</description>
   </table>
   <table category="torque" endian="big" name="torque: tps gain" sizex="1" storageaddress="0x020B" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/256" fineincrement="0.390625" format="0.000" to_byte="x*256/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>tps gain</data>
    </table>
-   <description/>
+   <description>New-sample weight for smoothing the torque-derived throttle limit (raw/256). The calibrated weight applies when the consumer selects its restrictive-limit smoothing branch; other branches use a fixed raw weight of 255.</description>
   </table>
   <table category="tps" endian="big" name="tps: accel pedal zero calibrate timer" sizex="1" storageaddress="0x00C1" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Millisecond" coarseincrement="10" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="ms"/>
@@ -9517,26 +9498,26 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Learned/adaptive value: fuel range smoothed (km).</description>
   </table>
-  <table category="idle" endian="big" name="idle: cold learning coolant" sizex="1" storageaddress="0x0AB4" storagetype="uint16" type="2D" userlevel="1">
+  <table category="idle" endian="big" name="idle: cold learning coolant" sizex="1" storageaddress="0x0AB4" storagetype="int16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>cold learning coolant</data>
    </table>
-   <description>Learned/adaptive value: idle cold learning coolant.</description>
+   <description>Signed raw learned idle correction accumulator. The consumer sign-extends this word, selects or interpolates it by coolant temperature and A/C state, then contributes 10*raw/1024 to the idle controller sum with integer truncation. Displayed as signed accumulator counts; no physical airflow unit is asserted.</description>
   </table>
-  <table category="idle" endian="big" name="idle: cold learning coolant ac on" sizex="1" storageaddress="0x0AB6" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+  <table category="idle" endian="big" name="idle: cold learning coolant ac on" sizex="1" storageaddress="0x0AB6" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>cold learning coolant ac on</data>
    </table>
-   <description>Learned/adaptive value: idle cold learning coolant A/C on.</description>
+   <description>Signed raw learned idle correction accumulator. The consumer sign-extends this word, selects or interpolates it by coolant temperature and A/C state, then contributes 10*raw/1024 to the idle controller sum with integer truncation. Displayed as signed accumulator counts; no physical airflow unit is asserted.</description>
   </table>
-  <table category="idle" endian="big" name="idle: learn ac on" sizex="1" storageaddress="0x06A6" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+  <table category="idle" endian="big" name="idle: learn ac on" sizex="1" storageaddress="0x06A6" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>learn ac on</data>
    </table>
-   <description>Learned/adaptive value: idle learn A/C on.</description>
+   <description>Signed raw learned idle correction accumulator. The consumer sign-extends this word, selects or interpolates it by coolant temperature and A/C state, then contributes 10*raw/1024 to the idle controller sum with integer truncation. Displayed as signed accumulator counts; no physical airflow unit is asserted.</description>
   </table>
   <table category="load" endian="big" name="load: alphaN maf error correction" sizex="20" sizey="20" storageaddress="0x0200" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
@@ -14367,12 +14348,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Learned/adaptive value: OBD-II U0513 pass counter.</description>
   </table>
-  <table category="obd" endian="big" name="obd: ii idle learn" sizex="1" storageaddress="0x06A4" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+  <table category="obd" endian="big" name="obd: ii idle learn" sizex="1" storageaddress="0x06A4" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii idle learn</data>
    </table>
-   <description>OBD-II: idle learn.</description>
+   <description>Signed raw learned idle correction accumulator. The consumer sign-extends this word, selects or interpolates it by coolant temperature and A/C state, then contributes 10*raw/1024 to the idle controller sum with integer truncation. Displayed as signed accumulator counts; no physical airflow unit is asserted.</description>
   </table>
   <table category="octane" endian="big" name="octane: scaler" sizex="6" storageaddress="0x0394" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>

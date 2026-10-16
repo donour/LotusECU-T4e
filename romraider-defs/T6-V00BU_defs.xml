@@ -735,19 +735,19 @@
    </table>
    <description>Calibration: cluster shift light deadband RPM. Tunable map/constant (not a live channel); log to check what the ECU sends the dash (gauges/warnings). (RPM)</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: shiftlight rpm offset ips" sizex="8" storageaddress="0x402E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
+  <table category="cluster" endian="big" name="cluster: shiftlight stage spacing ips" sizex="8" storageaddress="0x402E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="8" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="rpm"/>
    <table endian="big" name="gear" sizex="8" storageaddress="0x4026" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
    </table>
-   <description/>
+   <description>Common spacing S between the upward shiftlight stages, selected by current gear. S is 2 rpm per stored count. The first, second and third stages activate when the tachometer speed is strictly greater than H-4S, H-3S and H-2S respectively, where H is the hard rev limit. Downward transitions use the separate shiftlight deadband. The coding transmission field selects this IPS table.</description>
   </table>
-  <table category="cluster" endian="big" name="cluster: shiftlight rpm offset manual" sizex="8" storageaddress="0x154E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="32" expression="x*8" fineincrement="8" format="0" to_byte="x/8" units="rpm"/>
+  <table category="cluster" endian="big" name="cluster: shiftlight stage spacing manual" sizex="8" storageaddress="0x154E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="8" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="rpm"/>
    <table endian="big" name="gear" sizex="8" storageaddress="0x1546" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="Gear" coarseincrement="1" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
    </table>
-   <description/>
+   <description>Common spacing S between the upward shiftlight stages, selected by current gear. S is 2 rpm per stored count. The first, second and third stages activate when the tachometer speed is strictly greater than H-4S, H-3S and H-2S respectively, where H is the hard rev limit. Downward transitions use the separate shiftlight deadband. The coding transmission field selects this manual table.</description>
   </table>
   <table category="clutch" endian="big" name="clutch: confidence decrement" sizex="1" storageaddress="0x4581" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -812,12 +812,12 @@
    </table>
    <description/>
   </table>
-  <table category="cooling" endian="big" name="cooling: fan 1 afterrun timer" sizex="1" storageaddress="0x0150" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
+  <table category="cooling" endian="big" name="cooling: fan 1 activation delay" sizex="1" storageaddress="0x0150" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>fan 1 afterrun timer</data>
+    <data>fan 1 activation delay</data>
    </table>
-   <description>Calibration: cooling fan 1 afterrun timer. Tunable map/constant (not a live channel); log to confirm fans/pumps switch at the right temperatures. (s)</description>
+   <description>Delay before the requested fan 1 relay output can be enabled. The elapsed counter increments at 200 Hz and resets when the normal control path turns the fan off; each count is 0.005 seconds. Fan request, output-test and shift-suppression gates are handled separately.</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan 2 after run counter threshold" sizex="1" storageaddress="0x030B" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -906,12 +906,12 @@
    </table>
    <description>Calibration: cooling fan disable carspeed. Tunable map/constant (not a live channel); log to confirm fans/pumps switch at the right temperatures. (km/h)</description>
   </table>
-  <table category="cooling" endian="big" name="cooling: fan engine bay aux afterrun timer" sizex="1" storageaddress="0x0158" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
+  <table category="cooling" endian="big" name="cooling: fan engine bay aux activation delay" sizex="1" storageaddress="0x0158" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="1" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>fan engine bay aux afterrun timer</data>
+    <data>fan engine bay aux activation delay</data>
    </table>
-   <description>Calibration: cooling fan engine bay aux afterrun timer. Tunable map/constant (not a live channel); log to confirm fans/pumps switch at the right temperatures. (s)</description>
+   <description>Delay before the requested engine bay auxiliary fan relay output can be enabled. The elapsed counter increments at 200 Hz and resets when the normal control path turns the fan off; each count is 0.005 seconds. The stopped-engine activation path bypasses this delay; output-test and shift-suppression gates are handled separately.</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan engine bay run duration" sizex="1" storageaddress="0x003B" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -1081,12 +1081,12 @@
    </table>
    <description>Calibration: cooling recirc pump run ambient min. Tunable map/constant (not a live channel); log to confirm fans/pumps switch at the right temperatures. (deg C; raw*5/8-40)</description>
   </table>
-  <table category="cooling" endian="big" name="cooling: recirc pump run time sec" sizex="1" storageaddress="0x010C" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="cooling" endian="big" name="cooling: recirc pump stopped-engine run time" sizex="1" storageaddress="0x010C" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="25" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>recirc pump run time sec</data>
+    <data>stopped-engine run time</data>
    </table>
-   <description>Calibration: cooling recirc pump run time sec. Tunable map/constant (not a live channel); log to confirm fans/pumps switch at the right temperatures.</description>
+   <description>Stopped-engine recirculation pump runtime requested by the coolant-temperature gate. Each calibration count loads 1000 countdown ticks; the countdown advances at 200 Hz while the ECU shutdown timer is active, giving 5 seconds per count.</description>
   </table>
   <table category="cooling" endian="big" name="cooling: recirc pump stopped dwell" sizex="1" storageaddress="0x0118" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
@@ -2513,18 +2513,18 @@
    <description/>
   </table>
   <table category="idle" endian="big" name="idle: air integral step" sizex="16" storageaddress="0x0C76" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <scaling category="Milligram/Second" coarseincrement="1" expression="x*100/1024" fineincrement="0.09765625" format="0.000" to_byte="x*1024/100" units="mg/s/update"/>
    <table endian="big" name="speed error" sizex="16" storageaddress="0x0C66" storagetype="uint8" type="X Axis">
-    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+    <scaling category="RPM" coarseincrement="40" expression="4*x-512" fineincrement="4" format="0" to_byte="(x+512)/4" units="rpm"/>
    </table>
-   <description>Calibration: idle air integral step. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/255)</description>
+   <description>Magnitude of the idle airflow integral increment per eligible controller update. The controller adds the step below target speed and subtracts it above target speed, then divides the accumulator by 1024 for the airflow sum. Update eligibility and cadence are controlled separately; these values are not a rate per second. Speed error is actual engine speed minus target speed.</description>
   </table>
-  <table category="idle" endian="big" name="idle: air prop gain" sizex="16" storageaddress="0x0C56" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+  <table category="idle" endian="big" name="idle: air proportional correction" sizex="16" storageaddress="0x0C56" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="1000" expression="(x-128)*100" fineincrement="100" format="0" to_byte="x/100+128" units="mg/s"/>
    <table endian="big" name="speed error" sizex="16" storageaddress="0x0C46" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="RPM" coarseincrement="40" expression="4*x-512" fineincrement="4" format="0" to_byte="(x+512)/4" units="rpm"/>
    </table>
-   <description>Calibration: idle air prop gain. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (0-1; raw/255)</description>
+   <description>Idle airflow proportional correction versus actual engine speed minus target speed. The output is offset binary: raw 128 is zero airflow correction; each count is 100 mg/s. Speed-error breakpoints encode 4 rpm per count with raw 128 at zero error.</description>
   </table>
   <table category="idle" endian="big" name="idle: air warmup factor ips" sizex="16" sizey="8" storageaddress="0x5B54" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/64" fineincrement="1" format="0" to_byte="x*64/100" units="%"/>
@@ -2751,28 +2751,27 @@
    </table>
    <description/>
   </table>
-  <table category="idle" endian="big" name="idle: learn integral max" sizex="1" storageaddress="0x006E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="idle" endian="big" name="idle: learn integral upper bound" sizex="1" storageaddress="0x006E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="1000" expression="x*100" fineincrement="100" format="0" to_byte="x/100" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>learn integral max</data>
+    <data>learn integral upper bound</data>
    </table>
-   <description/>
+   <description>Upper limit of each learned idle airflow correction, in 100 mg/s per stored calibration count. The signed learned accumulator is divided by 1024 before this comparison.</description>
   </table>
-  <table category="idle" endian="big" name="idle: learn integral min" sizex="1" storageaddress="0x006F" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+  <table category="idle" endian="big" name="idle: learn integral lower bound magnitude" sizex="1" storageaddress="0x006F" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="1000" expression="x*100" fineincrement="100" format="0" to_byte="x/100" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>learn integral min</data>
+    <data>learn integral lower bound magnitude</data>
    </table>
-   <description/>
+   <description>Positive magnitude of the lower limit of each learned idle airflow correction, in 100 mg/s per stored calibration count. The controller negates this value for comparison with the signed learned accumulator divided by 1024.</description>
   </table>
   <table category="idle" endian="big" name="idle: learn temp range" sizex="2" storageaddress="0x02BF" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="learned correction interpolation" sizex="2" type="Static X Axis">
+    <data>Cold boundary</data>
+    <data>Warm boundary</data>
    </table>
-   <description>Calibration: idle learn temperature range. Tunable map/constant (not a live channel); log to diagnose idle quality, hunting, and stalls. (deg C; raw*5/8-40)</description>
+   <description>Coolant-temperature boundaries for the learned idle airflow correction. Below the cold boundary the cold learned value is used; between boundaries the cold and warm learned values are interpolated; at or above the warm boundary the warm learned value is used. The A/C-on path uses the same boundaries.</description>
   </table>
   <table category="idle" endian="big" name="idle: low car speed enter" sizex="1" storageaddress="0x02F1" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
@@ -8128,18 +8127,18 @@
    <description>Calibration that arms/thresholds the P0106 monitor (MAP/baro rationality). Fixed value -- it sets when that DTC trips, not a live channel.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: ac evap temp filter alpha" sizex="1" storageaddress="0x0059" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Percent" coarseincrement="5" expression="x*100/256" fineincrement="0.390625" format="0.00" to_byte="x*256/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ac evap temp filter alpha</data>
    </table>
-   <description/>
+   <description>A/C evaporator temperature filter new-sample weight. The coefficient is raw/256; the previous filtered value receives the complementary weight. Raw zero holds the prior value and raw 255 gives a 255/256 new-sample weight.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: ac evap temp scaling" sizex="16" storageaddress="0x26EE" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Degree Celsius" coarseincrement="10" expression="(x-400)/10" fineincrement="0.1" format="0.0" to_byte="x*10+400" units="°C"/>
    <table endian="big" name="voltage" sizex="16" storageaddress="0x26CE" storagetype="uint16" type="X Axis">
-    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="Volt" coarseincrement="0.1" expression="x*5/1023" fineincrement="0.01" format="0.000" to_byte="x*1023/5" units="V"/>
    </table>
-   <description>Calibration: sensor A/C EVAP temperature scaling. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range.</description>
+   <description>A/C evaporator temperature conversion versus sensor voltage. The lookup output is stored with a 400-count offset; the controller subtracts 400 and uses the result in tenths of a degree Celsius. The voltage axis is a 10-bit, 5 V ADC scale.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: accel pedal midpoint voltage range" sizex="1" storageaddress="0x4578" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -8149,22 +8148,20 @@
    <description/>
   </table>
   <table category="sensor" endian="big" name="sensor: accel pedal pos d threshold" sizex="2" storageaddress="0x4426" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="Volt" coarseincrement="0.1" expression="x*5/1023" fineincrement="0.01" format="0.000" to_byte="x*1023/5" units="V"/>
+   <table name="valid sensor voltage" sizex="2" type="Static X Axis">
+    <data>Minimum</data>
+    <data>Maximum</data>
    </table>
-   <description>Calibration: sensor accelerator pedal position d threshold. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range.</description>
+   <description>Valid accelerator pedal D sensor-voltage range. The first element is the minimum and the second is the maximum; values strictly outside these limits set the respective threshold state. Voltage uses the 10-bit, 5 V ADC scale.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: accel pedal pos e threshold" sizex="2" storageaddress="0x442A" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="Volt" coarseincrement="0.1" expression="x*5/1023" fineincrement="0.01" format="0.000" to_byte="x*1023/5" units="V"/>
+   <table name="valid sensor voltage" sizex="2" type="Static X Axis">
+    <data>Minimum</data>
+    <data>Maximum</data>
    </table>
-   <description>Calibration: sensor accelerator pedal position e threshold. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range.</description>
+   <description>Valid accelerator pedal E sensor-voltage range. The first element is the minimum and the second is the maximum; values strictly outside these limits set the respective threshold state. Voltage uses the 10-bit, 5 V ADC scale.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: adc baro limit" sizex="1" storageaddress="0x43AC" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>

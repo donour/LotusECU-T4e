@@ -40,8 +40,9 @@ than only tunable targets.
 
 ### GT430 scaling and axes
 
-The changes affect 39 root entries. All offsets below are hexadecimal file
-offsets relative to calibration RAM base `40008654`.
+The changes affect 53 calibration entries and four learned-data entries. All
+offsets below are hexadecimal file offsets: CAL uses RAM base `40008654`,
+while rows marked LEA use learned-data RAM base `400030E8`.
 
 | Entry / file offset | Corrected interpretation | Exported evidence |
 |---|---|---|
@@ -67,10 +68,18 @@ offsets relative to calibration RAM base `40008654`.
 | Ignition idle-error axes `0CA6`, `073C`, `0342` of payloads `0CB6`, `074C`, `0352` | `(x*4)-512 RPM`, replacing an unscaled or incorrectly biased error. | [Saturating byte lookup input](../disassembly/evora/C132E0278/C132E0278.c#L15878) formed from [actual-minus-requested RPM](../disassembly/evora/C132E0278/C132E0278.c#L28141). NA and later GT agree. |
 | Idle controller `416E`, `425E`, axes `414E`, `423E` | Axes `x-32768 RPM`; payloads `x-32768` signed controller counts, stored as unsigned words. | [Biased lookup inputs and signed-XOR output decoding](../disassembly/evora/C132E0278/C132E0278.c#L28320). Physical gain/output units remain unresolved. |
 | Clutch antistall speed `0026` | `x/10 km/h`, replacing direct km/h. | [Consumer divides centikph by ten](../disassembly/evora/C132E0278/C132E0278.c#L28426), with byte saturation. |
+| Idle barometric/voltage compensation CAL `0DD6`, `235E` | Unsigned offset-binary words: `x-32768` signed controller counts. The lookup returns an unsigned word before signed-XOR decoding; physical airflow units remain unresolved. | [GT lookup and decoding](../disassembly/evora/C132E0278/C132E0278.c#L28266), [later GT](../disassembly/evora/E132E0288/E132E0288.c#L28466). |
+| Learned idle LEA `06A4`, `06A6`, `0AB4`, `0AB6` | Signed `int16` raw accumulator counts, replacing unsigned words and unsupported flow displays. The controller contributes `10*raw/1024`, with interpolation and integer truncation; no physical airflow unit is asserted. | [Signed endpoint selection](../disassembly/evora/C132E0278/C132E0278.c#L28090), [warm off value](../disassembly/evora/C132E0278/C132E0278.c#L28669). |
+| External torque margin CAL `5EB4` | Additive `x*9/5 Nm`, replacing percent. The display is linear; the consumer truncates the result to integer Nm before adding it to the request. | [GT constant and sum](../disassembly/evora/C132E0278/C132E0278.c#L52140), [later GT explicit raw*180/100](../disassembly/evora/E132E0288/E132E0288.c#L53968). All 256 GT byte results match `floor(raw*9/5)`. |
+| Temperature/filter weights CAL `0085`, `020B`, `45ED` | Intake-air temperature uses `x*100/2560 %`; throttle-related and gear-advisory filters use `x*100/256 %`, replacing raw percent or `/255`. | [Temperature filter](../disassembly/evora/C132E0278/C132E0278.c#L15294), [throttle filter](../disassembly/evora/C132E0278/C132E0278.c#L53403), [advisory filter](../disassembly/evora/C132E0278/C132E0278.c#L57433). |
+| Thermal timing CAL `010C`, `0158` | Recirculation afterrun `5*x seconds`; engine-bay fan activation delay `x/200 seconds`. The former loads 1000 ticks/count; the latter compares a raw elapsed counter, both at 200 Hz. | [Pump load](../disassembly/evora/C132E0278/C132E0278.c#L19933), [countdown and delay increment](../disassembly/evora/C132E0278/C132E0278.c#L10841), [fan comparison](../disassembly/evora/C132E0278/C132E0278.c#L20216). |
+| Shift lights CAL `1546`, `154E`, `4026`, `402E` | Distinguish stored gear breakpoints from payloads, restore the payloads' stored gear axes, and show stage spacing `S=2*x RPM`. Upward thresholds are hard limit minus `4*S`, `3*S`, `2*S`; the former `8*x` display was only the first-light lead. | [Fixed-bin helper](../disassembly/evora/C132E0278/C132E0278.c#L14093), [lookup, spacing and thresholds](../disassembly/evora/C132E0278/C132E0278.c#L20383), [quarter-RPM tach representation](../disassembly/evora/C132E0278/C132E0278.c#L21411). The lookup selects the first breakpoint at or above the gear, capped at the final point, without interpolation. |
+| Oil warning CAL `6098` | Payload `16*x mbar`, replacing RPM units. Its stored RPM axis `6090` remains unchanged. | [Pressure comparison](../disassembly/evora/C132E0278/C132E0278.c#L20511), [ADC pressure conversion](../disassembly/evora/C132E0278/C132E0278.c#L15402), [later GT](../disassembly/evora/E132E0288/E132E0288.c#L20650). |
+| Cooling low-RPM hysteresis CAL `02FE` | Replace voltage labels with inhibit-entry and inhibit-clearance thresholds; preserve the existing `4*x RPM` values. | [Indexed comparisons](../disassembly/evora/C132E0278/C132E0278.c#L20062). |
 
 ### NA091 scaling and axes
 
-The changes affect 21 calibration entries and two learned-data entries. CAL
+The changes affect 35 calibration entries and two learned-data entries. CAL
 and LEA offsets refer to their respective RAM bases in the table above.
 
 | Image / offsets | Correction | Exported evidence |
@@ -85,6 +94,12 @@ and LEA offsets refer to their respective RAM bases in the table above.
 | CAL `01E8`, `01EA` | Fuel-learning STFT thresholds: `int16` / `x/20` becomes `uint16` / `(x-32768)/20 %`; inverse is `x*20+32768`. | [C signed word after XOR 0x8000](../disassembly/evora/B13200091/B13200091.c#L28237), [CSV addresses](../disassembly/evora/B13200091/B13200091-symbols.csv#L3829) |
 | CAL `0083`, `0084`, `0085` | Remove one attribute-identical duplicate scaling record from each thermal filter. Preserve `/2560` conversion and alternative-unit records elsewhere. | [C filter arithmetic](../disassembly/evora/B13200091/B13200091.c#L17638), [CSV coefficients](../disassembly/evora/B13200091/B13200091-symbols.csv#L3589) |
 | LEA `0576`, `0986` | Two A/C-on learned-idle corrections: unsigned raw mg/s becomes signed `x*100/1024 mg/s`, matching the existing off entry. | [C signed interpolation](../disassembly/evora/B13200091/B13200091.c#L29214), [fixed-point airflow use](../disassembly/evora/B13200091/B13200091.c#L29746), [hot address](../disassembly/evora/B13200091/B13200091-symbols.csv#L2701), [cold address](../disassembly/evora/B13200091/B13200091-symbols.csv#L2717) |
+| CAL `0C56`, `0C76`, axes `0C46`, `0C66` | Proportional airflow correction `(x-128)*100 mg/s`; unsigned integral-step magnitude `x*100/1024 mg/s` per eligible update. Both RPM-error axes decode `4*x-512`, replacing raw numbers/percent. Integral sign comes from error direction; update cadence is gated separately. | [Error encoding and lookup](../disassembly/evora/B13200091/B13200091.c#L29434), [signed proportional term and integral updates](../disassembly/evora/B13200091/B13200091.c#L29555), [100 mg/s airflow sum](../disassembly/evora/B13200091/B13200091.c#L29747). |
+| CAL `006E`, `006F`, `02BF` | Learned-idle upper bound and positive lower-bound magnitude `100*x mg/s`; temperature-pair labels identify cold/warm interpolation boundaries. | [Upper/lower comparisons](../disassembly/evora/B13200091/B13200091.c#L29626), [cold/warm interpolation](../disassembly/evora/B13200091/B13200091.c#L29214). |
+| CAL `010C`, `0150`, `0158` | Recirculation stopped-engine duration `5*x seconds`; fan 1 and engine-bay auxiliary activation delays `x/200 seconds`. The auxiliary stopped-engine path bypasses its delay. | [200 Hz counters](../disassembly/evora/B13200091/B13200091.c#L14047), [pump load](../disassembly/evora/B13200091/B13200091.c#L21782), [fan 1](../disassembly/evora/B13200091/B13200091.c#L21894), [auxiliary fan](../disassembly/evora/B13200091/B13200091.c#L22047). |
+| CAL `0059`, `26EE`, axis `26CE` | Evaporator-temperature filter weight `x*100/256 %`; conversion payload `(x-400)/10 °C`, with voltage axis `5*x/1023 V`. | [Lookup subtracts 400](../disassembly/evora/B13200091/B13200091.c#L17624), [filter](../disassembly/evora/B13200091/B13200091.c#L17654). |
+| CAL `4426`, `442A` | Pedal D/E valid-voltage ranges `5*x/1023 V`, with minimum/maximum labels replacing generated voltage axes. | [Track D thresholds](../disassembly/evora/B13200091/B13200091.c#L54367), [track E thresholds](../disassembly/evora/B13200091/B13200091.c#L54589). |
+| CAL `154E`, `402E` | Shiftlight stage spacing `S=2*x RPM`; stored gear axes remain at `1546`, `4026`. Upward thresholds are hard limit minus `4*S`, `3*S`, `2*S`, with separate downward deadband. | [Fixed-bin lookup and spacing](../disassembly/evora/B13200091/B13200091.c#L22112), [tach representation](../disassembly/evora/B13200091/B13200091.c#L23266). |
 
 ### Cold-start packing and startup-factor corroboration
 
@@ -116,15 +131,18 @@ stopped-coolant gate does not change the established map storage or arithmetic.
 |---|---|---|
 | Patched torque caps `16BE`, `2966` | XML explicitly requires patched **4 Nm/count**; current stock C uses **2 Nm/count**. The existing patched scales and warnings are preserved. | Identify the matching executable and patch, then inspect its load/shift instructions. Do not select a scale by calibration name alone. |
 | Stopped-coolant startup gate | Export still says `min < temperature && temperature < min`, despite distinct minimum/maximum CSV addresses. | Resolve literal operands and branch directions in original instructions. Renaming the XML upper bound does not fix executable code. |
-| Additive torque margin, throttle domains and controller gains | An apparent additive torque margin is labeled percent; some throttle paths mix apparent 10-/12-bit domains; several controller gains/outputs lack established physical units. | Inspect instruction widths, constants and input/output normalization before changing shared types or scales. |
+| Throttle domains and controller gains | Some throttle paths mix apparent 10-/12-bit domains; several controller gains/outputs and GT learned-idle corrections lack established physical airflow units. The additive torque-margin scale is resolved above. | Inspect instruction widths, constants and input/output normalization before changing the remaining shared types or physical units. |
 | Fuel-mass units | `u16_mass_100ug` conflicts with an apparent 10 µg/count mass-to-time equation. | Confirm upstream charge/AFR/flow units and operation widths in the original program. Existing shared types are retained. |
 | CAC control reconstruction | Current C still compares a Boolean PWM state with `true` in three branches; prior analysis described a byte-state reconstruction that is absent from this export. | Recover the actual load width and state comparisons at C lines 20319/20323/20327 from instructions before relying on the reconstructed branch behavior. |
 | MAF-derived load and learned coordinates | Current C still assigns zero to `load_measured_maf`, `load_unknown`, `load_u8_tmp`; a comment reconstructs a likely expression. | Recover operations and density normalization from instructions and trace their consumers. These placeholders do not establish zero live load. |
-| Duplicate calibration names | Multiple addresses share shift-light, O2 threshold and severe-misfire labels. | Match each address to bank/channel/axis consumers before assigning names; use address-based identities. |
+| Duplicate calibration names | O2 threshold and severe-misfire labels still refer to multiple addresses in historical exports. Shiftlight axis/payload pairing is resolved above. | Match remaining addresses to bank/channel consumers before assigning semantic names; use address-based identities. |
 | Values, image layout and active selection | Exports do not prove actual cell contents, breakpoint order, manual/IPS coding, active knock mode, checksums or file-header mapping. | Obtain matching original images/projects; verify mapping, patch identity, boundaries, coding and unchanged-byte round trips. Bench checks are needed for wiring, polarity and actuator behavior. |
 
 For NA091, current C/XML distinguish injector-offset step `00BD` from pedal-zero
-gain `00BE`, despite duplicate historical CSV labels. Verify their literal
+gain `00BE`, despite duplicate historical CSV labels. CAL `0300` and `0302`
+also have cooling/oil labels that conflict with O2-voltage comparisons in the
+[current consumer](../disassembly/evora/B13200091/B13200091.c#L39279); their
+address bindings and voltage domain remain unresolved. Verify the literal
 instruction/address bindings before relying on the old names. Signed learned
 idle values, active coding, actual breakpoints, checksums and installed actuator
 wiring also need matching image or bench evidence. The
