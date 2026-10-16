@@ -3437,8 +3437,10 @@ u8_temp_5/8-40c CAL_cluster_overtemp_warning_light;
 cluster_data dash_data_CAN400;
 byte[8] tpms_output;
 u8_factor_1/255 fuel_level_percentage;
-uint8_t[8] CAL_cluster_shiftlight_rpm_offset_ips_X_gear;
-uint8_t[8] CAL_cluster_shiftlight_rpm_offset_manual_X_gear;
+uint8_t[8] CAL_cluster_shiftlight_stage_spacing_ips_X_gear;
+u8_rspeed_2rpm[8] CAL_cluster_shiftlight_stage_spacing_ips;
+uint8_t[8] CAL_cluster_shiftlight_stage_spacing_manual_X_gear;
+u8_rspeed_2rpm[8] CAL_cluster_shiftlight_stage_spacing_manual;
 ushort cluster_shiftlight_rpm_offset;
 undefined1 cluster_shift_light_state;
 undefined1 cluster_indicator_flags;
@@ -22111,11 +22113,11 @@ void cluster_send_data(void)
   }
   if ((COD_base.COD[0] >> 13 & 7) == 1) {
     _cluster_shiftlight_rpm_offset =
-         lookup_2D_uint8_fixed(8,car_gear_current,CAL_cluster_shiftlight_rpm_offset_ips_X_gear);
+         lookup_2D_uint8_fixed(8,car_gear_current,CAL_cluster_shiftlight_stage_spacing_ips_X_gear);
   }
   else {
     _cluster_shiftlight_rpm_offset =
-         lookup_2D_uint8_fixed(8,car_gear_current,CAL_cluster_shiftlight_rpm_offset_manual_X_gear);
+         lookup_2D_uint8_fixed(8,car_gear_current,CAL_cluster_shiftlight_stage_spacing_manual_X_gear);
   }
   cluster_shiftlight_rpm_offset = (_cluster_shiftlight_rpm_offset & 0xff) << 1;
   if (obd_ii_engine_speed == 0) {

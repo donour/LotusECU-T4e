@@ -13,6 +13,13 @@ import ghidra.program.model.symbol.SymbolIterator;
 import ghidra.program.model.symbol.SymbolTable;
 
 import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import javax.xml.XMLConstants;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -288,7 +295,6 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_distance_km","uint8", "km","x","x","0","1","10","km"),
 		new DF("u16_distance_km","uint16", "km","x","x","0","1","10","km"),
 		new DF("u16_distance_mm_div2","uint16","mm","x*2","x/2","0","2","10","mm"),
-		new DF("u8_factor_1/2560","uint8","%","x*100/2560","x*2560/100","0.00","0.1","1","Percent"),
 		new DF("u8_voltage_5/255v","uint8","v","x*5/255","x*255/5","0.0","0.1","0.5","Volt"),
 		new DF("u8_voltage_5/1023v","uint8","v","x*5/1023","x*1023/5","0.00","0.05","0.2","Volt"),
 		new DF("u16_voltage_5/1023v","uint16","v","x*5/1023","x*1023/5","0.00","0.05","0.2","Volt"),
@@ -450,8 +456,14 @@ public class ExportRomRaiderDefs extends GhidraScript {
 	};
 
 	static {
-		for (DF df : formats)
-			formatMap.computeIfAbsent(df.name, k -> new ArrayList<>()).add(df);
+		for (DF df : formats) registerDataformat(df);
+	}
+
+	private static void registerDataformat(DF df) {
+		List<DF> choices = formatMap.computeIfAbsent(df.name, k -> new ArrayList<>());
+		for (DF existing : choices)
+			if (existing.sameAs(df)) throw new IllegalStateException("Identical duplicate data format: " + df.name);
+		choices.add(df);
 	}
 
 	private static List<DF> getDataformat(String datatype) {
@@ -594,6 +606,13 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			this.fineIncrement = fineIncrement;
 			this.coarseIncrement = coarseIncrement;
 			this.description = description;
+		}
+
+		boolean sameAs(DF other) {
+			return name.equals(other.name) && storageType.equals(other.storageType) &&
+				units.equals(other.units) && expression.equals(other.expression) && toBytes.equals(other.toBytes) &&
+				format.equals(other.format) && fineIncrement.equals(other.fineIncrement) &&
+				coarseIncrement.equals(other.coarseIncrement) && description.equals(other.description);
 		}
 
 		void addXmlScaling(Document doc, Element parent) {
@@ -1072,6 +1091,241 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		}
 	}
 
+	/* Reviewed metadata belongs to these exact ROMs, not to similarly named
+	 * symbols in another program. Only addresses are duplicated here: the
+	 * versioned definition remains the source of scales, axes and warnings.
+	 * Lists cover the reviewed changes since 90c3180, plus the two existing
+	 * GT430 patched torque caps whose warnings must survive regeneration. */
+	private static class ReviewedProfile {
+		final String calId, leaId;
+		final long[] calOffsets, leaOffsets;
+
+		ReviewedProfile(String calId, String leaId, long[] calOffsets, long[] leaOffsets) {
+			this.calId = calId; this.leaId = leaId;
+			this.calOffsets = calOffsets; this.leaOffsets = leaOffsets;
+		}
+	}
+
+	private static final ReviewedProfile[] REVIEWED_PROFILES = {
+		new ReviewedProfile("T6-EVORA--F430-V000E", "T6-EVORA-GT430-V000E - Learned data",
+			new long[] {
+				0x0026, 0x0032, 0x004E, 0x005A, 0x0060, 0x0061, 0x0085,
+				0x010C, 0x010E, 0x014E, 0x0158, 0x01E8, 0x01EA, 0x020B,
+				0x0222, 0x0262, 0x02EE, 0x02FE, 0x0302, 0x0352, 0x06C2,
+				0x074C, 0x07FC, 0x0CB6, 0x0DD6, 0x154E, 0x16BE, 0x1846,
+				0x18EE, 0x195E, 0x19AE, 0x235E, 0x2776, 0x2966, 0x3626,
+				0x4006, 0x402E, 0x416E, 0x425E, 0x43A6, 0x4438, 0x45B0,
+				0x45BC, 0x45C8, 0x45D4, 0x45D5, 0x45DA, 0x45E4, 0x45ED,
+				0x45F0, 0x4670, 0x4FC8, 0x4FE0, 0x5C6C, 0x5EB4, 0x6098
+			}, new long[] {0x06A4, 0x06A6, 0x0AB4, 0x0AB6}),
+		new ReviewedProfile("T6-V00BU", "T6-V00BU - Learned data",
+			new long[] {
+				0x0059, 0x005A, 0x006E, 0x006F, 0x0083, 0x0084, 0x0085,
+				0x010C, 0x0150, 0x0158, 0x01E8, 0x01EA, 0x0206, 0x0262,
+				0x02BF, 0x0C56, 0x0C76, 0x154E, 0x26EE, 0x402E, 0x4426,
+				0x442A, 0x452E, 0x4532, 0x4536, 0x45B0, 0x45BC, 0x45C8,
+				0x45D4, 0x45D5, 0x45DA, 0x45E4, 0x45E6, 0x45EF, 0x45F0
+			}, new long[] {0x0576, 0x0986})
+	};
+
+	private static class ReviewedMetadata {
+		final ReviewedProfile profile;
+		final File file;
+		final byte[] original;
+		final Document document;
+
+		ReviewedMetadata(ReviewedProfile profile, File file, byte[] original, Document document) {
+			this.profile = profile; this.file = file;
+			this.original = original; this.document = document;
+		}
+	}
+
+	private static DocumentBuilder newXmlBuilder() throws Exception {
+		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+		f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		f.setFeature("http://xml.org/sax/features/external-general-entities", false);
+		f.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+		f.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		f.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		f.setXIncludeAware(false);
+		f.setExpandEntityReferences(false);
+		return f.newDocumentBuilder();
+	}
+
+	private static List<Element> children(Element parent, String tag) {
+		List<Element> result = new ArrayList<>();
+		for (Node n = parent.getFirstChild(); n != null; n = n.getNextSibling())
+			if (n instanceof Element && tag.equals(n.getNodeName())) result.add((Element)n);
+		return result;
+	}
+
+	private static Element onlyChild(Element parent, String tag) throws Exception {
+		List<Element> matches = children(parent, tag);
+		if (matches.size() != 1) throw new Exception("Expected one " + tag + " in " + parent.getTagName());
+		return matches.get(0);
+	}
+
+	private static String romId(Element rom) throws Exception {
+		return onlyChild(onlyChild(rom, "romid"), "xmlid").getTextContent();
+	}
+
+	private static Element onlyRom(Document doc, String id) throws Exception {
+		Element root = doc.getDocumentElement();
+		if (root == null || !"roms".equals(root.getTagName())) throw new Exception("Expected roms document");
+		Element match = null;
+		for (Element rom : children(root, "rom")) {
+			if (!id.equals(romId(rom))) continue;
+			if (match != null) throw new Exception("Duplicate reviewed ROM: " + id);
+			match = rom;
+		}
+		if (match == null) throw new Exception("Missing reviewed ROM: " + id + "; align CAL_base/LEA_base signatures");
+		return match;
+	}
+
+	private static ReviewedMetadata loadReviewedMetadata(File dir, String calId, String leaId) throws Exception {
+		ReviewedProfile match = null;
+		for (ReviewedProfile p : REVIEWED_PROFILES) {
+			if (p.calId.equals(calId)) match = p;
+			else if (calId.contains(p.calId) || leaId.equals(p.leaId) || leaId.contains(p.calId))
+				throw new Exception("Unexpected reviewed ROM identity; align CAL_base/LEA_base: " + calId + " / " + leaId);
+		}
+		if (match == null) return null;
+		if (!match.leaId.equals(leaId)) throw new Exception("Expected LEA_base xmlid " + match.leaId + ", got " + leaId);
+		File file = new File(dir, calId + "_defs.xml").getCanonicalFile();
+		if (!file.isFile()) throw new Exception("Reviewed definition required before regeneration: " + file);
+		byte[] original = Files.readAllBytes(file.toPath());
+		Document canonical = newXmlBuilder().parse(new ByteArrayInputStream(original));
+		removeWhitespaceNodes(canonical.getDocumentElement());
+		onlyRom(canonical, match.calId);
+		onlyRom(canonical, match.leaId);
+		return new ReviewedMetadata(match, file, original, canonical);
+	}
+
+	private static long address(Element table) throws Exception {
+		String value = table.getAttribute("storageaddress");
+		if (!value.matches("0[xX][0-9a-fA-F]+")) throw new Exception("Invalid payload address: " + value);
+		return Long.parseLong(value.substring(2), 16);
+	}
+
+	private static Element rootAt(Element rom, long offset, boolean required) throws Exception {
+		Element match = null;
+		for (Element t : children(rom, "table")) {
+			if (address(t) != offset) continue;
+			if (match != null) throw new Exception(String.format("Duplicate root %s @ 0x%04X", romId(rom), offset));
+			match = t;
+		}
+		if (required && match == null)
+			throw new Exception(String.format("Missing reviewed root %s @ 0x%04X; align Ghidra CAL_/LEA_ labels and defined data types", romId(rom), offset));
+		return match;
+	}
+
+	private static int width(Element table) throws Exception {
+		switch (table.getAttribute("storagetype")) {
+		case "uint8": case "int8": return 1;
+		case "uint16": case "int16": return 2;
+		case "uint32": case "int32": return 4;
+		default: throw new Exception("Unsupported reviewed storage type: " + table.getAttribute("storagetype"));
+		}
+	}
+
+	private static int dimension(Element table, String name) throws Exception {
+		String value = table.getAttribute(name);
+		if (value.isEmpty()) return 1;
+		if (!value.matches("[0-9]+")) throw new Exception("Invalid reviewed dimension: " + value);
+		int n = Integer.parseInt(value);
+		if (n < 1) throw new Exception("Invalid reviewed dimension: " + value);
+		return n;
+	}
+
+	private static void samePayload(Element generated, Element canonical) throws Exception {
+		String type = canonical.getAttribute("type");
+		if (!("2D".equals(type) || "3D".equals(type)) || !type.equals(generated.getAttribute("type")) ||
+			address(generated) != address(canonical) || width(generated) != width(canonical) ||
+			dimension(generated, "sizex") != dimension(canonical, "sizex") ||
+			dimension(generated, "sizey") != dimension(canonical, "sizey") ||
+			!"big".equals(canonical.getAttribute("endian")) ||
+			!canonical.getAttribute("endian").equals(generated.getAttribute("endian")))
+			throw new Exception(String.format("Reviewed payload geometry changed @ 0x%04X", address(canonical)));
+	}
+
+	private static void sameIdentity(Element generated, Element canonical) throws Exception {
+		Element a = onlyChild(generated, "romid"), b = onlyChild(canonical, "romid");
+		for (String name : new String[] {"xmlid", "market", "make", "model", "submodel", "transmission",
+			"filesize", "memmodel", "flashmethod", "internalidaddress", "internalidstring", "noRamOffset"})
+			if (!onlyChild(a, name).getTextContent().equals(onlyChild(b, name).getTextContent()))
+				throw new Exception("Reviewed ROM signature differs for " + romId(canonical) + ": " + name);
+	}
+
+	private static void removeObsoleteShiftlightRoot(Element generated, Element canonical,
+			long axisOffset, long payloadOffset) throws Exception {
+		if (rootAt(canonical, axisOffset, false) != null)
+			throw new Exception("Reviewed shiftlight breakpoints must be a nested axis, not a root");
+		Element payload = rootAt(canonical, payloadOffset, true);
+		List<Element> axes = children(payload, "table");
+		if (axes.size() != 1) throw new Exception("Expected one reviewed shiftlight gear axis");
+		Element axis = axes.get(0);
+		if (!"X Axis".equals(axis.getAttribute("type")) || address(axis) != axisOffset ||
+			width(axis) != 1 || dimension(axis, "sizex") != 8 || dimension(axis, "sizey") != 1 ||
+			!"big".equals(axis.getAttribute("endian")))
+			throw new Exception("Reviewed shiftlight gear-axis geometry changed");
+		Element obsolete = rootAt(generated, axisOffset, false);
+		if (obsolete == null) return; // Correct _X_gear annotations already avoid the extra root.
+		if (!"2D".equals(obsolete.getAttribute("type")) || width(obsolete) != 1 ||
+			dimension(obsolete, "sizex") != 8 || dimension(obsolete, "sizey") != 1 ||
+			!"big".equals(obsolete.getAttribute("endian")))
+			throw new Exception("Obsolete shiftlight root has unexpected payload geometry");
+		generated.removeChild(obsolete);
+	}
+
+	private static void applyReviewedMetadata(Document generated, ReviewedMetadata reviewed) throws Exception {
+		if (reviewed == null) return;
+		ReviewedProfile p = reviewed.profile;
+		String[] ids = {p.calId, p.leaId};
+		long[][] offsets = {p.calOffsets, p.leaOffsets};
+		for (int i = 0; i < ids.length; i++) {
+			Element target = onlyRom(generated, ids[i]), canonical = onlyRom(reviewed.document, ids[i]);
+			sameIdentity(target, canonical);
+			if (i == 0 && p == REVIEWED_PROFILES[0]) {
+				removeObsoleteShiftlightRoot(target, canonical, 0x1546, 0x154E);
+				removeObsoleteShiftlightRoot(target, canonical, 0x4026, 0x402E);
+			}
+			for (long offset : offsets[i]) {
+				Element old = rootAt(target, offset, true), source = rootAt(canonical, offset, true);
+				samePayload(old, source);
+				target.replaceChild(generated.importNode(source, true), old);
+			}
+		}
+	}
+
+	private static void writeAtomically(Document doc, File output, ReviewedMetadata reviewed) throws Exception {
+		File destination = output.getCanonicalFile();
+		if (reviewed != null && !reviewed.file.equals(destination))
+			throw new Exception("Reviewed output path changed since loading canonical metadata");
+		Path temporary = Files.createTempFile(destination.toPath().getParent(), ".romraider-", ".xml");
+		try {
+			TransformerFactory factory = TransformerFactory.newInstance();
+			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+			Transformer transformer = factory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "1");
+			ByteArrayOutputStream serialized = new ByteArrayOutputStream();
+			transformer.transform(new DOMSource(doc), new StreamResult(serialized));
+			String xml = serialized.toString(StandardCharsets.UTF_8).replace("\r\n", "\n").replace("\r", "\n");
+			if (reviewed != null && new String(reviewed.original, StandardCharsets.UTF_8).contains("\r\n"))
+				xml = xml.replace("\n", "\r\n");
+			Files.write(temporary, xml.getBytes(StandardCharsets.UTF_8));
+			if (reviewed != null && (!output.getCanonicalFile().equals(destination) ||
+				!Arrays.equals(reviewed.original, Files.readAllBytes(destination.toPath()))))
+				throw new Exception("Reviewed definition changed during export; output was not replaced");
+			Files.move(temporary, destination.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+		} finally {
+			Files.deleteIfExists(temporary);
+		}
+	}
+
 	private static void removeWhitespaceNodes(Node node) {
 		NodeList children = node.getChildNodes();
 		for (int i = children.getLength() - 1; i >= 0; i--) {
@@ -1085,8 +1339,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 
 	@Override
 	public void run() throws Exception {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
+		DocumentBuilder builder = newXmlBuilder();
 		Document doc;
 		Element root;
 
@@ -1104,6 +1357,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		Syms [] all = getSymbols();
 
 		File scriptDir = getSourceFile().getParentFile().getParentFile().getFile(false);
+		ReviewedMetadata reviewed = loadReviewedMetadata(scriptDir, all[0].base.xmlid, all[1].base.xmlid);
 
 		File inxml = new File(scriptDir, all[0].base.xmlid+"_defs.inc");
 		if (inxml.isFile()) {
@@ -1128,15 +1382,10 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		doDefs(doc, leaRom, all[1]);
 		root.appendChild(leaRom);
 
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "1");
-
+		monitor.checkCancelled();
+		applyReviewedMetadata(doc, reviewed);
 		File outxml = new File(scriptDir, all[0].base.xmlid+"_defs.xml");
-
-		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(outxml);
-		transformer.transform(source, result);
+		writeAtomically(doc, outxml, reviewed);
 
 		println("RomRaider definition exported to " + outxml.getAbsolutePath());
 	}
