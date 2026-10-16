@@ -271,7 +271,9 @@ Its writers in `cooling_pump_control()` use coolant/air temperature, after-run t
 transmission-cooling demand and Mode 2F bit `0x400000`, supporting a cooling-recirculation command
 rather than a charge-bypass interpretation. The proposed name `cooling_recirc_pump_output_state`
 is not present in current C; the export still retains the ambiguous
-`recirculation_pump_state_???_or_acis` label. Physical wiring remains a separate check.
+`recirculation_pump_state_???_or_acis` label. The symbol CSV already uses
+`cooling_recirc_pump_output_state` at RAM `0x40001A83`; this is annotation drift
+between the exports. Physical wiring remains a separate check.
 
 Cross-variant pin comparison also prevents a false positive: on the early naturally aspirated
 firmware, GPDO `0xc9` is ACIS and GPDO `0x8f` is an intake flapper. On GT430, `0xc9` is configured for

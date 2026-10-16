@@ -343,7 +343,7 @@
     <data>Lower RPM</data>
     <data>Upper RPM</data>
    </table>
-   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and COD[0] bit 16 select the pair (bit clear: tour/sport; bit set: tour2/sport2); assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed sport2" sizex="2" storageaddress="0x4536" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -351,7 +351,7 @@
     <data>Lower RPM</data>
     <data>Upper RPM</data>
    </table>
-   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and COD[0] bit 16 select the pair (bit clear: tour/sport; bit set: tour2/sport2); assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed tour" sizex="2" storageaddress="0x0206" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -359,7 +359,7 @@
     <data>Lower RPM</data>
     <data>Upper RPM</data>
    </table>
-   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and COD[0] bit 16 select the pair (bit clear: tour/sport; bit set: tour2/sport2); assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed tour2" sizex="2" storageaddress="0x4532" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
@@ -367,7 +367,7 @@
     <data>Lower RPM</data>
     <data>Upper RPM</data>
    </table>
-   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and COD[0] bit 16 select the pair (bit clear: tour/sport; bit set: tour2/sport2); assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="can" endian="big" name="can: lat accel standstill timeout" sizex="1" storageaddress="0x45AB" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
