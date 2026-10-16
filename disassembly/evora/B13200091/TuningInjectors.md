@@ -14,6 +14,10 @@ file offset = RAM address − 0x40008E24          (all values big-endian)
 
 The RomRaider defs (`T6-V00BU_defs.xml`) use the same offsets.
 
+The definition review uses the exported C, symbols and XML. It has not validated an
+original calibration image or the worked example's stock/new byte values. Those
+values remain examples, not newly verified injector specifications or settings.
+
 ---
 
 ## 0. The governing principle
@@ -26,9 +30,16 @@ fuel_mass_required (10µg) = load_mass_per_stroke_raw × 10000 / afr_target     
 inj_flow_rate      (mg/s) = CAL_inj_flow_rate × inj_efficiency / 200           [18609]
 pw_fuel            (µs)   = fuel_mass × 10000 / (inj_flow_rate × bank_split)   [18642]
 pw_pre_trim        (µs)   = pw_fuel × enrichments + dfco + tip_in + tip_out    [18752]
-pw_commanded       (µs)   = inj_deadtime_base + LEA_offset
-                            + pw_pre_trim × (1 + ltft + stft/2)                [18784]
+pw_post_trim       (µs)   = pw_pre_trim × (1 + LTFT_raw/1000 + STFT_raw/2000)
+pw_commanded       (µs)   = inj_deadtime_base + LEA_offset + pw_post_trim      [18904–18917]
 ```
+
+`LTFT_raw` uses tenths of a percent; `STFT_raw` uses twentieths of a percent.
+Their contributions add to the same pre-trim pulse; they are not successive
+multiplicative trims. The displayed product omits the separate integer divisions
+and truncation used by the C implementation. Deadtime and the selected learned microsecond offset enter
+after those percentage corrections. Warm-up, afterstart, IAT, hot-restart and
+transient enrichment feed the pre-trim pulse and therefore also receive the trims.
 
 Everything upstream of `pw_fuel` is in the **mass domain** and is injector-agnostic —
 AFR targets, warmup factors, cranking enrichments, purge fuel subtraction. None of it
@@ -348,23 +359,39 @@ starting point and tune tip-in and DFCO resume from logged lambda last.
 | `CAL_obd_P0172_learn_time_threshold` | `0x4000d227` | `0x4403` | `u8_time_10us` | 45 (450 µs) | **14** (`0E`) |
 
 `LEA_inj_offset_learn_idle/off_idle_bankN` is a learned µs adder applied alongside
-deadtime (18784). It is clamped at ±`limit × 10` µs (28085–28108, 28163–28186).
-P0171/P0174 set when it exceeds +`threshold × 10` µs, and P0172/P0175 when it goes below
-−`threshold × 10` µs (28294–28366; bank 2 uses the same two thresholds).
+deadtime (`B13200091.c:18904–18917`). The learner tests the current value against
+−`rich_limit × 10` and +`lean_limit × 10` µs before subtracting or adding a complete
+`CAL_inj_fuel_learn_zone_1_offset_step`. It does not saturate the result afterward
+(`:28241–28268`, with the bank-2 equivalent at `:28324–28351`). A positive integer
+step can therefore pass a nominal boundary by up to `step − 1` µs. The reachable
+boundary depends on the starting offset and step size.
 
-Stock, 460 µs is about 2 mg of fuel per injection. On the ID1050-XDS it is about 6 mg:
-3× the trim authority, and the fuel-trim DTCs would only set at 3× the stock fuel error.
-Divide by the ratio.
+P0171/P0174 test whether the learned offset exceeds +`threshold × 10` µs;
+P0172/P0175 test whether it falls below −`threshold × 10` µs. These strict tests
+also require accumulated learning time and valid monitor conditions, and the same
+monitors have a separate percentage-LTFT path (`:28436–28620`). An equal threshold
+and learning limit does not universally prevent a fault: an update can overshoot
+when its grid does not land exactly on the limit. The example limit/threshold
+values above have not been validated by this definition review.
 
-**Keep each threshold below its limit.** The tests are strict comparisons, so with
-threshold == limit the offset can never exceed the threshold and the DTC can never set.
-Stock keeps a 1-count (10 µs) gap; so does 15 / 14.
+Learning updates also depend on closed-loop validity, temperature, barometric
+pressure, fuel level and purge duty. The per-bank step countdown pauses while its
+learning branch is ineligible (`:28215–28317`). `CAL_inj_fuel_learn_step_period`
+is distinct from the step size and from the EVAP/learning-interlock timeout.
 
-`CAL_inj_fuel_learn_time_step` (2 µs per step) can stay. Note the symbol export lists
-this label at both `0x40008ee1` (file `0x00BD`, value 2) and `0x40008ee2` (file `0x00BE`,
-value 128); it has not been confirmed from the code which address is read. 2 is the
-only plausible step against a ±460 µs clamp, but do not edit either byte until that is
-resolved.
+The duplicate CSV label `CAL_inj_fuel_learn_time_step` at `0x40008ee1/2` is stale
+relative to the current C and XML:
+
+- `0x40008ee1` / file `0x00BD` is mapped by the XML to
+  `CAL_inj_fuel_learn_zone_1_offset_step`, the microsecond step consumed above.
+- `0x40008ee2` / file `0x00BE` is mapped to `CAL_sensor_pps_unknown1`, a pedal-zero
+  learning gain. Its consumers move the learned zero toward a lower measured
+  voltage by `gain × (zero − measured) / 256`, with separate track floors
+  (`:38518–38553`). It is not an injector time step.
+
+This separates the definitions and their C consumers. The symbol CSV still needs
+alignment; original machine instructions are required to independently verify
+these address bindings. No stock byte value is established by this comparison.
 
 ---
 
@@ -549,13 +576,15 @@ still too high. If it commands everywhere including decel, they are below deadti
 Log lambda on throttle tip-in and on fuel resume after DFCO. Trim §6 or the
 `CAL_injtip_*` scales from there.
 
-### Not a concern
+### Pulse-width limits
 
-The 160 µs minimum pulse clamp (18795/18829) is hardcoded and unreachable — deadtime
-alone is 600-780 µs, so total commanded pulse can never approach it. Likewise duty
-cycle: the only clamp is `inj_pw_max_available_us` ~ full 720° cycle minus 250 µs
-(~99%), and a larger injector moves away from it. At 3× the redline WOT duty drops to
-roughly 22%.
+The visible minimum pulse clamp is hardcoded at 160 µs, and the maximum available
+pulse is `engine_speed_period_2 × 8 − 250 µs`, approximately the full 720° cycle
+minus 250 µs (`:18919–18962`). Reported duty includes deadtime and learned offsets
+and uses that shortened window as its denominator. Whether a particular injector
+configuration approaches either limit requires actual calibration values and
+logged operation. The code also assigns a 160 µs pulse value on cut/fallback paths;
+the example deadtime alone does not prove that the minimum clamp is unreachable.
 
 ---
 
@@ -643,8 +672,9 @@ with the `eTPU_init_single_shot_pulse` function name, so it is listed under that
   recomputed with the real ID offset at your idle voltage.
 * The stock injector's true flow rating should be confirmed independently rather than
   inferred from `CAL_inj_flow_rate` (see §1.2).
-* `CAL_inj_fuel_learn_time_step` has a duplicate label at `0x40008ee1`/`0x40008ee2`
-  (§7); resolve before editing.
+* The CSV duplicates the old `CAL_inj_fuel_learn_time_step` label at
+  `0x40008ee1`/`0x40008ee2`. Current C/XML separate the injector-offset step and
+  pedal-zero gain (§7); their original instruction/address binding is unverified.
 * Keep the injectors high-impedance / saturated. Per-cylinder circuit diagnostics exist
   for all six cylinders — P0261/P0262, P0264/P0265, P0267/P0268, P0270/P0271,
   P0273/P0274, P0276/P0277, enabled at `0x4000d9ab`-`0x4000d9b6`.

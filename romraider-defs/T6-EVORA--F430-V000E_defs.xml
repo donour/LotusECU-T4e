@@ -54,18 +54,18 @@
    <description>Calibration: A/C compressor engine speed minimum (RPM = val*125/4+500).</description>
   </table>
   <table category="ac" endian="big" name="ac: compressor max coolant temp max" sizex="1" storageaddress="0x0060" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>compressor max coolant temp max</data>
    </table>
-   <description>Calibration: A/C compressor maximum coolant temperature maximum (val/255).</description>
+   <description>Calibration: A/C compressor coolant-temperature maximum hysteresis threshold (°C = val*5/8-40).</description>
   </table>
   <table category="ac" endian="big" name="ac: compressor max coolant temp min" sizex="1" storageaddress="0x0061" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>compressor max coolant temp min</data>
    </table>
-   <description>Calibration: A/C compressor maximum coolant temperature minimum (val/255).</description>
+   <description>Calibration: A/C compressor coolant-temperature minimum hysteresis threshold (°C = val*5/8-40).</description>
   </table>
   <table category="ac" endian="big" name="ac: compressor max throttle" sizex="1" storageaddress="0x0062" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
@@ -607,7 +607,7 @@ Unit is x / 4.83 mpg</description>
    <table endian="big" name="coolant temp" sizey="8" storageaddress="0x183E" storagetype="uint8" type="Y Axis">
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
-   <description>Calibration: cooling fan afterrun (ms = val*250; 64-element array).</description>
+   <description>Calibration: cooling fan afterrun duration (seconds = val*5; 64-element array).</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan base engine on" sizex="6" sizey="6" storageaddress="0x64D4" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Dutycycle" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0" to_byte="x*255/100" units="%"/>
@@ -662,11 +662,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: cooling fan hotstart temperature (°C = val*5/8−40).</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan inhibit temp drop threshold" sizex="1" storageaddress="0x010E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   <scaling category="Degree Celsius" coarseincrement="2" expression="x*5/8" fineincrement="0.625" format="0.0" to_byte="x*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fan inhibit temp drop threshold</data>
    </table>
-   <description>Calibration: cooling fan inhibit temperature drop threshold (°C = val*5/8−40).</description>
+   <description>Calibration: coolant-temperature drop required to inhibit the engine-bay fan (temperature difference in °C = val*5/8; no absolute-temperature offset).</description>
   </table>
   <table category="cooling" endian="big" name="cooling: fan low rpm hysteresis threshold" sizex="2" storageaddress="0x02FE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="16" expression="x*4" fineincrement="4" format="0" to_byte="x/4" units="rpm"/>
@@ -1094,11 +1094,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: driver performance mode minimum vehicle speed (km/h).</description>
   </table>
   <table category="dpm" endian="big" name="dpm: slip filter coeff" sizex="8" storageaddress="0x5C6C" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <scaling category="Percent" coarseincrement="5" expression="x*100/256" fineincrement="0.390625" format="0.000" to_byte="x*256/100" units="%"/>
    <table endian="big" name="carspeed" sizex="8" storageaddress="0x5C64" storagetype="uint8" type="X Axis">
     <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
    </table>
-   <description>Calibration: driver performance mode slip filter coeff (val/255; 8-element array).</description>
+   <description>Calibration: DPM falling-slip filter new-sample weight (val/256; applied only when slip error decreases).</description>
   </table>
   <table category="dpm" endian="big" name="dpm: slip target base" sizex="16" storageaddress="0x5000" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Wheelslip" coarseincrement="2" expression="x/8" fineincrement="1" format="0.00" to_byte="x*8" units="%"/>
@@ -1226,7 +1226,6 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="ecu" endian="big" name="ecu: engine speed target ramp gain sport" sizex="4" sizey="4" storageaddress="0x4FE0" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
-   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <table endian="big" name="rpm" sizex="4" storageaddress="0x4FD8" storagetype="uint8" type="X Axis">
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
@@ -1236,7 +1235,6 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: ECU engine speed target ramp gain sport (val/2560; 16-element array).</description>
   </table>
   <table category="ecu" endian="big" name="ecu: engine speed target ramp gain tour" sizex="4" sizey="4" storageaddress="0x4FC8" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <table endian="big" name="rpm" sizex="4" storageaddress="0x4FC0" storagetype="uint8" type="X Axis">
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
@@ -1694,11 +1692,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: fuel usage to flow scaling.</description>
   </table>
   <table category="idle" endian="big" name="idle: air control proportional" sizex="16" storageaddress="0x416E" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Number" coarseincrement="100" expression="x-32768" fineincrement="1" format="0" to_byte="x+32768" units="#"/>
    <table endian="big" name="speed error" sizex="16" storageaddress="0x414E" storagetype="uint16" type="X Axis">
-    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="RPM" coarseincrement="100" expression="x-32768" fineincrement="1" format="0" to_byte="x+32768" units="rpm"/>
    </table>
-   <description>Calibration: idle air control proportional (16-element array).</description>
+   <description>Offset-binary signed proportional correction counts: raw minus 32768. The axis is engine speed minus requested idle speed in RPM. The consumer decodes the lookup result with XOR 0x8000 and signed extension. These are controller counts; no physical airflow unit is asserted.</description>
   </table>
   <table category="idle" endian="big" name="idle: airflow expected" sizex="16" storageaddress="0x1816" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -1719,7 +1717,7 @@ Unit is x / 4.83 mpg</description>
    <table name="" sizex="1" type="Static X Axis">
     <data>clutch antistall speed threshold</data>
    </table>
-   <description>Calibration: idle clutch antistall speed threshold (km/h = val/10).</description>
+   <description>Clutch anti-stall vehicle-speed threshold (km/h = val/10). The consumer compares this byte with vehicle speed converted from 0.01 km/h counts to 0.1 km/h counts.</description>
   </table>
   <table category="idle" endian="big" name="idle: comp ac" sizex="8" storageaddress="0x0C56" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -1843,11 +1841,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: idle compensation while moving (mg/s = val*100; 16-element array).</description>
   </table>
   <table category="idle" endian="big" name="idle: error correction unknown" sizex="16" storageaddress="0x425E" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="Number" coarseincrement="100" expression="x-32768" fineincrement="1" format="0" to_byte="x+32768" units="#"/>
    <table endian="big" name="speed error" sizex="16" storageaddress="0x423E" storagetype="uint16" type="X Axis">
-    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="RPM" coarseincrement="100" expression="x-32768" fineincrement="1" format="0" to_byte="x+32768" units="rpm"/>
    </table>
-   <description>Calibration: idle error correction (16-element array).</description>
+   <description>Offset-binary signed integral update counts: raw minus 32768. The axis is engine speed minus requested idle speed in RPM. The consumer decodes the lookup result with XOR 0x8000 and signed extension, then conditionally adds it to the idle controller integral. These are controller counts; no physical airflow unit is asserted.</description>
   </table>
   <table category="idle" endian="big" name="idle: learn temp range" sizex="2" storageaddress="0x02BF" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
@@ -1992,10 +1990,10 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="ign" endian="big" name="ign: comp coldstart" sizex="8" storageaddress="0x06C2" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="(x/4)-10" fineincrement="0.25" format="0.00" to_byte="(x+10)*4" units="°"/>
-   <table endian="big" name="coolant temp" sizex="8" storageaddress="0x06B5" storagetype="uint8" type="X Axis">
+   <table endian="big" name="coolant temp" sizex="8" storageaddress="0x06BA" storagetype="uint8" type="X Axis">
     <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
-   <description>Calibration: ignition compensation coldstart (° = val/4−10; 8-element array).</description>
+   <description>Cold-start ignition correction (degrees = raw/4−10). The eight coolant breakpoints begin at 0x06BA, after the adjacent five-byte idle-decay payload; the exported label at 0x06B5 refers to that preceding payload.</description>
   </table>
   <table category="ign" endian="big" name="ign: comp coolant engine stopped min" sizex="1" storageaddress="0x004D" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
@@ -2004,12 +2002,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: ignition compensation coolant engine stopped minimum (°C = val*5/8−40).</description>
   </table>
-  <table category="ign" endian="big" name="ign: comp coolant engine stopped min" sizex="1" storageaddress="0x004E" storagetype="uint8" type="2D" userlevel="1">
+  <table category="ign" endian="big" name="ign: comp coolant engine stopped max" sizex="1" storageaddress="0x004E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>comp coolant engine stopped min</data>
+    <data>comp coolant engine stopped max</data>
    </table>
-   <description>Calibration: ignition compensation coolant engine stopped minimum (°C = val*5/8−40).</description>
+   <description>Calibration: ignition compensation coolant engine stopped maximum (°C = val*5/8−40).</description>
   </table>
   <table category="ign" endian="big" name="ign: comp coolant ips flags" sizex="16" storageaddress="0x408E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
@@ -2048,15 +2046,15 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="ign" endian="big" name="ign: comp idle error" sizex="16" storageaddress="0x0CB6" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="(x/4)-32" fineincrement="0.25" format="0.00" to_byte="(x+32)*4" units="°"/>
-   <table endian="big" name="rpm" sizex="16" storageaddress="0x0CA6" storagetype="uint8" type="X Axis">
-    <scaling category="RPM" coarseincrement="5" expression="x-128" fineincrement="1" format="0" to_byte="x+128" units="rpm"/>
+   <table endian="big" name="idle speed error" sizex="16" storageaddress="0x0CA6" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="16" expression="(x*4)-512" fineincrement="4" format="0" to_byte="(x+512)/4" units="rpm"/>
    </table>
    <description>Calibration: ignition compensation idle error1 (° = val/4−32; 16-element array).</description>
   </table>
   <table category="ign" endian="big" name="ign: comp idle error driveaway" sizex="16" storageaddress="0x0352" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="(x/4)-32" fineincrement="0.25" format="0.00" to_byte="(x+32)*4" units="°"/>
-   <table endian="big" name="rpm" sizex="16" storageaddress="0x0342" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x-127" fineincrement="1" format="0" to_byte="x+127" units="#"/>
+   <table endian="big" name="idle speed error" sizex="16" storageaddress="0x0342" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="16" expression="(x*4)-512" fineincrement="4" format="0" to_byte="(x+512)/4" units="rpm"/>
    </table>
    <description>Calibration: ignition compensation idle error3 (° = val/4−32; 16-element array).</description>
   </table>
@@ -2076,8 +2074,8 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="ign" endian="big" name="ign: comp idle error moving" sizex="16" storageaddress="0x074C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="(x/4)-32" fineincrement="0.25" format="0.00" to_byte="(x+32)*4" units="°"/>
-   <table endian="big" name="rpm" sizex="16" storageaddress="0x073C" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x-127" fineincrement="1" format="0" to_byte="x+127" units="#"/>
+   <table endian="big" name="idle speed error" sizex="16" storageaddress="0x073C" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="16" expression="(x*4)-512" fineincrement="4" format="0" to_byte="(x+512)/4" units="rpm"/>
    </table>
    <description>Calibration: ignition compensation idle error2 (° = val/4−32; 16-element array).</description>
   </table>
@@ -2153,15 +2151,15 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: ignition compensation startup manual (° = val/4; 8-element array).</description>
   </table>
-  <table category="ign" endian="big" name="ign: comp startup tps" sizex="8" sizey="8" storageaddress="0x195E" storagetype="int8" type="3D" userlevel="1">
-   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+  <table category="ign" endian="big" name="ign: comp startup tps" sizex="8" sizey="8" storageaddress="0x195E" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="0.392156862745098" format="0.0" to_byte="x*255/100" units="%"/>
    <table endian="big" name="maf accum" sizex="8" storageaddress="0x194E" storagetype="uint8" type="X Axis">
     <scaling category="Gram" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="g"/>
    </table>
    <table endian="big" name="tps" sizey="8" storageaddress="0x1956" storagetype="uint8" type="Y Axis">
     <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    </table>
-   <description>Calibration: ignition compensation MAF accum (° = val/4; 64-element array).</description>
+   <description>Unsigned fraction of pre-correction base ignition timing retained during startup. Raw 255 is neutral (100%); lower values reduce the base-timing component. Other ignition corrections still apply. Indexed by accumulated air mass and throttle position.</description>
   </table>
   <table category="ign" endian="big" name="ign: comp tps rate" sizex="8" storageaddress="0x23E6" storagetype="int8" type="2D" userlevel="1">
    <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
@@ -2178,7 +2176,7 @@ Unit is x / 4.83 mpg</description>
    <table endian="big" name="ecu voltage" sizey="8" storageaddress="0x19A6" storagetype="uint8" type="Y Axis">
     <scaling category="Volt" coarseincrement="1.0" expression="x*72/1023" fineincrement="0.2" format="0.0" to_byte="x/72*1023" units="v"/>
    </table>
-   <description>Calibration: ignition dwell time (µs = val*64; 64-element array).</description>
+   <description>Calibration: ignition dwell time (µs = val*64; 64-element array), indexed by encoded engine speed and ECU-voltage ADC value divided by four.</description>
   </table>
   <table category="ign" name="ign: enable lea knock retard" sizey="1" storageaddress="0x008E" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
@@ -2315,17 +2313,16 @@ Unit is x / 4.83 mpg</description>
    <description/>
   </table>
   <table category="ign" endian="big" name="ign: trim per cyl" sizex="6" storageaddress="0x005A" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="Degrees" coarseincrement="1.0" expression="(x-128)/4" fineincrement="0.25" format="0.00" to_byte="x*4+128" units="°"/>
+   <table name="cylinder" sizex="6" type="Static X Axis">
+    <data>Cyl #1</data>
+    <data>Cyl #2</data>
+    <data>Cyl #3</data>
+    <data>Cyl #4</data>
+    <data>Cyl #5</data>
+    <data>Cyl #6</data>
    </table>
-   <description>Calibration: ignition trim per cyl (° = val/4; 6-element array).</description>
+   <description>Calibration: per-cylinder ignition trim (° = (val-128)/4; raw 128 = zero trim). Entries follow cylinder array indices 0 through 5.</description>
   </table>
   <table category="ign" endian="big" name="ign: zero gear" sizex="1" storageaddress="0x0209" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Gear" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="gear"/>
@@ -2476,18 +2473,10 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="inj" endian="big" name="inj: deadtime comp iat" sizex="8" storageaddress="0x18EE" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
-   <table name="signal" sizex="8" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <data>192</data>
-    <data>224</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table endian="big" name="iat" sizex="8" storageaddress="0x18E6" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    </table>
-   <description>Calibration: injector compensation intake air temp (val/100; 8-element array).</description>
+   <description>Calibration: injector deadtime temperature multiplier (val/100; 8-element array). Uses intake-air or manifold temperature according to CAL_tmap_use_for_inj.</description>
   </table>
   <table category="inj" endian="big" name="inj: efficiency" sizex="20" sizey="20" storageaddress="0x0FCE" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/200" fineincrement="1" format="0.0" to_byte="x*200/100" units="%"/>
@@ -2603,11 +2592,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: injector startup enrichment offset (µs = val*256; 16-element array).</description>
   </table>
   <table category="inj" endian="big" name="inj: stft limit" sizex="1" storageaddress="0x014E" storagetype="int16" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x*100/20" fineincrement="0.1" format="0.00" to_byte="x*20/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x/20" fineincrement="0.05" format="0.00" to_byte="x*20" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>stft limit</data>
    </table>
-   <description>Calibration: injector short-term fuel trim limit (val/20).</description>
+   <description>Calibration: symmetric short-term fuel-trim limit (% = val/20). The fuel-pulse correction is pulse*STFT/2000.</description>
   </table>
   <table category="inj" endian="big" name="inj: warmup factor ips" sizex="12" sizey="16" storageaddress="0x04C2" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/64" fineincrement="1" format="0" to_byte="x*64/100" units="%"/>
@@ -6263,11 +6252,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: OBD-II fuel type.</description>
   </table>
   <table category="obd" endian="big" name="obd: ii mode2f timeout" sizex="1" storageaddress="0x4438" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
+   <scaling category="Second" coarseincrement="0.1" expression="x/200" fineincrement="0.005" format="0.000" to_byte="x*200" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii mode2f timeout</data>
    </table>
-   <description>Calibration: OBD-II mode2f timeout (ms = val*100).</description>
+   <description>Calibration: Mode 2F actuator-control inactivity timeout (seconds = val/200; decremented once per 200 Hz invocation).</description>
   </table>
   <table category="obd" endian="big" name="obd: ii monitor debounce cycles" sizex="1" storageaddress="0x4385" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -6299,7 +6288,6 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="obd" endian="big" name="obd: ii postcat o2 mean filter gain" sizex="1" storageaddress="0x43A6" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
-   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>ii postcat o2 mean filter gain</data>
    </table>
@@ -6319,12 +6307,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: oil pressure low timer threshold.</description>
   </table>
-  <table category="oil" endian="big" name="oil: pressure switch offset" sizex="1" storageaddress="0x0302" storagetype="uint16" type="2D" userlevel="1">
+  <table category="oil" endian="big" name="oil: pressure switch offset" sizex="1" storageaddress="0x0302" storagetype="int16" type="2D" userlevel="1">
    <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>pressure switch offset</data>
    </table>
-   <description>Calibration: oil pressure switch offset (mbar).</description>
+   <description>Signed pressure offset in mbar, added after the ADC slope conversion. The consumer sign-extends this 16-bit calibration.</description>
   </table>
   <table category="oil" endian="big" name="oil: pressure switch startup time" sizex="1" storageaddress="0x445C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
@@ -6793,12 +6781,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: sensor fuel level sensor voltage threshold (V = val*5/1023; 2-element array).</description>
   </table>
-  <table category="sensor" endian="big" name="sensor: fuel pressure offset" sizex="1" storageaddress="0x02EE" storagetype="uint16" type="2D" userlevel="1">
+  <table category="sensor" endian="big" name="sensor: fuel pressure offset" sizex="1" storageaddress="0x02EE" storagetype="int16" type="2D" userlevel="1">
    <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel pressure offset</data>
    </table>
-   <description>Calibration: sensor fuel pressure offset (mbar).</description>
+   <description>Signed pressure offset in mbar, added after the ADC slope conversion. The consumer sign-extends this 16-bit calibration.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: fuel pressure scaling" sizex="1" storageaddress="0x02EC" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -6914,12 +6902,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: sensor MAF scaling (mg/s = val*10; 32-element array).</description>
   </table>
-  <table category="sensor" endian="big" name="sensor: manifold pressure sensor offset" sizex="1" storageaddress="0x0032" storagetype="uint16" type="2D" userlevel="1">
+  <table category="sensor" endian="big" name="sensor: manifold pressure sensor offset" sizex="1" storageaddress="0x0032" storagetype="int16" type="2D" userlevel="1">
    <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>manifold pressure sensor offset</data>
    </table>
-   <description>Calibration: sensor manifold pressure sensor offset (mbar).</description>
+   <description>Signed pressure offset in mbar, added after the ADC slope conversion. The consumer sign-extends this 16-bit calibration.</description>
   </table>
   <table category="sensor" endian="big" name="sensor: manifold pressure sensor scaling" sizex="1" storageaddress="0x0030" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -7093,12 +7081,12 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: sensor transmission temperature scaling (°C = val*5/8−40; 33-element array).</description>
   </table>
-  <table category="slip" endian="big" name="slip: car speed unknown1" sizex="1" storageaddress="0x45E4" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
+  <table category="slip" endian="big" name="slip: gear advisory maximum engine rpm" sizex="1" storageaddress="0x45E4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>car speed unknown1</data>
+    <data>gear advisory maximum engine rpm</data>
    </table>
-   <description>Calibration: slip car speed unknown1 (km/h = val/100).</description>
+   <description>Calibration: upper expected-engine-speed bound used when selecting a gear-advisory recommendation (RPM).</description>
   </table>
   <table category="slip" endian="big" name="slip: coldstart coolant threshold" sizex="1" storageaddress="0x45E7" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
@@ -7129,43 +7117,40 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: slip gear offset.</description>
   </table>
   <table category="slip" endian="big" name="slip: gear speed ratios cr" sizex="6" storageaddress="0x45BC" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM per km/h" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="rpm/(km/h)"/>
+   <table name="gear" sizex="6" type="Static X Axis">
+    <data>Gear 1</data>
+    <data>Gear 2</data>
+    <data>Gear 3</data>
+    <data>Gear 4</data>
+    <data>Gear 5</data>
+    <data>Gear 6</data>
    </table>
-   <description>Calibration: slip gear speed ratios cr (6-element array).</description>
+   <description>Gear-advisory engine-speed-to-road-speed ratios for gears 1 through 6 (RPM per km/h = val/10). The consumer multiplies centikph by the raw ratio and divides by 1000.</description>
   </table>
   <table category="slip" endian="big" name="slip: gear speed ratios ips" sizex="6" storageaddress="0x45B0" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM per km/h" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="rpm/(km/h)"/>
+   <table name="gear" sizex="6" type="Static X Axis">
+    <data>Gear 1</data>
+    <data>Gear 2</data>
+    <data>Gear 3</data>
+    <data>Gear 4</data>
+    <data>Gear 5</data>
+    <data>Gear 6</data>
    </table>
-   <description>Calibration: slip gear speed ratios IPS (6-element array).</description>
+   <description>Gear-advisory engine-speed-to-road-speed ratios for gears 1 through 6 (RPM per km/h = val/10). The consumer multiplies centikph by the raw ratio and divides by 1000.</description>
   </table>
   <table category="slip" endian="big" name="slip: gear speed ratios long" sizex="6" storageaddress="0x45C8" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM per km/h" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="rpm/(km/h)"/>
+   <table name="gear" sizex="6" type="Static X Axis">
+    <data>Gear 1</data>
+    <data>Gear 2</data>
+    <data>Gear 3</data>
+    <data>Gear 4</data>
+    <data>Gear 5</data>
+    <data>Gear 6</data>
    </table>
-   <description>Calibration: slip gear speed ratios long (6-element array).</description>
+   <description>Gear-advisory engine-speed-to-road-speed ratios for gears 1 through 6 (RPM per km/h = val/10). The consumer multiplies centikph by the raw ratio and divides by 1000.</description>
   </table>
   <table category="slip" endian="big" name="slip: inhibit accel pedal min" sizex="1" storageaddress="0x45E0" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
@@ -7203,16 +7188,15 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: slip power based RPM thresholds (RPM; 8-element array).</description>
   </table>
   <table category="slip" endian="big" name="slip: slip threshold per gear ips" sizex="5" storageaddress="0x45DA" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
-   <table name="signal" sizex="5" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM" coarseincrement="20" expression="x*5+500" fineincrement="5" format="0" to_byte="(x-500)/5" units="rpm"/>
+   <table name="gear" sizex="5" type="Static X Axis">
+    <data>Gear 2</data>
+    <data>Gear 3</data>
+    <data>Gear 4</data>
+    <data>Gear 5</data>
+    <data>Gear 6</data>
    </table>
-   <description>Calibration: slip slip threshold per gear IPS (RPM = val*4+500; 5-element array).</description>
+   <description>Calibration: gear-advisory engine-speed thresholds for IPS gears 2 through 6 (RPM = val*5+500).</description>
   </table>
   <table category="slip" endian="big" name="slip: steering angle max unknown" sizex="1" storageaddress="0x45E2" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="°"/>
@@ -7243,11 +7227,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: slip steering rate factor (val/100).</description>
   </table>
   <table category="slip" endian="big" name="slip: threshold 1st Gear" sizex="1" storageaddress="0x45D4" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
+   <scaling category="RPM" coarseincrement="20" expression="x*5+500" fineincrement="5" format="0" to_byte="(x-500)/5" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>threshold 1st Gear</data>
    </table>
-   <description>Calibration: slip threshold 1st Gear (RPM = val*4+500).</description>
+   <description>Calibration: gear-advisory engine-speed thresholds for first gear (RPM = val*5+500).</description>
   </table>
   <table category="slip" endian="big" name="slip: threshold car speed" sizex="1" storageaddress="0x45E6" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
@@ -7257,23 +7241,22 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: slip threshold car speed (km/h).</description>
   </table>
   <table category="slip" endian="big" name="slip: threshold hysteresis offset" sizex="1" storageaddress="0x45F0" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
+   <scaling category="RPM" coarseincrement="20" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>threshold hysteresis offset</data>
    </table>
-   <description>Calibration: slip threshold hysteresis offset (RPM = val*4+500).</description>
+   <description>Calibration: gear-advisory threshold hysteresis (RPM difference = val*5; subtracted from the encoded threshold before conversion).</description>
   </table>
   <table category="slip" endian="big" name="slip: threshold per gear manual" sizex="5" storageaddress="0x45D5" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
-   <table name="signal" sizex="5" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM" coarseincrement="20" expression="x*5+500" fineincrement="5" format="0" to_byte="(x-500)/5" units="rpm"/>
+   <table name="gear" sizex="5" type="Static X Axis">
+    <data>Gear 2</data>
+    <data>Gear 3</data>
+    <data>Gear 4</data>
+    <data>Gear 5</data>
+    <data>Gear 6</data>
    </table>
-   <description>Calibration: slip threshold per gear manual (RPM = val*4+500; 5-element array).</description>
+   <description>Calibration: gear-advisory engine-speed thresholds for manual gears 2 through 6 (RPM = val*5+500).</description>
   </table>
   <table category="slip" endian="big" name="slip: timer intervention2" sizex="1" storageaddress="0x45F1" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
@@ -7442,7 +7425,7 @@ Unit is x / 4.83 mpg</description>
   <table category="torque" endian="big" name="torque: limit integral" sizex="8" storageaddress="0x2776" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table endian="big" name="load error" sizex="8" storageaddress="0x276E" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x-127" fineincrement="1" format="0" to_byte="x+127" units="#"/>
+    <scaling category="Number" coarseincrement="10" expression="x-128" fineincrement="1" format="0" to_byte="x+128" units="#"/>
    </table>
    <description>Calibration: torque limit integral (val/255; 8-element array).</description>
   </table>
@@ -7477,12 +7460,12 @@ Unit is x / 4.83 mpg</description>
   <table category="torque" endian="big" name="torque: limit proportional" sizex="8" storageaddress="0x07FC" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table endian="big" name="load error" sizex="8" storageaddress="0x07F4" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x-127" fineincrement="1" format="0" to_byte="x+127" units="#"/>
+    <scaling category="Number" coarseincrement="10" expression="x-128" fineincrement="1" format="0" to_byte="x+128" units="#"/>
    </table>
    <description>Calibration: torque limit proportional (val/255; 8-element array).</description>
   </table>
   <table category="torque" endian="big" name="torque: limit tps filter coeff" sizex="1" storageaddress="0x0222" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
+   <scaling category="Percent" coarseincrement="1" expression="x*100/1024" fineincrement="0.09765625" format="0.000" to_byte="x*1024/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>limit tps filter coeff</data>
    </table>
@@ -7490,10 +7473,9 @@ Unit is x / 4.83 mpg</description>
   </table>
   <table category="torque" endian="big" name="torque: limit tps rate limit" sizex="2" storageaddress="0x4670" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="direction" sizex="2" type="Static X Axis">
+    <data>Opening</data>
+    <data>Closing</data>
    </table>
    <description>Calibration: torque limit throttle position rate limit (2-element array).</description>
   </table>
@@ -7524,7 +7506,7 @@ Unit is x / 4.83 mpg</description>
   <table category="torque" endian="big" name="torque: spark efficiency" sizex="16" sizey="16" storageaddress="0x3626" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table endian="big" name="rpm" sizex="16" storageaddress="0x3606" storagetype="uint8" type="X Axis">
-    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
    <table endian="big" name="ign retard from mbt" sizey="16" storageaddress="0x3616" storagetype="uint8" type="Y Axis">
     <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
@@ -8162,11 +8144,11 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: vehicle moving speed minimum (km/h).</description>
   </table>
   <table category="vehicle" endian="big" name="vehicle: speed limit" sizex="1" storageaddress="0x0262" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <scaling category="km/h" coarseincrement="10" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="km/h"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>speed limit</data>
    </table>
-   <description>Calibration: vehicle speed limit (km/h).</description>
+   <description>Vehicle-speed limit: the controller forms a hundredths-of-km/h target as raw * 200, so one count is 2 km/h. Raw 255 participates in the no-limit path; enforcement also depends on the IPS or calibration enforcement request.</description>
   </table>
   <table category="vehicle" name="vehicle: speed limit enforce" sizey="1" storageaddress="0x0264" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>

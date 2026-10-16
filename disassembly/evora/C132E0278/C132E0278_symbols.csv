@@ -542,7 +542,7 @@ Unit is x / 4.83 mpg"
 "CAL_torque_limit_base_factor_X_rpm","4000baea","Data Label","u8_rspeed_125/4+500rpm[16]","Calibration: X-axis (rpm) for the torque limit base factor table (RPM = val*125/4+500; 16-element array)."
 "CAL_torque_limit_base_factor_Y_load","4000bafa","Data Label","u8_load_4mg/stroke[16]","Calibration: Y-axis (load) for the torque limit base factor table (mg/stroke = val*4; 16-element array)."
 "CAL_torque_limit_base_factor","4000bb0a","Data Label","u8_factor_1/255[256]","  // Used in cylinder cut calculation
-  // \"42/255 is the amount of torque reduction per cylinder from a hard cut\"
+  // ""42/255 is the amount of torque reduction per cylinder from a hard cut""
   (0xff - torque_limit_base_factor) * (6 - torque_cut_level_as_cyl_count)
 
   What It Represents
@@ -2790,8 +2790,8 @@ Unit is x / 4.83 mpg"
 "CAL_dpm_integral_update_period","4000ccb6","Data Label","u16_time_5ms","Integral adapation is very slow. It seems to be used to account for tire condition changes and surface changes."
 "CAL_dpm_integral_gain","4000ccbe","Data Label","uint8_t","Calibration: driver performance mode integral gain."
 "CAL_dpm_integral_limit","4000ccbf","Data Label","uint8_t","Calibration: driver performance mode integral limit."
-"CAL_dpm_direct_mode_off_delay","4000ccb2","Data Label","u16_time_5ms","\"Direct mode\" (flag bit 2) likely means more aggressive TC intervention when there's significant left-right wheel speed difference - i.e.\, one wheel spinning more than the other."
-"CAL_dpm_direct_mode_on_delay","4000ccb4","Data Label","u16_time_5ms","\"Direct mode\" (flag bit 2) likely means more aggressive TC intervention when there's significant left-right wheel speed difference - i.e.\, one wheel spinning more than the other."
+"CAL_dpm_direct_mode_off_delay","4000ccb2","Data Label","u16_time_5ms","""Direct mode"" (flag bit 2) likely means more aggressive TC intervention when there's significant left-right wheel speed difference - i.e.\, one wheel spinning more than the other."
+"CAL_dpm_direct_mode_on_delay","4000ccb4","Data Label","u16_time_5ms","""Direct mode"" (flag bit 2) likely means more aggressive TC intervention when there's significant left-right wheel speed difference - i.e.\, one wheel spinning more than the other."
 "dpm_both_buttons_pressed","400028f2","Data Label","bool","Driver performance mode both buttons pressed (boolean flag)."
 "CAL_dpm_min_vehicle_speed","4000ccbc","Data Label","u8_speed_kph","Calibration: driver performance mode minimum vehicle speed (km/h)."
 "load_selected_raw","40001b9c","Data Label","u32_load_mg/stroke","Load selected (mg/stroke)."

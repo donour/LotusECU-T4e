@@ -339,39 +339,35 @@
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed sport" sizex="2" storageaddress="0x452E" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="boundary" sizex="2" type="Static X Axis">
+    <data>Lower RPM</data>
+    <data>Upper RPM</data>
    </table>
-   <description>Calibration: airbox flapper engine speed sport. Tunable map/constant (not a live channel); log to follow core engine state. (RPM)</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed sport2" sizex="2" storageaddress="0x4536" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="boundary" sizex="2" type="Static X Axis">
+    <data>Lower RPM</data>
+    <data>Upper RPM</data>
    </table>
-   <description>Calibration: airbox flapper engine speed sport2. Tunable map/constant (not a live channel); log to follow core engine state. (RPM)</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed tour" sizex="2" storageaddress="0x0206" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="boundary" sizex="2" type="Static X Axis">
+    <data>Lower RPM</data>
+    <data>Upper RPM</data>
    </table>
-   <description>Calibration: airbox flapper engine speed tour. Tunable map/constant (not a live channel); log to follow core engine state.</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="airbox" endian="big" name="airbox: flapper engine speed tour2" sizex="2" storageaddress="0x4532" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
-   <table name="signal" sizex="2" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="boundary" sizex="2" type="Static X Axis">
+    <data>Lower RPM</data>
+    <data>Upper RPM</data>
    </table>
-   <description>Calibration: airbox flapper engine speed tour2. Tunable map/constant (not a live channel); log to follow core engine state. (RPM)</description>
+   <description>Airbox command hysteresis in actual RPM: element 0 is the lower boundary, element 1 the upper boundary. Tour/Sport mode and transmission-ratio coding select the pair; assist mode and diagnostic override also affect the command. Electrical command polarity does not establish physical valve position.</description>
   </table>
   <table category="can" endian="big" name="can: lat accel standstill timeout" sizex="1" storageaddress="0x45AB" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
@@ -2235,35 +2231,33 @@
    <description>Fuel density for the trip computer (raw × 0.075 g/L; stock 9867 = 740 g/L). The ECU never uses it for fuelling. It only converts injector flow × commanded pulse into reported fuel consumption: the dash economy figure (CAN 0x400) and the fuel-used counter that times the P0461 fuel-level sender check. The commanded pulse includes injector deadtime, so each injection over-reports by roughly CAL_inj_flow_rate × deadtime of fuel that was never injected. That error grows in proportion to injector flow, but the real fuel per injection stays the same. Leave this at the true fuel density unless you change injectors. After a swap to higher-flow injectors (or any big flow or deadtime change), the dash will read high consumption, worst at idle and light load, and P0461 may set falsely because the counter fills before the fuel level has had time to move. To restore stock-like readings, raise this value by about (new_flow × (fuel_time + new_deadtime)) ÷ (old_flow × (old_fuel_time + old_deadtime)) at a typical cruise point. For stock → ID1050-XDS that is about 1.6–1.75×, or roughly 16300. Then fine-tune against a measured fill-up. A single value can't be exact at every load, because the deadtime share of the pulse falls as load rises.</description>
   </table>
   <table category="gear" endian="big" name="gear: advisory upshift rpm gear1" sizex="1" storageaddress="0x45D4" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
+   <scaling category="RPM" coarseincrement="20" expression="(x*5)+500" fineincrement="5" format="0" to_byte="(x-500)/5" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>advisory upshift rpm gear1</data>
    </table>
-   <description/>
+   <description>Gear-advisory RPM threshold, decoded as raw * 5 + 500. This selects advisory states from estimated engine RPM; it is not an ECU wheel-slip torque request.</description>
   </table>
   <table category="gear" endian="big" name="gear: advisory upshift rpm ips" sizex="5" storageaddress="0x45DA" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
-   <table name="signal" sizex="5" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM" coarseincrement="20" expression="(x*5)+500" fineincrement="5" format="0" to_byte="(x-500)/5" units="rpm"/>
+   <table name="gear" sizex="5" type="Static X Axis">
+    <data>Gear #2</data>
+    <data>Gear #3</data>
+    <data>Gear #4</data>
+    <data>Gear #5</data>
+    <data>Gear #6</data>
    </table>
-   <description>Calibration: slip slip threshold per gear IPS. Tunable map/constant (not a live channel); log to see wheel slip and traction-control intervention. (RPM; raw*4+500)</description>
+   <description>Gear-advisory RPM threshold, decoded as raw * 5 + 500. This selects advisory states from estimated engine RPM; it is not an ECU wheel-slip torque request.</description>
   </table>
   <table category="gear" endian="big" name="gear: advisory upshift rpm manual" sizex="5" storageaddress="0x45D5" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="RPM" coarseincrement="16" expression="(x*4)+500" fineincrement="4" format="0" to_byte="(x-500)/4" units="rpm"/>
-   <table name="signal" sizex="5" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM" coarseincrement="20" expression="(x*5)+500" fineincrement="5" format="0" to_byte="(x-500)/5" units="rpm"/>
+   <table name="gear" sizex="5" type="Static X Axis">
+    <data>Gear #2</data>
+    <data>Gear #3</data>
+    <data>Gear #4</data>
+    <data>Gear #5</data>
+    <data>Gear #6</data>
    </table>
-   <description>Calibration: slip threshold per gear manual. Tunable map/constant (not a live channel); log to see wheel slip and traction-control intervention. (RPM; raw*4+500)</description>
+   <description>Gear-advisory RPM threshold, decoded as raw * 5 + 500. This selects advisory states from estimated engine RPM; it is not an ECU wheel-slip torque request.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: cornering inhibit hysteresis" sizex="1" storageaddress="0x45EA" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2287,18 +2281,18 @@
    <description/>
   </table>
   <table category="gsi" endian="big" name="gsi: downshift idle margin" sizex="1" storageaddress="0x45EF" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="RPM" coarseincrement="20" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>downshift idle margin</data>
    </table>
-   <description/>
+   <description>Gear-advisory RPM difference in 5 RPM steps. This is subtracted from an RPM threshold; it has no 500 RPM absolute offset.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: downshift rpm offset" sizex="1" storageaddress="0x45F0" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="RPM" coarseincrement="20" expression="x*5" fineincrement="5" format="0" to_byte="x/5" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>downshift rpm offset</data>
    </table>
-   <description/>
+   <description>Gear-advisory RPM difference in 5 RPM steps. This is subtracted from an RPM threshold; it has no 500 RPM absolute offset.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: gear1 drive away speed" sizex="1" storageaddress="0x45F5" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
@@ -2308,11 +2302,11 @@
    <description/>
   </table>
   <table category="gsi" endian="big" name="gsi: max gear rpm" sizex="1" storageaddress="0x45E4" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>max gear rpm</data>
    </table>
-   <description/>
+   <description>Maximum usable estimated engine RPM for a candidate advisory gear, compared directly in RPM.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: max gear step" sizex="1" storageaddress="0x45F2" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
@@ -2350,50 +2344,47 @@
    <description>Calibration: slip power based RPM thresholds. Tunable map/constant (not a live channel); log to see wheel slip and traction-control intervention. (RPM)</description>
   </table>
   <table category="gsi" endian="big" name="gsi: rpm per kph close ratio" sizex="6" storageaddress="0x45BC" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM per km/h" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="rpm/(km/h)"/>
+   <table name="gear" sizex="6" type="Static X Axis">
+    <data>Gear #1</data>
+    <data>Gear #2</data>
+    <data>Gear #3</data>
+    <data>Gear #4</data>
+    <data>Gear #5</data>
+    <data>Gear #6</data>
    </table>
-   <description>Calibration: slip gear speed ratios cr. Tunable map/constant (not a live channel); log to see wheel slip and traction-control intervention.</description>
+   <description>Gear-advisory speed-to-RPM ratio, stored in tenths of RPM per km/h. Estimated RPM = vehicle speed in hundredths of km/h * raw / 1000; coding selects the standard, close-ratio or IPS family.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: rpm per kph ips" sizex="6" storageaddress="0x45B0" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM per km/h" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="rpm/(km/h)"/>
+   <table name="gear" sizex="6" type="Static X Axis">
+    <data>Gear #1</data>
+    <data>Gear #2</data>
+    <data>Gear #3</data>
+    <data>Gear #4</data>
+    <data>Gear #5</data>
+    <data>Gear #6</data>
    </table>
-   <description>Calibration: slip gear speed ratios IPS. Tunable map/constant (not a live channel); log to see wheel slip and traction-control intervention.</description>
+   <description>Gear-advisory speed-to-RPM ratio, stored in tenths of RPM per km/h. Estimated RPM = vehicle speed in hundredths of km/h * raw / 1000; coding selects the standard, close-ratio or IPS family.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: rpm per kph standard" sizex="6" storageaddress="0x45C8" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <scaling category="RPM per km/h" coarseincrement="10" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="rpm/(km/h)"/>
+   <table name="gear" sizex="6" type="Static X Axis">
+    <data>Gear #1</data>
+    <data>Gear #2</data>
+    <data>Gear #3</data>
+    <data>Gear #4</data>
+    <data>Gear #5</data>
+    <data>Gear #6</data>
    </table>
-   <description>Calibration: slip gear speed ratios long. Tunable map/constant (not a live channel); log to see wheel slip and traction-control intervention.</description>
+   <description>Gear-advisory speed-to-RPM ratio, stored in tenths of RPM per km/h. Estimated RPM = vehicle speed in hundredths of km/h * raw / 1000; coding selects the standard, close-ratio or IPS family.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: speed offset kph" sizex="1" storageaddress="0x45E6" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>speed offset kph</data>
    </table>
-   <description/>
+   <description>Vehicle-speed offset used by manual gear advisory. The controller multiplies this value by 100 before subtracting it from vehicle speed in hundredths of km/h.</description>
   </table>
   <table category="gsi" endian="big" name="gsi: steering angle inhibit" sizex="1" storageaddress="0x45E2" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="°"/>
@@ -3237,14 +3228,13 @@
   </table>
   <table category="ign" endian="big" name="ign: trim per cyl" sizex="6" storageaddress="0x005A" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree" coarseincrement="1.0" expression="(x/4)-32" fineincrement="0.25" format="0.00" to_byte="(x+32)*4" units="°"/>
-   <table name="signal" sizex="6" type="Static X Axis">
-    <data>0</data>
-    <data>32</data>
-    <data>64</data>
-    <data>96</data>
-    <data>128</data>
-    <data>160</data>
-    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="cylinder" sizex="6" type="Static X Axis">
+    <data>Cyl #1</data>
+    <data>Cyl #2</data>
+    <data>Cyl #3</data>
+    <data>Cyl #4</data>
+    <data>Cyl #5</data>
+    <data>Cyl #6</data>
    </table>
    <description>Calibration: ignition trim per cylinder. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4-32)</description>
   </table>
@@ -3455,19 +3445,19 @@
    </table>
    <description/>
   </table>
-  <table category="inj" endian="big" name="inj: fuel learn stft lean limit" sizex="1" storageaddress="0x01E8" storagetype="int16" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x/20" fineincrement="0.05" format="0.00" to_byte="x*20" units="%"/>
+  <table category="inj" endian="big" name="inj: fuel learn stft lean limit" sizex="1" storageaddress="0x01E8" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="(x-32768)/20" fineincrement="0.05" format="0.00" to_byte="x*20+32768" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel learn stft lean limit</data>
    </table>
-   <description/>
+   <description>Filtered STFT threshold for fuel learning. The controller XORs the stored word with 0x8000 and treats the result as signed; raw 32768 is zero and one count is 0.05 percent.</description>
   </table>
-  <table category="inj" endian="big" name="inj: fuel learn stft rich limit" sizex="1" storageaddress="0x01EA" storagetype="int16" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x/20" fineincrement="0.05" format="0.00" to_byte="x*20" units="%"/>
+  <table category="inj" endian="big" name="inj: fuel learn stft rich limit" sizex="1" storageaddress="0x01EA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="(x-32768)/20" fineincrement="0.05" format="0.00" to_byte="x*20+32768" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel learn stft rich limit</data>
    </table>
-   <description/>
+   <description>Filtered STFT threshold for fuel learning. The controller XORs the stored word with 0x8000 and treats the result as signed; raw 32768 is zero and one count is 0.05 percent.</description>
   </table>
   <table category="inj" endian="big" name="inj: fuel learn zone 1 offset step" sizex="1" storageaddress="0x00BD" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Microsecond" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="us"/>
@@ -8280,14 +8270,12 @@
   </table>
   <table category="sensor" endian="big" name="sensor: airtemp not wired filter alpha" sizex="1" storageaddress="0x0085" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
-   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>airtemp not wired filter alpha</data>
    </table>
    <description>Calibration: sensor intake air reactivity. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range. (0-1; raw/2560)</description>
   </table>
   <table category="sensor" endian="big" name="sensor: airtemp tmaf filter alpha" sizex="1" storageaddress="0x0083" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>airtemp tmaf filter alpha</data>
@@ -8337,7 +8325,6 @@
    <description>Calibration: sensor clutch engaged threshold. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range. (V; raw*5/1023)</description>
   </table>
   <table category="sensor" endian="big" name="sensor: coolant filter alpha" sizex="1" storageaddress="0x0084" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <scaling category="Percent" coarseincrement="1" expression="x*100/2560" fineincrement="0.1" format="0.00" to_byte="x*2560/100" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>coolant filter alpha</data>
@@ -9135,11 +9122,11 @@
    <description>Calibration: vehicle moving speed min. Tunable map/constant (not a live channel); adjust to change this behavior. (km/h)</description>
   </table>
   <table category="vehicle" endian="big" name="vehicle: speed limit" sizex="1" storageaddress="0x0262" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <scaling category="km/h" coarseincrement="10" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="km/h"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>speed limit</data>
    </table>
-   <description>Calibration: vehicle speed limit. Tunable map/constant (not a live channel); adjust to change this behavior. (km/h)</description>
+   <description>Vehicle-speed limit: the controller forms a hundredths-of-km/h target as raw * 200, so one count is 2 km/h. Raw 255 participates in the no-limit path; enforcement also depends on coding and the enforcement request.</description>
   </table>
   <table category="vehicle" name="vehicle: speed limit enforce" sizey="1" storageaddress="0x0264" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
@@ -9392,19 +9379,19 @@
    </table>
    <description/>
   </table>
-  <table category="idle" endian="big" name="idle: cold learning coolant ac on" sizex="1" storageaddress="0x0986" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
+  <table category="idle" endian="big" name="idle: cold learning coolant ac on" sizex="1" storageaddress="0x0986" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/1024" fineincrement="0.1" format="0.0" to_byte="x*1024/100" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>cold learning coolant ac on</data>
    </table>
-   <description/>
+   <description>Signed learned idle-airflow correction, stored in 1/1024 of the controller's 100 mg/s airflow unit. The controller applies it with the matching cold/hot and A/C selection; this is persistent learned state, not a desired calibration target.</description>
   </table>
-  <table category="idle" endian="big" name="idle: learn ac on" sizex="1" storageaddress="0x0576" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Milligram/Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="mg/s"/>
+  <table category="idle" endian="big" name="idle: learn ac on" sizex="1" storageaddress="0x0576" storagetype="int16" type="2D" userlevel="1">
+   <scaling category="Milligram/Second" coarseincrement="10" expression="x*100/1024" fineincrement="0.1" format="0.0" to_byte="x*1024/100" units="mg/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>learn ac on</data>
    </table>
-   <description/>
+   <description>Signed learned idle-airflow correction, stored in 1/1024 of the controller's 100 mg/s airflow unit. The controller applies it with the matching cold/hot and A/C selection; this is persistent learned state, not a desired calibration target.</description>
   </table>
   <table category="inj" endian="big" name="inj: fuel learn zone 2 bank1" sizex="1" storageaddress="0x0260" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="2" expression="(x*100/256)-50" fineincrement="0.390625" format="0.00" to_byte="(x+50)*256/100" units="%"/>

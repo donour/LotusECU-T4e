@@ -74,12 +74,14 @@ The base target is combined with operating-state-specific corrections:
 
 The routine chooses explicit operating modes (`IGN_IDLE`, `IGN_IDLE_AC`, `IGN_CRUISE`, `IGN_CRUISE_AC`, `IGN_NORMAL`, startup-normal, fixed and cold-start). `ign_adv_min` comes from the normal or engine-off minimum timing table and clamps torque retard where applicable.
 
+Current C still renders the stopped-coolant startup gate as `min < temperature && temperature < min`; distinct CSV minimum/maximum labels do not repair that condition. The reviewed XML separately corrects the startup TPS table to an unsigned base-timing retention fraction (`factor/255`, neutral raw 255) and the cold-start coolant axis to the pointer-selected `+5` byte position. See the [definition review](GT430_ROMRAIDER_REVIEW.md) for consumer/layout evidence and remaining machine-code checks.
+
 ### Per-cylinder corrections and hardware boundary
 
 After the common target is chosen, each cylinder receives:
 
-- `CAL_ign_trim_per_cyl`;
-- persistent `LEA_ign_knock_retard[cyl]`;
+- `CAL_ign_trim_per_cyl`, decoded as signed `(raw ^ 0x80)` quarter degrees (raw 128 is zero);
+- event-based `ign_knock_retard[cyl]` in the current GT430 export;
 - current octane/knock retard `ign_retard_knock[cyl]`;
 - residual torque-control retard `ign_comp_torque_reduction`;
 - roughness correction where enabled.
@@ -175,7 +177,7 @@ If normalized magnitude exceeds the RPM/load `CAL_knock_peak_threshold`, the exc
 
 There are two related per-cylinder retard layers:
 
-1. `LEA_ign_knock_retard[]` receives event-based retard from `CAL_knock_count_to_retard`, capped by `CAL_knock_corr_limit`. A hit loads `CAL_knock_retard_hold_time`; after hold expiry, `knock_ign_retard_decay_200hz()` removes `CAL_knock_ign_retard_decay_rate` periodically.
+1. `ign_knock_retard[]` receives event-based retard from `CAL_knock_count_to_retard`, capped by `CAL_knock_corr_limit`. A hit loads `CAL_knock_retard_hold_time`; after hold expiry, `knock_ign_retard_decay_200hz()` removes `CAL_knock_ign_retard_decay_rate` periodically.
 2. `ign_retard_knock[]` is the longer-term octane-quality/fallback component. It blends the gap between base and knock-safe timing using per-cylinder `LEA_octane_scaler[]`, plus a short-term octane correction.
 
 `octane_scaler_shortterm[]` rises with learned event retard and decays without it. `octane_scaler_learn_update()` then moves persistent `LEA_octane_scaler[]` up or down. Higher scaler values select more of the base-to-knock-safe timing gap as retard. On major sensor/state failures, the firmware applies the full base-to-knock-safe delta rather than trusting detection.
