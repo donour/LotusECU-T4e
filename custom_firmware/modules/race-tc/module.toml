@@ -1,0 +1,48 @@
+id = "race-tc"
+version = 5
+description = "Race traction control: 9-level slip-based torque cut, built from the GT430's slip control"
+# The GT430 (C132E0278) has this natively (its firmware calls it DPM).
+targets = ["B13200091"]
+sources = ["race_tc.S", "race_tc_hooks.S"]
+# v1 was named "dpm". v2: the dash display rewrites only the CAN 0x402 frame,
+# and only while race-tc is on (race_tc_mode_index != 0), instead of
+# overwriting the TPMS data every 5 ms. v3: the slip-target base table and
+# its level axis moved from the code into stock-cal locations. v4: 9 levels
+# (was 6; levels 6-9 get their own slip targets in the cal-site defaults).
+# v5: the torque-cut P-term table and its axes moved from the code into
+# stock-cal locations.
+
+[hooks]
+init = "race_tc_init"
+loop = "race_tc_slip_calculator"
+tick_5ms = "race_tc_system_state_manager_200hz"
+torque_arbitration_exit = "race_tc_torque_arbitration_filter"
+tpms_frame_packed = "race_tc_dash_display"
+
+# Stock-cal locations labelled unused in Ghidra and taken over by race-tc.
+# Defaults are in race_tc.S (.calsite.race-tc.<name>); the stock cal must hold
+# zeros there.
+[[cal_sites]]
+name = "slip_target_base"
+at = "CAL_racetc_slip_target_base"
+stock = "zeros"
+
+[[cal_sites]]
+name = "slip_target_base_X_level"
+at = "CAL_racetc_slip_target_base_X_dpm_level"
+stock = "zeros"
+
+[[cal_sites]]
+name = "torque_cut_p_term"
+at = "CAL_racetc_torque_cut_p_term"
+stock = "zeros"
+
+[[cal_sites]]
+name = "torque_cut_p_term_X_carspeed"
+at = "CAL_racetc_torque_cut_p_term_X_carspeed"
+stock = "zeros"
+
+[[cal_sites]]
+name = "torque_cut_p_term_Y_slip"
+at = "CAL_racetc_torque_cut_p_term_Y_slip"
+stock = "zeros"

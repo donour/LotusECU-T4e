@@ -1,0 +1,5 @@
+# Race traction control on the S1 NA, nothing else. Same features as
+# patch/dpm-b132e0091-prog-only.crp (built when the module was called dpm).
+target = "B13200091"
+modules = ["race-tc"]
+# cal = "../../patch/my-tune.cpt"   # Default: the target's stock cal (bases/B132E0091_TAB.cpt)

@@ -1,0 +1,26 @@
+id = "flexfuel"
+version = 1
+description = "Continental flex-fuel sensor on pad RG4: ethanol content and fuel temperature (no ethanol tables yet)"
+# Needs the pad RG4 init site; only located on the GT430 so far.
+targets = ["C132E0278"]
+sources = ["flexfuel.S"]
+cal = "cal.inc.S"
+# OBD readout (mode 01 PID 0x52, mode 22 0x0401) is not wired yet: t6patch
+# has no OBD dispatch. Read ethanol_content / ethanol_temp with dev-mode CAN
+# memory peeks.
+
+[hooks]
+init = "flexfuel_init"
+loop = "flexfuel"
+tick_5ms = "flexfuel_5ms"
+
+# Configure SIU_PCR184 (pad RG4) for its primary function (eMIOS input)
+# instead of GPIO.
+[[sites]]
+name = "pad_rg4_input"
+at = "siu_pcr184_config"
+expect = [
+	"li %r0, 0x0100",
+	"lis %r3, 0xC3F901B0@ha",   # SIU_PCR184
+	"sth %r0, 0xC3F901B0@l(%r3)",
+]

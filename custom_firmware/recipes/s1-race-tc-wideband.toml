@@ -1,0 +1,3 @@
+# Race traction control, then wideband, on the S1 NA. Module order = call order in each hook.
+target = "B13200091"
+modules = ["race-tc", "wideband"]

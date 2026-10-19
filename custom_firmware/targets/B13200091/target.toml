@@ -1,0 +1,80 @@
+# 2011 Evora S1 NA, firmware B13200091 (T6-V00BU), MPC5534.
+name = "B13200091"
+description = "Evora S1 NA MY11 (T6-V00BU)"
+symbols = "symbols.sym"
+
+[prog]
+base = 0x40000
+size = 0xC0000
+stock = "T6EGLBU01_BIN.cpt"
+sha256 = "837eb18f4180fe0d0124cfd90ff610067b1de40eba3be3545fc9108899a2f116"
+free = 0xCA770                  # End of the last ROM segment in the startup copy table
+
+[cal]
+base = 0x20000
+size = 0x10000                  # CRP calrom chunk limit
+stock = "B132E0091_TAB.cpt"
+free = 0x261DA                  # End of the stock cal
+ram_base = 0x40008E24           # copyCAL2RAM copies cal flash 0x20000.. here at boot (CAL_base)
+ram_size = 0x61D8               # 0x1876 words
+id_address = 0x259D4            # RomRaider internalidaddress
+ids = ["LOTUS EVORA MY11 FED"]  # Accepted cal id strings; add other markets after checking them
+
+[ram]
+free = 0x4000F000               # End of the firmware's last RAM segment
+# Patch variables share the stack headroom: freeram_fill paints
+# 0x4000F000-0x4000FE00 with 0x55 and the stack grows down from 0x40010000.
+# Raise only after measuring free_ram_count on the car.
+budget = 0x400
+
+# Hooks: one instruction at `at` is replaced by `ba t6p_hook_<name>`. The
+# dispatcher calls each module's handlers in recipe order, replays the
+# displaced instruction, then branches to `resume`.
+# lr_live: LR holds a return address at the site, so the dispatcher saves it.
+# live:    volatile registers live at the site, saved around the handlers.
+
+[hooks.init]
+at = "hook_init_loc"
+displaced = "lwz %r0, 20(%r1)"
+resume = "hook_init_continue"
+notes = "Epilogue of a startup function, after freeram_fill. LR is reloaded from the stack."
+
+[hooks.loop]
+at = "hook_loop_loc"
+displaced = "b hook_loop_continue"
+notes = "Back-branch at the bottom of main()'s loop, once per main loop."
+
+[hooks.tick_5ms]
+at = "hook_timer_5ms_loc"
+displaced = "li %r0, 10"
+resume = "hook_timer_5ms_continue"
+notes = "200 Hz task."
+
+[hooks.torque_arbitration_exit]
+at = "hook_torque_limit_arbitration"
+displaced = "blr"
+lr_live = true
+notes = "Final blr of torque_limit_request_arbitration (void). Handlers can tighten torque_limit_external_request / torque_external_request_tps_based before torque_model reads them."
+
+[hooks.tpms_frame_packed]
+at = "hook_tpms_frame_packed"
+displaced = "lbz %r0, {tpms_tx_pending_flags - _SDA_BASE_}(%r13)"
+resume = "hook_tpms_frame_packed_continue"
+notes = "cluster_send_data (10 Hz, inside the 200 Hz ISR), TPMS-coded branch only: tpms_output[0..4] is packed for CAN A 0x402 and about to be marked pending. Handlers may rewrite tpms_output to change only what the cluster shows. LR is reloaded from the stack in the epilogue; r0/r3 are rewritten before use."
+
+# Core sites: framework-owned edits outside the hooks.
+
+[[core_sites]]
+name = "loop_correction"
+at = "hook_loop_correction"
+expect = "ble hook_loop_continue"
+replace = "ble hook_loop_loc"
+when_hook = "loop"
+notes = "This early back-branch skips the loop hook; send it through hook_loop_loc instead."
+
+[[core_sites]]
+name = "freeram_scan_start"
+at = "hook_freeram_counter"
+expect = ["lis %r3, 0x4001", "addi %r0, %r3, -0x1000"]
+replace = ["lis %r3, __patch_ram_end@ha", "addi %r0, %r3, __patch_ram_end@l"]
+notes = "Start the stack-watermark scan (free_ram_count) above the patch RAM."

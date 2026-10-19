@@ -1,0 +1,6 @@
+build/
+__pycache__/
+
+# Stock firmware images are not redistributable: keep them local.
+bases/*
+!bases/README.md

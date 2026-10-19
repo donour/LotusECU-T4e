@@ -1,0 +1,55 @@
+# 2019 Evora GT430, firmware C132E0278 (T6-EVORA--F430-V000E), MPC5534.
+#
+# The pinned prog is patch/T6EVRGT430E01_BIN.cpt. It differs from the
+# Ghidra project's C132E0278.hex in 159 bytes (0x437ee-0xc553f), so it is
+# probably the "USDM_PATCHED" image patch/build.py used. Confirm it's what is on
+# the car before flashing anything built for this target.
+name = "C132E0278"
+description = "Evora GT430 MY19 (T6-EVORA--F430-V000E), USDM-patched prog"
+symbols = "symbols.sym"
+
+[prog]
+base = 0x40000
+size = 0xC0000
+stock = "T6EVRGT430E01_BIN.cpt"
+sha256 = "e3a7868cd4685b59919b7b79dc4b3f190ff7df030c2137f90e89fd975c41bc31"
+free = 0xD8988
+
+[cal]
+base = 0x20000
+size = 0x10000
+free = 0x269AC
+id_address = 0x259D4
+ids = ["LOTUS EVORA GT430 MAN MY19 ROW"]
+# No stock cal in bases/: recipes for this target name their cal.
+
+[ram]
+free = 0x4000F000
+budget = 0x400                  # See targets/B13200091/target.toml
+
+[hooks.init]
+at = "hook_init_loc"
+displaced = "lwz %r0, 20(%r1)"
+resume = "hook_init_continue"
+
+[hooks.loop]
+at = "hook_loop_loc"
+displaced = "b hook_loop_continue"
+
+[hooks.tick_5ms]
+at = "hook_timer_5ms_loc"
+displaced = "li %r0, 10"
+resume = "hook_timer_5ms_continue"
+
+[[core_sites]]
+name = "loop_correction"
+at = "hook_loop_correction"
+expect = "ble hook_loop_continue"
+replace = "ble hook_loop_loc"
+when_hook = "loop"
+
+[[core_sites]]
+name = "freeram_scan_start"
+at = "hook_freeram_counter"
+expect = ["lis %r3, 0x4001", "addi %r0, %r3, -0x1000"]
+replace = ["lis %r3, __patch_ram_end@ha", "addi %r0, %r3, __patch_ram_end@l"]

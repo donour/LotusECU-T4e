@@ -1,0 +1,4 @@
+# Wideband + flex-fuel on the GT430, on top of your 93-octane tune.
+target = "C132E0278"
+modules = ["wideband", "flexfuel"]
+cal = "../../patch/C132E0278_TAB.20260628-93octane.cpt"

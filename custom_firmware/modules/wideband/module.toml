@@ -1,0 +1,62 @@
+id = "wideband"
+version = 1
+description = "Wideband pre-O2 (Spartan, 0-5 V = 10-20 AFR) with narrow-band simulation, per bank"
+targets = ["B13200091", "C132E0278"]
+sources = ["wideband.S"]
+# OBD readout (mode 01 PIDs 0x24/0x25, mode 22 0x0403/0x0404) is not wired
+# yet: t6patch has no OBD dispatch. Read wb_bank1/wb_bank2 with dev-mode CAN
+# memory peeks (addresses in symbols.txt).
+
+[hooks]
+init = "wideband_init"
+loop = "wideband"
+tick_5ms = "wideband_5ms"
+
+# The pre-O2 heater current threshold comes from the bank struct (wb_ht_th)
+# instead of CAL_sensor_O2_heater_threshold, so it can be raised once a
+# wideband controller is detected.
+[[sites]]
+name = "heater_threshold_b1"
+at = "load_pre_O2_heater_threshold_bank1"
+expect = [
+	"lis %r3, CAL_base@ha",
+	"addi %r3, %r3, CAL_base@l",
+	"lhz %r0, {CAL_sensor_O2_heater_threshold - CAL_base}(%r3)",
+]
+
+[[sites]]
+name = "heater_threshold_b2"
+at = "load_pre_O2_heater_threshold_bank2"
+expect = [
+	"lis %r3, CAL_base@ha",
+	"addi %r3, %r3, CAL_base@l",
+	"lhz %r0, {CAL_sensor_O2_heater_threshold - CAL_base}(%r3)",
+]
+
+# Skip the firmware's own pre-O2 ADC sampling: wideband() writes the
+# simulated narrow-band value into sensor_adc_pre_O2_bankN instead. Only the
+# first instruction is replaced; the rest is verified so a wrong
+# sensor_adc_pre_O2_bankN symbol fails the build.
+[[sites]]
+name = "adc_skip_b1"
+at = "adc_sample_pre_O2_bank1"
+expect = [
+	"lis %r3, adc_dma_dest@ha",
+	"addi %r3, %r3, adc_dma_dest@l",
+	"lhz %r0, 44(%r3)",
+	"srawi %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {sensor_adc_pre_O2_bank1 - _SDA_BASE_}(%r13)",
+]
+
+[[sites]]
+name = "adc_skip_b2"
+at = "adc_sample_pre_O2_bank2"
+expect = [
+	"lis %r3, adc_dma_dest@ha",
+	"addi %r3, %r3, adc_dma_dest@l",
+	"lhz %r0, 46(%r3)",
+	"srawi %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {sensor_adc_pre_O2_bank2 - _SDA_BASE_}(%r13)",
+]
