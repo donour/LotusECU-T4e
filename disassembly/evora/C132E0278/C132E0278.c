@@ -550,6 +550,14 @@ typedef enum enum_throttle_system_state {
 
 typedef ushort u16_flow_mg/s;
 
+typedef struct struct_t6_telemetry_chan struct_t6_telemetry_chan, *Pstruct_t6_telemetry_chan;
+
+struct struct_t6_telemetry_chan {
+    pointer addr;
+    uint8_t size;
+    byte reserved;
+};
+
 typedef uint8_t u8_temp_-40c;
 
 typedef uint16_t u16_load_1173mg/255stroke;
@@ -973,7 +981,7 @@ undefined4 DAT_000cc2f4;
 undefined4 FMPLL_SYNCR;
 undefined2 DAT_40000000;
 undefined SUB_4000f000;
-undefined intc_setup_safe_write;
+undefined flash_biucr_write_stub;
 undefined4 DAT_000cc2d0;
 undefined4 DAT_000cc2d4;
 undefined4 DAT_000cc2d8;
@@ -1230,11 +1238,11 @@ undefined2 main_diagnostic_flags;
 undefined4 free_ram_scan_ptr;
 undefined4 free_ram_count;
 bool free_ram_overrun_flag;
-byte emios_uc[0].uc[136];
+byte EMIOS_CADR4;
 uint8_t INTC_PSR+0x37;
-byte emios_uc[0].uc[140];
-byte emios_uc[0].uc[128];
-byte emios_uc[0].uc[132];
+byte EMIOS_CBDR4;
+byte EMIOS_CCNTR4;
+byte EMIOS_CCR22;
 u8_time_5ms u8_time_5ms_40001719;
 u8_time_5ms u8_time_5ms_4000143c;
 u16_time_5ms u16_time_5ms_40001da2;
@@ -1246,57 +1254,43 @@ undefined1 event_timer_200hz;
 i16_factor_1/1023 tps_delta_rate;
 u8_temp_5/8-40c coolant_temp;
 u16_time_5ms u16_time_5ms_400016ce;
-char DAT_40001440;
-char DAT_40001442;
-short DAT_4000143e;
-undefined4 load_measured_maf_filter_accum_q8;
 u32_time_100ms u32_time_100ms_4000170c;
-u8_factor_1/255 CAL_load_filter_low_pass_coeff;
 u16_time_100ms u16_time_100ms_400016de;
-u16_load_mg/stroke load_measured_maf_filtered;
-char DAT_40001c74;
-short DAT_400016d6;
-short DAT_400016d8;
 u16_time_100ms u16_time_100ms_40001c76;
-char DAT_40001443;
-char DAT_40001445;
-char DAT_40001446;
-u16_flow_10mg/s obd_ii_maf_flow;
+undefined4 load_measured_maf_filter_accum_q8;
 short DAT_40001a04;
-char DAT_400016f2;
+u8_factor_1/255 CAL_load_filter_low_pass_coeff;
 char DAT_4000869f;
+u16_load_mg/stroke load_measured_maf_filtered;
 short DAT_400016a6;
 short DAT_400016a8;
-short DAT_40001b5e;
 short DAT_400016e0;
-int DAT_400016e4;
 undefined1 DAT_400016bc;
-u32_time_5ms runtime_since_start;
 byte DAT_400016ee;
 char DAT_40001888;
 char DAT_40001889;
-undefined1 brake_or_clutch_inactive_timer;
+u16_flow_10mg/s obd_ii_maf_flow;
 char DAT_40001886;
 char DAT_40001887;
-bool engine_is_running;
 int DAT_4000238c;
-u8_temp_5/8-40c CAL_load_alphaN_learning_temp_threshold;
 byte DAT_40002390;
-u16_mass_mg CAL_load_alphaN_learning_mass_accum_threshold;
-u8_rspeed_125/4+500rpm[20] LEA_load_alphaN_trim_factor_X_rpm;
 char DAT_4000216c;
 char DAT_400016f0;
 char DAT_400016f1;
-uint16_t load_alphaN_learn_cell;
-u16_time_5ms hc08_send_timer;
-char DAT_400016f3;
-u8_factor_1/255 inj_fuel_fillm_xtau_coeff_combined;
 char DAT_40001580;
-u8_factor_1/255 fuel_film_X_factor;
+u32_time_5ms runtime_since_start;
 char DAT_40002530;
 undefined4 DAT_40002ec0;
+undefined1 brake_or_clutch_inactive_timer;
+bool engine_is_running;
+u8_temp_5/8-40c CAL_load_alphaN_learning_temp_threshold;
+u16_mass_mg CAL_load_alphaN_learning_mass_accum_threshold;
+u8_rspeed_125/4+500rpm[20] LEA_load_alphaN_trim_factor_X_rpm;
+uint16_t load_alphaN_learn_cell;
+u16_time_5ms hc08_send_timer;
+u8_factor_1/255 inj_fuel_fillm_xtau_coeff_combined;
+u8_factor_1/255 fuel_film_X_factor;
 undefined2 load_mass_per_time;
-undefined2 DAT_40004d58;
 u8_factor_1/255 load_filter_alpha_xtau;
 u32_load_mg/stroke load_measured_maf;
 undefined4 load_filtered1;
@@ -1317,7 +1311,6 @@ u8_factor_1/255[8] CAL_injtip_fuel_film_alpha_inc;
 uint8_t[8] CAL_injtip_fuel_film_alpha_dec_X_mass_per_time;
 u8_factor_1/255[8] CAL_injtip_fuel_film_alpha_dec;
 u8_load_4mg/stroke[16] CAL_injtip_fuel_film_X_factor_X_load;
-byte emios_uc[0].uc[144];
 u8_factor_1/255[16] CAL_injtip_fuel_film_X_factor;
 u8_temp_5/8-40c[8] CAL_injtip_transient_throttle_response_time_X_coolant_tmp;
 u8_rspeed_125/4+500rpm[8] CAL_injtip_transient_throttle_response_time_Y_rpm;
@@ -1328,18 +1321,33 @@ uint8_t CAL_sensor_o2_heater_warmup_pwm_period;
 u32_mass_ug obd_ii_accumulated_mass_air;
 u32_time_5ms ecu_shutdown_timer;
 uint16_t CAL_load_alphaN_learning_rpm_rate_max;
+undefined1 event_timer_100hz;
 undefined4 engine_rpm_rate;
 uint8_t CAL_ecu_ips_calibration_version;
+undefined1 event_timer_20hz;
 uint16_t CAL_load_learning_stabilization_delay;
 undefined2 load_learning_stabilization_timer;
+undefined2 event_timer_10hz;
 undefined2 load_learning_holdoff_timer;
+undefined1 engine_has_run;
+undefined2 fan_engine_bay_engine_off_timer;
 uint16_t CAL_load_learning_holdoff_delay;
+undefined2 fan_engine_bay_stationary_timer;
 uint16_t[2] CAL_tps_idle_to_current_ratio_threshold;
+undefined1 event_timer_5hz;
 undefined2 injtip_decay_cycle_counter;
+undefined1 event_timer_2hz;
 uint8_t CAL_injtip_tipin_decay_rate_divider;
+undefined1 event_timer_1s;
 uint8_t CAL_injtip_tipout_decay_rate_divider;
+undefined2 obd_ii_similar_cond_debounce_timer;
+undefined1 dfco_pedal_ramp_step_interval;
+undefined2 dfco_recovery_enrich_cooldown_timer;
 u16_time_100ms ecu_run_timer;
+undefined4 ign_on_engine_stopped_time;
 u8_rspeed_125/4+500rpm[20] LEA_load_alphaN_maf_error_correction_X_rpm;
+undefined1 task_timing_stats_reset_request;
+byte EMIOS_CSR22;
 u32_load_mg/stroke load_mass_per_stroke_raw;
 uint8_t CAL_tps_rate_steadystate_window_size;
 undefined2 load_alphaN_maf_error_correction_cell;
@@ -1387,7 +1395,7 @@ undefined1 paddle_shift_flags;
 undefined1 vvt_error_scale;
 undefined2 injtip_overrun_hysteresis_timer;
 undefined1 event_timer_50hz;
-undefined2 obd_ii_MIL_flags_unknown;
+undefined2 obd_monitor_task_scheduler_token;
 u16_time_100ms current_gear_time;
 undefined2 new_gear_detected_flags;
 undefined1 injtip_in_rpm_decay;
@@ -1430,9 +1438,9 @@ u16_time_us inj_pulse_time_b2;
 undefined4 inj_start_angle_offset_deg;
 u16_angle_1/10deg[6] inj_angle_scheduled;
 u32_time_100ns[6] inj_pw_scheduled;
-short DAT_400017dc;
-char DAT_4000174c;
-byte DAT_40002052;
+undefined2 crank_tooth_counter;
+undefined1 crank_sync_prev_cylinder_idx;
+undefined1 cylinder_seq_sync_flags;
 undefined1 DAT_4000178d;
 undefined1 DAT_40001791;
 undefined4 DAT_400017d4;
@@ -1454,19 +1462,15 @@ undefined2 DAT_400017a2;
 undefined1 DAT_4000178b;
 undefined1 DAT_4000178f;
 undefined4 DAT_400017cc;
-undefined1 DAT_40001793;
 undefined1 DAT_40001797;
-undefined1 DAT_4000179b;
 undefined2 DAT_400017a8;
-undefined2 DAT_400017b0;
-undefined2 DAT_400017a0;
 undefined1 DAT_4000178a;
 undefined1 DAT_4000178e;
-undefined4 engine_speed_period_1;
 undefined4 DAT_400017c8;
 undefined1 DAT_40001792;
 undefined1 DAT_40001796;
 undefined1 DAT_4000179a;
+undefined4 engine_speed_period_1;
 undefined2 DAT_400017a6;
 undefined2 DAT_400017ae;
 undefined2 DAT_4000179e;
@@ -1478,26 +1482,28 @@ undefined2 DAT_40001782;
 undefined2 DAT_40001780;
 undefined1 DAT_40001720;
 undefined1 DAT_4000172e;
-undefined2 DAT_400017dc;
 undefined4 DAT_400017e0;
 undefined1 DAT_40001754;
-char DAT_4000173a;
 undefined1 engine_running_state;
 undefined4 engine_speed_period_2;
 undefined4 eTPU_crank_angle_speed_scaling;
 undefined2 ign_startup_delay_counter;
 uint8_t INTC_PSR+0x51;
 uint8_t INTC_PSR+0x52;
+undefined1 cam_exh_b2_edge_status;
+undefined1 cam_exh_b2_edge_polarity;
+undefined2 cam_exh_b2_last_angle;
+undefined2 cam_exh_b2_delta_angle;
+undefined1 engine_sync_reset_count;
 uint8_t INTC_PSR+0x44;
 uint8_t INTC_PSR+0x45;
 uint8_t INTC_PSR+0x46;
 uint8_t INTC_PSR+0x47;
-ushort DAT_400017dc;
 undefined1 DAT_400017f8;
 undefined1 DAT_400028f8;
 undefined1 DAT_40002900;
 bool[6] ign_per_cyl_enable???;
-byte[6] o2_sensor_ready_per_cyl;
+byte[6] ign_cyl_enabled;
 byte DAT_400017db;
 undefined1 DAT_400017da;
 undefined4 DAT_400017e4;
@@ -1510,30 +1516,30 @@ undefined2 fuel_pump_crank_activity_timer;
 short DAT_40001788;
 uint16_t CAL_ecu_cvn;
 byte DAT_400017da;
-undefined1 DAT_400017f4;
 undefined1 DAT_4000172a;
 undefined1 DAT_4000172b;
 undefined1 DAT_4000172c;
 undefined1 DAT_4000172d;
 char DAT_40001720;
-bool prog_version_mismatch;
 char DAT_4000172e;
-char DAT_40002422;
-char DAT_4000243b;
-char DAT_40002421;
 char DAT_4000243a;
-char DAT_40002420;
-char DAT_40002439;
-char DAT_4000241f;
-char DAT_40002438;
+bool prog_version_mismatch;
 char DAT_40001754;
 u32_time_us DAT_40001750;
-undefined1 DAT_40001736;
 undefined2 DAT_40001738;
-uint8_t INTC_PSR+0x63;
 undefined DAT_00030d40;
+uint8_t INTC_PSR+0x63;
 uint8_t INTC_PSR+0x55;
+undefined1 cam_sync_pulse_count;
+undefined1 cam_edge_watchdog;
+undefined1 cam_park_check_done_inlet_b1;
 u32_time_us inj_startup_pulse_time;
+undefined1 cam_edge_watchdog_inlet_b2;
+undefined1 cam_edge_watchdog_exhaust_b1;
+undefined1 cam_park_check_done_exhaust_b1;
+undefined1 cam_edge_watchdog_exhaust_b2;
+undefined1 cam_park_check_done_exhaust_b2;
+undefined1 cal_verification_lockout;
 uint8_t INTC_PSR+0x4c;
 uint8_t INTC_PSR+0x4d;
 uint8_t INTC_PSR+0x48;
@@ -1553,8 +1559,7 @@ char DAT_400017d9;
 ushort DAT_40001784;
 char DAT_40001798;
 short DAT_400017aa;
-undefined1 DAT_4000ca3d;
-undefined1 DAT_40002422;
+undefined1 CAL_obd_ii_crank_cam_error_count_max;
 u16_angle_1/4deg obd_ii_vvt_inlet_position_bank1;
 uint8_t DAT_40001795;
 uint8_t DAT_4000179d;
@@ -1568,12 +1573,7 @@ char DAT_4000172b;
 ushort DAT_40001786;
 char DAT_40001799;
 short DAT_400017ac;
-undefined1 DAT_40002421;
 u16_angle_1/4deg obd_ii_vvt_inlet_angle_bank2;
-uint8_t DAT_40001793;
-uint8_t DAT_4000179b;
-short DAT_400017b0;
-short DAT_400017a0;
 uint32_t DAT_400017bc;
 int DAT_400017cc;
 char DAT_4000178b;
@@ -1582,7 +1582,6 @@ char DAT_4000172d;
 ushort DAT_40001780;
 char DAT_40001797;
 short DAT_400017a8;
-undefined1 DAT_4000241f;
 u16_angle_1/4deg obd_ii_vvt_exhaust_position_bank2;
 uint8_t DAT_40001792;
 uint8_t DAT_4000179a;
@@ -1596,16 +1595,15 @@ char DAT_4000172c;
 ushort DAT_40001782;
 char DAT_40001796;
 short DAT_400017a6;
-undefined1 DAT_40002420;
 u16_angle_1/4deg obd_ii_vvt_exhaust_position_bank1;
 undefined1 cyl_fuelcut_sparking_mask;
 char DAT_400017f3;
 char DAT_400017f8;
 byte DAT_4000174b;
-byte DAT_400087ee;
 byte DAT_40001464;
-undefined1 DAT_40001758;
 undefined1 ign_per_cyl_fire_enable;
+undefined1 CAL_dfco_cyl_ramp_length;
+undefined1 next_firing_cyl_index;
 undefined2 coilpack_failure_flags;
 undefined4 misfire_condition_flags;
 undefined1 ign_cyl_cut_flags;
@@ -1622,16 +1620,13 @@ byte DAT_40001467;
 char DAT_400017ef;
 char DAT_400017fc;
 byte DAT_40001468;
-char DAT_400017ee;
 char DAT_400017fd;
 byte DAT_40001469;
+undefined1 cyl_fire_counter_unknown;
 char DAT_40001744;
 byte DAT_40001745;
 char DAT_400017ed;
 undefined DAT_000cc3a8;
-char DAT_400017f4;
-undefined1 DAT_4000174c;
-byte DAT_40001758;
 undefined4 engine_state_failure_flags;
 u16_voltage_5/1023v sensor_adc_maf2;
 u16_voltage_5/1023v sensor_adc_maf1;
@@ -1678,19 +1673,19 @@ undefined2 dfco_cut_duration;
 byte DAT_400086cb;
 byte DAT_400087f0;
 ushort DAT_40000000;
-byte DAT_40001737;
 undefined2 DAT_40000010;
 byte DAT_4000872a;
 ushort DAT_40000016;
-undefined2 engine_speeed_period_avg;
 ushort DAT_40000014;
+undefined2 engine_speeed_period_avg;
 ushort DAT_40000012;
-byte DAT_40008706;
 byte DAT_400086ab;
 undefined4 rpm_or_roughness_measure_unknown;
 u16_time_5ms CAL_ecu_obd_mode2F_timer;
 u32_time_us inj_dfco_recovery_enrichment;
 u16_time_5ms timer_engine_off_unknown1;
+undefined1 slow_period_update_divider;
+undefined1 CAL_engine_speed_avg_samples;
 uint32_t DSPI_B.popr;
 uint32_t DSPI_B.ctar[0];
 uint32_t DSPI_B.sr;
@@ -1896,32 +1891,31 @@ undefined2 DAT_fff45106;
 undefined4 DAT_fff45100;
 undefined4 DAT_fff4510c;
 undefined4 DAT_fff45108;
-undefined4 DAT_c3fa0000;
+undefined4 EMIOS_MCR;
 undefined DAT_000cc3e8;
 struct_emios_unified_channel_register[24] emios_uc;
 uint8_t[212] INTC_PSR;
+byte EMIOS_CSR6;
 char DAT_40001818;
-byte emios_uc[0].uc[208];
 char DAT_4000181a;
-undefined4 DAT_40001820;
+undefined4 nonabs_wheel_speed_period_ticks;
 undefined1 DAT_4000181a;
-uint DAT_40001820;
-byte emios_uc[0].uc[160];
-byte emios_uc[0].uc[176];
-byte emios_uc[0].uc[164];
+byte EMIOS_CSR5;
+byte EMIOS_CADR5;
+byte EMIOS_CBDR5;
 uint16_t siu_pcr[188];
-undefined4 fuel_level_sensor_flag;
-undefined1 fuel_level_sensor_data_raw;
-byte emios_uc[1].uc[32];
-byte emios_uc[1].uc[48];
-byte emios_uc[1].uc[36];
+undefined4 ac_compressor_speed_period_us;
+undefined1 ac_compressor_speed_pulse_seen;
+byte EMIOS_CSR9;
+byte EMIOS_CADR9;
+byte EMIOS_CBDR9;
 undefined1 lookup_bounds_???;
 undefined1 ips_state_flags;
-byte DAT_400086db;
-byte DAT_400087e9;
 undefined1 clutch_pos_sensor;
 u8_volume_1/10gallon CAL_fuel_level_debounce_window_low;
 u16_volume_1/10gallon CAL_fuel_level_debounce_window_high???;
+undefined1 CAL_fuel_level_filter_coeff_rise;
+undefined1 CAL_fuel_level_filter_coeff_fall;
 u16_voltage_5/1023v[8] CAL_sensor_fuel_level_X_voltage;
 u16_volume_1/10gallon[8] CAL_sensor_fuel_level;
 undefined4 fuel_level_filtered_x40000;
@@ -1933,7 +1927,7 @@ u16_volume_1/10gallon CAL_fuel_level_change_threshold;
 u16_volume_1/10gallon fuel_level;
 u16_voltage_5/1023v[2] CAL_sensor_fuel_level_sensor_voltage_threshold;
 uint DAT_40001828;
-byte DAT_4000c9e1;
+undefined1 CAL_evap_pressure_filter_coeff;
 uint16_t[45] adc_sample_buffer_primary;
 uint16_t[11] adc_sample_buffer_secondary;
 struct_digital_input_cfg[14] digital_input_config;
@@ -1950,6 +1944,7 @@ u8_temp_5/8-40c u8_temp_5/8-40c_400088db;
 char DAT_40001c6c;
 char DAT_400018d9;
 byte DAT_40001611;
+uint8_t DEV_tc_status_led;
 uint8_t LEA_obd_ii_U0122_dtc_state;
 bool race_button_state;
 uint8_t[2] driver_input_flags;
@@ -1960,7 +1955,6 @@ u16_voltage_5/1023v CAL_sensor_clutch_disengaged_threshold;
 u16_time_10ms CAL_ecu_vehicle_mode_button_time;
 u16_voltage_5/1023v clutch_pos_voltage;
 u16_factor_1/1023 accel_pedal_latched;
-uint8_t siu_gpdo+0xcf;
 enum_vehicle_mode vehicle_mode;
 bool obd_dyno_mode_active;
 bool engine_breakin_distance_complete;
@@ -2015,10 +2009,6 @@ u8_time_5ms CAL_ecu_brake_or_clutch_inactive_timer;
 bool throttle_actuator_activity;
 uint8_t CAL_ecu_learning_x_axis_stability_threshold;
 uint8_t CAL_ecu_learning_y_axis_stability_threshold;
-uint DAT_400018a8;
-byte DAT_4000cb03;
-byte DAT_400086d7;
-byte DAT_400086ad;
 byte DAT_40008726;
 short DAT_4000185a;
 uint DAT_40002250;
@@ -2029,8 +2019,8 @@ byte DAT_40008939;
 u16_pressure_mbar u16_pressure_mbar_40001882;
 byte DAT_4000893f;
 uint8_t[16] s_!;AQar_40008ccc;
-enum_oil_pressure_sensor_mode CAL_oil_pressure_warning_light_mode;
 uint8_t[16] s__ghlqty}_40008cdc;
+enum_oil_pressure_sensor_mode CAL_oil_pressure_warning_light_mode;
 undefined1 sensor_temp_unk1_diag;
 undefined1 sensor_temp_unk2_diag;
 undefined2 sensor_temp_unk1_raw;
@@ -2062,7 +2052,11 @@ uint8_t CAL_trans_cooler_temp_scaling;
 u8_factor_1/100 CAL_sensor_intake_air_temp_filter_scaling;
 u8_voltage_5/255v CAL_ecu_ign_threshold;
 u16_temp_1/10C obd_ii_ac_evap_temp;
+undefined4 ac_evap_temp_raw;
+undefined1 CAL_sensor_coolant_filter_alpha;
+undefined1 CAL_sensor_airtemp_tmaf_filter_alpha;
 uint8_t fuel_level_raw;
+undefined1 CAL_sensor_ac_evap_temp_filter_alpha;
 u8_temp_5/8-40c trans_fluid_temp_u8;
 u8_temp_5/8-40c coolant_temp_derived3;
 undefined2 ac_evap_temp;
@@ -2244,7 +2238,7 @@ undefined2 ign_adv_from_roughness_detection;
 undefined2 __ign_comp_roughness_detection;
 i16_angle_1/4deg[6] ign_adv_with_knock_retard;
 u8_angle_1/4deg[6] ign_knock_retard;
-u8_angle_1/4deg[6] ign_retard_knock;
+u8_angle_1/4deg[6] ign_knock_retard_octane;
 i16_angle_1/4deg[6] ign_adv_with_torque_retard;
 byte DAT_4000869a;
 u8_time_5ms ign_target_step_prescaler;
@@ -2430,9 +2424,9 @@ u16_factor_1/32[168] CAL_inj_cranking_enrichment_coolant_manual;
 uint8_t fuel_control_mode_flags;
 i16_factor_1/20 stft_bank1;
 i16_factor_1/20 stft_bank2;
-char DAT_400014a4;
 uint16_t uint16_t_4000149c;
 byte DAT_40008964;
+undefined1 soak_timer_tick_10hz???;
 u16_time_100ms CAL_inj_soak_time_max;
 u8_time_5ms rev_limit_active_time_divider;
 undefined *DAT_400019fc;
@@ -2479,7 +2473,7 @@ undefined2 lea_cal_version_stamp;
 undefined2 lea_init_stamp_lo;
 undefined2 lea_init_stamp_hi;
 bool LEA_cod_changed;
-char[32] ecu_prog_version;
+char[32] prog_name;
 undefined1 CAL_lea_misfire_baseline_set;
 u16_factor_1/10000 u16_factor_1/10000_400040ce;
 uint16_t LEA_idle_cold_learning_coolant;
@@ -2493,74 +2487,74 @@ u8_rspeed_125/4+500rpm[20] CAL_load_to_tps_mapping_X_rpm;
 u16_flow_10mg/s LEA_obd_ii_idle_learn;
 undefined1 LEA_fuel_learn_zone_2_bank2;
 undefined1 obd_ii_fuel_learn_zone_3_bank2;
-undefined2 DAT_400047c4;
-undefined2 DAT_400047c6;
-undefined2 DAT_400047c8;
-undefined2 DAT_400047ca;
-undefined2 DAT_400047cc;
-undefined2 DAT_400047ce;
-undefined2 DAT_400047d0;
-undefined2 DAT_400047d2;
-undefined1 DAT_4000d3bc;
-undefined1 DAT_4000489c;
 undefined2 DAT_400049a6;
-undefined2 DAT_40004774;
-undefined2 DAT_40004788;
-uint16_t[10] uint16_t_ARRAY_4000479c;
-undefined2 DAT_400047b0;
-undefined2 DAT_400047d4;
-undefined2 DAT_400047e8;
-undefined2 DAT_400047fc;
-undefined2 DAT_40004810;
-undefined2 DAT_40004824;
-undefined2 DAT_40004838;
-undefined2 DAT_4000484c;
-undefined2 DAT_40004860;
-undefined2 DAT_40004874;
-undefined2 DAT_40004888;
-undefined1 DAT_40003f14;
-undefined1 DAT_40003f15;
-undefined1 DAT_40003f16;
-undefined1 DAT_40003f17;
-undefined2 DAT_40003f18;
-struct_top_rpm_event[5] struct_top_rpm_event_ARRAY_40003f24;
+undefined2 LEA_obd_monitor_01;
+undefined2 LEA_obd_monitor_02;
+undefined2 LEA_obd_monitor_05;
+undefined2 LEA_obd_monitor_06;
+undefined2 LEA_obd_monitor_07;
+uint16_t[10] LEA_obd_monitor_03;
+undefined2 LEA_obd_monitor_04;
+undefined2 LEA_obd_monitor_08;
+undefined2 LEA_obd_monitor_09;
+undefined2 LEA_obd_monitor_10;
+undefined2 LEA_obd_monitor_11;
+undefined2 LEA_obd_monitor_12;
+undefined2 LEA_obd_monitor_13;
+undefined2 LEA_obd_monitor_14;
+undefined2 LEA_obd_monitor_flag_A;
+undefined2 LEA_obd_monitor_flag_B;
+undefined2 LEA_obd_monitor_flag_C;
+undefined2 LEA_obd_monitor_flag_D;
+undefined2 LEA_obd_monitor_flag_E;
+undefined2 LEA_obd_monitor_flag_F;
+undefined2 LEA_obd_monitor_flag_G;
+undefined2 LEA_obd_monitor_flag_H;
+undefined1 CAL_obd_monitor_sentinel_init;
+undefined1 LEA_obd_monitor_sentinel;
 uint16_t[5] obd_ii_max_vehicle_speed;
+struct_top_rpm_event[5] LEA_perf_stat_gear1_hi;
 undefined4 car_distance_accum_unknown;
+undefined1 LEA_perf_stat_sentinel_max1;
+undefined1 LEA_perf_stat_sentinel_max2;
+undefined1 LEA_obd_ii_last_standing_start_0_100kmh;
+undefined1 LEA_obd_ii_last_standing_start_0_160kmh;
 u32_time_100ms engine_run_timer_total;
+undefined2 LEA_number_standing_starts;
 uint32_t[8] LEA_time_at_rpm;
 uint32_t[8] LEA_time_at_speed;
 uint32_t[8] LEA_time_at_tps;
 uint32_t[4] LEA_time_at_temp;
-undefined1 DAT_40004084;
-undefined1 DAT_40004085;
-undefined2 DAT_40004086;
-undefined2 DAT_40004088;
-undefined4 DAT_4000408c;
-undefined1 DAT_400040a8;
-u8_speed_kph u8_speed_kph_400040a9;
-u16_rspeed_rpm u16_rspeed_rpm_400040aa;
-undefined2 DAT_400040ac;
-undefined4 DAT_400040b0;
+undefined1 LEA_perf_struct_A_byte0;
 u8_count total_num_low_oil_pres_events;
+undefined2 LEA_perf_struct_A_word0;
+undefined2 LEA_perf_struct_A_word1;
+undefined1 LEA_perf_struct_A_byte1;
+undefined4 LEA_perf_struct_A_dword;
+undefined1 LEA_perf_struct_A_b_byte0;
+u16_rspeed_rpm LEA_perf_struct_A_b_word0;
 uint32_t[6] time_at_lat_g;
-undefined2 DAT_4000489e;
+undefined2 LEA_perf_struct_A_b_word1;
+u8_speed_kph LEA_perf_struct_A_b_byte1;
+undefined4 LEA_perf_struct_A_b_dword;
 undefined2 DAT_400048a0;
 undefined2 DAT_400048a2;
 undefined2 DAT_400048a4;
-undefined4 fuel_usage_running_total_avg_trip;
 undefined1 DAT_400048a7;
-u32_distance_1/112500km car_speed_running_total_avg_trip;
+undefined4 fuel_usage_running_total_avg_trip;
 undefined1 DAT_400049c1;
+u32_distance_1/112500km car_speed_running_total_avg_trip;
 undefined4 fuel_usage_running_total_range_to_empty;
-undefined2 DAT_400048a8;
-u32_distance_1/112500km car_speed_running_total_range_to_empty;
-undefined1 DAT_400048a6;
-u16_distance_km LEA_fuel_range_smoothed;
 undefined1 DAT_40004a0c;
+u32_distance_1/112500km car_speed_running_total_range_to_empty;
 undefined1 DAT_40004a0d;
+u16_distance_km LEA_fuel_range_smoothed;
 undefined1 DAT_40004a0e;
+undefined2 LEA_hc08_sf_mode_max_duration;
 undefined1 DAT_40004a0f;
+undefined1 LEA_hc08_sf_mode_event_count;
 undefined1 DAT_40004a10;
+undefined2 LEA_tps_track_a_closed_count;
 undefined2 fuel_economy_factor_smoothed;
 uint8_t[8] LEA_cat_o2_accum_b1_postcat;
 byte DAT_400048ec;
@@ -2570,230 +2564,213 @@ uint8_t[8] LEA_cat_o2_accum_b2_postcat;
 u8_mass_g[8] CAL_obd_cat_monitor_threshold_manual_X_maf_flow;
 uint8_t[8] LEA_cat_o2_accum_b1_precat;
 u8_mass_g[8] CAL_obd_cat_monitor_threshold_ips_X_maf_flow;
-undefined2 DAT_40004724;
-undefined2 DAT_4000474a;
 uint16_t LEA_obd_ii_J1979_OBDCOND;
 uint16_t LEA_obd_ii_J1979_IGN_CNTR;
+undefined2 LEA_obd_iumpr_denominator;
+undefined2 LEA_obd_iumpr_numerator;
 undefined1 DAT_400048ec;
 uint8_t LEA_obd_ii_P025D_dtc_state;
 undefined1 DAT_400048eb;
 uint8_t LEA_obd_ii_P025D_fail_counter;
 undefined1 DAT_400048f0;
 uint8_t LEA_obd_ii_P025D_pass_counter;
-undefined2 DAT_400048f2;
-uint8_t LEA_obd_ii_P0480_dtc_state;
 undefined1 DAT_400048f4;
-uint8_t LEA_obd_ii_P0480_fail_counter;
+uint8_t LEA_obd_ii_P0480_dtc_state;
 undefined1 DAT_400048f5;
-uint8_t LEA_obd_ii_P0480_pass_counter;
+uint8_t LEA_obd_ii_P0480_fail_counter;
 undefined1 DAT_400048f6;
-uint8_t LEA_obd_ii_P0482_dtc_state;
+uint8_t LEA_obd_ii_P0480_pass_counter;
 undefined1 DAT_400048f7;
-uint8_t LEA_obd_ii_P0482_fail_counter;
+uint8_t LEA_obd_ii_P0482_dtc_state;
 undefined1 DAT_400048f8;
-uint8_t LEA_obd_ii_P0482_pass_counter;
+uint8_t LEA_obd_ii_P0482_fail_counter;
 undefined1 DAT_400048f9;
-uint8_t LEA_obd_ii_P0135_dtc_state;
+uint8_t LEA_obd_ii_P0482_pass_counter;
 undefined1 DAT_400048fa;
-uint8_t LEA_obd_ii_P0135_fail_counter;
+uint8_t LEA_obd_ii_P0135_dtc_state;
 undefined1 DAT_400048fb;
-uint8_t LEA_obd_ii_P0135_pass_counter;
-undefined2 DAT_400048fc;
-uint8_t LEA_obd_ii_P0155_dtc_state;
-undefined1 DAT_400048fe;
-uint8_t LEA_obd_ii_P0155_fail_counter;
-undefined1 DAT_400048ff;
-uint8_t LEA_obd_ii_P0155_pass_counter;
-undefined1 DAT_40004900;
-uint8_t LEA_obd_ii_P0141_dtc_state;
-undefined2 DAT_40004902;
-uint8_t LEA_obd_ii_P0141_fail_counter;
-undefined1 DAT_40004904;
-uint8_t LEA_obd_ii_P0141_pass_counter;
-undefined2 DAT_40004906;
-uint8_t LEA_obd_ii_P0161_dtc_state;
-undefined1 DAT_40004908;
-uint8_t LEA_obd_ii_P0161_fail_counter;
-undefined1 DAT_40004909;
-uint8_t LEA_obd_ii_P0161_pass_counter;
-undefined1 DAT_4000490a;
-uint8_t LEA_obd_ii_P2602_dtc_state;
-undefined2 DAT_4000490c;
-uint8_t LEA_obd_ii_P2602_fail_counter;
-undefined2 DAT_4000490e;
-uint8_t LEA_obd_ii_P2602_pass_counter;
-undefined2 DAT_40004910;
-uint8_t LEA_obd_ii_P2603_dtc_state;
+uint8_t LEA_obd_ii_P0135_fail_counter;
 undefined1 DAT_40004912;
-uint8_t LEA_obd_ii_P2603_fail_counter;
+uint8_t LEA_obd_ii_P0135_pass_counter;
 undefined1 DAT_40004913;
-uint8_t LEA_obd_ii_P2603_pass_counter;
+uint8_t LEA_obd_ii_P0155_dtc_state;
 undefined1 DAT_40004914;
-uint8_t LEA_obd_ii_P2612_dtc_state;
+uint8_t LEA_obd_ii_P0155_fail_counter;
 undefined1 DAT_40004978;
-uint8_t LEA_obd_ii_P2612_fail_counter;
+uint8_t LEA_obd_ii_P0155_pass_counter;
 undefined1 DAT_40004948;
-uint8_t LEA_obd_ii_P2612_pass_counter;
+uint8_t LEA_obd_ii_P0141_dtc_state;
 undefined1 DAT_400049bc;
-uint8_t LEA_obd_ii_P2613_dtc_state;
+uint8_t LEA_obd_ii_P0141_fail_counter;
 undefined1 DAT_400049bd;
-uint8_t LEA_obd_ii_P2613_fail_counter;
+uint8_t LEA_obd_ii_P0141_pass_counter;
 undefined1 DAT_400049be;
-uint8_t LEA_obd_ii_P2613_pass_counter;
+uint8_t LEA_obd_ii_P0161_dtc_state;
 undefined1 DAT_400049bf;
-uint8_t LEA_obd_ii_P0616_dtc_state;
+uint8_t LEA_obd_ii_P0161_fail_counter;
 undefined4 DAT_400049e4;
-uint8_t LEA_obd_ii_P0616_fail_counter;
+uint8_t LEA_obd_ii_P0161_pass_counter;
 undefined1 DAT_400049e8;
-uint8_t LEA_obd_ii_P0616_pass_counter;
+uint8_t LEA_obd_ii_P2602_dtc_state;
 undefined1 DAT_400049e9;
-uint8_t LEA_obd_ii_P0617_dtc_state;
+uint8_t LEA_obd_ii_P2602_fail_counter;
 undefined1 DAT_400049ea;
-uint8_t LEA_obd_ii_P0617_fail_counter;
+uint8_t LEA_obd_ii_P2602_pass_counter;
 undefined4 DAT_400049ec;
-uint8_t LEA_obd_ii_P0617_pass_counter;
+uint8_t LEA_obd_ii_P2603_dtc_state;
 undefined1 DAT_40004a11;
-uint8_t LEA_obd_ii_P2170_dtc_state;
+uint8_t LEA_obd_ii_P2603_fail_counter;
 undefined2 DAT_40004a12;
-uint8_t LEA_obd_ii_P2170_fail_counter;
+uint8_t LEA_obd_ii_P2603_pass_counter;
 undefined1 DAT_40004b16;
-uint8_t LEA_obd_ii_P2170_pass_counter;
+uint8_t LEA_obd_ii_P2612_dtc_state;
 undefined1 DAT_40004b17;
-uint8_t LEA_obd_ii_P2171_dtc_state;
+uint8_t LEA_obd_ii_P2612_fail_counter;
 undefined1 DAT_40004b18;
-uint8_t LEA_obd_ii_P2171_fail_counter;
+uint8_t LEA_obd_ii_P2612_pass_counter;
 undefined1 DAT_40004b19;
-uint8_t LEA_obd_ii_P2171_pass_counter;
+uint8_t LEA_obd_ii_P2613_dtc_state;
 undefined1 DAT_40004b1a;
-uint8_t LEA_obd_ii_P023B_dtc_state;
+uint8_t LEA_obd_ii_P2613_fail_counter;
 undefined1 DAT_40004b1b;
-uint8_t LEA_obd_ii_P023B_fail_counter;
-uint8_t LEA_obd_ii_P023B_pass_counter;
+uint8_t LEA_obd_ii_P2613_pass_counter;
 undefined1 DAT_40004c2d;
-uint8_t LEA_obd_ii_P023C_dtc_state;
+uint8_t LEA_obd_ii_P0616_dtc_state;
 undefined1 DAT_40004c2e;
-uint8_t LEA_obd_ii_P023C_fail_counter;
+uint8_t LEA_obd_ii_P0616_fail_counter;
 undefined1 DAT_40004c2f;
-uint8_t LEA_obd_ii_P023C_pass_counter;
+uint8_t LEA_obd_ii_P0616_pass_counter;
 undefined1 DAT_40004c30;
-uint8_t LEA_obd_ii_P123B_dtc_state;
+uint8_t LEA_obd_ii_P0617_dtc_state;
 undefined1 DAT_40004c31;
-uint8_t LEA_obd_ii_P123B_fail_counter;
+uint8_t LEA_obd_ii_P0617_fail_counter;
 uint8_t uint8_t_40004c32;
+uint8_t LEA_obd_ii_P0617_pass_counter;
 undefined2 DAT_4000494a;
-uint8_t LEA_obd_ii_P123B_pass_counter;
-undefined2 DAT_4000494c;
-uint8_t LEA_obd_ii_P123C_dtc_state;
-undefined2 DAT_4000494e;
-uint8_t LEA_obd_ii_P123C_fail_counter;
+uint8_t LEA_obd_ii_P2170_dtc_state;
 undefined2 DAT_40004950;
-uint8_t LEA_obd_ii_P123C_pass_counter;
+uint8_t LEA_obd_ii_P2170_fail_counter;
 undefined2 DAT_40004952;
-uint8_t LEA_obd_ii_P2138_dtc_state;
+uint8_t LEA_obd_ii_P2170_pass_counter;
 undefined2 DAT_40004954;
-uint8_t LEA_obd_ii_P2138_fail_counter;
+uint8_t LEA_obd_ii_P2171_dtc_state;
 undefined2 DAT_40004956;
+uint8_t LEA_obd_ii_P2171_fail_counter;
+undefined1 DAT_40004958;
+uint8_t LEA_obd_ii_P2171_pass_counter;
+undefined1 DAT_40004959;
+uint8_t LEA_obd_ii_P023B_dtc_state;
+undefined1 DAT_4000495a;
+uint8_t LEA_obd_ii_P023B_fail_counter;
+undefined1 DAT_4000495b;
+uint8_t LEA_obd_ii_P023B_pass_counter;
+undefined4 DAT_4000495c;
+uint8_t LEA_obd_ii_P023C_dtc_state;
+undefined2 DAT_40004960;
+uint8_t LEA_obd_ii_P023C_fail_counter;
+undefined2 DAT_40004962;
+uint8_t LEA_obd_ii_P023C_pass_counter;
+undefined2 DAT_40004964;
+uint8_t LEA_obd_ii_P123B_dtc_state;
+undefined2 DAT_40004966;
+uint8_t LEA_obd_ii_P123B_fail_counter;
+undefined4 DAT_40004968;
+uint8_t LEA_obd_ii_P123B_pass_counter;
+undefined2 DAT_4000496e;
+uint8_t LEA_obd_ii_P123C_dtc_state;
+undefined2 DAT_40004990;
+uint8_t LEA_obd_ii_P123C_fail_counter;
+undefined2 DAT_4000498e;
+uint8_t LEA_obd_ii_P123C_pass_counter;
+undefined2 DAT_4000497c;
+uint8_t LEA_obd_ii_P2138_dtc_state;
+undefined2 DAT_4000497a;
+uint8_t LEA_obd_ii_P2138_fail_counter;
+undefined2 DAT_40004986;
 uint8_t LEA_obd_ii_P2138_pass_counter;
 undefined1 obd_ii_common_test_available;
 undefined1 obd_ii_engine_tests_completeness;
-undefined1 DAT_40004958;
+undefined2 DAT_40004984;
 uint8_t LEA_obd_ii_P2122_dtc_state;
-undefined1 DAT_40004959;
+undefined2 DAT_40004982;
 uint8_t LEA_obd_ii_P2122_fail_counter;
-undefined1 DAT_4000495a;
+undefined2 DAT_40004980;
 uint8_t LEA_obd_ii_P2122_pass_counter;
 undefined2 obd_ii_DTC_causing_FF;
-undefined1 DAT_4000495b;
+undefined2 DAT_4000497e;
 uint8_t LEA_obd_ii_P2123_dtc_state;
-undefined4 DAT_4000495c;
+undefined2 DAT_40004988;
 uint8_t LEA_obd_ii_P2123_fail_counter;
-undefined2 DAT_40004960;
+undefined2 DAT_4000498a;
 uint8_t LEA_obd_ii_P2123_pass_counter;
-undefined2 DAT_40004962;
+undefined2 DAT_4000498c;
 uint8_t LEA_obd_ii_P2127_dtc_state;
-undefined2 DAT_40004964;
+undefined2 DAT_40004992;
 uint8_t LEA_obd_ii_P2127_fail_counter;
-undefined2 DAT_40004966;
+undefined2 DAT_40004994;
 uint8_t LEA_obd_ii_P2127_pass_counter;
-undefined4 DAT_40004968;
+undefined2 DAT_40004996;
 uint8_t LEA_obd_ii_P2128_dtc_state;
-undefined1 DAT_4000496c;
+undefined2 DAT_40004998;
 uint8_t LEA_obd_ii_P2128_fail_counter;
-undefined2 DAT_4000496e;
+undefined2 DAT_400049a0;
 uint8_t LEA_obd_ii_P2128_pass_counter;
-undefined2 DAT_40004990;
-undefined2 DAT_4000498e;
+undefined2 DAT_4000499e;
+undefined2 DAT_4000499c;
 uint8_t LEA_obd_ii_P0101_dtc_state;
-undefined2 DAT_4000497c;
+undefined2 DAT_4000499a;
 uint8_t LEA_obd_ii_P0101_fail_counter;
-undefined2 DAT_4000497a;
+undefined1 DAT_400049a4;
 uint8_t LEA_obd_ii_P0101_pass_counter;
-undefined2 DAT_40004986;
+undefined1 DAT_400049a5;
 uint8_t LEA_obd_ii_P0102_dtc_state;
-undefined2 DAT_40004984;
+undefined1 DAT_400049ae;
 uint8_t LEA_obd_ii_P0102_fail_counter;
 uint32_t obd_ii_distance_traveled_with_MIL;
-undefined2 DAT_40004982;
+undefined2 DAT_400049f2;
 uint8_t LEA_obd_ii_P0102_pass_counter;
-undefined2 DAT_40004980;
+undefined2 DAT_400049f0;
 uint8_t LEA_obd_ii_P0103_dtc_state;
 u8_count obd_ii_warmups_since_code_cleared;
-undefined2 DAT_4000497e;
+undefined1 DAT_400049ad;
 uint8_t LEA_obd_ii_P0103_fail_counter;
 u16_distance_km obd_ii_distance_since_codes_cleared_km;
-undefined2 DAT_40004988;
-uint8_t LEA_obd_ii_P0103_pass_counter;
-undefined2 DAT_4000498a;
-uint8_t LEA_obd_ii_P0107_dtc_state;
-undefined2 DAT_4000498c;
-uint8_t LEA_obd_ii_P0107_fail_counter;
-undefined2 DAT_40004992;
-uint8_t LEA_obd_ii_P0107_pass_counter;
-undefined2 DAT_40004994;
-uint8_t LEA_obd_ii_P0108_dtc_state;
-undefined2 DAT_40004996;
-uint8_t LEA_obd_ii_P0108_fail_counter;
-undefined2 DAT_40004998;
-uint8_t LEA_obd_ii_P0108_pass_counter;
-undefined2 DAT_400049a0;
-uint8_t LEA_obd_ii_P0131_dtc_state;
-undefined2 DAT_4000499e;
-uint8_t LEA_obd_ii_P0131_fail_counter;
-undefined2 DAT_4000499c;
-uint8_t LEA_obd_ii_P0131_pass_counter;
-undefined2 DAT_4000499a;
-uint8_t LEA_obd_ii_P0132_dtc_state;
-undefined1 DAT_400049a4;
-uint8_t LEA_obd_ii_P0132_fail_counter;
-undefined1 DAT_400049a5;
-uint8_t LEA_obd_ii_P0132_pass_counter;
-undefined1 DAT_400049ae;
-uint8_t LEA_obd_ii_P0151_dtc_state;
-undefined2 DAT_400049f2;
-uint8_t LEA_obd_ii_P0151_fail_counter;
-undefined2 DAT_400049f0;
-uint8_t LEA_obd_ii_P0151_pass_counter;
-undefined1 DAT_400049ad;
-uint8_t LEA_obd_ii_P0152_dtc_state;
 undefined1 DAT_400049ac;
-uint8_t LEA_obd_ii_P0152_fail_counter;
+uint8_t LEA_obd_ii_P0103_pass_counter;
 undefined2 DAT_400049aa;
-uint8_t LEA_obd_ii_P0152_pass_counter;
+uint8_t LEA_obd_ii_P0107_dtc_state;
 undefined2 DAT_400049a8;
-uint8_t LEA_obd_ii_P0137_dtc_state;
+uint8_t LEA_obd_ii_P0107_fail_counter;
 u16_rspeed_1/4rpm[5] u16_rspeed_1/4rpm_ARRAY_4000491a;
-uint8_t LEA_obd_ii_P0137_fail_counter;
+uint8_t LEA_obd_ii_P0107_pass_counter;
 undefined2 DAT_40004924;
-uint8_t LEA_obd_ii_P0137_pass_counter;
+uint8_t LEA_obd_ii_P0108_dtc_state;
 undefined1 DAT_4000492e;
-uint8_t LEA_obd_ii_P0138_dtc_state;
+uint8_t LEA_obd_ii_P0108_fail_counter;
 undefined2 DAT_40004934;
-uint8_t LEA_obd_ii_P0138_fail_counter;
+uint8_t LEA_obd_ii_P0108_pass_counter;
 undefined1 DAT_4000493e;
-uint8_t LEA_obd_ii_P0138_pass_counter;
+uint8_t LEA_obd_ii_P0131_dtc_state;
 undefined1 DAT_40004943;
-uint8_t LEA_obd_ii_P0157_dtc_state;
+uint8_t LEA_obd_ii_P0131_fail_counter;
 undefined2 DAT_400049b0;
+uint8_t LEA_obd_ii_P0131_pass_counter;
+uint8_t LEA_obd_ii_P0132_dtc_state;
+uint8_t LEA_obd_ii_P0132_fail_counter;
+uint8_t LEA_obd_ii_P0132_pass_counter;
+uint8_t LEA_obd_ii_P0151_dtc_state;
+uint8_t LEA_obd_ii_P0151_fail_counter;
+uint8_t LEA_obd_ii_P0151_pass_counter;
+uint8_t LEA_obd_ii_P0152_dtc_state;
+uint8_t LEA_obd_ii_P0152_fail_counter;
+uint8_t LEA_obd_ii_P0152_pass_counter;
+uint8_t LEA_obd_ii_P0137_dtc_state;
+uint8_t LEA_obd_ii_P0137_fail_counter;
+uint8_t LEA_obd_ii_P0137_pass_counter;
+uint8_t LEA_obd_ii_P0138_dtc_state;
+uint8_t LEA_obd_ii_P0138_fail_counter;
+uint8_t LEA_obd_ii_P0138_pass_counter;
+uint8_t LEA_obd_ii_P0157_dtc_state;
 uint8_t LEA_obd_ii_P0157_fail_counter;
 uint8_t LEA_obd_ii_P0157_pass_counter;
 uint8_t LEA_obd_ii_P0158_dtc_state;
@@ -3024,6 +3001,23 @@ uint8_t LEA_obd_ii_P2797_pass_counter;
 uint8_t LEA_obd_ii_P0897_dtc_state;
 uint8_t LEA_obd_ii_P0897_fail_counter;
 uint8_t LEA_obd_ii_P0897_pass_counter;
+undefined2 obd_FF_fuel_system_status;
+undefined2 obd_FF_engine_speed;
+undefined1 obd_FF_car_speed;
+undefined1 obd_FF_ign_advance;
+undefined1 obd_FF_iat;
+undefined2 obd_FF_maf_flow_1;
+undefined1 obd_FF_tps_x4;
+undefined2 obd_FF_runtime_since_start;
+undefined1 obd_ff_commanded_evap_purge;
+undefined1 obd_FF_fuel_level;
+undefined1 obd_FF_atmo_pressure;
+undefined2 obd_FF_ecu_voltage;
+undefined2 obd_FF_load_abs_percentage;
+undefined2 obd_FF_afr_commanded;
+undefined2 obd_ii_car_speed_freeze_frame;
+undefined2 obd_ii_maf_flow_freeze_frame;
+undefined1 obd_ii_car_speed_FF_???;
 undefined1 obd_ii_FF_chargecooler_temp;
 undefined1 obd_ii_FF_throttle_target_pos;
 undefined1 obd_ii_FF_accelerator_pos_e;
@@ -3364,24 +3358,24 @@ byte DAT_40004b16;
 byte DAT_40004b19;
 byte DAT_40004c2d;
 byte DAT_40004c30;
-undefined1 DAT_40004067;
-undefined4 DAT_40003f4c;
-undefined2 DAT_40004054;
-undefined2 DAT_40004056;
 undefined2 DAT_40004058;
-undefined1 DAT_40004066;
-undefined4 DAT_40003f50;
-undefined2 DAT_4000405a;
-undefined2 DAT_4000405c;
-undefined2 DAT_4000405e;
 undefined2 DAT_40004060;
-undefined2 DAT_40004062;
 undefined2 DAT_40004064;
 u16_voltage_5/1023v[32] LEA_tps_fault_bank2_data;
-undefined2 DAT_400040cc;
 u16_voltage_5/1023v[32] LEA_tps_fault_sensor_data;
 undefined2 LEA_tps_fault_bank1_data;
+undefined1 LEA_learned_flags_0E4F;
 undefined2 LEA_tps_fault_trim_data;
+undefined4 LEA_tps_fault_ff_engine_runtime;
+undefined2 LEA_tps_fault_ff_ecu_runtime;
+undefined2 LEA_tps_fault_ff_ecu_voltage;
+undefined1 LEA_learned_flags_0E4E;
+undefined4 LEA_perf_stat_extra2;
+undefined2 LEA_tps_calib_retry_count;
+undefined2 LEA_tps_fault_event_count;
+undefined2 LEA_tps_fault_recovery_count;
+undefined2 LEA_tps_calib_pass_first_attempt;
+undefined2 LEA_tps_both_sensors_invalid_count;
 undefined2 diag_lea_reset_trigger;
 undefined1 DAT_40001a74;
 undefined4 DAT_40001a40;
@@ -3406,11 +3400,11 @@ undefined4 DAT_40001a5c;
 undefined *PTR_FUN_4000291c;
 undefined DAT_40001a48;
 undefined UNK_ffff8028;
-undefined4 DAT_c3f88008;
-undefined4 DAT_c3f8800c;
-undefined4 DAT_c3f88010;
-undefined4 DAT_c3f88004;
-undefined4 DAT_c3f88014;
+undefined4 FLASH_LMLR;
+undefined4 FLASH_HLR;
+undefined4 FLASH_SLMLR;
+undefined4 FLASH_LMSR;
+undefined4 FLASH_HSR;
 char[32] EEPROM_lea_base;
 undefined4 FLASH_MCR;
 char[32] PROG_mem_base;
@@ -3476,7 +3470,7 @@ u8_dutycycle_100/255[36] CAL_cooling_fan_base_engine_on;
 char DAT_40001b0a;
 u8_factor_1/255 CAL_cooling_fan_engine_bay_radfan_threshold_enable;
 u8_factor_1/255 CAL_cooling_fan_engine_bay_radfan_threshold_disable;
-bool fan_engine_bay_inhibit;
+bool fan_inhibit_coolant_falling;
 uint16_t CAL_cooling_engine_bay_fan_enable_delay;
 u8_temp_5/8-40c CAL_cooling_fan_engine_bay_airtemp_enable;
 u8_factor_1/255 CAL_cac_pump_diag_dutycycle_min;
@@ -3499,7 +3493,6 @@ bool o2_sensor1_heater_enable_state;
 bool o2_sensor2_heater_enable_state;
 bool o2_sensor5_heater_enable_state;
 bool o2_sensor6_heater_enable_state;
-byte DAT_40001b3a;
 short DAT_40001ace;
 cluster_data dash_data_CAN400;
 undefined1 cluster_flags;
@@ -3520,29 +3513,30 @@ undefined1 oil_pressure_warning_light_timer;
 u16_time_100ms lfb_pulse_toggle_timer;
 u8_rspeed_125/4+500rpm[8] CAL_cluster_oil_pressure_warn_threshold_X_engine_speed;
 uint16_t fuel_range_remaining;
+undefined1 ips_shift_light_flags;
 u8_rspeed_125/4+500rpm[8] CAL_cluster_oil_pressure_warn_threshold;
 uint16_t fuel_economy_instantaneous;
 uint16_t fuel_economy_avg;
 undefined2 cluster_shiftlight_rpm_offset;
-undefined1 cluster_run_state;
+undefined1 cluster_lamp_test_state;
 enum_slip_detect_mode CAL_slip_detect_mode;
 char DAT_40001b0e;
 byte DAT_40001b0f;
 byte DAT_40001b10;
 uint8_t siu_gpdo+0xb3;
-byte DAT_400014ab;
 byte DAT_400014aa;
 byte DAT_4000876c;
-char DAT_40001ae9;
-u8_temp_5/8-40c coolant_temp_sample_for_fan_control;
-u8_temp_5/8-40c coolant_temp_fan_sample_drop_amount;
+undefined1 cluster_lamp_test_timer;
+undefined1 fan_coolant_fall_check_timer;
+u8_temp_5/8-40c fan_coolant_fall_check_prev_temp;
+u8_temp_5/8-40c fan_coolant_fall_delta;
 bool exhaust_flap_state;
 u8_temp_5/8-40c CAL_cooling_fan_inhibit_temp_drop_threshold;
 undefined1 CAL_cooling_fan_inhibit_window_start_5s;
 uint8_t siu_gpdo+0x8f;
 undefined1 CAL_cooling_fan_inhibit_resample_period_100ms;
 undefined1 CAL_cooling_fan_inhibit_window_end_5s;
-u8_time_100ms trans_cooler_timer;
+u8_time_100ms cluster_500ms_divider;
 pointer PTR_DAT_000d0e98;
 bool CAL_exhaust_flap_sport_mode_enable;
 bool CAL_exhaust_flap_tour_mode_enable;
@@ -3568,9 +3562,9 @@ undefined1 exhaust_flap_flags;
 enum_exhaust_stationary_override CAL_exhaust_flap_stationary_override_enable;
 u16_factor_1/10000 exhaust_flap_dc;
 undefined1 exhaust_flap_state;
-uint DAT_40001ae0;
 uint16_t CAL_ecu_unknown_tire_circumference;
 u8_count CAL_ecu_abs_ring_teeth_count;
+undefined4 nonabs_wheelspeed;
 uint8_t CAL_wheel_speed_smoothing;
 bool message_102_complete;
 int8_t flexcan_a_tx_102_timer;
@@ -3580,7 +3574,6 @@ byte DAT_40001af1;
 ushort DAT_40001af8;
 byte DAT_400088a5;
 u8_count u8_count_40001af0;
-byte DAT_400088a3;
 u16_rspeed_1/4rpm u16_rspeed_1/4rpm_40001af2;
 ushort DAT_40001af4;
 undefined2 DAT_40004cd0;
@@ -3599,6 +3592,7 @@ byte DAT_400088a0;
 byte DAT_400088a8;
 byte DAT_400088a9;
 byte DAT_400088ac;
+undefined1 CAL_roughness_min_edge_count;
 u16_rspeed_1/4rpm[2] CAL_roughness_enable_rpm;
 u8_load_4mg/stroke[2] CAL_roughness_enable_load;
 u8_factor_1/100 CAL_roughness_delta_rpm_smoothing_factor;
@@ -3818,15 +3812,12 @@ u8_factor_1/255[16] CAL_knock_inhibit_tps_max;
 u16_volume_cc CAL_load_cylinder_volume;
 byte DAT_4000ca48;
 ushort DAT_4000ca4a;
-short DAT_4000ca20;
 byte DAT_40001c04;
 byte DAT_40001c0c;
 byte DAT_40001c08;
-byte DAT_4000ca49;
 byte DAT_400049bc;
 byte DAT_400049bd;
 byte DAT_40001bf8;
-byte DAT_4000ca70;
 byte DAT_4000d3f6;
 byte DAT_40001bf9;
 byte DAT_4000d3f7;
@@ -3834,12 +3825,10 @@ byte DAT_40001c05;
 byte DAT_40001c0d;
 byte DAT_40001c09;
 byte DAT_40001bfc;
-undefined2 vvt_start_time;
-byte DAT_4000d3a6;
 byte DAT_40001bfd;
-byte DAT_4000d3aa;
 byte DAT_40001c06;
 byte DAT_40001c0e;
+undefined2 vvt_start_time;
 byte DAT_40001c0a;
 byte DAT_400049bf;
 byte DAT_400049be;
@@ -3851,19 +3840,15 @@ byte DAT_40001c07;
 byte DAT_40001c0f;
 byte DAT_40001c0b;
 byte DAT_40001bfe;
-byte DAT_4000d3ae;
 byte DAT_40001bff;
 byte DAT_4000d3b2;
-char DAT_40002437;
 byte DAT_40001c00;
 byte DAT_4000d41b;
-char DAT_40002435;
 byte DAT_40001c01;
 byte DAT_4000d437;
 char DAT_40002436;
 byte DAT_40001c02;
 byte DAT_4000d438;
-char DAT_40002434;
 byte DAT_40001c03;
 byte DAT_4000d439;
 char DAT_40001cf9;
@@ -3887,6 +3872,15 @@ u8_obd2level_t6 CAL_obd_ii_P0022;
 u8_obd2level_t6 CAL_obd_ii_P0017;
 u8_obd2level_t6 CAL_obd_ii_P0018;
 u8_obd2level_t6 CAL_obd_ii_P0019;
+undefined2 CAL_obd_ii_vvt_exhaust_error_bank1_limit;
+undefined1 CAL_obd_ii_vvt_error_fail_count;
+undefined1 CAL_obd_ii_vvt_ok_pass_count;
+undefined1 CAL_obd_ii_P0014_maturing_limit;
+undefined1 CAL_obd_ii_P0015_maturing_limit;
+undefined1 CAL_obd_ii_P0024_maturing_limit;
+undefined1 cam_park_offset_fault_inlet_b1;
+undefined1 cam_park_offset_fault_exhaust_b1;
+undefined1 cam_park_offset_fault_exhaust_b2;
 undefined1 DAT_4000d3f6;
 undefined1 DAT_40001bf8;
 undefined1 DAT_4000d3f7;
@@ -3895,11 +3889,8 @@ undefined1 DAT_4000d42e;
 undefined1 DAT_40001bfa;
 undefined1 DAT_4000d42f;
 undefined1 DAT_40001bfb;
-undefined1 DAT_4000d3a6;
 undefined1 DAT_40001bfc;
-undefined1 DAT_4000d3aa;
 undefined1 DAT_40001bfd;
-undefined1 DAT_4000d3ae;
 undefined1 DAT_40001bfe;
 undefined1 DAT_4000d3b2;
 undefined1 DAT_40001bff;
@@ -3923,25 +3914,16 @@ undefined1 DAT_40001c0c;
 undefined1 DAT_40001c0d;
 undefined1 DAT_40001c0e;
 undefined1 DAT_40001c0f;
-byte DAT_40001c12;
 ushort DAT_40001c3e;
 ushort DAT_40001c3c;
 uint8_t *DAT_40001c24;
 uint8_t *DAT_40001c28;
 uint8_t *DAT_40001c2c;
 uint8_t *DAT_40001c30;
-byte DAT_4000c9f4;
-byte DAT_4000c9ff;
-byte DAT_4000c9fe;
-ushort DAT_4000c9f6;
-ushort DAT_4000c9f8;
 short DAT_40001c1e;
 short DAT_40001c20;
-byte DAT_4000c9f5;
 ushort DAT_4000c9f2;
 ushort DAT_40001c42;
-short DAT_4000ca18;
-short DAT_4000ca16;
 ushort DAT_40001c40;
 ushort DAT_40001c14;
 ushort DAT_40001c18;
@@ -3964,6 +3946,15 @@ u8_obd2level_t6 CAL_obd_ii_P0420;
 undefined2 obd_ii_o2_precat_sw_bank2;
 u8_obd2level_t6 CAL_obd_ii_P0430;
 uint16_t cl_status_bank2;
+undefined1 cat_monitor_min_maf_accum_thresh.;
+undefined1 CAL_obd_ii_cat_monitor_ect_min;
+undefined1 CAL_obd_ii_P0420_car_speed_min;
+undefined1 CAL_obd_ii_P0420_car_speed_max;
+undefined2 CAL_obd_ii_P0420_maf_min;
+undefined2 CAL_obd_ii_P0420_maf_max;
+undefined1 u8_temp_5/8-40c;
+undefined2 CAL_obd_ii_cat_precat_o2_rich_thresh;
+undefined2 CAL_obd_ii_cat_precat_o2_lean_thresh;
 undefined4 obd_ii_postcat_o2_mean_b1;
 float obd_ii_postcat_o2_mean_b2;
 undefined2 CAL_obd_ii_postcat_o2_switch_band_rich;
@@ -3973,8 +3964,8 @@ uint8_t[8] CAL_emissions_cat_efficiency_unknown1;
 u8_temp_5/8-40c[8] CAL_emissions_cat_efficiency_unknown1_X_coolant_temp;
 char DAT_40001c1c;
 char DAT_4000c9fb;
-byte DAT_4000872e;
 short DAT_40008730;
+undefined1 CAL_obd_o2_tps_transient_threshold;
 u8_factor_1/2560 CAL_obd_ii_postcat_o2_mean_filter_gain;
 undefined1 DAT_4000d3ed;
 undefined1 DAT_40001c10;
@@ -4034,41 +4025,31 @@ char DAT_400014c1;
 byte DAT_40001c58;
 ushort DAT_400087aa;
 byte DAT_40001c5b;
-short DAT_40003f18;
 byte DAT_40001c59;
 byte DAT_40001c5a;
-byte DAT_40003f16;
-byte DAT_40003f14;
-byte DAT_40003f17;
-byte DAT_40003f15;
 byte DAT_40001c5c;
 i16_accel_1/10g i16_accel_1/10g_40001c5e;
-u16_rspeed_rpm DAT_40004086;
-u8_speed_kph DAT_40004085;
 byte DAT_40001c5d;
 short DAT_40001c60;
 undefined1 DAT_40001c50;
 undefined DAT_ee6b2800;
 u16_distance_km CAL_ecu_engine_breakin_distance;
 undefined2 abs_esp_can_torque_request_flags;
+string obd_ii_DTC_pending;
 char DAT_400086d6;
 short DAT_40001c7c;
 byte DAT_40001c6c;
 uint16_t[128] obd_ii_dtc_current;
 uint16_t[128] obd_DTC_confirmed;
-undefined1 DAT_40001c75;
 char DAT_40001c86;
-undefined1 DAT_40001c74;
 short DAT_40001c8a;
 short DAT_40001c8c;
 byte DAT_4000cba7;
 short DAT_40001db4;
 short DAT_40001c88;
-uint8_t CAL_obd_ii_diag_unknown;
 byte DAT_4000cbb1;
-ushort DAT_4000cbae;
-short DAT_4000cba8;
 undefined1 DAT_40001c78;
+uint8_t CAL_obd_ii_diag_unknown;
 byte DAT_40001c7e;
 byte DAT_40001c7f;
 uint16_t DAT_40001c8e;
@@ -4083,11 +4064,7 @@ byte DAT_40001c81;
 uint16_t DAT_40001c94;
 undefined2 DAT_40001c72;
 ushort DAT_40001c84;
-string s__400014d0;
 uint16_t[128] obd_ii_dtc_pending;
-string s__400014d8;
-string s__400014e0;
-string s__400014e8;
 bool obd_ii_clear_dtc_request;
 uint8_t[2] CAL_obd_ii_coolant_warmup_thresholds;
 u8_percent_100/128-100 obd_ii_stft_bank1;
@@ -4097,20 +4074,22 @@ u8_percent_100/128-100 obd_ii_stft_bank2;
 u8_percent_100/128-100 obd_ii_ltft_bank1;
 uint8_t CAL_obd_ii_standards_supported;
 uint16_t[8] obd_ii_dtc_perm;
+undefined1 obd_warmup_ready;
+undefined2 CAL_obd_ii_monitor_rpm_delta_max;
+undefined2 CAL_obd_ii_drive_cycle_idle_time;
+string obd_ii_DTC_current;
+string obd_ii_perm_dtc;
+string obd_ii_DTC_confirmed;
 ushort DAT_4000c9ca;
+undefined1 obd_similar_cond_met_mask;
 byte DAT_4000c9c8;
-char DAT_40001c75;
-byte DAT_40001c68;
 undefined2 DAT_4000c9cc;
 byte DAT_400048f0;
-byte DAT_40008699;
+undefined1 CAL_ign_comp_coolant_engine_stopped_max;
 undefined1 freeze_frame_dtc_config;
 undefined4 freeze_frame_dtc;
 u8_count obd_ii_monitors_completed_this_drive_cycle;
 ushort DAT_4000494a;
-u16_rspeed_1/4rpm DAT_4000494c;
-u16_flow_10mg/s DAT_4000494e;
-u8_speed_kph DAT_4000496c;
 i16_factor_1/20 DAT_40004950;
 i16_factor_1/20 DAT_40004952;
 i16_factor_1/10pct DAT_40004954;
@@ -4124,19 +4103,12 @@ u16_voltage_5/1023v DAT_40004960;
 u16_voltage_5/1023v DAT_40004962;
 u16_voltage_5/1023v DAT_40004964;
 u16_voltage_5/1023v DAT_40004966;
-ushort DAT_400048f2;
 u8_factor_1/255 DAT_400048f4;
 u8_temp_-40c DAT_400048f5;
 u8_percent_100/128-100 DAT_400048f6;
 u8_percent_100/128-100 DAT_400048f7;
 u8_percent_100/128-100 DAT_400048f8;
 u8_percent_100/128-100 DAT_400048f9;
-u16_rspeed_1/4rpm DAT_400048fc;
-u8_speed_kph DAT_400048fe;
-char DAT_400048ff;
-u16_flow_10mg/s DAT_40004902;
-short DAT_4000490c;
-u16_factor_1/255 DAT_4000490e;
 u16_factor_1/1023 accelerator_pedal_pos_d;
 u16_factor_1/1023 accelerator_pedal_pos_e;
 undefined2 _obd_ii_commanded_evap_purge;
@@ -4145,15 +4117,14 @@ char DAT_40004978;
 byte DAT_4000c9c6;
 char DAT_40004948;
 undefined1 DAT_40001c7b;
-byte DAT_4000c9c7;
 byte DAT_40004978;
 byte DAT_4000ca12;
+undefined1 CAL_obd_ii_similar_cond_load_window;
 char DAT_40001c7b;
 char DAT_40001c78;
 undefined1 DAT_40001c9c;
 undefined DAT_00004e20;
 undefined DAT_00007530;
-undefined2 DAT_4000cba8;
 undefined2 DAT_40001c88;
 undefined2 DAT_4000cbaa;
 undefined2 DAT_40001c8a;
@@ -4197,41 +4168,38 @@ undefined2 DAT_40004eb0;
 byte DAT_4000d436;
 ushort DAT_40004eba;
 undefined2 DAT_40004ebc;
-char DAT_40001cbf;
-char DAT_40001cbd;
 char DAT_40002231;
 char DAT_40002232;
 char DAT_40002244;
 char DAT_40002245;
+undefined1 obd_P2135_not_failed;
 int DAT_40001cd8;
+undefined1 obd_P2119_not_failed;
 int DAT_40001cdc;
 short DAT_40001cd4;
-undefined1 tps_fault_flags;
+undefined1 etb_module_fault_latched;
 ushort DAT_40001ccc;
-bool accel_pedal_state_degraded;
-bool accel_pedal_fault_active;
+undefined2 hc08_sf_mode_duration;
+undefined1 tps_fault_flags;
 ushort DAT_4000ca88;
-byte DAT_40001cbe;
-bool tps_state_degraded;
+bool accel_pedal_state_degraded;
 byte DAT_4000d41c;
+undefined1 obd_P2173_fail_countdown.;
 undefined1 DAT_40001cc1;
+bool accel_pedal_fault_active;
 undefined1 DAT_40001cd0;
+bool tps_state_degraded;
 undefined1 DAT_40001cc0;
 undefined1 DAT_40001cc2;
 short DAT_40001cce;
 short DAT_40002246;
 byte DAT_40001cc4;
-undefined1 DAT_40001cc9;
 byte DAT_4000d420;
 undefined1 DAT_40001cc3;
 char DAT_40001cc5;
 char DAT_40001cc6;
 char DAT_40001cc7;
 char DAT_40001cc8;
-undefined struct_tps_shaping_flags_40007fe8;
-ushort DAT_40001cd2;
-ushort DAT_400048a8;
-char DAT_400048a6;
 enum_throttle_system_state throttle_control_mode;
 undefined1 hc08_obd_flags;
 undefined1 obd_ii_throttle_monitor_pass_counter;
@@ -4241,13 +4209,14 @@ u8_obd2level_t6 CAL_obd_ii_P0122;
 u8_load_2mg/stroke[64] CAL_load_plausibility_test_delta;
 u8_obd2level_t6 CAL_obd_ii_P0123;
 enum_throttle_actuator_state throttle_actuator_state;
-undefined1 tps_error_flags_snapshot;
+undefined1 etb_driver_diag_latched;
 undefined1 obd_ii_throttle_body_range_perf;
 u8_obd2level_t6 CAL_obd_ii_P0222;
 u8_obd2level_t6 CAL_obd_ii_P0223;
 u8_obd2level_t6 CAL_obd_ii_P2135;
 u8_obd2level_t6 CAL_obd_ii_P2119;
 u8_obd2level_t6 CAL_obd_ii_P1106;
+struct_tps_shaping_flags etb_driver_fault_debounce;
 u8_obd2level_t6 CAL_obd_ii_P1104;
 undefined1 latch_counter_p0122;
 undefined1 latch_counter_p0123;
@@ -4289,11 +4258,8 @@ undefined1 DAT_4000d3ee;
 undefined1 DAT_4000d3ef;
 undefined1 DAT_4000d3e6;
 undefined1 DAT_4000d418;
-undefined1 DAT_40001cbd;
 undefined1 DAT_4000d41c;
-undefined1 DAT_40001cbe;
 undefined1 DAT_4000d3f0;
-undefined1 DAT_40001cbf;
 undefined1 DAT_4000d41d;
 undefined1 DAT_4000d404;
 undefined1 DAT_4000d41e;
@@ -4309,35 +4275,35 @@ undefined1 DAT_40001cc7;
 undefined1 DAT_4000d424;
 undefined1 DAT_40001cc8;
 u8_obd2level_t6 CAL_obd_ii_P0441;
-uint DAT_40001e6c;
 byte DAT_4000c9e2;
-ushort DAT_4000216a;
-undefined1 DAT_40001ce8;
 char DAT_40001cf1;
-u8_obd2level_t6 CAL_obd_ii_P0446;
 byte DAT_4000c9e3;
 char DAT_4000c9e4;
-short DAT_40002182;
-short DAT_4000cb00;
-short DAT_4000caf6;
-char DAT_4000cafc;
 char DAT_40001cef;
+u8_obd2level_t6 CAL_obd_ii_P0446;
 char DAT_40001cee;
 short DAT_400023a0;
-short DAT_4000caf8;
-short DAT_4000cafa;
-short DAT_4000cb08;
-char DAT_4000cafd;
 byte DAT_40001cec;
 undefined1 DAT_4000caff;
 char DAT_40001e68;
-undefined1 DAT_4000cafe;
+undefined4 evap_system_state_flags;
 short DAT_40001e70;
+undefined2 evap_purge_flags;
 byte DAT_40001ce9;
+undefined1 evap_vent_valve_closed;
 byte DAT_4000d40a;
 char DAT_40002180;
+undefined2 evap_purge_vacuum_filtered;
 byte DAT_40001cea;
+undefined2 CAL_evap_purge_vacuum_min;
+undefined2 CAL_obd_ii_commanded_evap_purge_threshold;
 byte DAT_4000d416;
+undefined1 CAL_evap_purge_flow_state_timer_init;
+undefined2 CAL_evap_tank_vacuum_flow_threshold;
+undefined2 CAL_evap_system_state_flags_param;
+undefined2 CAL_evap_purge_flow_vacuum_min;
+undefined1 CAL_evap_canister_purge_solenoid_timer_init;
+undefined1 CAL_evap_purge_min_load;
 u8_obd2level_t6 CAL_obd_ii_P0455;
 uint8_t siu_gpdo+0xc3;
 undefined1 obd_ii_system_leak_status;
@@ -4354,35 +4320,33 @@ undefined1 DAT_40001cea;
 u8_speed_kph u8_speed_kph_40001d04;
 u8_rspeed_125/4+500rpm u8_rspeed_125/4+500rpm_4000ca3f;
 u8_rspeed_125/4+500rpm u8_rspeed_125/4+500rpm_4000ca9a;
-short DAT_4000ca38;
 short DAT_40001d00;
-u8_speed_kph u8_speed_kph_4000ca3c;
 ushort DAT_40001d02;
 byte DAT_40001cfd;
 byte DAT_4000d407;
 byte DAT_4000172e;
-byte DAT_4000ca3d;
 byte DAT_4000172a;
 byte DAT_4000172b;
 byte DAT_4000172c;
-u8_obd2level_t6 CAL_obd_ii_P0341;
 byte DAT_4000172d;
-u8_obd2level_t6 CAL_obd_ii_P0346;
 byte DAT_40001cf8;
-u8_obd2level_t6 CAL_obd_ii_P0366;
 byte DAT_4000d405;
-u8_obd2level_t6 CAL_obd_ii_P0391;
+u8_obd2level_t6 CAL_obd_ii_P0341;
 byte DAT_40001720;
-char DAT_40001736;
+u8_obd2level_t6 CAL_obd_ii_P0346;
 byte DAT_40001cf9;
+u8_obd2level_t6 CAL_obd_ii_P0366;
 byte DAT_4000d43f;
+u8_obd2level_t6 CAL_obd_ii_P0391;
 byte DAT_40001cfa;
 byte DAT_4000d440;
 byte DAT_40001cfb;
 byte DAT_4000d441;
-u8_obd2level_t6 CAL_obd_ii_P0500;
 byte DAT_40001cfc;
 byte DAT_4000d442;
+undefined2 CAL_obd_ii_P0500_test_time;
+u8_speed_kph CAL_obd_ii_P0500_car_speed_min;
+u8_obd2level_t6 CAL_obd_ii_P0500;
 bool tc_enable_condition_1;
 uint8_t CAL_obd_ii_monitor_debounce_cycles;
 u8_obd2level_t6 CAL_obd_ii_P0335;
@@ -4399,9 +4363,8 @@ undefined1 DAT_4000d441;
 undefined1 DAT_40001cfb;
 undefined1 DAT_4000d442;
 undefined1 DAT_40001cfc;
-undefined2 DAT_4000ca38;
 undefined2 DAT_40001d00;
-undefined2 ltft_rate_bank2;
+undefined2 stft_ramp_rate_bank2;
 byte DAT_40008874;
 uint16_t o2_switch_counter_bank2;
 u8_temp_5/8-40c u8_temp_5/8-40c_400086c4;
@@ -4422,12 +4385,11 @@ char DAT_40002073;
 char DAT_40002076;
 char DAT_40002078;
 char DAT_4000207a;
-undefined1 DAT_40001d38;
 char DAT_4000223c;
-u8_rspeed_125/4+500rpm[8] CAL_closedloop_o2_switch_threshold_X_rpm;
 char DAT_4000223d;
-uint8_t[8] CAL_closedloop_o2_switch_threshold;
+u8_rspeed_125/4+500rpm[8] CAL_closedloop_o2_switch_threshold_X_rpm;
 char DAT_40002045;
+uint8_t[8] CAL_closedloop_o2_switch_threshold;
 char DAT_4000207d;
 char DAT_4000206c;
 char DAT_4000206d;
@@ -4435,10 +4397,11 @@ char DAT_40002070;
 char DAT_40002071;
 char DAT_40002074;
 char DAT_40002075;
+undefined1 closed_loop_active_bank1;
 char DAT_40002077;
+undefined1 closed_loop_active_bank2;
 char DAT_40002079;
 char DAT_4000207b;
-undefined1 DAT_40001d39;
 u8_time_s[16] CAL_closedloop_activate_engine_timer;
 u8_rspeed_125/4+500rpm[8] CAL_closedloop_proportional_gain_rich_table_X_rpm;
 u8_load_4mg/stroke[8] CAL_closedloop_proportional_gain_rich_table_Y_load;
@@ -4462,10 +4425,10 @@ undefined1 CAL_closedloop_o2_switch_timeout_engine_cycles_ips;
 undefined1 CAL_closedloop_stft_ramp_interval_manual;
 u16_time_5ms closedloop_activate_time;
 undefined2 cl_proportional_gain_lean;
-i16_factor_1/20 cl_integral_gain;
+i16_factor_1/20 cl_jump_lean;
 u8_time_5ms CAL_closedloop_stft_increment_period;
 undefined2 cl_proportional_gain_rich;
-i16_factor_1/20 cl_derivative_gain;
+i16_factor_1/20 cl_jump_rich;
 undefined2 o2_switch_count_threshold;
 undefined2 o2_threshold_lean;
 uint16_t CAL_closedloop_proportional_gain_rich_ips;
@@ -4481,27 +4444,25 @@ int16_t CAL_closedloop_stft_idle_max_limit;
 u8_time_10us CAL_closedloop_max_tipin_enrichment;
 u8_time_10us CAL_closedloop_max_tipout_enleanment;
 undefined1 closedloop_o2_timer_unknown;
-undefined2 ltft_rate_bank1;
+undefined2 stft_ramp_rate_bank1;
 uint16_t o2_switch_counter_bank1;
-short DAT_40001d5c;
-ushort DAT_40001d3a;
 byte DAT_4000cb86;
 byte DAT_4000cb85;
-byte DAT_400087c9;
 i16_factor_1/20 i16_factor_1/20_40008808;
 u8_rspeed_125/4+500rpm CAL_closedloop_lean_protect_max_rpm;
 u8_factor_1/64 CAL_closedloop_proportional_gain_scale;
 undefined2 obd_ii_o2_response_test_flags_bank1;
-short DAT_40001d5e;
-ushort DAT_40001d3e;
+undefined2 stft_bank_sync_hold_timer_bank1;
+undefined2 stft_ramp_timer_bank1;
+undefined1 CAL_closedloop_prop_gain_lean_slow_switch_scale;
 undefined2 obd_ii_o2_response_test_flags_bank2;
+undefined2 stft_bank_sync_hold_timer_bank2;
+undefined2 stft_ramp_timer_bank2;
 byte DAT_4000cb87;
-byte DAT_40008761;
 undefined DAT_4000affa;
 undefined DAT_4000b002;
+undefined1 CAL_closedloop_bank_sync_max_hold;
 uint8_t CAL_closedloop_cross_bank_check_enable;
-u16_flow_10mg/s u16_flow_10mg/s_4000882e;
-u16_flow_10mg/s u16_flow_10mg/s_40008836;
 byte DAT_40008890;
 byte DAT_4000888f;
 byte DAT_400087dd;
@@ -4510,85 +4471,65 @@ u16_rspeed_rpm u16_rspeed_rpm_4000882c;
 ushort DAT_4000885a;
 byte DAT_4000880a;
 byte DAT_4000880b;
-ushort DAT_400016d8;
 byte DAT_400087a9;
-char DAT_4000883b;
 char DAT_4000cb59;
 char DAT_40001d50;
 char DAT_40001d60;
-short DAT_40001d14;
 ushort DAT_4000883c;
-byte DAT_40008840;
-ushort DAT_4000883e;
-byte DAT_40008841;
-ushort DAT_40008834;
-uint8_t CAL_inj_fuel_learn_time_step;
-ushort DAT_40008832;
 char DAT_4000cb5a;
 char DAT_40001d61;
-byte DAT_40008842;
-byte DAT_40008843;
-ushort DAT_40008838;
 char DAT_4000cb5b;
 char DAT_40001d62;
-byte DAT_40008844;
-byte DAT_40008845;
 char DAT_40001d51;
 char DAT_40001d63;
-short DAT_40001d16;
 char DAT_40001d64;
 char DAT_40001d65;
-ushort DAT_40001d22;
-ushort DAT_40001d1e;
-ushort DAT_40001d26;
-ushort DAT_40001d24;
-ushort DAT_40001d20;
-ushort DAT_40001d28;
 byte DAT_40001d6e;
+uint8_t CAL_inj_fuel_learn_time_step;
 ushort DAT_4000cac2;
 ushort DAT_4000cac0;
-uint DAT_40001d44;
-byte DAT_400086f7;
-uint DAT_40001d48;
+u16_flow_10mg/s CAL_inj_fuel_learn_zone_2_maf_max;
+u16_flow_10mg/s CAL_inj_fuel_learn_zone_3_maf_min;
+undefined1 CAL_inj_fuel_learn_step_period;
+undefined1 CAL_inj_fuel_learn_lean_time_limit;
+undefined2 stft_filtered_bank1;
+undefined2 CAL_inj_fuel_learn_stft_rich_limit;
+undefined1 CAL_inj_fuel_learn_rich_time_limit;
+undefined2 CAL_inj_fuel_learn_zone_2_load_min;
+undefined2 CAL_inj_fuel_learn_zone_2_load_max;
+undefined1 CAL_inj_fuel_learn_zone_2_max;
+undefined1 CAL_inj_fuel_learn_zone_2_min;
+undefined2 CAL_inj_fuel_learn_zone_3_load_min;
+undefined1 CAL_inj_fuel_learn_zone_3_max;
+undefined1 CAL_inj_fuel_learn_zone_3_min;
+undefined2 stft_filtered_bank2;
+undefined2 obd_ii_fuel_trim_idle_time_bank1;
+undefined2 obd_ii_fuel_trim_offidle_time_bank1;
+undefined2 obd_ii_fuel_trim_zone3_time_bank1;
+undefined2 obd_ii_fuel_trim_idle_time_bank2;
+undefined2 obd_ii_fuel_trim_offidle_time_bank2;
+undefined2 obd_ii_fuel_trim_zone3_time_bank2;
+undefined4 stft_filter_accum_bank1;
+undefined1 CAL_closedloop_stft_filter_unknown;
+undefined4 stft_filter_accum_bank2;
 u8_temp_5/8-40c CAL_closedloop_fuel_learn_iat_max;
 uint8_t fuel_learning_zone;
 u16_flow_10mg/s CAL_inj_fuel_learn_offset_maf_max;
 u16_flow_10mg/s CAL_inj_fuel_learn_zone_2_maf_min;
 u16_pressure_mbar CAL_closedloop_fuel_learn_baro_min;
 u8_temp_5/8-40c CAL_closedloop_fuel_learn_coolant_min;
-short DAT_4000ca22;
-byte DAT_4000ca56;
 byte DAT_400049a5;
-byte DAT_40001d68;
 byte DAT_4000d3f8;
-short DAT_4000ca24;
-byte DAT_4000ca57;
-byte DAT_40001d69;
 byte DAT_4000d3f9;
-byte DAT_40001d6a;
 byte DAT_4000d430;
-byte DAT_40001d6b;
 byte DAT_4000d431;
-byte DAT_4000cba6;
-ushort DAT_4000cba2;
-char DAT_4000cba5;
 char DAT_40001d93;
 char DAT_40001d95;
-char DAT_4000cba4;
-byte DAT_40001d6c;
 byte DAT_4000d45b;
 char DAT_40001d92;
 char DAT_40001d94;
-byte DAT_40001d6d;
 byte DAT_4000d45c;
-ushort DAT_4000cbd8;
-ushort DAT_4000cbda;
-byte DAT_4000cbdc;
-byte DAT_4000cbdd;
-byte DAT_4000cbe4;
 short DAT_40001d78;
-ushort DAT_4000cbde;
-ushort DAT_4000cbe0;
 byte DAT_40001d97;
 undefined2 DAT_40001d88;
 undefined1 DAT_40001d86;
@@ -4599,8 +4540,29 @@ undefined1 DAT_40001d7a;
 undefined1 DAT_40001d7b;
 u8_obd2level_t6 CAL_obd_ii_P2191;
 u8_obd2level_t6 CAL_obd_ii_P2193;
+undefined2 CAL_obd_P0171_ltft_limit;
+undefined1 CAL_obd_P0171_learn_time_threshold;
+undefined1 obd_ii_P0171_debounce_counter;
+undefined2 CAL_obd_P0172_ltft_limit;
+undefined1 CAL_obd_P0172_learn_time_threshold;
+undefined1 obd_ii_P0172_debounce_counter;
+undefined1 obd_ii_P0174_debounce_counter;
+undefined1 obd_ii_P0175_debounce_counter;
+undefined1 CAL_obd_ii_high_load_monitor_load_min;
+undefined2 CAL_obd_ii_high_load_monitor_afr_max;
+undefined1 CAL_obd_ii_P2192_rich_confirm_time;
+undefined1 CAL_obd_ii_P2191_lean_confirm_time;
+undefined1 obd_ii_P2191_debounce_counter;
+undefined1 obd_ii_P2193_debounce_counter;
 u8_obd2level_t6 CAL_obd_ii_P0171;
+undefined2 CAL_load_mass_per_stroke_raw_limit_3;
 u8_obd2level_t6 CAL_obd_ii_P0172;
+undefined2 CAL_obd_high_load_monitor_load_max;
+undefined1 CAL_engine_speed_3_limit_0;
+undefined1 CAL_engine_speed_3_threshold_4;
+undefined1 CAL_coolant_temp_limit_2;
+undefined2 CAL_maf_flow_1_limit_2;
+undefined2 CAL_maf_flow_1_threshold_4;
 u8_obd2level_t6 CAL_obd_ii_P0174;
 u8_obd2level_t6 CAL_obd_ii_P0175;
 u16_voltage_5/1023v CAL_sensor_o2_lean_voltage_threshold;
@@ -4624,37 +4586,23 @@ ushort DAT_40001d72;
 uint16_t DAT_40001d74;
 ushort DAT_40001d70;
 ushort DAT_4000cbe8;
-ushort DAT_4000cbea;
 char DAT_4000cbd7;
 u16_voltage_5/1023v[16] CAL_sensor_o2_afr_diag_scaling_X_voltage;
 u16_afr_1/100[16] CAL_sensor_o2_afr_diag_scaling;
+undefined2 CAL_obd_ii_o2_imbalance_threshold;
 undefined1 DAT_4000d3f8;
-undefined1 DAT_40001d68;
 undefined1 DAT_4000d3f9;
-undefined1 DAT_40001d69;
 undefined1 DAT_4000d430;
-undefined1 DAT_40001d6a;
 undefined1 DAT_4000d431;
-undefined1 DAT_40001d6b;
 undefined1 DAT_4000d45b;
-undefined1 DAT_40001d6c;
 undefined1 DAT_4000d45c;
-undefined1 DAT_40001d6d;
-undefined1 DAT_4000cba4;
 undefined1 DAT_40001d94;
 undefined1 DAT_40001d95;
-undefined1 DAT_4000cba5;
 undefined1 DAT_40001d92;
 undefined1 DAT_40001d93;
-undefined2 DAT_40001d20;
-undefined2 DAT_40001d1e;
-undefined2 DAT_40001d24;
-undefined2 DAT_40001d22;
-undefined2 DAT_40001d28;
-undefined2 DAT_40001d26;
 undefined1 DAT_40001d6e;
 undefined1 DAT_400087fe;
-undefined1 DAT_40002190;
+undefined1 evap_stft_settle_timer;
 undefined1 DAT_40001d98;
 undefined1 throttle_control_flags;
 uint16_t siu_pcr[206];
@@ -4666,22 +4614,18 @@ uint16_t siu_pcr[198];
 uint8_t siu_gpdo+0xce;
 uint16_t siu_pcr[209];
 short DAT_40001d9c;
-short DAT_40001d9a;
+undefined2 hc08_remote_comm_fault_count;
 u16_speed_1/100kph[8] CAL_idle_comp_vehicle_speed_manual_X_carspeed;
 enum_idle_strategy DAT_40001e09;
 uint16_t[8] CAL_idle_comp_vehicle_speed_manual;
 u16_rspeed_rpm u16_rspeed_rpm_40001db6;
-u16_rspeed_rpm u16_rspeed_rpm_40001dd6;
 u16_rspeed_rpm u16_rspeed_rpm_40001dd8;
 u16_rspeed_rpm u16_rspeed_rpm_40001dda;
-char DAT_40001e02;
-u16_voltage_18/1023v[8] CAL_idle_comp_ecu_voltage_X_voltage;
-undefined1 DAT_40001e03;
-int16_t[8] CAL_idle_comp_ecu_voltage;
 ushort DAT_40001dfc;
-byte DAT_40001df2;
 u16_pressure_mbar u16_pressure_mbar_40001df6;
+u16_voltage_18/1023v[8] CAL_idle_comp_ecu_voltage_X_voltage;
 u16_pressure_mbar u16_pressure_mbar_40001e1a;
+int16_t[8] CAL_idle_comp_ecu_voltage;
 ushort DAT_40001dca;
 u16_factor_1/1023 u16_factor_1/1023_40001dc6;
 ushort DAT_40001dee;
@@ -4690,7 +4634,6 @@ ushort DAT_40001ddc;
 u16_factor_1/1023 u16_factor_1/1023_40001dc8;
 ushort DAT_40001de0;
 ushort DAT_40001de2;
-byte DAT_4000872c;
 byte DAT_400088f5;
 byte DAT_4000872d;
 byte DAT_4000872f;
@@ -4700,38 +4643,19 @@ char DAT_400088e8;
 u16_flow_10mg/s u16_flow_10mg/s_40001dfa;
 char DAT_40001e08;
 ushort DAT_40001dce;
-u16_speed_1/100kph[8] CAL_idle_comp_vehicle_speed_ips_X_vehicle_speed;
 ushort DAT_40001dd0;
-uint16_t[8] CAL_idle_comp_vehicle_speed_ips;
 ushort DAT_4000894e;
 ushort DAT_40001dde;
 byte DAT_400087c2;
-byte DAT_400087c3;
 byte DAT_400087c4;
-ushort DAT_40008816;
+u16_speed_1/100kph[8] CAL_idle_comp_vehicle_speed_ips_X_vehicle_speed;
 byte DAT_400086c0;
-byte DAT_400086c2;
-u16_flow_10mg/s DAT_400047cc;
-u16_flow_10mg/s DAT_400047c4;
-uint16_t DAT_400047d0;
-u16_flow_10mg/s DAT_400047c8;
+uint16_t[8] CAL_idle_comp_vehicle_speed_ips;
 byte DAT_400086c1;
-byte DAT_400086c3;
-u16_flow_10mg/s DAT_400047ce;
-u8_temp_5/8-40c[16] CAL_idle_target_ips_coolant_fallback_X_coolant_temp;
-u16_flow_10mg/s DAT_400047c6;
-u8_rspeed_4+500rpm[16] CAL_idle_target_ips_coolant_fallback;
-uint16_t DAT_400047d2;
-u16_flow_10mg/s DAT_400047ca;
 short DAT_40001500;
 undefined DAT_400089ca;
 undefined DAT_400089da;
 uint16_t[64] uint16_t_ARRAY_400089ea;
-undefined DAT_400091e2;
-enum_ac_compressor_state ac_compressor_state;
-undefined DAT_400091f2;
-bool ac_clutch_input;
-undefined DAT_400091fa;
 uint16_t[8] uint16_t_ARRAY_400092ba;
 uint16_t[8] uint16_t_ARRAY_400092ca;
 undefined DAT_400093fa;
@@ -4742,17 +4666,18 @@ undefined DAT_400094a2;
 undefined DAT_400094aa;
 undefined DAT_4000bfba;
 undefined DAT_4000bfda;
+u8_temp_5/8-40c[16] CAL_idle_target_ips_coolant_fallback_X_coolant_temp;
 undefined DAT_4000c72a;
-u16_flow_100mg/s obd_ii_idle_air_output;
+u8_rspeed_4+500rpm[16] CAL_idle_target_ips_coolant_fallback;
 undefined DAT_4000c74a;
 u16_factor_1/255[8] u16_factor_1/255_ARRAY_4000cd14;
 u16_rspeed_rpm[8] u16_rspeed_rpm_ARRAY_4000cd24;
 u16_flow_100mg/s[64] u16_flow_100mg/s_ARRAY_4000cd34;
-u8_temp_5/8-40c[16] s_0@P`p_4000e190;
+enum_ac_compressor_state ac_compressor_state;
+bool ac_clutch_input;
+u16_flow_100mg/s obd_ii_idle_air_output;
 u16_rspeed_rpm idle_rolling_target_delta_slewed;
-undefined DAT_4000e1a0;
 u16_rspeed_rpm idle_rolling_target_delta;
-undefined DAT_4000e1a8;
 u8_speed_1/10kph CAL_idle_clutch_antistall_speed_threshold;
 undefined1 obd_ii_idle_status;
 u8_temp_5/8-40c[16] CAL_idle_target_ips_X_coolant_temp;
@@ -4791,6 +4716,21 @@ u8_flow_g/s[8] CAL_idle_comp_misfire;
 uint8_t[8] CAL_idle_comp_misfire_X_failed_cyl_count;
 u16_flow_10mg/s idle_comp_failed_cylinder_misfire;
 uint8_t[8] CAL_idle_comp_accel_pedal_pos;
+u16_rspeed_rpm idle_control_entry_rpm;
+undefined1 idle_air_low_load_cam_active;
+undefined1 idle_air_fast_decay_flag;
+undefined CAL_idle_air_warmup_factor_manual;
+undefined CAL_idle_air_warmup_factor_manual_X_coolant_temp;
+undefined CAL_idle_air_warmup_factor_manual_Y_maf_accumulated;
+undefined1 idle_air_warmup_factor;
+undefined CAL_idle_air_warmup_factor_ips;
+u8_temp_5/8-40c[16] CAL_idle_air_warmup_factor_ips_X_coolant_temp;
+undefined CAL_idle_air_warmup_factor_ips_Y_maf_accum;
+undefined1 CAL_idle_exit_rpm_offset;
+undefined1 CAL_idle_air_control_unknown;
+undefined2 CAL_idle_flow_adj1_maf_accum_max;
+undefined1 CAL_idle_learn_integral_max;
+undefined1 CAL_idle_learn_integral_min;
 u8_temp_5/8-40c[8] CAL_idle_comp_iat_X_iat;
 u8_rspeed_rpm[8] CAL_idle_comp_iat;
 u8_temp_5/8-40c[16] CAL_idle_target_manual_tour_X_coolant_temp;
@@ -4826,50 +4766,48 @@ u8_temp_5/8-40c[2] CAL_idle_learn_temp_range;
 u16_rspeed_rpm[16] CAL_idle_airflow_expected_X_rpm;
 u8_rspeed_4rpm[8] CAL_idle_comp_carspeed_manual;
 char DAT_40001503;
-char DAT_40001e03;
-byte DAT_40001e0b;
-byte DAT_40008889;
-u8_time_ms idle_comp_decay_step_timer;
 byte DAT_400087a5;
-undefined1 idle_control_timer_10hz;
 short DAT_40001dde;
-uint8_t CAL_idle_rpm_ramp_step;
+u8_time_ms idle_comp_decay_step_timer;
 u8_time_ms DAT_40008733;
-uint8_t CAL_idle_rpm_ramp_step_ips;
+undefined1 idle_control_timer_10hz;
 byte DAT_40008767;
-byte DAT_40001e0c;
-undefined1 idle_stabilization_timer;
 u8_time_ms DAT_400087ef;
+uint8_t CAL_idle_rpm_ramp_step;
 byte DAT_4000880c;
+uint8_t CAL_idle_rpm_ramp_step_ips;
 byte DAT_400087a4;
 undefined DAT_40008d04;
+undefined1 idle_stabilization_timer;
+undefined1 idle_air_decay_step_timer;
+undefined1 CAL_idle_air_fast_decay_period;
+undefined1 idle_comp_decay_step;
 u8_speed_kph CAL_idle_low_car_speed_exit;
 u8_speed_kph CAL_idle_low_car_speed_enter;
 ushort DAT_4000ca42;
 ushort DAT_4000ca40;
-byte DAT_4000ca5c;
-byte DAT_4000ca45;
 byte DAT_4000ca68;
-byte DAT_4000ca44;
 byte DAT_4000ca67;
 byte DAT_40001e25;
-u8_obd2level_t6 CAL_obd_ii_P050A;
-byte DAT_4000ca46;
 byte DAT_40001e22;
 byte DAT_4000d451;
 byte DAT_40001e23;
+u8_obd2level_t6 CAL_obd_ii_P050A;
 byte DAT_40001e20;
 byte DAT_4000d408;
 byte DAT_40001e24;
 byte DAT_40001e21;
-byte DAT_4000d409;
 byte DAT_40001e26;
 byte DAT_40001e27;
 u8_obd2level_t6 CAL_obd_ii_P0506;
 u8_obd2level_t6 CAL_obd_ii_P0507;
+undefined1 CAL_coolant_temp_threshold;
+undefined1 CAL_obd_ii_idle_learn_limit;
+undefined1 CAL_idle_learn_ac_on_param;
+undefined1 CAL_obd_ii_idle_error_fail_count;
+undefined1 CAL_idle_unknown10;
 undefined1 DAT_4000d408;
 undefined1 DAT_40001e20;
-undefined1 DAT_4000d409;
 undefined1 DAT_40001e21;
 undefined1 DAT_4000d451;
 undefined1 DAT_40001e22;
@@ -4927,12 +4865,12 @@ uint8_t DAT_40001e56;
 byte DAT_40001e59;
 char DAT_40001e42;
 uint8_t CAL_knock_retard_hold_time;
-undefined1 DAT_40001e28;
+undefined1 knock_ign_retard_hold_counter_per_cyl;
 undefined1 DAT_40001e48;
 undefined DAT_40004f4c;
 undefined2 DAT_40004f58;
-uint8_t CAL_knock_baseline_min_clamp;
 undefined DAT_40004f70;
+uint8_t CAL_knock_baseline_min_clamp;
 undefined DAT_40004f7c;
 undefined DAT_40004f94;
 uint8_t CAL_knock_baseline_filter_alpha;
@@ -4944,25 +4882,18 @@ u8_angle_1/4deg CAL_knock_ign_retard_decay_rate;
 undefined1 knock_ign_retard_delay_timer;
 undefined1 knock_ign_retard_timer_unknown2;
 uint DAT_40001e8c;
-char DAT_40001d68;
-char DAT_40001d6a;
-char DAT_40001d69;
-char DAT_40001d6b;
 byte DAT_4000caf1;
 short DAT_4000cb1a;
 short DAT_40001e94;
 short DAT_40001e92;
-byte DAT_4000cb07;
 byte DAT_4000cb06;
 byte DAT_4000caef;
 byte DAT_4000caf0;
 char DAT_4000cb0a;
 char DAT_40001e82;
 short DAT_4000cb1e;
-char DAT_4000cb0b;
 char DAT_40001e83;
 short DAT_40001e7e;
-byte DAT_4000cb0c;
 byte DAT_40001e84;
 ushort DAT_40001e7a;
 short DAT_40001e88;
@@ -4993,7 +4924,6 @@ ushort DAT_400049a8;
 byte DAT_400049ac;
 ushort DAT_400049aa;
 byte DAT_400049ad;
-byte DAT_40001f90;
 byte DAT_4000caee;
 u16_volume_1/10gallon[16] s_-<KZix_4000df20;
 uint8_t[16] s_!#&),049_4000df30;
@@ -5003,6 +4933,10 @@ uint8_t[128] s_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx_4000df58;
 u8_temp_5/8-40c[4] s_00`_4000e0f8;
 u16_volume_1/10gallon[10] s_-<KZix_4000e0fc;
 uint8_t[40] s_"_$_&_!(_$+_(/_4000e106;
+undefined1 CAL_evap_leak_test_fuel_level_max;
+undefined1 CAL_evap_leak_test_purge_settle_delay;
+undefined1 CAL_evap_leak_test_settle_samples;
+undefined1 obd_ii_mode08_active_test_mask;
 undefined2 obd_ii_eval_leak_check_result;
 u8_obd2level_t6 CAL_obd_ii_P0442;
 u8_obd2level_t6 CAL_obd_ii_P0456;
@@ -5021,31 +4955,23 @@ u8_obd2level_t6 CAL_obd_ii_P0601;
 u8_obd2level_t6 CAL_obd_ii_P0606;
 u8_obd2level_t6 CAL_obd_ii_P0610;
 byte DAT_40001ea4;
-byte DAT_4000d453;
-u8_obd2level_t6 CAL_obd_ii_P050B;
 ushort DAT_40001ebe;
+u8_obd2level_t6 CAL_obd_ii_P050B;
 ushort DAT_4000cbf6;
 byte DAT_40001ea5;
-byte DAT_4000cbf5;
 byte DAT_40001ea6;
-byte DAT_4000d45e;
-ushort DAT_4000cbf8;
 byte DAT_40001eb1;
 byte DAT_4000cbfd;
-byte DAT_40001eb2;
 byte DAT_40001ea7;
 byte DAT_40001ea8;
-byte DAT_4000d45f;
 byte DAT_40001eb3;
 byte DAT_40001eb4;
 byte DAT_40001ea9;
 byte DAT_40001eaa;
-byte DAT_4000d460;
 byte DAT_40001eb5;
 byte DAT_40001eb6;
 byte DAT_40001eab;
 byte DAT_40001eac;
-byte DAT_4000d461;
 byte DAT_40001eb7;
 byte DAT_40001eb8;
 byte DAT_40001ead;
@@ -5065,20 +4991,22 @@ u8_obd2level_t6 CAL_obd_ii_P2338;
 u8_obd2level_t6 CAL_obd_ii_P2339;
 u8_obd2level_t6 CAL_obd_ii_P2340;
 u8_obd2level_t6 CAL_obd_ii_P2341;
+undefined1 CAL_obd_ii_P050B_maturing_limit;
+undefined1 CAL_obd_ii_knock_no_activity_count;
 u16_rspeed_rpm CAL_knock_threshold_obd_ii_check_enable_engine_speed;
+undefined1 CAL_obd_ii_P2336_maturing_limit;
+undefined2 CAL_knock_octane_scaler_short_term_limit;
 u8_factor_1/100 CAL_knock_threshold_obd_ii_check_enable_load;
-undefined1 DAT_4000d453;
+undefined1 obd_ii_knock_monitor_counters;
+undefined1 CAL_obd_ii_P2337_maturing_limit;
+undefined1 CAL_obd_ii_P2338_maturing_limit;
+undefined1 CAL_obd_ii_P2339_maturing_limit;
 undefined1 DAT_40001ea4;
-undefined1 DAT_4000d45e;
-undefined1 DAT_40001eb2;
 undefined1 DAT_40001ea6;
-undefined1 DAT_4000d45f;
 undefined1 DAT_40001eb4;
 undefined1 DAT_40001ea8;
-undefined1 DAT_4000d460;
 undefined1 DAT_40001eb6;
 undefined1 DAT_40001eaa;
-undefined1 DAT_4000d461;
 undefined1 DAT_40001eb8;
 undefined1 DAT_40001eac;
 undefined1 DAT_4000d462;
@@ -5133,9 +5061,9 @@ uint8_t[16] LEA_fuel_learn_trim_cyl3;
 uint8_t[16] LEA_fuel_learn_trim_cyl4;
 uint8_t[16] LEA_fuel_learn_trim_cyl5;
 uint8_t[16] LEA_fuel_learn_trim_cyl6;
-byte DAT_40001f1e;
-undefined DAT_40005d38;
 undefined DAT_40005d50;
+undefined misfire_seg_period_prev;
+undefined1 misfire_last_sampled_cyl;
 byte DAT_40001ed8;
 char DAT_4000c9e5;
 char DAT_40001ed2;
@@ -5152,8 +5080,8 @@ undefined DAT_40004fd0;
 undefined DAT_40004fe8;
 undefined DAT_40004ff4;
 undefined2 misfire_sensitivity;
-undefined2 misfire_rpm_load_threshold_scaled;
 undefined2 DAT_40005d68;
+undefined2 misfire_rpm_load_threshold_scaled;
 undefined DAT_40005d98;
 uint16_t[6] misfires_per_cyl;
 u16_mass_mg[5] CAL_misfire_comp_maf_manual_Y_maf_accum;
@@ -5163,13 +5091,11 @@ short DAT_40001ece;
 u16_temp_5/8-40c[4] CAL_misfire_comp_maf_ips_X_coolant_temp;
 short DAT_4000ca4e;
 u16_mass_mg[5] CAL_misfire_comp_maf_ips_Y_maf_accum;
-short DAT_40001f26;
-int16_t[20] CAL_misfire_comp_maf_ips;
 byte DAT_4000c9d2;
+int16_t[20] CAL_misfire_comp_maf_ips;
 byte DAT_4000c9d3;
 byte DAT_4000c9d4;
 short DAT_4000ca4c;
-short DAT_40001ed0;
 char DAT_40001ec7;
 char DAT_40001ec8;
 char DAT_4000d3fb;
@@ -5177,12 +5103,12 @@ ushort DAT_40001f1c;
 undefined2 DAT_40001f20;
 undefined2 DAT_40001f22;
 char DAT_4000d3fa;
-undefined2 misfire_threshold_current_window;
 undefined2 DAT_40001f18;
-undefined1 misfire_emissions_limit;
-undefined1 misfire_min_torque_threshold;
+undefined2 misfire_threshold_current_window;
 undefined2 DAT_40005d80;
+undefined1 misfire_emissions_limit;
 undefined2 DAT_40005d8c;
+undefined1 misfire_min_torque_threshold;
 u16_rspeed_rpm[8] CAL_misfire_sensitivity_manual_X_rpm;
 u16_load_mg/stroke[8] CAL_misfire_sensitivity_manual_Y_load;
 uint16_t[64] CAL_misfire_sensitivity_manual;
@@ -5211,6 +5137,8 @@ undefined2 obd_ii_max_misfire_results_emissions;
 uint16_t[2] obd_ii_misfires_unknown_cat_damage;
 u8_obd2level_t6 CAL_obd_ii_P1301;
 u8_obd2level_t6 CAL_obd_ii_P1302;
+undefined2 misfire_enable_hold_timer;
+undefined2 misfire_p1302_pass_holdoff_timer;
 u16_temp_5/8-40c[4] CAL_misfire_comp_maf_manual_X_coolant_temp;
 byte DAT_40001ecc;
 ushort DAT_40005d8c;
@@ -5266,21 +5194,20 @@ undefined1 DAT_4000d411;
 undefined1 DAT_40001ec6;
 undefined1 DAT_40001ec7;
 undefined1 DAT_40001ec8;
-uint8_t DAT_40001f1e;
-uint DAT_40001ef8;
-int DAT_40001f08;
 uint DAT_40001efc;
 int DAT_40001f0c;
 uint DAT_40001f00;
 int DAT_40001f10;
 uint DAT_40001f04;
 int DAT_40001f14;
-uint DAT_40001ee8;
 uint DAT_40001eec;
-uint16_t CAL_wheel_speed_rate_min;
 uint DAT_40001ef0;
 uint DAT_40001ef4;
+uint16_t CAL_wheel_speed_rate_min;
 uint16_t CAL_wheel_speed_min;
+undefined4 misfire_wheel_speed_filt_x256;
+undefined4 misfire_wheel_speed_filt;
+undefined4 misfire_wheel_speed_deviation;
 byte[8] obd_ii_response;
 undefined2 obd_ii_response_length;
 undefined1 DAT_40001f61;
@@ -5300,24 +5227,14 @@ byte[4] obd_ii_mode22_supported_pids_c0_e0;
 byte[4] obd_ii_mode22_supported_pids_40_60;
 byte[4] obd_mode_22_supported_pids_160_180;
 byte[4] obd_ii_mode22_supported_pids_100_120;
-undefined struct_top_rpm_event_ARRAY_40003f24;
 byte DAT_40001f61;
 byte DAT_40001f64;
 byte DAT_40001f65;
-byte DAT_40004084;
-byte DAT_40004085;
-undefined DAT_40004090;
-undefined DAT_40004094;
-undefined4 DAT_40004098;
 byte DAT_4000409c;
 byte DAT_4000409d;
 undefined2 DAT_4000409e;
 undefined2 DAT_400040a0;
 undefined4 DAT_400040a4;
-byte DAT_400040a8;
-undefined DAT_400040b4;
-undefined DAT_400040b8;
-undefined4 DAT_400040bc;
 byte DAT_400040c0;
 byte DAT_400040c1;
 undefined2 DAT_400040c2;
@@ -5348,9 +5265,14 @@ u16_factor_1/10000 fuel_pump_dutycycle_commanded;
 undefined2 fuel_pressure_pid_correction;
 i16_load_mg/stroke load_residual_maf_vs_speed_density;
 i16_load_mg/stroke load_residual_maf_vs_alphaN_expected;
-undefined1 DAT_40001c68;
-undefined1 DAT_40001f98;
+undefined4 LEA_perf_struct_B_byte0;
+undefined4 LEA_perf_struct_B_word1;
+undefined4 LEA_perf_struct_B_dword;
+undefined4 LEA_perf_struct_B_b_byte0;
+undefined4 LEA_perf_struct_B_b_word1;
+undefined4 LEA_perf_struct_B_b_dword;
 undefined1 obd_DTC_count;
+undefined1 obd_DTC_confirmed_count;
 undefined1 obd_DTC_pending_count;
 undefined1 DAT_40001f70;
 undefined1 DAT_40001f71;
@@ -5377,22 +5299,18 @@ undefined1 DAT_40001f85;
 undefined1 DAT_40001f86;
 undefined1 DAT_40001f87;
 byte DAT_40001f70;
+undefined1 CAL_obd_ii_o2_slow_response_sample_count;
 byte DAT_40001f71;
+undefined2 CAL_obd_ii_o2_slow_response_limit_rich_to_lean;
 byte DAT_40001f72;
+undefined2 CAL_obd_ii_o2_slow_response_limit_lean_to_rich;
 byte DAT_40001f73;
 short DAT_4000497a;
 short DAT_4000497c;
-short DAT_4000ca2c;
-uint16_t uint16_t_4000ca2a;
 short DAT_40004982;
 short DAT_40004980;
-short DAT_4000c9d0;
-short DAT_4000c9ce;
 ushort DAT_4000499a;
 ushort DAT_4000499c;
-byte DAT_4000ca5f;
-short DAT_4000ca64;
-short DAT_4000ca62;
 short DAT_4000498e;
 short DAT_40004990;
 short DAT_40004984;
@@ -5404,10 +5322,10 @@ byte DAT_40001f75;
 byte DAT_40001f76;
 byte DAT_40001f77;
 short DAT_4000498c;
-u16_voltage_5/1023v CAL_sensor_o2_rich_voltage_threshold;
 short DAT_40004998;
 byte DAT_400049a4;
 short DAT_400049a8;
+u16_voltage_5/1023v CAL_sensor_o2_rich_voltage_threshold;
 short DAT_400049aa;
 byte DAT_40001f78;
 byte DAT_40001f79;
@@ -5422,7 +5340,6 @@ byte DAT_40001f81;
 byte DAT_40001f82;
 byte DAT_40001f83;
 short DAT_400049f0;
-undefined2 DAT_4000cbea;
 short DAT_400049f2;
 byte DAT_40001f84;
 byte DAT_40001f85;
@@ -5435,12 +5352,14 @@ short DAT_400049b4;
 short DAT_400049b6;
 short DAT_400049b8;
 short DAT_400049ba;
+undefined2 CAL_obd_ii_mode06_o2_switch_time_max;
+uint16_t CAL_obd_ii_mode06_o2_switch_time_min;
+undefined2 CAL_obd_ii_o2_rich_period_excess_max;
+undefined2 CAL_obd_ii_o2_lean_period_excess_max;
 byte[4] obd_ii_mode08_supported_pids_0_20;
-short DAT_4000ca98;
-undefined1 DAT_40001f90;
 short DAT_40001f96;
+undefined2 CAL_obd_ii_mode08_evap_test_duration;
 bool obd_ii_mode13_requested;
-byte DAT_40001f98;
 byte[4] obd_ii_mode09_supported_pids_0_20;
 uint16_t LEA_obd_ii_J1979_CAT_COMP1;
 uint16_t LEA_obd_ii_J1979_CATCOND1;
@@ -5465,19 +5384,19 @@ undefined1 DAT_40001fcb;
 ushort DAT_40001fac;
 ushort DAT_40001faa;
 ushort DAT_40001fb0;
+undefined1 CAL_obd_ii_o2_activity_rate_inband;
 ushort DAT_40001fae;
+undefined1 CAL_obd_ii_o2_activity_rate_outband;
 byte DAT_40001fbf;
+undefined2 CAL_obd_ii_o2_precat_activity_window;
 byte DAT_40001fbe;
+undefined2 CAL_obd_ii_o2_postcat_activity_min;
 byte DAT_40001fc1;
 byte DAT_40001fc0;
-byte DAT_4000c9fd;
-byte DAT_4000ca3e;
-ushort DAT_4000cac4;
 byte DAT_40002048;
 byte DAT_4000d3fd;
 byte DAT_40002045;
 byte DAT_4000d433;
-ushort DAT_4000cac6;
 byte DAT_40001fa8;
 byte DAT_4000d400;
 byte DAT_40001fa9;
@@ -5487,27 +5406,15 @@ undefined2 DAT_40001fb6;
 undefined2 DAT_40001fb8;
 undefined2 DAT_40001fba;
 undefined1 DAT_40001fbc;
-u16_time_5ms CAL_obd_ii_cat_monitor_min_engine_runtime;
 undefined1 DAT_40001fbd;
+u16_time_5ms CAL_obd_ii_cat_monitor_min_engine_runtime;
 u8_obd2level_t6 CAL_obd_ii_P0134;
 u8_obd2level_t6 CAL_obd_ii_P0140;
 u8_obd2level_t6 CAL_obd_ii_P0154;
 u8_obd2level_t6 CAL_obd_ii_P0160;
 short DAT_40002000;
-byte DAT_4000ca26;
-byte DAT_4000ca27;
-ushort DAT_4000ca72;
-ushort DAT_4000ca74;
-byte DAT_4000ca76;
-byte DAT_4000ca77;
-ushort DAT_4000cac8;
-byte DAT_4000ca69;
 char DAT_40001fb2;
-byte DAT_400087ca;
 short DAT_40001fec;
-ushort DAT_4000cbba;
-ushort DAT_4000cbc8;
-undefined2 DAT_4000cbca;
 undefined2 DAT_40001fee;
 uint DAT_40002038;
 byte DAT_40002015;
@@ -5516,19 +5423,12 @@ uint DAT_40002040;
 byte DAT_40002013;
 ushort DAT_4000497c;
 ushort DAT_4000497e;
-ushort DAT_4000ca2c;
-byte DAT_4000ca60;
-byte DAT_4000ca78;
-byte DAT_4000ca61;
-byte DAT_4000ca79;
 uint DAT_40001fd4;
 byte DAT_40001fe1;
 ushort DAT_40004980;
 uint DAT_40001fd0;
 byte DAT_40001fe0;
 ushort DAT_40004982;
-ushort DAT_4000c9ce;
-ushort DAT_4000c9d0;
 undefined1 DAT_40002049;
 undefined2 DAT_40001ff0;
 uint DAT_40002034;
@@ -5537,29 +5437,22 @@ ushort DAT_4000498e;
 uint DAT_4000203c;
 byte DAT_40002012;
 ushort DAT_40004990;
-u8_obd2level_t6 CAL_obd_ii_P0133;
 ushort DAT_40004992;
 uint DAT_40001fdc;
 byte DAT_40001fe3;
 ushort DAT_40004984;
-u8_obd2level_t6 CAL_obd_ii_P0139;
 uint DAT_40001fd8;
 byte DAT_40001fe2;
 ushort DAT_40004986;
 undefined1 DAT_40002046;
 byte DAT_40002220;
-undefined2 DAT_4000cbbc;
 undefined2 DAT_4000200c;
 undefined2 DAT_4000200a;
 ushort DAT_4000202c;
 byte DAT_40002047;
-byte DAT_4000489c;
-undefined2 DAT_4000caf4;
 undefined2 DAT_40002004;
 undefined2 DAT_4000cad6;
 undefined2 DAT_40002008;
-byte DAT_4000d3bc;
-undefined2 DAT_4000ca0a;
 undefined2 DAT_40001ffa;
 ushort DAT_4000202a;
 byte DAT_40002044;
@@ -5567,6 +5460,27 @@ undefined2 DAT_40002002;
 undefined2 DAT_40002006;
 byte DAT_4000d42a;
 undefined2 DAT_40001ff8;
+u8_obd2level_t6 CAL_obd_ii_P0133;
+u8_obd2level_t6 CAL_obd_ii_P0139;
+undefined1 CAL_obd_ii_o2_response_car_speed_min;
+undefined1 CAL_obd_ii_o2_response_car_speed_max;
+undefined2 CAL_load_mass_per_stroke_raw_limit_1;
+undefined2 CAL_load_mass_per_stroke_raw_limit_2;
+undefined1 CAL_engine_speed_3_threshold_2;
+undefined1 CAL_engine_speed_3_threshold_3;
+undefined2 CAL_obd_ii_o2_slow_response_runtime_limit_unknown;
+undefined1 CAL_obd_ii_P0133_min_coolant_temp;
+undefined1 CAL_obd_ii_o2_response_load_stability_max;
+undefined2 CAL_obd_ii_o2_slow_response_maf_limit_unknown2;
+undefined2 CAL_obd_ii_o2_slow_response_maf_limit_unknown;
+undefined2 CAL_obd_o2_precat_diag_reset_counter;
+undefined1 CAL_obd_ii_o2_r2l_time_max_asym;
+undefined1 CAL_obd_ii_o2_switch_time_threshold;
+undefined1 CAL_obd_ii_o2_l2r_time_max_asym;
+undefined1 CAL_obd_ii_o2_switch_time_min;
+undefined2 CAL_obd_o2_precat_diag_init_counter;
+undefined2 CAL_cat_check_unknown4;
+undefined2 CAL_obd_ii_o2_slow_response_arm_dwell;
 u8_obd2level_t6 CAL_obd_ii_P0153;
 u8_obd2level_t6 CAL_obd_ii_P0159;
 uint16_t CAL_obd_ii_o2_precat_diag_timer;
@@ -5576,23 +5490,18 @@ short DAT_4000cbc0;
 char DAT_40001ff2;
 u32_load_mg/stroke u32_load_mg/stroke_40005fa8;
 u32_load_mg/stroke u32_load_mg/stroke_40005fcc;
-byte DAT_4000c9c9;
 short DAT_40002004;
-short DAT_4000caf4;
 short DAT_40002008;
 short DAT_4000cad6;
 char DAT_40001fff;
 ushort DAT_40002028;
 ushort DAT_40001fc6;
-ushort DAT_4000ca62;
 byte DAT_4000ca29;
 byte DAT_40002019;
 ushort DAT_40002020;
 char DAT_40001ffd;
 short DAT_40001ffa;
-short DAT_4000ca0a;
 ushort DAT_40002024;
-ushort DAT_4000ca64;
 byte DAT_40002017;
 ushort DAT_4000201c;
 short DAT_40002002;
@@ -5615,7 +5524,6 @@ undefined DAT_40001fc2;
 undefined DAT_40001fc3;
 undefined DAT_40001fc4;
 undefined DAT_40001fc5;
-undefined DAT_40001fcc;
 undefined DAT_40001fcd;
 undefined4 DAT_40001fd0;
 undefined4 DAT_40001fd4;
@@ -5637,15 +5545,17 @@ undefined4 DAT_40002034;
 undefined4 DAT_40002038;
 undefined4 DAT_4000203c;
 undefined4 DAT_40002040;
-byte DAT_4000cbb8;
-byte DAT_4000cbbe;
-byte DAT_4000cbbf;
+undefined o2_sensor_1_leanrich;
+undefined1 CAL_obd_ii_cat_monitor_maf_min;
 byte DAT_4000cbb9;
 undefined DAT_4000e148;
 undefined DAT_4000e150;
 undefined DAT_4000e158;
 undefined DAT_4000e160;
-byte DAT_4000ca28;
+undefined1 CAL_obd_ii_o2_period_consistency_tol;
+undefined1 CAL_obd_ii_o2_period_excess_max;
+undefined1 CAL_obd_ii_o2_imbalance_accum_cap;
+undefined1 CAL_obd_ii_o2_transition_count;
 undefined1 DAT_4000d3fc;
 undefined1 DAT_4000d3fd;
 undefined1 DAT_40002048;
@@ -5693,10 +5603,8 @@ ushort DAT_40002056;
 ushort DAT_40002058;
 short DAT_40002082;
 byte DAT_40002060;
-byte DAT_4000d3bf;
 short DAT_40002084;
 byte DAT_40002061;
-byte DAT_4000d3c0;
 short DAT_40002086;
 byte DAT_40002062;
 byte DAT_4000d3d2;
@@ -5801,7 +5709,6 @@ byte DAT_4000207b;
 byte DAT_4000d402;
 short DAT_400020cc;
 byte DAT_400020ca;
-byte DAT_4000d450;
 short DAT_400020a2;
 byte DAT_40002068;
 byte DAT_4000d3e5;
@@ -5907,7 +5814,10 @@ u8_obd2level_t6 CAL_obd_ii_P0480;
 u8_obd2level_t6 CAL_obd_ii_P0482;
 u8_obd2level_t6 CAL_obd_ii_P0646;
 u8_obd2level_t6 CAL_obd_ii_P0647;
+undefined1 CAL_obd_ii_P0076_debounce_count;
+undefined1 CAL_obd_ii_P0077_debounce_count;
 u8_obd2level_t6 CAL_obd_ii_P0616;
+undefined1 CAL_obd_ii_P0141_debounce_count;
 u8_obd2level_t6 CAL_obd_ii_P0617;
 u8_obd2level_t6 CAL_obd_ii_P2602;
 u8_obd2level_t6 CAL_obd_ii_P2603;
@@ -5936,9 +5846,7 @@ undefined1 cac_diag_state_timeout_counter;
 u8_count CAL_cac_pwm_mismatch_threshold;
 undefined2 cac_diag_timer;
 undefined2 cac_response_time;
-undefined1 DAT_4000d3bf;
 undefined1 DAT_40002060;
-undefined1 DAT_4000d3c0;
 undefined1 DAT_40002061;
 undefined1 DAT_4000d3d2;
 undefined1 DAT_40002062;
@@ -5996,7 +5904,6 @@ undefined1 DAT_4000d401;
 undefined1 DAT_4000207e;
 undefined1 DAT_4000d436;
 undefined1 DAT_4000207f;
-undefined1 DAT_4000d450;
 undefined1 DAT_400020ca;
 undefined1 DAT_4000d3e5;
 undefined1 DAT_40002068;
@@ -6041,20 +5948,11 @@ undefined1 DAT_40002123;
 undefined1 DAT_4000d43b;
 undefined1 DAT_40002122;
 byte DAT_4000891f;
-u16_factor_1/1023 u16_factor_1/1023_4000213c;
-u16_factor_1/1023 u16_factor_1/1023_40002140;
-u8_factor_1/1023 CAL_cruise_tps_accelerating_threshold;
 u8_factor_1/1023 u8_factor_1/1023_40008919;
-u16_factor_1/1023 u16_factor_1/1023_4000213e;
+u8_factor_1/1023 CAL_cruise_tps_accelerating_threshold;
 uint8_t CAL_tps_brake_wheeldecel_tps_cut_threshold;
-u16_factor_1/1023 u16_factor_1/1023_40002142;
 u8_factor_1/1023 CAL_tps_brake_safety_floor;
-byte DAT_4000213a;
-ushort DAT_40002148;
-ushort DAT_40002144;
-ushort DAT_40002146;
 bool CAL_dca_enable_untested;
-short DAT_40001528;
 bool dca_config_enabled;
 undefined1 steering_angle_sensor_status;
 bool CAL_tpssmooth_accel_pedal_modes_enable;
@@ -6071,12 +5969,21 @@ u16_factor_1/1023 CAL_dca_activate_tps_threshold;
 u8_time_20ms CAL_dca_ramp_timer_unknown;
 u8_rspeed_4rpm CAL_ecu_rpm_600;
 u16_rspeed_rpm CAL_ecu_rpm_5250;
+u16_factor_1/1023 dca_tps_idle_delta;
 u16_factor_1/1023 tps_target_from_torque_limit;
+u16_factor_1/1023 dca_accel_pedal_raw;
+u16_factor_1/1023 dca_tps_target_limit;
+u16_factor_1/1023 dca_accel_pedal;
 u8_time_50ms[8] CAL_dca_tps_limit_manual_X_time;
+undefined1 dca_activate_timer;
 u8_factor_1/255[8] CAL_dca_tps_limit_manual;
+undefined2 dca_tps_ramp_index;
 u8_time_50ms[8] CAL_dca_unknown_ips_nolc_X_time;
+undefined2 dca_tps_ramp_step;
 u8_factor_1/255[8] CAL_dca_unknown_ips_nolc;
+undefined2 dca_tps_ramp_target;
 u8_time_50ms[8] CAL_dca_tps_limit_ips_x_time;
+undefined2 cruise_timer_unknown;
 u8_factor_1/255[8] CAL_dca_tps_limit_ips;
 u16_factor_1/1023[16] CAL_tpstarget_tour_shifting_X_pps;
 u16_factor_1/1023[16] CAL_tpstarget_tour_shifting;
@@ -6109,11 +6016,10 @@ undefined1 ips_flags_faults?;
 u8_time_5ms CAL_tps_accel_pedal_zero_calibrate_timer;
 u16_time_5ms accel_pedal_zero_trim_timer;
 byte DAT_40008713;
-u16_factor_1/1023 u16_factor_1/1023_40001522;
+u16_factor_1/1023 accel_pedal_d_zero_voltage;
 byte DAT_40008714;
-short DAT_40001524;
-byte DAT_40008712;
-ushort DAT_40001524;
+undefined2 accel_pedal_e_zero_voltage;
+undefined1 CAL_sensor_pps_unknown1;
 u8_obd2level_t6 CAL_obd_ii_P2128;
 byte DAT_40002514;
 byte DAT_4000214b;
@@ -6161,89 +6067,83 @@ char DAT_400021d0;
 char DAT_400021d1;
 char DAT_40008828;
 undefined2 DAT_400021c0;
-undefined2 DAT_400021ac;
 undefined4 DAT_400021a4;
 undefined4 DAT_400021a0;
-char DAT_400086f8;
 undefined1 DAT_40008800;
-undefined1 DAT_400021d6;
 ushort DAT_40008852;
 byte DAT_400086fd;
-byte DAT_40008829;
 byte DAT_40001535;
 ushort DAT_400087f6;
 char DAT_400021d3;
 char DAT_40008710;
 ushort DAT_4000881e;
-byte DAT_400086fb;
-ushort DAT_40001530;
 ushort DAT_400087f8;
 byte DAT_4000cab1;
+undefined2 evap_purge_duty_ramped;
+undefined1 CAL_evap_purge_conditioning_timer_100ms;
+undefined1 evap_purge_open_kick_timer;
+undefined1 CAL_evap_purge_power_enrich_suspend_timeout;
+undefined1 CAL_evap_purge_duty_ramp_up_min;
+undefined2 evap_purge_ramp_up_step;
 u8_temp_5/8-40c[8] CAL_evap_purge_warmup_time_X_coolant_temp;
 uint8_t[8] CAL_evap_purge_warmup_time;
 short DAT_4000881c;
-ushort DAT_400086ba;
-undefined2 DAT_40001d14;
 undefined DAT_40002194;
 undefined DAT_400021b8;
+undefined2 CAL_fuel_trim_integral_max;
 undefined2 DAT_4000217c;
 undefined DAT_40002198;
 undefined DAT_400021a8;
 undefined DAT_400021cc;
 uint8_t[256] CAL_evap_purge_flow_coefficient;
+char DAT_400087fe;
 u8_factor_1/255[16] CAL_evap_purge_flow_coefficient_X_dutycycle;
 u8_pressure_4mbar[16] CAL_evap_purge_flow_coefficient_Y_vacuum;
-char DAT_40002190;
-char DAT_400087fe;
 byte DAT_40008701;
 byte DAT_40008702;
-ushort DAT_40001532;
 byte DAT_4000caa4;
 byte DAT_400086fc;
 byte DAT_4000870d;
 byte DAT_40008700;
-byte DAT_400086fa;
 byte DAT_400086ff;
-byte DAT_400086f9;
-byte DAT_400021af;
 ushort DAT_4000217c;
 ushort DAT_4000217e;
-byte DAT_400021b0;
-ushort DAT_400021c8;
-byte DAT_400021ae;
-byte DAT_400086de;
 byte DAT_40001e7c;
-ushort DAT_40002188;
-char DAT_40001ce8;
 undefined1 DAT_40002184;
 byte DAT_4000870c;
-short DAT_400021ac;
-byte DAT_40008803;
-byte DAT_40008802;
-char DAT_400021d6;
 byte DAT_40008801;
 short DAT_40002186;
 undefined DAT_4000b2a2;
 undefined DAT_4000b2aa;
+undefined2 evap_purge_ramp_down_step;
+undefined1 CAL_evap_purge_min_inj_pulse_exit;
+undefined1 CAL_evap_purge_min_inj_pulse_enter;
+undefined1 evap_purge_duty_max_flow;
+undefined1 evap_purge_duty_max_fuel;
+undefined2 evap_purge_inj_fuel_mass_min;
+undefined1 evap_purge_duty_max;
+undefined1 CAL_evap_purge_idle_duty_max;
+undefined2 evap_purge_solenoid_duty_table;
+undefined1 CAL_obd_ii_commanded_evap_purge_min;
+undefined1 CAL_obd_ii_commanded_evap_purge_max;
 undefined1 obd_ii_mode2f_evap_purge_val;
 char DAT_40001535;
+undefined1 CAL_evap_purge_filter_alpha;
 ushort DAT_4000895c;
 ushort DAT_40008958;
 ushort DAT_4000895a;
 char DAT_4000895f;
 uint DAT_400021c4;
-byte DAT_400086fe;
 byte DAT_400021d2;
 ushort DAT_400021c0;
-ushort DAT_400021ac;
 int DAT_4000218c;
 int DAT_400021b4;
 byte[5][4] obd_ii_set_mode2f_supported_pids;
-u16_time_5ms DAT_4000ca96;
 uint DAT_400021e8;
-short DAT_4000ca94;
-u16_time_5ms DAT_4000caae;
+undefined2 CAL_obd_ii_mode2f_injector_test_duration;
 byte obd_ii_mode2f_vvti_output_val;
+undefined2 CAL_obd_ii_mode2f_injector_test_pulse_10us;
+undefined2 CAL_obd_ii_mode2f_coil_test_pulse_count;
 u8_time_5ms obd_ii_mode2f_184_timer_unknown;
 u16_time_100ms CAL_obd_ii_mode2f_timeout;
 u16_rspeed_4rpm obd_ii_mode2f_tach_commanded;
@@ -6258,12 +6158,12 @@ u8_time_5ms[2] obd_ii_mode2f_test_timers2;
 byte DAT_4000cb2f;
 byte DAT_4000cb30;
 byte DAT_4000cb33;
-undefined2 DAT_4000cb3a;
 undefined2 DAT_40002224;
 undefined2 DAT_4000cb34;
 undefined2 DAT_40002226;
 undefined2 DAT_4000cb36;
 undefined2 DAT_40002228;
+undefined2 CAL_obd_ii_cat_monitor_stable_time;
 undefined2 DAT_4000cb38;
 undefined2 DAT_4000222a;
 byte DAT_40001538;
@@ -6279,18 +6179,17 @@ undefined2 DAT_4000601c;
 undefined1 DAT_4000601e;
 char DAT_40001cf8;
 ushort DAT_4000cb2a;
-ushort DAT_4000cb2c;
 byte DAT_4000cb2e;
 short DAT_40002226;
 short DAT_4000222a;
 byte DAT_4000cb31;
 short DAT_40002224;
 byte DAT_4000cb32;
-short DAT_4000cb3a;
 short DAT_40002228;
 byte DAT_4000cb28;
 byte DAT_4000cb29;
 undefined *PTR_LEA_obd_ii_P0133_dtc_state_40000e50;
+undefined2 CAL_obd_ii_cat_unknown3;
 undefined2 DAT_40006018;
 undefined DAT_40005fd0;
 undefined DAT_40005fd6;
@@ -6299,7 +6198,6 @@ ushort DAT_40001540;
 byte DAT_4000ca35;
 uint DAT_40002360;
 uint DAT_40002364;
-char DAT_4000cbf4;
 byte DAT_4000cbed;
 byte DAT_4000cbee;
 byte DAT_4000cbef;
@@ -6339,13 +6237,9 @@ u16_pressure_mbar u16_pressure_mbar_40002380;
 u16_pressure_mbar u16_pressure_mbar_40002386;
 short DAT_4000233c;
 short DAT_4000233a;
-u8_rspeed_125/4+500rpm u8_rspeed_125/4+500rpm_4000caa6;
 u8_rspeed_125/4+500rpm u8_rspeed_125/4+500rpm_4000caa7;
 undefined s_._4000caa8;
 byte DAT_4000caaa;
-byte DAT_4000237e;
-byte DAT_4000237d;
-byte DAT_4000237c;
 u16_pressure_mbar u16_pressure_mbar_4000cabc;
 u16_pressure_mbar u16_pressure_mbar_4000cabe;
 byte DAT_40002339;
@@ -6358,39 +6252,26 @@ ushort DAT_4000ca00;
 short DAT_40002274;
 byte DAT_40002272;
 byte DAT_4000d3a9;
-ushort DAT_4000c9e6;
 short DAT_40002282;
 byte DAT_4000223a;
-byte DAT_4000d3b6;
-ushort DAT_4000c9e8;
 short DAT_40002284;
 byte DAT_4000223b;
-byte DAT_4000d3b7;
 short DAT_4000228a;
 byte DAT_4000223c;
-byte DAT_4000d426;
 short DAT_4000228c;
 byte DAT_4000223d;
-byte DAT_4000d427;
-ushort DAT_4000c9ea;
 short DAT_40002288;
 byte DAT_40002286;
-byte DAT_4000d3b8;
-ushort DAT_4000c9ec;
 short DAT_400022a4;
 byte DAT_400022a2;
-byte DAT_4000d3b9;
 short DAT_40002290;
 byte DAT_4000228e;
-byte DAT_4000d428;
 short DAT_400022a8;
 byte DAT_400022a6;
-byte DAT_4000d429;
 byte DAT_400022e8;
 u16_voltage_5/1023v DAT_40001542;
 u16_voltage_5/1023v DAT_400022e2;
 byte DAT_4000cb9f;
-undefined1 DAT_400022e4;
 byte DAT_4000cade;
 ushort DAT_40002276;
 byte DAT_40002233;
@@ -6506,7 +6387,6 @@ char DAT_4000cc6f;
 char DAT_40002318;
 char DAT_40002317;
 byte DAT_4000231a;
-u16_voltage_5/1023v CAL_obd_ii_oil_pressure_switch_low_voltage;
 byte DAT_4000cc70;
 char DAT_4000cc71;
 byte DAT_40002319;
@@ -6515,14 +6395,11 @@ byte DAT_4000cc77;
 byte DAT_4000231b;
 byte DAT_4000cc76;
 byte DAT_4000cc7d;
-u8_temp_5/8-40c CAL_cooling_thermostat_open;
 byte DAT_4000cc7e;
-uint16_t[2] CAL_sensor_knock_voltage_threshold;
 ushort DAT_4000cc78;
 char DAT_4000cc7b;
 char DAT_40002322;
 int DAT_4000231c;
-u16_time_5ms CAL_sensor_temp_diagnostic_startup_delay;
 undefined2 DAT_40002320;
 char DAT_4000cc7f;
 byte DAT_4000cc80;
@@ -6530,6 +6407,7 @@ byte DAT_4000cc7a;
 byte DAT_40002323;
 char DAT_4000cc84;
 char DAT_40002324;
+u16_voltage_5/1023v CAL_obd_ii_oil_pressure_switch_low_voltage;
 byte DAT_4000cc7c;
 ushort DAT_4000cae6;
 short DAT_400022b8;
@@ -6538,9 +6416,12 @@ byte DAT_4000d3c1;
 ushort DAT_4000cae4;
 short DAT_400022bc;
 byte DAT_400022ba;
+u8_temp_5/8-40c CAL_cooling_thermostat_open;
+uint16_t[2] CAL_sensor_knock_voltage_threshold;
 byte DAT_4000d3c2;
 short DAT_40002294;
 byte DAT_40002292;
+u16_time_5ms CAL_sensor_temp_diagnostic_startup_delay;
 byte DAT_4000d3c7;
 short DAT_40002298;
 byte DAT_40002296;
@@ -6572,7 +6453,6 @@ byte DAT_4000d3ca;
 short DAT_400022ce;
 byte DAT_4000ca11;
 byte DAT_400022cd;
-u8_obd2level_t6 obd_p101_config;
 byte DAT_4000d3c9;
 undefined1 DAT_400022e1;
 byte DAT_4000ca3b;
@@ -6581,73 +6461,72 @@ byte DAT_400022d5;
 byte DAT_4000d425;
 byte DAT_400022d4;
 byte DAT_4000223e;
-u8_obd2level_t6 CAL_obd_ii_P0106;
 byte DAT_4000d444;
-u8_obd2level_t6 CAL_obd_ii_P0107;
 byte DAT_4000c9e0;
-u8_obd2level_t6 CAL_obd_ii_P0108;
 short DAT_40002328;
 byte DAT_4000c9de;
-u8_obd2level_t6 CAL_obd_ii_P0111;
 byte DAT_4000232a;
-u8_obd2level_t6 CAL_obd_ii_P0112;
 short DAT_40002326;
-u8_obd2level_t6 CAL_obd_ii_P0113;
 byte DAT_4000c9df;
-u8_obd2level_t6 CAL_obd_ii_P0071;
 byte DAT_40002325;
-u8_obd2level_t6 CAL_obd_ii_P0116;
 byte DAT_4000d3b3;
-u8_obd2level_t6 CAL_obd_ii_P0117;
 byte DAT_40002336;
-u8_obd2level_t6 CAL_obd_ii_P0118;
 enum_t6e_gear DAT_40002337;
 enum_t6e_gear DAT_40002338;
+u8_obd2level_t6 obd_p101_config;
 u16_voltage_5/1023v DAT_40002330;
 u16_voltage_5/1023v DAT_4000154a;
 ushort DAT_4000cb64;
-ushort DAT_4000cb62;
 ushort DAT_40002332;
-u8_obd2level_t6 CAL_obd_ii_P0131;
 byte DAT_4000cb5f;
-u8_obd2level_t6 CAL_obd_ii_P0132;
 ushort DAT_4000cb60;
 byte DAT_40002241;
 byte DAT_4000d445;
+u8_obd2level_t6 CAL_obd_ii_P0106;
 short DAT_4000232c;
+u8_obd2level_t6 CAL_obd_ii_P0107;
 byte DAT_40002242;
-u8_obd2level_t6 CAL_obd_ii_P0137;
+u8_obd2level_t6 CAL_obd_ii_P0108;
 byte DAT_4000d446;
-u8_obd2level_t6 CAL_obd_ii_P0138;
 short DAT_4000232e;
+u8_obd2level_t6 CAL_obd_ii_P0111;
 byte DAT_40002243;
+u8_obd2level_t6 CAL_obd_ii_P0112;
 byte DAT_4000d447;
+u8_obd2level_t6 CAL_obd_ii_P0113;
 byte DAT_400022e0;
-u8_obd2level_t6 CAL_obd_ii_P0102;
+u8_obd2level_t6 CAL_obd_ii_P0071;
 byte DAT_4000d45d;
-u8_obd2level_t6 CAL_obd_ii_P0103;
+u8_obd2level_t6 CAL_obd_ii_P0116;
 byte DAT_40002348;
+u8_obd2level_t6 CAL_obd_ii_P0117;
 byte DAT_400022d8;
+u8_obd2level_t6 CAL_obd_ii_P0118;
 ushort DAT_40002344;
 byte DAT_4000caab;
 short DAT_40002346;
 byte DAT_4000d456;
-byte DAT_4000ca6e;
 short DAT_400022da;
 byte DAT_400022d9;
 byte DAT_4000d457;
+u8_obd2level_t6 CAL_obd_ii_P0131;
 short DAT_400022de;
+u8_obd2level_t6 CAL_obd_ii_P0132;
 byte DAT_400022dc;
 byte DAT_4000d458;
 char DAT_40002049;
 char DAT_40002046;
 char DAT_40001cfd;
+u8_obd2level_t6 CAL_obd_ii_P0137;
 u8_rspeed_125/4+500rpm[8] s_#0=JVcp}_4000dffa;
+u8_obd2level_t6 CAL_obd_ii_P0138;
 uint8_t[8] s_&#_4000e002;
 u8_factor_1/255[8] s_"&+04@_4000e058;
 u8_load_4mg/stroke[8] s_&0;EOZd_4000e060;
 uint8_t[64] s_<#_<$_H*_X7%_bA*_4000e068;
+u8_obd2level_t6 CAL_obd_ii_P0102;
 u8_factor_1/255[8] s_"&+04@_4000e0a8;
+u8_obd2level_t6 CAL_obd_ii_P0103;
 u8_load_4mg/stroke[8] s_&0;EOZd_4000e0b0;
 uint8_t[64] s_`L?8777_tXF;433_aN8.,,_iR:,&_s\>_4000e0b8;
 u8_temp_5/8-40c[13] s__4000e12e;
@@ -6676,10 +6555,30 @@ u8_obd2level_t6 CAL_obd_ii_P0157;
 u8_obd2level_t6 CAL_obd_ii_P0158;
 u8_obd2level_t6 CAL_obd_ii_P0332;
 u8_obd2level_t6 CAL_obd_ii_P0333;
+undefined1 CAL_obd_ii_P0101_plausibility_enable;
+u8_rspeed_125/4+500rpm CAL_obd_ii_P0106_partload_rpm_window;
+undefined1 obd_p0106_throttle_vacuum_rpm_lo;
 u8_obd2level_t6 CAL_obd_ii_P0564;
+undefined1 obd_p0106_throttle_vacuum_rpm_hi;
 u8_obd2level_t6 CAL_obd_ii_P0806;
+undefined1 obd_p0106_throttle_vacuum_model;
 u8_obd2level_t6 CAL_obd_ii_P0807;
+undefined2 CAL_obd_ii_o2_sensor1_voltage_threshold;
 u8_obd2level_t6 CAL_obd_ii_P0808;
+undefined1 CAL_unknown15;
+undefined2 CAL_obd_ii_o2_sensor1_voltage_limit;
+undefined1 CAL_obd_ii_P0132_fail_count;
+undefined1 CAL_obd_ii_P0151_fail_count;
+undefined1 CAL_obd_ii_P0152_fail_count;
+undefined2 CAL_obd_ii_o2_sensor2_voltage_threshold;
+undefined1 CAL_obd_ii_P0137_fail_count;
+undefined2 CAL_obd_ii_o2_sensor2_voltage_limit;
+undefined1 CAL_obd_ii_P0138_fail_count;
+undefined1 CAL_obd_ii_P0157_fail_count;
+undefined1 CAL_obd_ii_P0158_fail_count;
+undefined1 obd_ii_P0111_stage;
+undefined2 CAL_clutch_pos_voltage_threshold;
+undefined1 CAL_obd_ii_switch_voltage_debounce;
 u8_obd2level_t6 CAL_obd_ii_P1562;
 u8_obd2level_t6 CAL_obd_ii_P0097;
 u8_obd2level_t6 CAL_obd_ii_P0098;
@@ -6696,17 +6595,16 @@ bool oil_pressure_low_detected;
 u8_pressure_mbar[8] CAL_sensor_obd_ii_p0106_maf_pressure_correction;
 u8_flow_g/s[8] CAL_sensor_obd_ii_p0106_maf_pressure_correction_X_maf_flow;
 bool throttle_calibrate_fail;
+undefined1 CAL_obd_ii_P0111_maf_low_band;
 byte DAT_4000ca2e;
-char DAT_400022e4;
 byte DAT_4000cba0;
 short DAT_400022ea;
-byte DAT_4000cb9e;
 short DAT_400022e6;
 byte DAT_4000cba1;
 short DAT_400022ec;
-byte DAT_4000cb9d;
-byte DAT_4000cb9c;
 byte DAT_4000cb20;
+undefined1 CAL_obd_ii_P0111_maf_debounce_time;
+undefined1 CAL_maf_flow_1_limit_0;
 undefined2 oil_pressure_low_timer;
 u8_time_s CAL_oil_pressure_switch_startup_time;
 undefined2 oil_pressure_expected;
@@ -6715,15 +6613,15 @@ u8_rspeed_125/4+500rpm[8] CAL_sensor_oil_pressure_expected_X_engine_speed;
 uint8_t[8] CAL_sensor_oil_pressure_expected;
 char DAT_4000154c;
 char DAT_40001546;
+undefined1 CAL_closedloop_tipout_holdoff_ticks;
 char DAT_4000154d;
+u16_rspeed_rpm CAL_closedloop_tipout_rpm_threshold;
 byte DAT_4000236d;
 byte DAT_4000236e;
 ushort DAT_40002368;
 ushort DAT_4000236a;
-char DAT_4000cb97;
 char DAT_4000236c;
 byte DAT_4000cb94;
-u16_rspeed_rpm u16_rspeed_rpm_4000cb98;
 byte DAT_4000cb95;
 byte DAT_4000cb96;
 u8_count cp_sample_count;
@@ -6765,7 +6663,6 @@ undefined2 DAT_40002332;
 undefined2 DAT_4000154a;
 undefined2 DAT_40002330;
 undefined1 DAT_40002336;
-byte DAT_4000cbd1;
 short DAT_40002626;
 undefined1 DAT_40002349;
 undefined2 DAT_4000234a;
@@ -6842,10 +6739,10 @@ undefined1 DAT_4000d3ac;
 undefined1 DAT_40002234;
 undefined1 DAT_4000d3ad;
 undefined1 DAT_40002235;
-u8_obd2level_t6 CAL_obd_ii_P0101_manual;
-u8_obd2level_t6 CAL_obd_ii_P0101_ips;
 undefined1 DAT_4000d452;
 undefined1 DAT_40002236;
+u8_obd2level_t6 CAL_obd_ii_P0101_manual;
+u8_obd2level_t6 CAL_obd_ii_P0101_ips;
 undefined1 DAT_4000d472;
 undefined1 DAT_40002304;
 undefined1 DAT_4000d474;
@@ -6856,21 +6753,13 @@ undefined1 DAT_4000d3b0;
 undefined1 DAT_40002238;
 undefined1 DAT_4000d3b1;
 undefined1 DAT_40002239;
-undefined1 DAT_4000d3b6;
 undefined1 DAT_4000223a;
-undefined1 DAT_4000d3b7;
 undefined1 DAT_4000223b;
-undefined1 DAT_4000d3b8;
 undefined1 DAT_40002286;
-undefined1 DAT_4000d3b9;
 undefined1 DAT_400022a2;
-undefined1 DAT_4000d426;
 undefined1 DAT_4000223c;
-undefined1 DAT_4000d427;
 undefined1 DAT_4000223d;
-undefined1 DAT_4000d428;
 undefined1 DAT_4000228e;
-undefined1 DAT_4000d429;
 undefined1 DAT_400022a6;
 undefined1 DAT_4000d46c;
 undefined1 DAT_400022aa;
@@ -6931,22 +6820,21 @@ undefined1 DAT_4000d458;
 undefined1 DAT_400022dc;
 u8_obd2level_t6 CAL_obd_ii_P0579;
 u8_obd2level_t6 CAL_obd_ii_P0578;
+undefined1 CAL_obd_ii_P0579_stuck_timeout;
 uint8_t DAT_40002390;
 byte DAT_4000ca13;
-char DAT_40002398;
 byte DAT_4000cb23;
 byte DAT_4000cb21;
 byte DAT_4000cadd;
-uint DAT_40002394;
 uint DAT_4000238c;
 byte DAT_4000cadc;
-byte DAT_40002391;
-byte DAT_4000d3be;
+undefined1 obd_ii_P0128_iat_too_cold_latch;
+undefined4 obd_ii_P0128_lowspeed_seconds;
+undefined1 obd_ii_P0128_fail_countdown;
+undefined1 CAL_obd_ii_P0128_fail_count;
 u8_obd2level_t6 CAL_obd_ii_P0128;
 u8_load_4mg/stroke[8] CAL_cooling_thermostat_warmup_load_factor_X_load;
 uint8_t[8] CAL_cooling_thermostat_warmup_load_factor;
-undefined1 DAT_4000d3be;
-undefined1 DAT_40002391;
 byte DAT_400023b6;
 byte DAT_400023b2;
 short DAT_400023b4;
@@ -6964,10 +6852,9 @@ short DAT_400023aa;
 byte DAT_4000cb3e;
 byte DAT_4000cb40;
 byte DAT_4000cb3f;
-char DAT_4000cb3d;
 byte DAT_400049ea;
-u8_obd2level_t6 CAL_obd_ii_P0461;
 uint DAT_400049e4;
+u8_obd2level_t6 CAL_obd_ii_P0461;
 byte DAT_400049e9;
 byte DAT_400049e8;
 byte DAT_4000cb44;
@@ -6981,20 +6868,21 @@ short DAT_400023b8;
 char DAT_400023bf;
 char DAT_4000cbb2;
 char DAT_400023be;
-char DAT_4000cbb3;
 short DAT_400023ae;
 short DAT_400023b0;
 short DAT_4000cb4e;
-char DAT_4000cbb5;
 char DAT_400023bb;
 char DAT_400023ba;
-byte DAT_4000cbb4;
 char DAT_400023bc;
 char DAT_400023bd;
 byte DAT_400023a7;
 byte DAT_4000d413;
 byte DAT_400023a8;
 byte DAT_4000d3d1;
+undefined1 CAL_obd_evap_entry_settle_delay;
+undefined1 CAL_obd_ii_evap_purge_settle_debounce;
+undefined1 CAL_obd_ii_P0451_debounce_count;
+undefined1 CAL_evap_pressure_deviation_max;
 undefined2 DAT_400023a2;
 int DAT_40001828;
 undefined1 DAT_4000d413;
@@ -7003,9 +6891,7 @@ undefined1 DAT_4000d3d1;
 undefined1 DAT_400023a8;
 undefined1 DAT_4000cbb2;
 undefined1 DAT_400023bf;
-undefined1 DAT_4000cbb3;
 undefined1 DAT_400023be;
-undefined1 DAT_4000cbb5;
 undefined1 DAT_400023bd;
 undefined1 DAT_400023bc;
 undefined1 DAT_400023bb;
@@ -7013,63 +6899,41 @@ undefined1 DAT_400023ba;
 undefined1 DAT_400023a6;
 undefined1 DAT_400023a5;
 undefined1 DAT_400023ac;
-undefined1 DAT_4000cb3d;
 undefined1 DAT_400023a4;
 undefined2 DAT_400023aa;
 undefined1 DAT_400023a9;
 uint16_t siu_pcr[196];
 uint16_t siu_pcr[197];
 uint16_t siu_pcr[142];
-undefined1 vvt_inlet_b1_zero_timer;
-undefined1 vvt_inlet_b2_zero_timer;
+undefined1 vvt_intake_target_zero_timer;
+undefined1 vvt_exhaust_target_zero_timer;
 uint16_t CAL_vvt_pwm_driver_divisor;
 u8_time_100ms CAL_vvt_zero_target_timeout;
 uint16_t siu_pcr[129];
-short DAT_400023c6;
 int DAT_400023c8;
+undefined2 vvt_pi_p_term_exhaust_b2;
+undefined2 vvt_duty_exh_b2;
 int DAT_400023cc;
-byte DAT_40002418;
-ushort DAT_40001560;
-u16_angle_1/4deg u16_angle_1/4deg_40001550;
 u16_angle_1/4deg u16_angle_1/4deg_40001558;
-undefined u16_angle_1/4deg_400023f8;
-bool CAL_vvt_low_load_disable;
-int DAT_40002408;
-uint DAT_40002430;
-u8_temp_5/8-40c CAL_vvt_low_load_map_enable_temp;
-byte DAT_4000cb58;
-char DAT_4000ca3d;
-u8_temp_5/8-40c[8] CAL_vvt_start_timer_X_coolant_temp;
-u8_time_100ms[8] CAL_vvt_start_timer;
-short DAT_400023d0;
+undefined2 cam_park_position_max_exhaust_b2;
+undefined4 cam_park_position_sum_exhaust_b2;
+undefined4 cam_park_sample_count_exhaust_b2;
+undefined4 cam_park_position_mean_exhaust_b2;
 int DAT_400023d4;
-bool vvt_intake_transition_complete;
 int DAT_400023d8;
-bool vvt_exhaust_transition_complete;
-ushort DAT_40001562;
-u16_angle_1/4deg u16_angle_1/4deg_40001552;
 u16_angle_1/4deg u16_angle_1/4deg_4000155a;
-uint32_t uint32_t_400023fc;
-int DAT_4000240c;
-uint DAT_4000242c;
-short DAT_400023dc;
 int DAT_400023e0;
 int DAT_400023e4;
-ushort DAT_40001564;
-u16_angle_1/4deg DAT_40001554;
 u16_angle_1/4deg DAT_4000155c;
-int DAT_40002400;
-int DAT_40002410;
-uint DAT_40002428;
-short DAT_400023e8;
+bool CAL_vvt_low_load_disable;
 int DAT_400023ec;
 int DAT_400023f0;
-ushort DAT_40001566;
-u16_angle_1/4deg DAT_40001556;
+u8_temp_5/8-40c CAL_vvt_low_load_map_enable_temp;
 u16_angle_1/4deg DAT_4000155e;
-int DAT_40002404;
-int DAT_40002414;
-uint DAT_40002424;
+u8_temp_5/8-40c[8] CAL_vvt_start_timer_X_coolant_temp;
+u8_time_100ms[8] CAL_vvt_start_timer;
+bool vvt_intake_transition_complete;
+bool vvt_exhaust_transition_complete;
 undefined2 vvt_inlet_taget_calc_bank1;
 u16_angle_1/4deg vvt_exhaust_taget_calc_bank1;
 undefined1 vvt_exhaust_mode_flags;
@@ -7091,27 +6955,47 @@ u8_load_4mg/stroke[16] CAL_vvt_exhaust_advance_base_Y_load;
 u8_angle_1/4deg[256] CAL_vvt_exhaust_advance_base;
 u16_factor_1/255 CAL_vvt_error_gain_startup;
 bool vvt_low_load_active;
+undefined2 vvt_pi_p_term_inlet_b1;
+undefined1 vvt_park_integral_reset_flags;
+undefined2 vvt_duty_inlet_b1;
+u16_angle_1/4deg cam_park_position_max_inlet_b1;
+u16_angle_1/4deg cam_park_position_sum_inlet_b1;
+undefined4 cam_park_sample_count_inlet_b1;
+undefined4 cam_park_position_mean_inlet_b1;
+undefined1 CAL_vvt_cam_park_offset_max;
+undefined2 vvt_pi_p_term_inlet_b2;
+undefined2 vvt_duty_inlet_b2;
+u16_angle_1/4deg cam_park_position_max_inlet_b2;
+uint32_t cam_park_position_sum_inlet_b2;
+undefined4 cam_park_sample_count_inlet_b2;
+undefined4 cam_park_position_mean_inlet_b2;
+undefined2 vvt_pi_p_term_exhaust_b1;
+undefined2 vvt_duty_exh_b1;
+undefined2 cam_park_position_max_exhaust_b1;
+undefined4 cam_park_position_sum_exhaust_b1;
+undefined4 cam_park_sample_count_exhaust_b1;
+undefined4 cam_park_position_mean_exhaust_b1;
 undefined *DAT_400023c8;
 undefined *DAT_400023d4;
 undefined *DAT_400023e0;
 undefined *DAT_400023ec;
-char DAT_400023c0;
 undefined DAT_00019000;
 undefined DAT_fffe7000;
+undefined1 vvt_task_rate_divider;
 uint16_t CAL_vvt_integral_gain;
-byte emios_uc[2].uc[40];
-byte emios_uc[2].uc[44];
-byte emios_uc[2].uc[32];
-byte emios_uc[2].uc[36];
-byte emios_uc[2].uc[72];
-byte emios_uc[2].uc[76];
-byte emios_uc[2].uc[64];
-byte emios_uc[2].uc[68];
-byte emios_uc[0].uc[200];
-byte emios_uc[0].uc[204];
-byte emios_uc[0].uc[192];
-byte emios_uc[0].uc[196];
-u16_factor_1/1023 u16_factor_1/1023_400087e0;
+byte EMIOS_CBDR17;
+byte EMIOS_CADR17;
+byte EMIOS_CCR17;
+byte EMIOS_CCNTR17;
+byte EMIOS_CBDR18;
+byte EMIOS_CADR18;
+byte EMIOS_CCR18;
+byte EMIOS_CCNTR18;
+byte EMIOS_CCNTR6;
+byte EMIOS_CBDR6;
+byte EMIOS_CADR6;
+byte EMIOS_CCR6;
+u16_factor_1/1023 CAL_tps_warmup_max;
 uint16_t siu_pcr[204];
 uint16_t CAL_etb_pwm_period;
 u16_factor_1/1023 tps_max_during_warmup;
@@ -7141,15 +7025,12 @@ ushort DAT_4000616e;
 undefined2 DAT_40006170;
 undefined2 tps_track_a_closed_value;
 undefined2 tps_track_b_closed_value;
-ushort DAT_4000489e;
 ushort DAT_400048a0;
 ushort DAT_40008752;
-ushort DAT_4000873e;
 ushort DAT_40002482;
 ushort DAT_40008754;
 ushort DAT_40002486;
 ushort DAT_40008756;
-ushort DAT_40008742;
 ushort DAT_40002484;
 ushort DAT_40008758;
 ushort DAT_40002488;
@@ -7157,7 +7038,8 @@ undefined2 DAT_4000248a;
 undefined2 DAT_4000248c;
 undefined2 DAT_4000248e;
 undefined2 DAT_40002490;
-char DAT_400027da;
+undefined2 CAL_etb_tps1_max_count;
+undefined2 CAL_etb_tps2_max_count;
 byte DAT_400087c6;
 u8_factor_1/255[8] CAL_tpssmooth_decrement_by_delta_X_tps_delta;
 u8_factor_1/255[8] CAL_tpssmooth_decrement_by_delta;
@@ -7176,6 +7058,7 @@ u8_factor_1/255 CAL_tpssmooth_parking_threshold_tps;
 u8_speed_kph CAL_tpssmooth_parking_threshold_carspeed;
 undefined1 tps_warmup_limit_timer;
 u8_gear CAL_tpssmooth_parking_threshold_gear;
+undefined1 ips_throttle_restrict;
 u16_torque_nm torque_limit_engine_speed;
 u16_torque_nm torque_limit_by_rpm;
 u16_torque_nm torque_limit;
@@ -7247,20 +7130,19 @@ undefined1 etb_pwm_duty_percent;
 undefined2 etb_dbg_error;
 undefined4 etb_dbg_d_term;
 undefined4 etb_dbg_p_term;
-char DAT_40001cc9;
 u16_voltage_5/1023v tps_absolute_a;
-u16_voltage_5/1023v tps_absolte_b_u8;
 u16_voltage_18/1023v u16_voltage_18/1023v_4000894a;
-char DAT_40001572;
-undefined2 throttle_monitor5_ticks;
+u16_voltage_5/1023v tps_absolte_b_u8;
 byte DAT_40004f3b;
-undefined2 throttle_monitor5_max_ticks;
 byte DAT_400049c1;
 short DAT_40001570;
-undefined2 throttle_uptime_max_ticks;
+undefined2 throttle_monitor5_ticks;
+undefined2 throttle_monitor5_max_ticks;
 char DAT_400024a8;
+undefined2 throttle_uptime_max_ticks;
 undefined2 throttle_uptime_ticks;
-short DAT_400024e4;
+undefined1 etb_low_voltage_debounce_counter;
+undefined2 etb_init_delay_timer;
 uint8_t throttle_error_flags;
 u8_factor_1/255 tps_commanded_hc08;
 undefined1 tps_init_and_stability_state;
@@ -7269,20 +7151,20 @@ enum_tps_shaping_state tps_system_state;
 undefined2 cruise_cancel_request_flags;
 undefined2 tps_absolute?;
 u16_voltage_5/1023v tps_absolute_b;
-char DAT_40001573;
-short DAT_400024f4;
 short DAT_400024f2;
-byte DAT_40008937;
-short DAT_4000894c;
-short DAT_400024f6;
 u16_factor_1/1023 DAT_400024f0;
 u16_factor_1/1023 DAT_400024ee;
-byte DAT_40008933;
 byte DAT_400024f8;
 byte DAT_40008930;
 ushort DAT_4000250e;
 byte DAT_40008935;
 byte DAT_40008934;
+undefined1 lfb_requires_init;
+undefined2 lbf_entry_countdown_timer;
+undefined1 CAL_lfb_pulse_toggle_period;
+undefined2 CAL_lfb_brake_off_hold_ticks;
+undefined2 lfb_brake_off_hold_ticks;
+undefined1 CAL_lfb_pedal_override_rate;
 uint8_t CAL_lfb_timer_entry;
 uint8_t CAL_lfb_timer_hold;
 u8_factor_1/255 CAL_lfb_tps_max;
@@ -7292,30 +7174,21 @@ u16_voltage_5/1023v CAL_lfb_clutch_threshold;
 u16_factor_1/1023 DAT_4000250e;
 ushort DAT_400024fa;
 byte DAT_40008936;
-short DAT_4000405c;
-short DAT_400040cc;
-u32_time_5ms DAT_40003f4c;
-u16_time_100ms DAT_40004054;
-u16_voltage_18/1023v DAT_40004056;
 uint16_t DAT_40004058;
-short DAT_4000405e;
 ushort DAT_40004060;
-short DAT_40004062;
 short DAT_40004064;
 u16_voltage_18/1023v DAT_400048a2;
 uint16_t DAT_400048a4;
-byte DAT_40004067;
-short DAT_4000405a;
 undefined1 DAT_40002514;
 bool tps_fault_active;
-char DAT_4000157b;
-char DAT_400017ec;
+undefined1 knock_window_irq_phase;
+undefined1 knock_window_irq_count;
 uint8_t INTC_PSR+0x62;
 uint16_t CAL_knock_agc_scaling_threshold;
 uint16_t[2] knock_sensor_level_b2;
 ushort[16] knock_level_scaled;
 enum_knock_mode CAL_knock_mode;
-undefined1 knock_buffer_count;
+undefined1 knock_buffer_last_index;
 bool knock_sensor_new_data_available;
 undefined1 knock_curr_cylinder;
 uint8_t knock_buffer_index;
@@ -7325,20 +7198,20 @@ pointer[11] PTR_ARRAY_000d13c0;
 short[11] SHORT_ARRAY_40006900;
 undefined1 knock_freq_bin_count;
 char DAT_40002528;
-undefined1 DAT_40006620;
 undefined4 DAT_40006748;
+undefined1 knock_freq_bin_index;
 u8_rspeed_125/4+500rpm[3] CAL_knock_agc_threshold;
 u8_rspeed_125/4+500rpm CAL_knock_agc_hysteresis_band;
 undefined1 knock_agc_stage_current;
 bool knock_agc_stage_override_enable;
 undefined1 knock_agc_stage_override_value;
+undefined knock_sine_table_q15;
 int DAT_40006848;
+undefined4 knock_bin_energy;
 int DAT_4000684c;
-undefined DAT_000d1140;
-undefined4 DAT_40006874;
 undefined4 DAT_40006848;
 char DAT_40002519;
-undefined2 DAT_000d11c0;
+undefined2 knock_hann_window_q15;
 byte DAT_4000251e;
 undefined1 DAT_000d1240;
 undefined2 DAT_000d12c0;
@@ -7400,7 +7273,6 @@ undefined1 isotp_stmin_counter;
 undefined1 isotp_flow_status;
 undefined1 isotp_block_size;
 uint32_t fca_buffer[15].arb_id;
-uint fca_buffer[15].code_and_timestamp;
 undefined4 flexcan_a_interrupt_reg_flag_low;
 uint8_t INTC_PSR+0xa4;
 uint16_t siu_pcr[84];
@@ -7420,6 +7292,7 @@ uint8_t INTC_PSR+0xa9;
 uint8_t INTC_PSR+0xaa;
 uint16_t siu_pcr[83];
 uint8_t INTC_PSR+0xab;
+uint dev_mode_log_request;
 uint8_t INTC_PSR+0x9c;
 uint32_t fca_buffer[5].arb_id;
 uint32_t fca_buffer[13].arb_id;
@@ -7473,7 +7346,7 @@ u16_torque_nm torque_limit_external_tc_fast;
 char DAT_40002821;
 u16_torque_nm torque_limit_external_esp_fast;
 u16_torque_nm torque_limit_external_tc_slow;
-bool flexcan_mesg_0xb7_is_7byte;
+bool tc_torque_limit_use_slow_path;
 undefined2 torque_request1;
 undefined2 torque_request3;
 undefined2 torque_request2;
@@ -7499,7 +7372,6 @@ undefined1 steering_angle_rate???;
 byte DAT_40001608;
 undefined1 ips_cal_version_received;
 undefined1 DAT_400027d9;
-undefined1 DAT_400027da;
 undefined1 DAT_4000281f;
 byte DAT_400015ce;
 ushort DAT_400025b4;
@@ -7558,10 +7430,10 @@ u16_distance_mm_div2 CAL_wheel_speed_multiplier_rear;
 undefined1 tc_inhibit_flags;
 byte fca_buffer[15].data[4];
 byte *DAT_40002584;
-byte *DAT_40002558;
 byte *DAT_40002580;
-byte fca_buffer[15].data[0];
 ushort DAT_40002560;
+byte fca_buffer[15].data[0];
+undefined4 dm_data_buffer;
 ushort DAT_40002562;
 byte *DAT_4000255c;
 byte fca_buffer[16].data[0];
@@ -7687,17 +7559,10 @@ byte DAT_400048f8;
 byte DAT_400048f9;
 byte DAT_400048fa;
 byte DAT_400048fb;
-byte DAT_400048fe;
-byte DAT_400048ff;
-byte DAT_40004900;
-byte DAT_40004904;
 byte DAT_400025dc;
 byte DAT_400025dd;
 byte DAT_400025de;
 byte DAT_400025df;
-byte DAT_40004908;
-byte DAT_40004909;
-byte DAT_4000490a;
 byte DAT_400025e0;
 byte DAT_400025e1;
 byte DAT_400025e2;
@@ -7756,22 +7621,22 @@ int DAT_400025fc;
 short DAT_400025f8;
 undefined PTR_DAT_40001598;
 short DAT_40002630;
-ushort DAT_40002638;
 short DAT_4000263a;
 byte DAT_40002624;
+byte DAT_4000d443;
 undefined2 cruise_integral_term;
 undefined2 cruise_deriv_term;
-byte DAT_4000d443;
 byte DAT_40002649;
-u8_factor_1/100 CAL_cruise_integral_term_limit;
-u8_factor_1/100 CAL_cruise_derivative_term_limit;
 byte DAT_4000cbd0;
 byte DAT_40002625;
+u8_factor_1/100 CAL_cruise_integral_term_limit;
+u8_factor_1/100 CAL_cruise_derivative_term_limit;
 byte DAT_4000d403;
 undefined1 DAT_40002648;
 char DAT_4000223e;
 u8_gear[4] CAL_cruise_integral_gain_manual_cr_X_gear;
 u8_factor_1/100[4] CAL_cruise_integral_gain_manual_cr;
+undefined2 cruise_switch_unknown_voltage2;
 u8_speed_kph CAL_cruise_speed_error_limit;
 u8_gear[4] CAL_cruise_integral_gain_ips_X_gear;
 u8_factor_1/100[4] CAL_cruise_integral_gain_ips;
@@ -7807,13 +7672,7 @@ byte DAT_40008891;
 byte DAT_40008892;
 byte DAT_400015ab;
 byte DAT_400015ac;
-short DAT_40002640;
 short DAT_40002644;
-char DAT_4000264b;
-enum_t6e_gear enum_t6e_gear_400015aa;
-byte DAT_40002628;
-byte DAT_40002629;
-byte DAT_4000262a;
 char DAT_400015a0;
 char DAT_400015a3;
 byte DAT_4000880d;
@@ -7826,28 +7685,34 @@ byte DAT_4000886e;
 ushort DAT_400015a8;
 ushort DAT_40002618;
 undefined PTR_DAT_400015b0;
-enum_cruise_switch_pos cruise_switch_pos;
-byte DAT_4000264d;
-byte DAT_4000893e;
-byte DAT_4000886d;
 byte DAT_4000261a;
 ushort DAT_400015ae;
 char DAT_4000263c;
 char DAT_400015a4;
 enum_t6e_gear DAT_40002646;
-byte DAT_400087ea;
+enum_cruise_switch_pos cruise_switch_pos;
 char DAT_400015a5;
 u16_speed_1/100kph DAT_4000263e;
 u16_speed_1/100kph DAT_4000262c;
-byte DAT_400087eb;
 short DAT_40002632;
 short DAT_4000886a;
-char DAT_40002634;
 byte DAT_40002647;
 char DAT_40002648;
 char DAT_40002649;
 undefined DAT_4000e4d8;
 undefined DAT_4000e4e0;
+undefined2 cruise_transition_lockout_timer;
+undefined1 cruise_stalk_idle_debounce_timer;
+enum_t6e_gear cruise_min_engage_gear;
+undefined1 cruise_cancel_button_hold_count;
+undefined1 cruise_resume_button_hold_count;
+undefined1 cruise_set_button_hold_count;
+undefined1 cruise_speed_error_normalized;
+undefined1 CAL_cruise_feedforward_blend_threshold;
+undefined1 CAL_cruise_airflow_slew_step;
+undefined1 CAL_cruise_integrator_clamp;
+undefined1 CAL_cruise_derivative_clamp;
+undefined1 cruise_coast_switch_override_timer;
 undefined1 CAL_cruise_unknown2;
 bool revlimit_limp_mode_active;
 u8_time_10ms CAL_cruise_resume_timer;
@@ -7920,7 +7785,7 @@ u16_torque_nm obd_ii_engine_torque;
 undefined2 ign_retard_torque_limit;
 u16_torque_nm torque_loss_from_ign_retard;
 u16_torque_nm torque_margin_above_limit;
-undefined1 constant_42;
+undefined1 torque_factor_per_cyl_step;
 u8_rspeed_125/4+500rpm[20] CAL_torque_engine_friction_speed_component_X_engine_speed;
 u8_load_1173mg/255stroke[20] CAL_torque_engine_friction_speed_component_Y_load;
 u8_torque_nm[400] CAL_torque_engine_friction_speed_component;
@@ -7958,9 +7823,7 @@ uint8_t CAL_torque_limit_integral_deadband;
 u16_factor_1/4095 CAL_torque_integral_limit_positive;
 u16_factor_1/4095 CAL_torque_integral_limit_negative;
 u8_time_ms CAL_torque_limit_integral_update_period;
-byte DAT_40002687;
 undefined1 DAT_4000268c;
-undefined1 DAT_4000268e;
 u8_torque_2nm u8_torque_2nm_400088dd;
 byte DAT_400088dc;
 u16_time_10ms CAL_cruise_brake_cancel_time;
@@ -7989,110 +7852,102 @@ u16_rspeed_rpm CAL_torque_limit_low_speed_rpm_threshold;
 u8_torque_nm CAL_torque_limit_low_speed_min_torque;
 u16_torque_nm torque_limit_arbitrary_end_of_pass_unused;
 undefined1 torque_limit_output_clamp_flags;
+undefined1 ips_shift_torque_request_active;
+undefined1 torque_limit_slow_path_active;
 undefined1 tcu_torque_limit_onset_latch;
 u8_time_10ms u8_time_10ms_400015f7;
 u8_torque_nm CAL_torque_hysteresis_threshold1;
 undefined1 torque_timer_primary_unknown;
 undefined4 tps_accumulator_torque_limit;
 u8_factor_1/255 CAL_torque_tps_gain;
-ushort DAT_400026de;
-u8_speed_kph[2] CAL_ac_compressor_deactivate_car_speed;
 byte DAT_400086b7;
+u8_speed_kph[2] CAL_ac_compressor_deactivate_car_speed;
 char DAT_400086ca;
-char DAT_400026e3;
-char DAT_40002716;
 char DAT_400086c6;
 short DAT_40002720;
 byte DAT_40008787;
-short DAT_40002722;
 byte DAT_40008786;
-byte DAT_40008707;
-short DAT_40002718;
 char DAT_4000271a;
 byte DAT_40008708;
-byte DAT_40008718;
 u8_factor_1/255 CAL_ac_compressor_max_coolant_temp_max;
 u8_factor_1/255 CAL_ac_compressor_max_coolant_temp_min;
 u8_factor_1/255 CAL_ac_compressor_max_throttle;
 u8_rspeed_4rpm[2] CAL_ac_compressor_engine_speed3;
 u8_rspeed_125/4+500rpm[2] CAL_ac_compressor_engine_speed2;
 u16_time_5ms CAL_ac_compressor_runtime_min;
+undefined2 ac_inhibit_flags;
+undefined1 ac_tps_inhibit_timer;
+undefined1 ac_rpm_inhibit_delay_timer;
 u8_rspeed_125/4+500rpm CAL_ac_compressor_engine_speed_max;
+undefined2 ac_rpm_cutoff_min_hold_timer;
 u8_rspeed_125/4+500rpm CAL_ac_compressor_engine_speed_min;
+undefined1 CAL_ac_inhibit_evap_temp;
+undefined2 ac_evap_freeze_inhibit_timer;
+undefined1 CAL_ac_evap_freeze_inhibit_delay;
 byte DAT_400086d5;
-ushort DAT_400026fe;
+undefined2 ac_fan_startup_hold_timer;
 undefined1 ac_compressor_request;
-undefined1 DAT_4000871e;
 undefined1 DAT_400015f9;
-undefined2 DAT_400026ea;
+undefined2 ac_pid_target_accum;
 undefined2 DAT_400026ec;
-undefined2 DAT_400026ee;
+undefined2 ac_compressor_dc;
 undefined2 DAT_40002714;
-undefined2 DAT_400026f0;
-undefined2 DAT_400026f2;
+undefined1 CAL_ac_compressor_soft_engage_time;
+undefined1 ac_compressor_soft_engage_timer;
 undefined2 DAT_400026f4;
-undefined2 DAT_400026fc;
-undefined1 DAT_40008727;
-undefined1 DAT_400015fb;
-byte DAT_4000873c;
 short DAT_4000270a;
-byte DAT_4000873d;
+undefined1 CAL_ac_load_slew_up_period.;
 short DAT_4000270c;
+undefined1 CAL_ac_load_slew_down_period;
 u16_temp_1/10C DAT_4000271c;
 undefined1 DAT_4000271f;
 u8_count CAL_ac_evap_timer_ticks_5ms;
+undefined1 CAL_ac_load_ramp_steps;
+undefined2 ac_pid_p_term;
+undefined2 ac_pid_d_term;
+undefined2 ac_pid_out_accum;
 uint16_t CAL_ac_output_pwm_freq;
 uint16_t siu_pcr[130];
 char DAT_400026fa;
-undefined1 DAT_400086b8;
 undefined1 DAT_400026e1;
 undefined1 DAT_400026e0;
-char DAT_4000270e;
+undefined1 CAL_ac_ign_comp_delay;
+undefined1 ac_clutch_engage_request;
 u8_time_5ms u8_time_5ms_400015fa;
 char DAT_400026e0;
-ushort DAT_400026f6;
 char DAT_4000271e;
 char DAT_40008719;
-undefined1 DAT_4000270e;
 char DAT_400026e1;
-byte DAT_40008729;
-char DAT_40008727;
-char DAT_400015fb;
-byte DAT_4000871e;
 byte DAT_400015f9;
-byte DAT_40008736;
 ushort DAT_40002728;
 short DAT_400026f4;
-byte DAT_40008721;
 short DAT_400026ec;
 u16_temp_1/10C DAT_40002726;
-short DAT_400026ee;
 short DAT_40002714;
-short DAT_400026ea;
-char DAT_4000270f;
 char DAT_40008748;
-ushort DAT_40002718;
 byte DAT_40008778;
-byte DAT_40008747;
 byte DAT_40008779;
-byte DAT_40008722;
 char DAT_4000271f;
-ushort DAT_400026f0;
-undefined2 ac_load_mw???;
-short DAT_400026f2;
-byte DAT_40008740;
-byte DAT_40008741;
-byte DAT_40008720;
 char DAT_40002710;
 char DAT_4000870a;
 short DAT_40002724;
-byte DAT_4000870b;
 byte DAT_40008723;
-char DAT_400086cc;
 char DAT_400026e2;
-short DAT_400026fe;
 undefined DAT_40009182;
 undefined DAT_4000918a;
+undefined2 ac_load_mw???;
+undefined2 ac_power_limit;
+undefined1 CAL_ac_unknown3;
+undefined1 CAL_ac_compressor_power_offset;
+undefined1 CAL_ac_evap_pid_ki_warm;
+undefined1 ac_evap_pid_update_period;
+undefined1 CAL_ac_evap_pid_ki_cold;
+undefined1 CAL_ac_evap_pid_integrator_limit;
+undefined1 CAL_ac_load_slew_up_step;
+undefined1 CAL_ac_load_slew_down_step;
+undefined1 CAL_ac_evap_pid_kd;
+undefined1 CAL_ac_evap_pid_derivative_filter_alpha;
+undefined1 CAL_ac_shutdown_delay;
 u8_time_5ms ac_10hz_timer;
 u8_rspeed_125/4+500rpm[4] CAL_ac_load_limit_X_rpm;
 u8_temp_1/10C CAL_ac_evap_target_temp;
@@ -8100,8 +7955,8 @@ uint8_t[4] CAL_ac_load_limit;
 u16_temp_1/10C ac_evap_temp_delta;
 short DAT_400026e8;
 ushort DAT_40002730;
-byte DAT_4000887b;
 uint DAT_4000272c;
+undefined1 CAL_ac_compressor_speed_filter_coeff;
 ushort DAT_4000cb66;
 short DAT_40002702;
 byte DAT_40002700;
@@ -8112,7 +7967,6 @@ byte DAT_40002704;
 byte DAT_4000d44b;
 ushort DAT_400026e8;
 undefined2 DAT_40002736;
-byte DAT_4000cb4c;
 undefined2 DAT_40002732;
 undefined2 DAT_40002734;
 byte DAT_4000cb5d;
@@ -8120,15 +7974,16 @@ short DAT_40002708;
 byte DAT_4000cb5e;
 u8_obd2level_t6 CAL_obd_ii_P0537;
 u8_obd2level_t6 CAL_obd_ii_P0538;
+undefined1 CAL_obd_ac_load_diag_tolerance_pct;
 u8_obd2level_t6 CAL_obd_ii_B1422;
 undefined1 DAT_4000d44a;
 undefined1 DAT_40002700;
 undefined1 DAT_4000d44b;
 undefined1 DAT_40002704;
-undefined1 DAT_40002769;
 undefined1 DAT_4000276a;
-bool accel_pedal_track_d_selected;
 struct_tps_shaping_flags struct_tps_shaping_flags_40007f98;
+bool accel_pedal_track_d_selected;
+undefined1 accel_pedal_system_state;
 struct_tps_shaping_flags struct_tps_shaping_flags_40007fac;
 ushort DAT_4000248a;
 u16_factor_1/4095 DAT_4000273e;
@@ -8149,7 +8004,6 @@ short DAT_4000274a;
 short DAT_40002750;
 ushort DAT_4000ca82;
 struct_tps_shaping_flags struct_tps_shaping_flags_40007fd4;
-struct_tps_shaping_flags struct_tps_shaping_flags_40007fe8;
 short DAT_40002754;
 char DAT_4000276a;
 short DAT_40002752;
@@ -8169,11 +8023,10 @@ undefined2 DAT_40002760;
 ushort DAT_4000ca58;
 struct_tps_shaping_flags struct_tps_shaping_flags_4000804c;
 struct_tps_shaping_flags struct_tps_shaping_flags_40008024;
+short DAT_40002132;
 struct_tps_shaping_flags accel_pedal_pos_d_clipped;
-char DAT_40002769;
 uint16_t[2] CAL_sensor_accel_pedal_pos_d_threshold;
 struct_tps_shaping_flags accel_pedal_pos_e_clipped;
-short DAT_40002132;
 uint16_t[2] CAL_sensor_accel_pedal_pos_e_threshold;
 struct_tps_shaping_flags adc37_threshold;
 u16_voltage_5/1023v[2] CAL_sensor_accel_pedal_midpoint_voltage_range;
@@ -8250,9 +8103,9 @@ uint8_t[7] CAL_revlimit_airflow_gain_from_integrator_X_gear;
 u8_factor_1/255[7] CAL_revlimit_airflow_gain_from_integrator;
 uint8_t[7] CAL_revlimit_airflow_gain_from_rpm_X_gear;
 u8_factor_1/255[7] CAL_revlimit_airflow_gain_from_rpm;
-u16_factor_1/1023 revlimit_tps_target;
-undefined2 revlimit_escalation_integrator;
-undefined2 revlimit_rpm_error_rate;
+u16_factor_1/1023 revlimit_tps_max_remapped_unused;
+undefined2 revlimit_rpm_error_integral;
+undefined2 revlimit_rpm_approach_rate;
 undefined2 revlimit_airflow_rpm_term;
 undefined2 revlimit_flow_integral_term;
 u16_rspeed_rpm CAL_revlimit_limp_mode;
@@ -8262,10 +8115,10 @@ u16_rspeed_rpm revlimit_rpm_error;
 u8_rspeed_10rpm CAL_revlimit_release_rpm_delta;
 u8_time_5ms revlimit_esclated_timer;
 undefined1 revlimit_active_gear_ips;
-undefined2 revlimit_maf_flow_raw;
-undefined2 revlimit_load;
-undefined2 revlimit_maf_flow_bounded;
-undefined2 revlimit_integrator_decrement;
+undefined2 revlimit_flow_setpoint;
+undefined2 revlimit_load_setpoint;
+undefined2 revlimit_flow_base;
+undefined2 revlimit_i_term_step;
 u8_rspeed_2rpm revlimit_trim_per_gear;
 u16_speed_1/100kph speed_limit_target_ramped;
 undefined2 rpm_speed_estimated;
@@ -8298,11 +8151,11 @@ u8_count CAL_revlimit_overrun_count_threshold;
 bool CAL_vehicle_speed_limit_enforce;
 ushort DAT_4000160a;
 uint8_t CAL_vehicle_speed_limit_enforce_margin;
-u16_rspeed_rpm u16_rspeed_rpm_400027f0;
 u8_count CAL_revlimit_startup_offset_decrement;
-u8_time_5ms vehicle_speed_limit_enforce_timer;
+u16_rspeed_rpm revlimit_rpm_error_prev;
+u8_time_5ms revlimit_flow_update_divider;
 u8_flow_2g/s revlimit_airflow_threshold;
-uint8_t revlimit_rpm_rate_update_timer;
+uint8_t revlimit_approach_rate_divider;
 u8_gear[7] CAL_revlimit_airflow_threshold_X_gear;
 u8_flow_2g/s[7] CAL_revlimit_airflow_threshold;
 uint8_t CAL_revlimit_maf_error_max_10g;
@@ -8347,7 +8200,6 @@ char DAT_4000281f;
 byte DAT_4000282b;
 byte DAT_4000d459;
 byte DAT_4000282c;
-byte DAT_4000d44f;
 char DAT_40002556;
 char DAT_40002555;
 ushort DAT_40002828;
@@ -8365,6 +8217,7 @@ u8_obd2level_t6 CAL_obd_ii_U0101;
 u8_obd2level_t6 CAL_obd_ii_U0122;
 u8_obd2level_t6 CAL_obd_ii_U0316;
 u8_obd2level_t6 CAL_obd_ii_U0302;
+undefined1 CAL_obd_ii_U0316_debounce_count;
 u8_obd2level_t6 CAL_obd_ii_U0416;
 u8_obd2level_t6 CAL_obd_ii_U0123;
 u8_obd2level_t6 CAL_obd_ii_U0513;
@@ -8372,7 +8225,6 @@ undefined1 DAT_40001613;
 undefined1 DAT_40001614;
 undefined1 DAT_40001608;
 undefined1 DAT_40001c6c;
-undefined1 DAT_40001b3a;
 undefined1 DAT_400015ce;
 undefined1 DAT_40001615;
 undefined1 DAT_40001616;
@@ -8389,7 +8241,6 @@ undefined1 DAT_4000d44c;
 undefined1 DAT_4000282f;
 undefined1 DAT_4000d459;
 undefined1 DAT_4000282b;
-undefined1 DAT_4000d44f;
 undefined1 DAT_4000282c;
 undefined1 DAT_4000d45a;
 undefined1 DAT_4000d465;
@@ -8413,13 +8264,12 @@ int DAT_4000283c;
 char DAT_4000162a;
 ushort DAT_40001624;
 byte DAT_40001629;
-short DAT_4000890e;
-undefined1 DAT_40002687;
-undefined DAT_400088f2;
 uint16_t[4] uint16_t_ARRAY_40008d2e;
 uint16_t[4] uint16_t_ARRAY_40008d36;
 undefined DAT_4000d590;
 undefined DAT_4000d598;
+undefined CAL_ips_speed_match_p_gain;
+undefined2 CAL_torque_estimate_min_ips;
 u8_factor_1/255 CAL_ips_torque_reduction_slow_scale_pct;
 u8_torque_nm CAL_ips_torque_reduction_slow_floor_nm.;
 undefined DAT_40001620;
@@ -8438,7 +8288,6 @@ undefined DAT_40008906;
 undefined DAT_40008908;
 undefined DAT_4000890a;
 undefined DAT_4000890c;
-undefined2 DAT_4000890e;
 uint16_t[6] CAL_slip_gear_speed_ratios_ips;
 uint16_t[6] CAL_slip_gear_speed_ratios_cr;
 uint16_t[6] CAL_slip_gear_speed_ratios_long;
@@ -8447,13 +8296,11 @@ u8_rspeed_4+500rpm CAL_slip_threshold_1st_Gear;
 uint8_t *[6] LEA_slip_threshold_per_gear;
 u8_rspeed_4+500rpm[5] CAL_slip_threshold_per_gear_manual;
 u8_rspeed_4+500rpm[5] CAL_slip_slip_threshold_per_gear_ips;
-u8_time_100ms u8_time_100ms_40002861;
 u8_factor_1/100 CAL_slip_steering_rate_factor;
-u8_time_100ms u8_time_100ms_4000285f;
-u8_factor_1/255 CAL_slip_steering_increase_factor_min;
 byte DAT_4000cc47;
-u8_time_100ms CAL_slip_inhibit_accel_pedal_timer;
+u8_factor_1/255 CAL_slip_steering_increase_factor_min;
 byte DAT_4000cc43;
+u8_time_100ms CAL_slip_inhibit_accel_pedal_timer;
 u8_rspeed_4+500rpm CAL_slip_threshold_hysteresis_offset;
 u8_time_100ms CAL_slip_timer_intervention2;
 u8_gear CAL_slip_gear_offset_unknown;
@@ -8470,6 +8317,8 @@ u8_time_100ms traction_inhibit_accel_pedal_timer;
 undefined1 traction_slip_detected_gear;
 undefined1 traction_power_limit_gear;
 u8_time_100ms[6] traction_per_gear_timer100ms_intervention;
+u8_time_100ms gsi_downshift_advisory_timer;
+u8_time_100ms slip_gear_change_holdoff_timer;
 u16_rspeed_rpm traction_power_based_rpm_threshold;
 u16_power_1/100kw engine_power_corrected;
 u8_time_100ms traction_timer_per_gear_intervention;
@@ -8489,10 +8338,10 @@ u8_factor_1/255 CAL_slip_steering_angle_smooth_factor;
 u16_angle_1/10deg steering_angle_abs_last;
 undefined4 steering_angle_smoothed;
 u16_angle_1/10deg steering_angle_delta;
-byte emios_uc[0].uc[72];
-byte emios_uc[0].uc[76];
-byte emios_uc[0].uc[64];
-byte emios_uc[0].uc[68];
+byte EMIOS_CADR2;
+byte EMIOS_CBDR2;
+byte EMIOS_CCNTR2;
+byte EMIOS_CCR2;
 u16_factor_1/10000 u16_factor_1/10000_40002884;
 u16_factor_1/10000 u16_factor_1/10000_40002886;
 byte DAT_4000896f;
@@ -8646,14 +8495,14 @@ uint8_t[16] CAL_dpm_slip_target_base_X_dpm_level;
 u8_speed_kph dpm_min_activation_speed;
 u16_rspeed_rpm CAL_dpm_min_engine_rpm;
 u16_torque_nm CAL_dpm_torque_min_allowed;
-u8_slip_1/8pct CAL_dpm_slip_target_offset;
+u8_slip_1/8pct CAL_dpm_slip_target_straight_line_offset;
 u16_torque_nm dpm_torque_when_tc_activated;
-u8_factor_1/255 dpm_torque_cut_total;
-u16_factor_1/255[60] CAL_dpm_torque_cut_factor;
-u16_speed_1/100kph[6] CAL_dpm_torque_cut_factor_X_carspeed;
-u16_slip_1/8pct[10] CAL_dpm_torque_cut_factor_Y_slip;
-undefined1 dpm_torque_cut_factor;
-u8_factor_1/255 dpm_torque_cut_accumulated;
+u8_factor_1/255 dpm_torque_cut_fraction;
+u16_factor_1/255[60] CAL_dpm_torque_cut_p_term;
+u16_speed_1/100kph[6] CAL_dpm_torque_cut_p_term_X_carspeed;
+u16_slip_1/8pct[10] CAL_dpm_torque_cut_p_term_Y_slip;
+u8_factor_1/255 dpm_torque_cut_p_term;
+u8_factor_1/255 dpm_torque_cut_i_term;
 u8_slip_1/8pct CAL_dpm_intervention_threshold;
 u8_factor_1/255 CAL_dpm_torque_margin_factor;
 undefined2 dpm_slip_integral_accumulator;
@@ -8666,13 +8515,13 @@ u16_speed_1/100kph dpm_rear_lr_speed_diff;
 u16_speed_1/100kph dpm_max_lr_speed_diff;
 u16_time_5ms dpm_integral_update_timer;
 u16_time_5ms CAL_dpm_integral_update_period;
-u16_speed_1/100kph CAL_dpm_lr_diff_cornerning_threshold;
-uint8_t CAL_dpm_integral_gain;
-u16_time_5ms dpm_direct_mode_on_delay;
-uint8_t CAL_dpm_integral_limit;
-u16_time_5ms dpm_direct_mode_off_delay;
-u16_time_5ms CAL_dpm_direct_mode_off_delay;
-u16_time_5ms CAL_dpm_direct_mode_on_delay;
+u16_speed_1/100kph CAL_dpm_cornering_lr_speed_diff_threshold;
+uint8_t CAL_dpm_torque_cut_i_gain;
+u16_time_5ms dpm_cornering_detect_timer;
+uint8_t CAL_dpm_torque_cut_i_limit;
+u16_time_5ms dpm_cornering_release_timer;
+u16_time_5ms CAL_dpm_cornering_release_delay;
+u16_time_5ms CAL_dpm_cornering_detect_delay;
 uint8_t dpm_decrease_hold_time;
 uint8_t dpm_increase_hold_time;
 bool dpm_both_buttons_pressed;
@@ -8680,8 +8529,8 @@ int DAT_40008158;
 undefined4 DAT_40008150;
 undefined4 DAT_40008154;
 undefined4 DAT_40008158;
-undefined *PTR_DAT_40001648;
 undefined DAT_fffffffe;
+pointer flash_driver_init_status;
 undefined4 siu_midr;
 undefined4 DAT_fff48018;
 
@@ -8701,7 +8550,7 @@ int init(EVP_PKEY_CTX *ctx)
   }
   init_hardware_timers();
   init_ram_pattern_fill();
-  install_intc_vector___();
+  init_flash_biu();
   init_spr();
   init_debug_core();
   init_r2_and_r13();
@@ -8942,7 +8791,15 @@ void init_ram_pattern_fill
 
 
 
-void install_intc_vector___(void)
+// Configure the flash bus interface unit.
+// FLASH_BIUCR = 0x00014A53 (flash read/write wait states, address pipelining, prefetch, line
+// buffers).
+// Copies the 3-word stub flash_biucr_write_stub (0xCC110) to SRAM 0x4000F000 and calls it with
+// r6 = &FLASH_BIUCR, r7 = value: the flash controller cannot be reconfigured while the core
+// is fetching from flash. Runs after init_ram_pattern_fill has ECC-initialised that SRAM.
+// Was mislabelled install_intc_vector??? (unrelated to the INTC).
+
+void init_flash_biu(void)
 
 {
   byte *dest;
@@ -8950,15 +8807,15 @@ void install_intc_vector___(void)
   uint64_t size;
   
   size = 3;
-  dest = &SUB_4000f000;
-  source = (byte *)intc_setup_safe_write;
+  dest = &flash_biucr_write_stub_ram;
+  source = (byte *)flash_biucr_write_stub;
   do {
     *(undefined4 *)dest = *(undefined4 *)source;
     dest = dest + 4;
     source = source + 4;
     size = size - 1;
   } while (size != 0);
-  (*(code *)&SUB_4000f000)();
+  (*(code *)&flash_biucr_write_stub_ram)();
   return;
 }
 
@@ -9207,7 +9064,7 @@ undefined8 memset_and_return(undefined8 param_1,byte param_2,size_t param_3)
 
 
 
-void FUN_00040a14(undefined4 *param_1,undefined4 *param_2)
+void get_flash_driver_descriptor(undefined4 *param_1,undefined4 *param_2)
 
 {
   *param_2 = 0x4000a8f8;
@@ -9879,7 +9736,7 @@ void init_dspib_2(void)
 
 
 
-int FUN_00042440(uint param_1)
+int etpu_param_alloc(uint param_1)
 
 {
   int iVar1;
@@ -9932,7 +9789,7 @@ void eTPU_pram_write_byte(int param_1,undefined1 param_2)
 
 
 
-uint FUN_00042520(int param_1)
+uint etpu_sdm_read_param24(int param_1)
 
 {
   return *(uint *)(eTPU_base_unknown + param_1 + -1) & 0xffffff;
@@ -9940,7 +9797,7 @@ uint FUN_00042520(int param_1)
 
 
 
-undefined1 FUN_00042534(int param_1)
+undefined1 etpu_sdm_read_u8(int param_1)
 
 {
   return *(undefined1 *)(DAT_400019f8 + param_1);
@@ -10211,12 +10068,12 @@ void init_devices(void)
   init_eqADC5();
   init_eqADC4();
   init_emios_mcr();
-  init_emios_uc4();
+  init_emios_ch22_2khz_tick();
   init_ivor();
   set_dbsr();
   init_dspi1();
   init_etpu();
-  coil_driver_state_machine();
+  engine_sync_reset_etpu_init();
   init_flexcan_a();
   init_flexcan_filters();
   init_electronic_throttle_hardware();
@@ -10289,7 +10146,7 @@ void main(void)
     cooling_control();
     idle();
     evap_state_control();
-    idle_air_and_evap();
+    evap();
     injtip();
     gear_determination();
     closedloop();
@@ -10350,9 +10207,9 @@ void main(void)
 void freeram_fill_0x55(void)
 
 {
-  free_ram_scan_ptr = &SUB_4000f000;
+  free_ram_scan_ptr = &flash_biucr_write_stub_ram;
   free_ram_count = 0;
-  memset_and_return(&SUB_4000f000,0x55555555,0xe00);
+  memset_and_return(&flash_biucr_write_stub_ram,0x55555555,0xe00);
   return;
 }
 
@@ -10379,7 +10236,7 @@ void freeram_counter(void)
 
 
 
-void init_emios_uc4(void)
+void init_emios_ch22_2khz_tick(void)
 
 {
   uint uVar1;
@@ -10601,10 +10458,10 @@ void interrupt_timer_2000hz(void)
     if (hc08_send_timer_zero) {
       hc08_send_timer = 0;
     }
-    DAT_40001440 = DAT_40001440 + -1;
-    if (DAT_40001440 == '\0') {
+    event_timer_100hz = event_timer_100hz + -1;
+    if (event_timer_100hz == '\0') {
       etpu_timestamp_prev_array[3] = etpu_mcr_addr[9];
-      DAT_40001440 = '\x02';
+      event_timer_100hz = '\x02';
       flexcan_timeslot_timer[0] = '\x02';
       flexcan_timeslot_timer[1] = '\x04';
       if (((COD_base.COD[1] >> 0x1a & 1) != 0) && (fan_engine_bay_run_timer != -1)) {
@@ -10656,22 +10513,22 @@ void interrupt_timer_2000hz(void)
       flexcan_timeslot_timer[3] = '\b';
       task_end_timestamps[4] = etpu_mcr_addr[9];
     }
-    DAT_40001442 = DAT_40001442 + -1;
-    if (DAT_40001442 == '\0') {
+    event_timer_20hz = event_timer_20hz + -1;
+    if (event_timer_20hz == '\0') {
       etpu_timestamp_prev_array[5] = etpu_mcr_addr[9];
-      DAT_40001442 = '\n';
+      event_timer_20hz = '\n';
       flexcan_timeslot_timer[4] = '\f';
       flexcan_timeslot_timer[5] = '\x0e';
       task_end_timestamps[5] = etpu_mcr_addr[9];
     }
-    DAT_4000143e = DAT_4000143e + -1;
-    if (DAT_4000143e < 1) {
+    event_timer_10hz = event_timer_10hz + -1;
+    if (event_timer_10hz < 1) {
       etpu_timestamp_prev_array[6] = etpu_mcr_addr[9];
-      DAT_4000143e = 0x14;
+      event_timer_10hz = 0x14;
       flexcan_timeslot_timer[6] = 26;
       flexcan_timeslot_timer[7] = 28;
       cooling_chargecooler_pump_100ms();
-      obd_ii_MIL_flags_unknown = 0xffff;
+      obd_monitor_task_scheduler_token = 0xffff;
       if (u32_time_100ms_4000170c < 0x257fda8) {
         u32_time_100ms_4000170c = u32_time_100ms_4000170c + 1;
       }
@@ -10685,20 +10542,20 @@ void interrupt_timer_2000hz(void)
         u16_time_100ms_400016de = u16_time_100ms_400016de + 1;
       }
       if (engine_speed_16bit == 0) {
-        if ((DAT_40001c74 != '\0') && (DAT_400016d6 != -1)) {
-          DAT_400016d6 = DAT_400016d6 + 1;
+        if ((engine_has_run != '\0') && (fan_engine_bay_engine_off_timer != -1)) {
+          fan_engine_bay_engine_off_timer = fan_engine_bay_engine_off_timer + 1;
         }
       }
       else {
-        DAT_400016d6 = 0;
+        fan_engine_bay_engine_off_timer = 0;
       }
       if (car_speed_u8 == '\0') {
-        if (DAT_400016d8 != -1) {
-          DAT_400016d8 = DAT_400016d8 + 1;
+        if (fan_engine_bay_stationary_timer != -1) {
+          fan_engine_bay_stationary_timer = fan_engine_bay_stationary_timer + 1;
         }
       }
       else {
-        DAT_400016d8 = 0;
+        fan_engine_bay_stationary_timer = 0;
       }
       if ((COD_base.COD[0] >> 0xd & 7) == 1) {
         if (ips_shift_active == false) {
@@ -10724,10 +10581,10 @@ void interrupt_timer_2000hz(void)
       if (bVar1) {
         u16_time_100ms_40001c76 = 0;
       }
-      DAT_40001443 = DAT_40001443 + -1;
-      if (DAT_40001443 == '\0') {
+      event_timer_5hz = event_timer_5hz + -1;
+      if (event_timer_5hz == '\0') {
         etpu_timestamp_prev_array[7] = etpu_mcr_addr[9];
-        DAT_40001443 = '\x02';
+        event_timer_5hz = '\x02';
         o2_sensors_fault_detection_all();
         task_end_timestamps[7] = etpu_mcr_addr[9];
       }
@@ -10736,21 +10593,21 @@ void interrupt_timer_2000hz(void)
         etpu_timestamp_prev_array[8] = etpu_mcr_addr[9];
         tick_counter_333ms = 3;
         watchdog_emios0_sensor_333ms();
-        watchdog_fuel_level_sensor_333ms();
+        ac_compressor_speed_timeout_333ms();
         service_coding_333ms();
         task_end_timestamps[8] = etpu_mcr_addr[9];
       }
-      DAT_40001445 = DAT_40001445 + -1;
-      if (DAT_40001445 == '\0') {
+      event_timer_2hz = event_timer_2hz + -1;
+      if (event_timer_2hz == '\0') {
         etpu_timestamp_prev_array[9] = etpu_mcr_addr[9];
-        DAT_40001445 = '\x05';
+        event_timer_2hz = '\x05';
         flexcan_timeslot_timer[8] = '$';
         task_end_timestamps[9] = etpu_mcr_addr[9];
       }
-      DAT_40001446 = DAT_40001446 + -1;
-      if (DAT_40001446 == '\0') {
+      event_timer_1s = event_timer_1s + -1;
+      if (event_timer_1s == '\0') {
         etpu_timestamp_prev_array[10] = etpu_mcr_addr[9];
-        DAT_40001446 = '\n';
+        event_timer_1s = '\n';
         flexcan_timeslot_timer[9] = '&';
         task_end_timestamps[10] = etpu_mcr_addr[9];
       }
@@ -10758,7 +10615,7 @@ void interrupt_timer_2000hz(void)
       evap_canister_100ms();
       o2_fuel_learn_100ms();
       evap_leak_detection_timers_decrement_100ms();
-      obd_ii_knock_threshold_per_clyinder_100ms();
+      obd_ii_knock_threshold_per_cylinder_100ms();
       vvt_update_inlet_zero_timers_100ms();
       update_engine_speed_history_100ms();
       slip_timers_and_steering_rate_100ms();
@@ -10766,8 +10623,8 @@ void interrupt_timer_2000hz(void)
       task_end_timestamps[6] = etpu_mcr_addr[9];
     }
     for (k = 0; k < 5; k = k + 1) {
-      if ((&DAT_40004d58)[k] != 0) {
-        (&DAT_40004d58)[k] = (&DAT_40004d58)[k] + -1;
+      if ((&obd_ii_similar_cond_debounce_timer)[k] != 0) {
+        (&obd_ii_similar_cond_debounce_timer)[k] = (&obd_ii_similar_cond_debounce_timer)[k] + -1;
       }
     }
     bVar1 = DAT_40001a04 == 0;
@@ -10777,10 +10634,10 @@ void interrupt_timer_2000hz(void)
     }
     if ((inj_flags & 2) == 0) {
       if ((short)dfco_pedal_ramp_target2 < (short)(ushort)dfco_pedal_ramp_target) {
-        DAT_400016f2 = DAT_400016f2 + -1;
+        dfco_pedal_ramp_step_interval = dfco_pedal_ramp_step_interval + -1;
         uVar9 = dfco_pedal_ramp_target2;
-        if (DAT_400016f2 == '\0') {
-          DAT_400016f2 = DAT_4000869f;
+        if (dfco_pedal_ramp_step_interval == '\0') {
+          dfco_pedal_ramp_step_interval = DAT_4000869f;
           uVar9 = dfco_pedal_ramp_target2 + 1;
         }
       }
@@ -10823,10 +10680,10 @@ void interrupt_timer_2000hz(void)
       }
       DAT_400016a8 = 0;
     }
-    bVar1 = DAT_40001b5e == 0;
-    DAT_40001b5e = DAT_40001b5e + -1;
+    bVar1 = dfco_recovery_enrich_cooldown_timer == 0;
+    dfco_recovery_enrich_cooldown_timer = dfco_recovery_enrich_cooldown_timer + -1;
     if (bVar1) {
-      DAT_40001b5e = 0;
+      dfco_recovery_enrich_cooldown_timer = 0;
     }
     bVar1 = transient_load_timer == '\0';
     transient_load_timer = transient_load_timer + 0xff;
@@ -10848,10 +10705,10 @@ void interrupt_timer_2000hz(void)
     }
     cooling_timer_recirc_pump = uVar5;
     if (((ignition_on_flags & 1) == 0) || (obd_ii_engine_speed != 0)) {
-      DAT_400016e4 = 0;
+      ign_on_engine_stopped_time = 0;
     }
     else {
-      DAT_400016e4 = DAT_400016e4 + 1;
+      ign_on_engine_stopped_time = ign_on_engine_stopped_time + 1;
     }
     if (((COD_base.COD[1] >> 0x1a & 1) != 0) && (fan_engine_bay_enable_delay != -1)) {
       fan_engine_bay_enable_delay = fan_engine_bay_enable_delay + 1;
@@ -11012,7 +10869,7 @@ void interrupt_timer_2000hz(void)
     update_accel_pedal_zero_trim_200hz();
     catalyst_monitor_o2_filter_update_200hz();
     obd_ii_catalyst_monitor_200hz();
-    timer_decrement1_200hz();
+    misfire_monitor_200hz();
     obd_ii_mode2f_200hz();
     evap_canister_200hz();
     vvt_200hz();
@@ -11218,15 +11075,15 @@ void interrupt_timer_2000hz(void)
     if ((int)task_max_execution_time[bVar10] < (int)uVar7) {
       task_max_execution_time[bVar10] = uVar7;
     }
-    if (DAT_400016f3 != '\0') {
+    if (task_timing_stats_reset_request != '\0') {
       task_max_execution_time[bVar10] = 0;
     }
   }
-  if (DAT_400016f3 != '\0') {
+  if (task_timing_stats_reset_request != '\0') {
     etpu_elapsed_min_ticks = 0x7fffffff;
     etpu_elapsed_max_captured_ticks = 0;
     task_max_execution_time[0xb] = 0;
-    DAT_400016f3 = '\0';
+    task_timing_stats_reset_request = '\0';
   }
   uVar6 = emios_uc[0].uc._144_4_;
   emios_uc[0].uc._144_4_ = uVar6 & 0xfffffffe | 1;
@@ -11481,65 +11338,65 @@ void inj_set_trigger(ushort inj_idx,u16_angle_1_10deg cyl_ref_angle)
 
 
 
-void FUN_0004561c(void)
+void update_cylinder_seq_sync_flags(void)
 
 {
   byte bVar1;
   
-  if (DAT_400017dc == 7) {
-    bVar1 = DAT_40002052 | 0x20;
-    DAT_40002052 = DAT_40002052 & 0xdf;
-    if (DAT_4000174c == '\x05') {
-      DAT_40002052 = bVar1;
+  if (crank_tooth_counter == 7) {
+    bVar1 = cylinder_seq_sync_flags | 0x20;
+    cylinder_seq_sync_flags = cylinder_seq_sync_flags & 0xdf;
+    if (crank_sync_prev_cylinder_idx == '\x05') {
+      cylinder_seq_sync_flags = bVar1;
     }
-    DAT_4000174c = '\0';
+    crank_sync_prev_cylinder_idx = '\0';
   }
-  else if (DAT_400017dc == 0x13) {
-    bVar1 = DAT_40002052 | 1;
-    DAT_40002052 = DAT_40002052 & 0xfe;
-    if (DAT_4000174c == '\0') {
-      DAT_40002052 = bVar1;
+  else if (crank_tooth_counter == 0x13) {
+    bVar1 = cylinder_seq_sync_flags | 1;
+    cylinder_seq_sync_flags = cylinder_seq_sync_flags & 0xfe;
+    if (crank_sync_prev_cylinder_idx == '\0') {
+      cylinder_seq_sync_flags = bVar1;
     }
-    DAT_4000174c = '\x01';
+    crank_sync_prev_cylinder_idx = '\x01';
   }
-  else if (DAT_400017dc == 0x1f) {
-    bVar1 = DAT_40002052 | 2;
-    DAT_40002052 = DAT_40002052 & 0xfd;
-    if (DAT_4000174c == '\x01') {
-      DAT_40002052 = bVar1;
+  else if (crank_tooth_counter == 0x1f) {
+    bVar1 = cylinder_seq_sync_flags | 2;
+    cylinder_seq_sync_flags = cylinder_seq_sync_flags & 0xfd;
+    if (crank_sync_prev_cylinder_idx == '\x01') {
+      cylinder_seq_sync_flags = bVar1;
     }
-    DAT_4000174c = '\x02';
+    crank_sync_prev_cylinder_idx = '\x02';
   }
-  else if (DAT_400017dc == 0x2b) {
-    bVar1 = DAT_40002052 | 4;
-    DAT_40002052 = DAT_40002052 & 0xfb;
-    if (DAT_4000174c == '\x02') {
-      DAT_40002052 = bVar1;
+  else if (crank_tooth_counter == 0x2b) {
+    bVar1 = cylinder_seq_sync_flags | 4;
+    cylinder_seq_sync_flags = cylinder_seq_sync_flags & 0xfb;
+    if (crank_sync_prev_cylinder_idx == '\x02') {
+      cylinder_seq_sync_flags = bVar1;
     }
-    DAT_4000174c = '\x03';
+    crank_sync_prev_cylinder_idx = '\x03';
   }
-  else if (DAT_400017dc == 0x37) {
-    bVar1 = DAT_40002052 | 8;
-    DAT_40002052 = DAT_40002052 & 0xf7;
-    if (DAT_4000174c == '\x03') {
-      DAT_40002052 = bVar1;
+  else if (crank_tooth_counter == 0x37) {
+    bVar1 = cylinder_seq_sync_flags | 8;
+    cylinder_seq_sync_flags = cylinder_seq_sync_flags & 0xf7;
+    if (crank_sync_prev_cylinder_idx == '\x03') {
+      cylinder_seq_sync_flags = bVar1;
     }
-    DAT_4000174c = '\x04';
+    crank_sync_prev_cylinder_idx = '\x04';
   }
-  else if (DAT_400017dc == 0x43) {
-    bVar1 = DAT_40002052 | 0x10;
-    DAT_40002052 = DAT_40002052 & 0xef;
-    if (DAT_4000174c == '\x04') {
-      DAT_40002052 = bVar1;
+  else if (crank_tooth_counter == 0x43) {
+    bVar1 = cylinder_seq_sync_flags | 0x10;
+    cylinder_seq_sync_flags = cylinder_seq_sync_flags & 0xef;
+    if (crank_sync_prev_cylinder_idx == '\x04') {
+      cylinder_seq_sync_flags = bVar1;
     }
-    DAT_4000174c = '\x05';
+    crank_sync_prev_cylinder_idx = '\x05';
   }
   return;
 }
 
 
 
-void coil_driver_state_machine(void)
+void engine_sync_reset_etpu_init(void)
 
 {
   engine_running_state = 0;
@@ -11564,12 +11421,12 @@ void coil_driver_state_machine(void)
   DAT_4000178b = 0;
   DAT_4000178f = 0;
   DAT_400017cc = 0;
-  DAT_40001793 = 0;
+  cam_exh_b2_edge_status = 0;
   DAT_40001797 = 0;
-  DAT_4000179b = 0;
+  cam_exh_b2_edge_polarity = 0;
   DAT_400017a8 = 0;
-  DAT_400017b0 = 0;
-  DAT_400017a0 = 0;
+  cam_exh_b2_last_angle = 0;
+  cam_exh_b2_delta_angle = 0;
   DAT_4000178a = 0;
   DAT_4000178e = 0;
   DAT_400017c8 = 0;
@@ -11593,7 +11450,7 @@ void coil_driver_state_machine(void)
   engine_speed_period_2 = 0xffff;
   engine_speed_period_1 = 0xffffffff;
   eTPU_crank_angle_speed_scaling = 0x196e6b;
-  DAT_400017dc = 0;
+  crank_tooth_counter = 0;
   DAT_400017e0 = 0;
   inj_efficiency_test_trim = 0x80;
   ign_advance_test_trim = 0x80;
@@ -11630,17 +11487,17 @@ void coil_driver_state_machine(void)
   INTC_PSR[0x52] = '\x0e';
   etpu_init_channel_mode5(3,1,0,0,1,0,0,0,0,0,0);
   INTC_PSR[0x47] = '\x02';
-  FUN_00053fb0(0x12,3,0,0,0,0);
+  eTPU_spark_channel_init(0x12,3,0,0,0,0);
   etpu_mcr_addr[0x14a] = 3;
-  FUN_00053fb0(0x13,3,0,0,0,0);
+  eTPU_spark_channel_init(0x13,3,0,0,0,0);
   etpu_mcr_addr[0x14e] = 3;
-  FUN_00053fb0(0x14,3,0,0,0,0);
+  eTPU_spark_channel_init(0x14,3,0,0,0,0);
   etpu_mcr_addr[0x152] = 3;
-  FUN_00053fb0(0x15,3,0,0,0,0);
+  eTPU_spark_channel_init(0x15,3,0,0,0,0);
   etpu_mcr_addr[0x156] = 3;
-  FUN_00053fb0(0x16,3,0,0,0,0);
+  eTPU_spark_channel_init(0x16,3,0,0,0,0);
   etpu_mcr_addr[0x15a] = 3;
-  FUN_00053fb0(0x17,3,0,0,0,0);
+  eTPU_spark_channel_init(0x17,3,0,0,0,0);
   etpu_mcr_addr[0x15e] = 3;
   etpu_inj_channel_start(4,3,0,0,0);
   etpu_mcr_addr[0x112] = 3;
@@ -11656,7 +11513,7 @@ void coil_driver_state_machine(void)
   etpu_mcr_addr[0x126] = 3;
   ign_startup_delay_counter = 0xc;
   DAT_40001754 = 1;
-  FUN_00053fb0(0x11,3,0,0,0,0);
+  eTPU_spark_channel_init(0x11,3,0,0,0,0);
   etpu_mcr_addr[0x146] = 3;
   etpu_inj_channel_start(0x1f,3,0,0,0);
   etpu_mcr_addr[0x17e] = 3;
@@ -11666,7 +11523,7 @@ void coil_driver_state_machine(void)
   etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xffffdfff | 0x2000;
   etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xffffbfff | 0x4000;
   etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xfffffff7 | 8;
-  DAT_4000173a = DAT_4000173a + '\x01';
+  engine_sync_reset_count = engine_sync_reset_count + '\x01';
   return;
 }
 
@@ -11678,14 +11535,14 @@ void FUN_00045fb0(void)
   byte bVar1;
   
   for (bVar1 = 0; bVar1 < 6; bVar1 = bVar1 + 1) {
-    if (((injection_flags & 1) == 0) && (o2_sensor_ready_per_cyl[bVar1] != 0)) {
+    if (((injection_flags & 1) == 0) && (ign_cyl_enabled[bVar1] != 0)) {
       (&DAT_400017f8)[bVar1] = 0;
       ign_per_cyl_enable___[bVar1] = false;
     }
-    else if (DAT_400017dc == (byte)(&DAT_400028f8)[bVar1]) {
+    else if (crank_tooth_counter == (byte)(&DAT_400028f8)[bVar1]) {
       ign_per_cyl_enable___[bVar1] = true;
     }
-    else if ((DAT_400017dc == (byte)(&DAT_40002900)[bVar1]) &&
+    else if ((crank_tooth_counter == (byte)(&DAT_40002900)[bVar1]) &&
             (ign_per_cyl_enable___[bVar1] != false)) {
       (&DAT_400017f8)[bVar1] = 1;
     }
@@ -11702,26 +11559,28 @@ void crank_trigger_process___(undefined8 param_1,undefined8 param_2,ulonglong pa
   uint uVar2;
   undefined *puVar3;
   
-  DAT_400017db = FUN_00042534(0);
-  DAT_400017dc = FUN_00042520(0x2d);
-  DAT_400017da = FUN_00042534(1);
-  eTPU_crank_angle_speed_scaling = FUN_00042520(0x31);
-  DAT_400017e4 = FUN_00042520(0x35);
-  DAT_400017e0 = FUN_00042520(0x3d);
+  DAT_400017db = etpu_sdm_read_u8(0);
+  crank_tooth_counter = etpu_sdm_read_param24(0x2d);
+  DAT_400017da = etpu_sdm_read_u8(1);
+  eTPU_crank_angle_speed_scaling = etpu_sdm_read_param24(0x31);
+  DAT_400017e4 = etpu_sdm_read_param24(0x35);
+  DAT_400017e0 = etpu_sdm_read_param24(0x3d);
   fuel_pump_crank_activity_timer = DAT_400087a6;
   if (DAT_400017db < 4) {
     engine_speed_period_1 = 0xffffffff;
   }
   else {
-    puVar3 = (undefined *)FUN_00042520(0x3d);
-    if ((((((DAT_400017dc == 8) || (DAT_400017dc == 0x14)) || (DAT_400017dc == 0x20)) ||
-         ((DAT_400017dc == 0x2c || (DAT_400017dc == 0x38)))) || (DAT_400017dc == 0x44)) &&
+    puVar3 = (undefined *)etpu_sdm_read_param24(0x3d);
+    if ((((((crank_tooth_counter == 8) || (crank_tooth_counter == 0x14)) ||
+          (crank_tooth_counter == 0x20)) ||
+         ((crank_tooth_counter == 0x2c || (crank_tooth_counter == 0x38)))) ||
+        (crank_tooth_counter == 0x44)) &&
        (bVar1 = engine_speed_period_1 == 0xffffffff,
        engine_speed_period_1 = (int)puVar3 - (int)DAT_4000173c & 0xffffff, DAT_4000173c = puVar3,
        bVar1)) {
       engine_speed_period_1 = 0xffffff;
     }
-    switch(DAT_400017dc) {
+    switch(crank_tooth_counter) {
     case 0:
     case 0xc:
     case 0x18:
@@ -11740,55 +11599,55 @@ void crank_trigger_process___(undefined8 param_1,undefined8 param_2,ulonglong pa
       if (PTR_4000146c == &UNK_ffffffff) {
         uVar2 = DAT_40001740;
       }
-      if (DAT_400017dc == 0x10) {
+      if (crank_tooth_counter == 0x10) {
         param_3 = 5;
       }
-      else if (DAT_400017dc == 0x1c) {
+      else if (crank_tooth_counter == 0x1c) {
         param_3 = 0;
       }
-      else if (DAT_400017dc == 0x28) {
+      else if (crank_tooth_counter == 0x28) {
         param_3 = 1;
       }
-      else if (DAT_400017dc == 0x34) {
+      else if (crank_tooth_counter == 0x34) {
         param_3 = 2;
       }
-      else if (DAT_400017dc == 0x40) {
+      else if (crank_tooth_counter == 0x40) {
         param_3 = 3;
       }
-      else if (DAT_400017dc == 4) {
+      else if (crank_tooth_counter == 4) {
         param_3 = 4;
       }
       DAT_40001740 = uVar2;
-      FUN_0007b2c8(uVar2,param_3 & 0xff);
+      misfire_record_segment_period(uVar2,param_3 & 0xff);
     }
   }
-  if (DAT_400017dc != 0x29) {
-    if (DAT_400017dc < 0x29) {
-      if (DAT_400017dc != 0x17) {
-        if (DAT_400017dc < 0x17) {
-          if ((DAT_400017dc != 0xe) && ((0xd < DAT_400017dc || (DAT_400017dc != 5))))
-          goto LAB_000462b0;
+  if (crank_tooth_counter != 0x29) {
+    if (crank_tooth_counter < 0x29) {
+      if (crank_tooth_counter != 0x17) {
+        if (crank_tooth_counter < 0x17) {
+          if ((crank_tooth_counter != 0xe) &&
+             ((0xd < crank_tooth_counter || (crank_tooth_counter != 5)))) goto LAB_000462b0;
         }
-        else if (DAT_400017dc != 0x20) goto LAB_000462b0;
+        else if (crank_tooth_counter != 0x20) goto LAB_000462b0;
       }
     }
-    else if (DAT_400017dc != 0x3b) {
-      if (DAT_400017dc < 0x3b) {
-        if (DAT_400017dc != 0x32) goto LAB_000462b0;
+    else if (crank_tooth_counter != 0x3b) {
+      if (crank_tooth_counter < 0x3b) {
+        if (crank_tooth_counter != 0x32) goto LAB_000462b0;
       }
-      else if (DAT_400017dc != 0x44) goto LAB_000462b0;
+      else if (crank_tooth_counter != 0x44) goto LAB_000462b0;
     }
   }
   compute_engine_speed_average_and_acceleration();
 LAB_000462b0:
   FUN_00045fb0();
-  FUN_0004561c();
+  update_cylinder_seq_sync_flags();
   return;
 }
 
 
 
-void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
+void etpu_ch0_crank_isr(undefined8 param_1,undefined8 param_2,byte param_3)
 
 {
   short sVar1;
@@ -11800,12 +11659,12 @@ void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
   DAT_40001788 = DAT_40001788 + 1;
   crank_trigger_process___(sVar1,1,param_3);
   if (DAT_400017db < 2) {
-    coil_driver_state_machine();
+    engine_sync_reset_etpu_init();
   }
   else if (1 < DAT_400017da) {
-    cVar2 = DAT_4000241f;
-    if (DAT_400017dc == 0xf) {
-      DAT_400017f4 = 0;
+    cVar2 = cam_edge_watchdog_exhaust_b2;
+    if (crank_tooth_counter == 0xf) {
+      cam_sync_pulse_count = 0;
       DAT_4000172a = 0;
       DAT_4000172b = 0;
       DAT_4000172c = 0;
@@ -11823,27 +11682,31 @@ void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
         DAT_4000172e = DAT_4000172e + '\x01';
       }
     }
-    else if ((DAT_400017dc == 0x28) || (DAT_400017dc == 4)) {
-      cVar3 = DAT_40002422;
-      if ((DAT_40002422 != '\0') && (cVar3 = DAT_40002422 + -1, DAT_4000243b == '\0')) {
-        cVar3 = DAT_40002422;
+    else if ((crank_tooth_counter == 0x28) || (crank_tooth_counter == 4)) {
+      cVar3 = cam_edge_watchdog;
+      if ((cam_edge_watchdog != '\0') &&
+         (cVar3 = cam_edge_watchdog + -1, cam_park_check_done_inlet_b1 == '\0')) {
+        cVar3 = cam_edge_watchdog;
       }
-      DAT_40002422 = cVar3;
-      cVar3 = DAT_40002421;
-      if ((DAT_40002421 != '\0') && (cVar3 = DAT_40002421 + -1, DAT_4000243a == '\0')) {
-        cVar3 = DAT_40002421;
+      cam_edge_watchdog = cVar3;
+      cVar3 = cam_edge_watchdog_inlet_b2;
+      if ((cam_edge_watchdog_inlet_b2 != '\0') &&
+         (cVar3 = cam_edge_watchdog_inlet_b2 + -1, DAT_4000243a == '\0')) {
+        cVar3 = cam_edge_watchdog_inlet_b2;
       }
-      DAT_40002421 = cVar3;
-      cVar3 = DAT_40002420;
-      if ((DAT_40002420 != '\0') && (cVar3 = DAT_40002420 + -1, DAT_40002439 == '\0')) {
-        cVar3 = DAT_40002420;
+      cam_edge_watchdog_inlet_b2 = cVar3;
+      cVar3 = cam_edge_watchdog_exhaust_b1;
+      if ((cam_edge_watchdog_exhaust_b1 != '\0') &&
+         (cVar3 = cam_edge_watchdog_exhaust_b1 + -1, cam_park_check_done_exhaust_b1 == '\0')) {
+        cVar3 = cam_edge_watchdog_exhaust_b1;
       }
-      DAT_40002420 = cVar3;
-      if ((DAT_4000241f != '\0') && (cVar2 = DAT_4000241f + -1, DAT_40002438 == '\0')) {
-        cVar2 = DAT_4000241f;
+      cam_edge_watchdog_exhaust_b1 = cVar3;
+      if ((cam_edge_watchdog_exhaust_b2 != '\0') &&
+         (cVar2 = cam_edge_watchdog_exhaust_b2 + -1, cam_park_check_done_exhaust_b2 == '\0')) {
+        cVar2 = cam_edge_watchdog_exhaust_b2;
       }
     }
-    DAT_4000241f = cVar2;
+    cam_edge_watchdog_exhaust_b2 = cVar2;
     if (DAT_40001754 == '\0') {
       if ((DAT_400017da == 4) && (engine_running_state == '\0')) {
         if (((prog_version_mismatch == false) && (calibration_verification_number == CAL_ecu_cvn))
@@ -11855,18 +11718,24 @@ void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
           ign_schedule_cylinder_event('\x03',0x141e,false);
           ign_schedule_cylinder_event('\x04',0x18ce,false);
           ign_schedule_cylinder_event('\x05',0x15e,false);
-          FUN_00053fb0(0x12,3,0,(longlong)(short)ign_angle_scheduled[0] + -100,
-                       ign_angle_scheduled[0],&DAT_00030d40);
-          FUN_00053fb0(0x13,3,0,(longlong)(short)ign_angle_scheduled[1] + -100,
-                       ign_angle_scheduled[1],&DAT_00030d40);
-          FUN_00053fb0(0x14,3,0,(longlong)(short)ign_angle_scheduled[2] + -100,
-                       ign_angle_scheduled[2],&DAT_00030d40);
-          FUN_00053fb0(0x15,3,0,(longlong)(short)ign_angle_scheduled[3] + -100,
-                       ign_angle_scheduled[3],&DAT_00030d40);
-          FUN_00053fb0(0x16,3,0,(longlong)(short)ign_angle_scheduled[4] + -100,
-                       ign_angle_scheduled[4],&DAT_00030d40);
-          FUN_00053fb0(0x17,3,0,(longlong)(short)ign_angle_scheduled[5] + -100,
-                       ign_angle_scheduled[5],&DAT_00030d40);
+          eTPU_spark_channel_init
+                    (0x12,3,0,(longlong)(short)ign_angle_scheduled[0] + -100,ign_angle_scheduled[0],
+                     &DAT_00030d40);
+          eTPU_spark_channel_init
+                    (0x13,3,0,(longlong)(short)ign_angle_scheduled[1] + -100,ign_angle_scheduled[1],
+                     &DAT_00030d40);
+          eTPU_spark_channel_init
+                    (0x14,3,0,(longlong)(short)ign_angle_scheduled[2] + -100,ign_angle_scheduled[2],
+                     &DAT_00030d40);
+          eTPU_spark_channel_init
+                    (0x15,3,0,(longlong)(short)ign_angle_scheduled[3] + -100,ign_angle_scheduled[3],
+                     &DAT_00030d40);
+          eTPU_spark_channel_init
+                    (0x16,3,0,(longlong)(short)ign_angle_scheduled[4] + -100,ign_angle_scheduled[4],
+                     &DAT_00030d40);
+          eTPU_spark_channel_init
+                    (0x17,3,0,(longlong)(short)ign_angle_scheduled[5] + -100,ign_angle_scheduled[5],
+                     &DAT_00030d40);
           inj_set_trigger(0,0x60e);
           inj_set_trigger(1,0xabe);
           inj_set_trigger(2,0xf6e);
@@ -11885,7 +11754,7 @@ void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
           etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xfffffeff | 0x100;
           etpu_inj_channel_start(9,3,0,inj_angle_scheduled[5],inj_pw_scheduled[5]);
           etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xfffffdff | 0x200;
-          FUN_00053fb0(0x11,3,0,0,100,0);
+          eTPU_spark_channel_init(0x11,3,0,0,100,0);
           DAT_40001738 = 200;
           INTC_PSR[0x55] = '\x0e';
           etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xfffdffff | 0x20000;
@@ -11894,7 +11763,7 @@ void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
           etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0x7fffffff | 0x80000000;
         }
         else {
-          DAT_40001736 = 1;
+          cal_verification_lockout = 1;
         }
       }
     }
@@ -11905,39 +11774,39 @@ void inj_interrupt(undefined8 param_1,undefined8 param_2,byte param_3)
         DAT_40001750 = 0xa0;
       }
       etpu_inj_channel_start
-                (4,3,0,((ulonglong)DAT_400017dc + 3 +
-                       (longlong)(int)((uint)((ulonglong)DAT_400017dc + 3) / 0x48) * -0x48) * 100,
-                 (ulonglong)DAT_40001750 * 10);
+                (4,3,0,((ulonglong)crank_tooth_counter + 3 +
+                       (longlong)(int)((uint)((ulonglong)crank_tooth_counter + 3) / 0x48) * -0x48) *
+                       100,(ulonglong)DAT_40001750 * 10);
       INTC_PSR[0x48] = '\x0e';
       etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xffffffef | 0x10;
       etpu_inj_channel_start
-                (5,3,0,((ulonglong)DAT_400017dc + 3 +
-                       (longlong)(int)((uint)((ulonglong)DAT_400017dc + 3) / 0x48) * -0x48) * 100 +
-                       10,(ulonglong)DAT_40001750 * 10);
+                (5,3,0,((ulonglong)crank_tooth_counter + 3 +
+                       (longlong)(int)((uint)((ulonglong)crank_tooth_counter + 3) / 0x48) * -0x48) *
+                       100 + 10,(ulonglong)DAT_40001750 * 10);
       INTC_PSR[0x49] = '\x0e';
       etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xffffffdf | 0x20;
       etpu_inj_channel_start
-                (6,3,0,((ulonglong)DAT_400017dc + 3 +
-                       (longlong)(int)((uint)((ulonglong)DAT_400017dc + 3) / 0x48) * -0x48) * 100 +
-                       0x14,(ulonglong)DAT_40001750 * 10);
+                (6,3,0,((ulonglong)crank_tooth_counter + 3 +
+                       (longlong)(int)((uint)((ulonglong)crank_tooth_counter + 3) / 0x48) * -0x48) *
+                       100 + 0x14,(ulonglong)DAT_40001750 * 10);
       INTC_PSR[0x4a] = '\x0e';
       etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xffffffbf | 0x40;
       etpu_inj_channel_start
-                (7,3,0,((ulonglong)DAT_400017dc + 3 +
-                       (longlong)(int)((uint)((ulonglong)DAT_400017dc + 3) / 0x48) * -0x48) * 100 +
-                       0x1e,(ulonglong)DAT_40001750 * 10);
+                (7,3,0,((ulonglong)crank_tooth_counter + 3 +
+                       (longlong)(int)((uint)((ulonglong)crank_tooth_counter + 3) / 0x48) * -0x48) *
+                       100 + 0x1e,(ulonglong)DAT_40001750 * 10);
       INTC_PSR[0x4b] = '\x0e';
       etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xffffff7f | 0x80;
       etpu_inj_channel_start
-                (8,3,0,((ulonglong)DAT_400017dc + 3 +
-                       (longlong)(int)((uint)((ulonglong)DAT_400017dc + 3) / 0x48) * -0x48) * 100 +
-                       0x28,(ulonglong)DAT_40001750 * 10);
+                (8,3,0,((ulonglong)crank_tooth_counter + 3 +
+                       (longlong)(int)((uint)((ulonglong)crank_tooth_counter + 3) / 0x48) * -0x48) *
+                       100 + 0x28,(ulonglong)DAT_40001750 * 10);
       INTC_PSR[0x4c] = '\x0e';
       etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xfffffeff | 0x100;
       etpu_inj_channel_start
-                (9,3,0,((ulonglong)DAT_400017dc + 3 +
-                       (longlong)(int)((uint)((ulonglong)DAT_400017dc + 3) / 0x48) * -0x48) * 100 +
-                       0x32,(ulonglong)DAT_40001750 * 10);
+                (9,3,0,((ulonglong)crank_tooth_counter + 3 +
+                       (longlong)(int)((uint)((ulonglong)crank_tooth_counter + 3) / 0x48) * -0x48) *
+                       100 + 0x32,(ulonglong)DAT_40001750 * 10);
       INTC_PSR[0x4d] = '\x0e';
       etpu_mcr_addr[0x90] = etpu_mcr_addr[0x90] & 0xfffffdff | 0x200;
     }
@@ -12026,14 +11895,14 @@ void vvt_cam_edge_isr_intake_bank1(void)
     if (DAT_400017a2 < 0) {
       DAT_400017a2 = DAT_400017a2 + 0x1c20;
     }
-    if ((DAT_4000179c == '\x01') && ((ushort)(DAT_400017dc - 0x31U) < 0xc)) {
+    if ((DAT_4000179c == '\x01') && ((ushort)(crank_tooth_counter - 0x31U) < 0xc)) {
       DAT_40001798 = '\x01';
       iVar2 = (int)sVar6 << 2;
       sVar3 = (short)(iVar2 >> 0x1f);
       obd_ii_vvt_inlet_position_bank1 =
            0x8d0 - (((short)(iVar2 / 10) + sVar3) -
                    ((short)((short)(iVar2 / 0xa0000) + sVar3) >> 0xf));
-      DAT_40002422 = DAT_4000ca3d;
+      cam_edge_watchdog = CAL_obd_ii_crank_cam_error_count_max;
       DAT_400017aa = sVar6;
     }
   }
@@ -12118,14 +11987,14 @@ void vvt_cam_edge_isr_intake_bank2(void)
     if (DAT_400017a4 < 0) {
       DAT_400017a4 = DAT_400017a4 + 0x1c20;
     }
-    if ((DAT_4000179d == '\x01') && ((ushort)(DAT_400017dc - 0x25U) < 0xc)) {
+    if ((DAT_4000179d == '\x01') && ((ushort)(crank_tooth_counter - 0x25U) < 0xc)) {
       DAT_40001799 = '\x01';
       iVar3 = (int)sVar1 << 2;
       sVar4 = (short)(iVar3 >> 0x1f);
       obd_ii_vvt_inlet_angle_bank2 =
            0x6f4 - (((short)(iVar3 / 10) + sVar4) -
                    ((short)((short)(iVar3 / 0xa0000) + sVar4) >> 0xf));
-      DAT_40002421 = DAT_4000ca3d;
+      cam_edge_watchdog_inlet_b2 = CAL_obd_ii_crank_cam_error_count_max;
       DAT_400017ac = sVar1;
     }
   }
@@ -12145,12 +12014,12 @@ void vvt_cam_edge_isr_exhaust_bank2(void)
   short sVar6;
   
   etpu_mcr_addr[0x139] = etpu_mcr_addr[0x139] & 0x7fffffff | 0x80000000;
-  DAT_40001793 = eTPU_read_8bit('\x0e',4);
-  DAT_4000179b = eTPU_read_8bit('\x0e',9);
+  cam_exh_b2_edge_status = eTPU_read_8bit('\x0e',4);
+  cam_exh_b2_edge_polarity = eTPU_read_8bit('\x0e',9);
   uVar4 = eTPU_read_24bit('\x0e',5);
   uVar5 = eTPU_read_24bit('\x0e',1);
   sVar6 = (short)uVar5;
-  DAT_400017a0 = sVar6 - DAT_400017b0;
+  cam_exh_b2_delta_angle = sVar6 - cam_exh_b2_last_angle;
   DAT_400017cc = uVar4 - DAT_400017bc;
   cVar1 = (char)DAT_40001788;
   DAT_4000178f = cVar1 - DAT_4000178b;
@@ -12158,11 +12027,11 @@ void vvt_cam_edge_isr_exhaust_bank2(void)
     DAT_4000172d = DAT_4000172d + '\x01';
   }
   DAT_4000178b = cVar1;
-  DAT_400017b0 = sVar6;
+  cam_exh_b2_last_angle = sVar6;
   DAT_400017bc = uVar4;
   if (DAT_400017da < 4) {
     if ((DAT_400017d9 == '\0') && (DAT_40001780 = DAT_40001780 + 1, 1 < DAT_40001780)) {
-      if (DAT_4000179b == '\x01') {
+      if (cam_exh_b2_edge_polarity == '\x01') {
         if ('\x03' < DAT_4000178f) {
           if (DAT_4000178f < '\b') {
             if (DAT_40001797 == '\x06') {
@@ -12207,17 +12076,17 @@ void vvt_cam_edge_isr_exhaust_bank2(void)
     }
   }
   else {
-    if (DAT_400017a0 < 0) {
-      DAT_400017a0 = DAT_400017a0 + 0x1c20;
+    if (cam_exh_b2_delta_angle < 0) {
+      cam_exh_b2_delta_angle = cam_exh_b2_delta_angle + 0x1c20;
     }
-    if ((DAT_4000179b == '\x01') && (0x3b < (ushort)(DAT_400017dc - 2U))) {
+    if ((cam_exh_b2_edge_polarity == '\x01') && (0x3b < (ushort)(crank_tooth_counter - 2U))) {
       DAT_40001797 = '\x01';
       iVar2 = (int)sVar6 << 2;
       sVar3 = (short)(iVar2 >> 0x1f);
       obd_ii_vvt_exhaust_position_bank2 =
            0xa38 - (((short)(iVar2 / 10) + sVar3) -
                    ((short)((short)(iVar2 / 0xa0000) + sVar3) >> 0xf));
-      DAT_4000241f = DAT_4000ca3d;
+      cam_edge_watchdog_exhaust_b2 = CAL_obd_ii_crank_cam_error_count_max;
       DAT_400017a8 = sVar6;
     }
   }
@@ -12305,14 +12174,14 @@ void vvt_cam_edge_isr_exhaust_bank1(void)
     if (DAT_4000179e < 0) {
       DAT_4000179e = DAT_4000179e + 0x1c20;
     }
-    if ((DAT_4000179a == '\x01') && ((ushort)(DAT_400017dc - 0x32U) < 0xc)) {
+    if ((DAT_4000179a == '\x01') && ((ushort)(crank_tooth_counter - 0x32U) < 0xc)) {
       DAT_40001796 = '\x01';
       iVar2 = (int)sVar6 << 2;
       sVar3 = (short)(iVar2 >> 0x1f);
       obd_ii_vvt_exhaust_position_bank1 =
            0x858 - (((short)(iVar2 / 10) + sVar3) -
                    ((short)((short)(iVar2 / 0xa0000) + sVar3) >> 0xf));
-      DAT_40002420 = DAT_4000ca3d;
+      cam_edge_watchdog_exhaust_b1 = CAL_obd_ii_crank_cam_error_count_max;
       DAT_400017a6 = sVar6;
     }
   }
@@ -12357,7 +12226,7 @@ void ign_isr_cylinder1(void)
     else {
       etpu_mcr_addr[0x112] = 3;
       cyl_fuelcut_sparking_mask = cyl_fuelcut_sparking_mask | 1;
-      if ((uint)DAT_400087ee + (DAT_400087ee / 6) * -6 == 5) {
+      if ((uint)CAL_dfco_cyl_ramp_length + (CAL_dfco_cyl_ramp_length / 6) * -6 == 5) {
         if (injtip_fire_reenable_countdown_per_cyl[5] == '\0') {
           ign_per_cyl_fire_enable = ign_per_cyl_fire_enable | 0x20;
         }
@@ -12376,7 +12245,7 @@ void ign_isr_cylinder1(void)
     }
   }
   if (DAT_40001464 == 0) {
-    DAT_40001758 = 1;
+    next_firing_cyl_index = 1;
   }
   DAT_40001464 = DAT_40001464 ^ 1;
   return;
@@ -12420,7 +12289,7 @@ void ign_isr_cylinder2(void)
     else {
       etpu_mcr_addr[0x116] = 3;
       cyl_fuelcut_sparking_mask = cyl_fuelcut_sparking_mask | 2;
-      if ((uint)DAT_400087ee + (DAT_400087ee / 6) * -6 == 5) {
+      if ((uint)CAL_dfco_cyl_ramp_length + (CAL_dfco_cyl_ramp_length / 6) * -6 == 5) {
         if (injtip_fire_reenable_countdown_per_cyl[0] == '\0') {
           ign_per_cyl_fire_enable = ign_per_cyl_fire_enable | 1;
         }
@@ -12439,7 +12308,7 @@ void ign_isr_cylinder2(void)
     }
   }
   if (DAT_40001465 == 0) {
-    DAT_40001758 = 2;
+    next_firing_cyl_index = 2;
   }
   DAT_40001465 = DAT_40001465 ^ 1;
   return;
@@ -12483,7 +12352,7 @@ void ign_isr_cylinder3(void)
     else {
       etpu_mcr_addr[0x11a] = 3;
       cyl_fuelcut_sparking_mask = cyl_fuelcut_sparking_mask | 4;
-      if ((uint)DAT_400087ee + (DAT_400087ee / 6) * -6 == 5) {
+      if ((uint)CAL_dfco_cyl_ramp_length + (CAL_dfco_cyl_ramp_length / 6) * -6 == 5) {
         if (injtip_fire_reenable_countdown_per_cyl[1] == '\0') {
           ign_per_cyl_fire_enable = ign_per_cyl_fire_enable | 2;
         }
@@ -12502,7 +12371,7 @@ void ign_isr_cylinder3(void)
     }
   }
   if (DAT_40001466 == 0) {
-    DAT_40001758 = 3;
+    next_firing_cyl_index = 3;
   }
   DAT_40001466 = DAT_40001466 ^ 1;
   return;
@@ -12546,7 +12415,7 @@ void ign_isr_cylinder4(void)
     else {
       etpu_mcr_addr[0x11e] = 3;
       cyl_fuelcut_sparking_mask = cyl_fuelcut_sparking_mask | 8;
-      if ((uint)DAT_400087ee + (DAT_400087ee / 6) * -6 == 5) {
+      if ((uint)CAL_dfco_cyl_ramp_length + (CAL_dfco_cyl_ramp_length / 6) * -6 == 5) {
         if (injtip_fire_reenable_countdown_per_cyl[2] == '\0') {
           ign_per_cyl_fire_enable = ign_per_cyl_fire_enable | 4;
         }
@@ -12565,7 +12434,7 @@ void ign_isr_cylinder4(void)
     }
   }
   if (DAT_40001467 == 0) {
-    DAT_40001758 = 4;
+    next_firing_cyl_index = 4;
   }
   DAT_40001467 = DAT_40001467 ^ 1;
   return;
@@ -12609,7 +12478,7 @@ void ign_isr_cylinder5(void)
     else {
       etpu_mcr_addr[0x122] = 3;
       cyl_fuelcut_sparking_mask = cyl_fuelcut_sparking_mask | 0x10;
-      if ((uint)DAT_400087ee + (DAT_400087ee / 6) * -6 == 5) {
+      if ((uint)CAL_dfco_cyl_ramp_length + (CAL_dfco_cyl_ramp_length / 6) * -6 == 5) {
         if (injtip_fire_reenable_countdown_per_cyl[3] == '\0') {
           ign_per_cyl_fire_enable = ign_per_cyl_fire_enable | 8;
         }
@@ -12628,7 +12497,7 @@ void ign_isr_cylinder5(void)
     }
   }
   if (DAT_40001468 == 0) {
-    DAT_40001758 = 5;
+    next_firing_cyl_index = 5;
   }
   DAT_40001468 = DAT_40001468 ^ 1;
   return;
@@ -12642,7 +12511,7 @@ void ign_isr_cylinder6(void)
   bool bVar1;
   
   etpu_mcr_addr[0x125] = etpu_mcr_addr[0x125] & 0x7fffffff | 0x80000000;
-  DAT_400017ee = DAT_400017ee + '\x01';
+  cyl_fire_counter_unknown = cyl_fire_counter_unknown + '\x01';
   if (ign_startup_delay_counter == 1) {
     etpu_mcr_addr[0x112] = 3;
     etpu_mcr_addr[0x116] = 3;
@@ -12672,7 +12541,7 @@ void ign_isr_cylinder6(void)
     else {
       etpu_mcr_addr[0x126] = 3;
       cyl_fuelcut_sparking_mask = cyl_fuelcut_sparking_mask | 0x20;
-      if ((uint)DAT_400087ee + (DAT_400087ee / 6) * -6 == 5) {
+      if ((uint)CAL_dfco_cyl_ramp_length + (CAL_dfco_cyl_ramp_length / 6) * -6 == 5) {
         if (injtip_fire_reenable_countdown_per_cyl[4] == '\0') {
           ign_per_cyl_fire_enable = ign_per_cyl_fire_enable | 0x10;
         }
@@ -12691,7 +12560,7 @@ void ign_isr_cylinder6(void)
     }
   }
   if (DAT_40001469 == 0) {
-    DAT_40001758 = 0;
+    next_firing_cyl_index = 0;
   }
   DAT_40001469 = DAT_40001469 ^ 1;
   return;
@@ -12732,8 +12601,8 @@ void FUN_00048870(void)
 
 {
   etpu_mcr_addr[0x10d] = etpu_mcr_addr[0x10d] & 0x7fffffff | 0x80000000;
-  DAT_400017f4 = DAT_400017f4 + '\x01';
-  DAT_4000174c = 0xff;
+  cam_sync_pulse_count = cam_sync_pulse_count + '\x01';
+  crank_sync_prev_cylinder_idx = 0xff;
   return;
 }
 
@@ -12859,7 +12728,7 @@ void engine_speed_and_cyl_cut_update(void)
   }
   if (torque_cut_level == '\0') {
     for (bVar5 = 0; bVar5 < 6; bVar5 = bVar5 + 1) {
-      o2_sensor_ready_per_cyl[bVar5] = 0xff;
+      ign_cyl_enabled[bVar5] = 0xff;
     }
   }
   else if ((torque_cut_level_prev != torque_cut_level) ||
@@ -12867,40 +12736,41 @@ void engine_speed_and_cyl_cut_update(void)
            (failed_ignition_cyl_count_prev != failed_ignition_cyl_count)))) {
     if (torque_cut_level == '\x06') {
       for (bVar5 = 0; bVar5 < 6; bVar5 = bVar5 + 1) {
-        o2_sensor_ready_per_cyl[bVar5] = 0;
+        ign_cyl_enabled[bVar5] = 0;
       }
     }
     else {
       for (bVar5 = 0; bVar5 < 6; bVar5 = bVar5 + 1) {
-        o2_sensor_ready_per_cyl[bVar5] = 0xff;
+        ign_cyl_enabled[bVar5] = 0xff;
       }
       if ((torque_cut_level != '\0') &&
-         (torque_cut_cyl_anchor = DAT_40001758, failed_ignition_cyl_count < torque_cut_level)) {
+         (torque_cut_cyl_anchor = next_firing_cyl_index,
+         failed_ignition_cyl_count < torque_cut_level)) {
         if (failed_ignition_cyl_count == '\0') {
           if (torque_cut_level == '\x01') {
-            o2_sensor_ready_per_cyl[DAT_40001758] = 0;
+            ign_cyl_enabled[next_firing_cyl_index] = 0;
           }
           else if (torque_cut_level == '\x02') {
-            o2_sensor_ready_per_cyl[DAT_40001758] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 3) % 6] = 0;
+            ign_cyl_enabled[next_firing_cyl_index] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 3) % 6] = 0;
           }
           else if (torque_cut_level == '\x03') {
-            o2_sensor_ready_per_cyl[DAT_40001758] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 2) % 6] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 4) % 6] = 0;
+            ign_cyl_enabled[next_firing_cyl_index] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 2) % 6] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 4) % 6] = 0;
           }
           else if (torque_cut_level == '\x04') {
-            o2_sensor_ready_per_cyl[DAT_40001758] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 3) % 6] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 1) % 6] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 4) % 6] = 0;
+            ign_cyl_enabled[next_firing_cyl_index] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 3) % 6] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 1) % 6] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 4) % 6] = 0;
           }
           else if (torque_cut_level == '\x05') {
-            o2_sensor_ready_per_cyl[DAT_40001758] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 1) % 6] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 2) % 6] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 3) % 6] = 0;
-            o2_sensor_ready_per_cyl[(torque_cut_cyl_anchor + 4) % 6] = 0;
+            ign_cyl_enabled[next_firing_cyl_index] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 1) % 6] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 2) % 6] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 3) % 6] = 0;
+            ign_cyl_enabled[(torque_cut_cyl_anchor + 4) % 6] = 0;
           }
         }
         else {
@@ -12910,7 +12780,7 @@ void engine_speed_and_cyl_cut_update(void)
           while (torque_cut_remaining_cyl_count != '\0') {
             if (((uint)torque_cut_coilpack_failure_mask &
                 1 << ((uint)torque_cut_cyl_anchor + (uVar3 & 0xff)) % 6) == 0) {
-              o2_sensor_ready_per_cyl[((uint)torque_cut_cyl_anchor + (uVar3 & 0xff)) % 6] = 0;
+              ign_cyl_enabled[((uint)torque_cut_cyl_anchor + (uVar3 & 0xff)) % 6] = 0;
               torque_cut_remaining_cyl_count = torque_cut_remaining_cyl_count + -1;
             }
             uVar3 = uVar3 + 1;
@@ -12985,11 +12855,11 @@ void compute_engine_speed_average_and_acceleration(void)
       *(undefined2 *)((uint)bVar2 * 2 + 0x40000000) = *(undefined2 *)((bVar2 - 1) * 2 + 0x40000000);
     }
     DAT_40000000 = (ushort)engine_speed_period_2;
-    if (DAT_40001737 < 3) {
-      DAT_40001737 = DAT_40001737 + 1;
+    if (slow_period_update_divider < 3) {
+      slow_period_update_divider = slow_period_update_divider + 1;
     }
     else {
-      DAT_40001737 = 0;
+      slow_period_update_divider = 0;
       for (bVar2 = 0xf; bVar2 != 0; bVar2 = bVar2 - 1) {
         (&DAT_40000010)[bVar2] = (&DAT_40000010)[bVar2 - 1];
       }
@@ -13003,20 +12873,20 @@ void compute_engine_speed_average_and_acceleration(void)
                  (uint)DAT_40000016 + (uint)DAT_40000012) >> 2)) / 0xf;
     }
     iVar3 = 0;
-    if (DAT_40008706 < 8) {
-      bVar2 = DAT_40008706;
-      if (DAT_40008706 == 0) {
+    if (CAL_engine_speed_avg_samples < 8) {
+      bVar2 = CAL_engine_speed_avg_samples;
+      if (CAL_engine_speed_avg_samples == 0) {
         engine_speeed_period_avg = (undefined2)engine_speed_period_2;
       }
       else {
         for (; bVar2 != 0; bVar2 = bVar2 - 1) {
           iVar3 = iVar3 + (uint)*(ushort *)((uint)bVar2 * 2 + 0x40000000);
         }
-        engine_speeed_period_avg = (undefined2)(iVar3 / (int)(uint)DAT_40008706);
+        engine_speeed_period_avg = (undefined2)(iVar3 / (int)(uint)CAL_engine_speed_avg_samples);
       }
     }
     else {
-      DAT_40008706 = 7;
+      CAL_engine_speed_avg_samples = 7;
     }
     uVar1 = (uint)DAT_400086ab;
     if (7 < uVar1) {
@@ -13031,7 +12901,7 @@ void compute_engine_speed_average_and_acceleration(void)
 
 
 
-uint init_dspib_2(uint param_1,uint param_2)
+uint dspi_b_xfer16(uint param_1,uint param_2)
 
 {
   uint32_t uVar1;
@@ -13061,14 +12931,14 @@ uint init_dspib_2(uint param_1,uint param_2)
 
 
 
-bool dspi_probe_addr_unknown(void)
+bool relay_driver_comm_selftest(void)
 
 {
   short sVar1;
   
-  init_dspib_2(0xc5,4);
-  init_dspib_2(0x45,0);
-  sVar1 = init_dspib_2(0x45,0);
+  dspi_b_xfer16(0xc5,4);
+  dspi_b_xfer16(0x45,0);
+  sVar1 = dspi_b_xfer16(0x45,0);
   return sVar1 == 0x4504;
 }
 
@@ -13096,18 +12966,18 @@ void init_dspi1(void)
   obd_ii_relay_status = 0xf;
   siu_pcr[0xbe] = 0x2cc;
   siu_gpdo[0xbe] = '\x01';
-  iVar1 = dspi_probe_addr_unknown();
+  iVar1 = relay_driver_comm_selftest();
   if (iVar1 != 0) {
-    init_dspib_1(0xc2,0xff);
-    init_dspib_2(0xc5,0);
+    relay_driver_write(0xc2,0xff);
+    dspi_b_xfer16(0xc5,0);
   }
-  init_dspib_1(0xff,obd_ii_relay_status);
+  relay_driver_write(0xff,obd_ii_relay_status);
   return;
 }
 
 
 
-void init_dspib_1(uint param_1,uint param_2)
+void relay_driver_write(uint param_1,uint param_2)
 
 {
   uint32_t uVar1;
@@ -13138,7 +13008,7 @@ void init_dspib_1(uint param_1,uint param_2)
 
 
 
-void spi_read_dspib_driver_status(void)
+void injector_driver_read_diag(void)
 
 {
   uint32_t uVar1;
@@ -13169,7 +13039,7 @@ void spi_read_dspib_driver_status(void)
 
 
 
-void spi_read_cac_pump_driver_status(void)
+void output_driver_read_diag(void)
 
 {
   uint32_t uVar1;
@@ -13206,7 +13076,7 @@ void spi_read_cac_pump_driver_status(void)
 
 
 
-void spi_read_tps_error_flags(void)
+void etb_driver_read_diag(void)
 
 {
   uint32_t uVar1;
@@ -13253,10 +13123,10 @@ void spi_read_tps_error_flags(void)
 void read_serial_peripherals(void)
 
 {
-  init_dspib_1(0xff,obd_ii_relay_status);
-  spi_read_dspib_driver_status();
-  spi_read_cac_pump_driver_status();
-  spi_read_tps_error_flags();
+  relay_driver_write(0xff,obd_ii_relay_status);
+  injector_driver_read_diag();
+  output_driver_read_diag();
+  etb_driver_read_diag();
   return;
 }
 
@@ -13921,14 +13791,14 @@ void init_emios_mcr(void)
 {
   uint uVar1;
   
-  uVar1 = DAT_c3fa0000;
-  DAT_c3fa0000 = uVar1 & 0xffff00ff | 0x4f00;
-  uVar1 = DAT_c3fa0000;
-  DAT_c3fa0000 = uVar1 & 0xfbffffff | 0x4000000;
-  uVar1 = DAT_c3fa0000;
-  DAT_c3fa0000 = uVar1 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_c3fa0000;
-  DAT_c3fa0000 = uVar1 & 0xdfffffff | 0x20000000;
+  uVar1 = EMIOS_MCR;
+  EMIOS_MCR = uVar1 & 0xffff00ff | 0x4f00;
+  uVar1 = EMIOS_MCR;
+  EMIOS_MCR = uVar1 & 0xfbffffff | 0x4000000;
+  uVar1 = EMIOS_MCR;
+  EMIOS_MCR = uVar1 & 0xefffffff | 0x10000000;
+  uVar1 = EMIOS_MCR;
+  EMIOS_MCR = uVar1 & 0xdfffffff | 0x20000000;
   return;
 }
 
@@ -14020,7 +13890,7 @@ void watchdog_emios0_sensor_333ms(void)
 
 {
   if (DAT_4000181a == '\0') {
-    DAT_40001820 = 0xffffffff;
+    nonabs_wheel_speed_period_ticks = 0xffffffff;
   }
   else {
     DAT_4000181a = '\0';
@@ -14030,7 +13900,7 @@ void watchdog_emios0_sensor_333ms(void)
 
 
 
-void FUN_0004b8bc(void)
+void emios_wheel_speed_interrupt_handler(void)
 
 {
   int iVar1;
@@ -14042,7 +13912,7 @@ void FUN_0004b8bc(void)
   DAT_4000181a = 1;
   iVar1 = emios_uc[0].uc._160_4_;
   iVar2 = emios_uc[0].uc._164_4_;
-  DAT_40001820 = (uint)(iVar1 * 0x100 + iVar2 * -0x100) >> 8;
+  nonabs_wheel_speed_period_ticks = (uint)(iVar1 * 0x100 + iVar2 * -0x100) >> 8;
   return;
 }
 
@@ -14058,21 +13928,21 @@ void init_emios1(void)
 
 
 
-void watchdog_fuel_level_sensor_333ms(void)
+void ac_compressor_speed_timeout_333ms(void)
 
 {
-  if (fuel_level_sensor_data_raw == '\0') {
-    fuel_level_sensor_flag = 0xffffffff;
+  if (ac_compressor_speed_pulse_seen == '\0') {
+    ac_compressor_speed_period_us = 0xffffffff;
   }
   else {
-    fuel_level_sensor_data_raw = '\0';
+    ac_compressor_speed_pulse_seen = '\0';
   }
   return;
 }
 
 
 
-void FUN_0004b964(void)
+void emios_read_ac_compressor_speed(void)
 
 {
   int iVar1;
@@ -14081,10 +13951,10 @@ void FUN_0004b964(void)
   
   uVar3 = emios_uc[1].uc._48_4_;
   emios_uc[1].uc._48_4_ = uVar3 & 0xfffffffe | 1;
-  fuel_level_sensor_data_raw = 1;
+  ac_compressor_speed_pulse_seen = 1;
   iVar1 = emios_uc[1].uc._32_4_;
   iVar2 = emios_uc[1].uc._36_4_;
-  fuel_level_sensor_flag = (uint)(iVar1 * 0x100 + iVar2 * -0x100) >> 8;
+  ac_compressor_speed_period_us = (uint)(iVar1 * 0x100 + iVar2 * -0x100) >> 8;
   return;
 }
 
@@ -14217,17 +14087,19 @@ uint8_t fuel_level_lookup_filtered(u8_volume_1_10gallon fuel_level_raw)
       fuel_level_filtered_x40000 =
            (uint)((((((((ulonglong)fuel_level_filtered_x40000 & 0x3fffffff) * 4 +
                        (ulonglong)fuel_level_filtered_x40000 & 0xffffffff) >> 2) -
-                    ((longlong)(int)fuel_level_filtered_x40000 * (longlong)(int)(uint)DAT_400086db &
-                    0xffffffffU) / 40000) + (longlong)(int)uVar5 * (longlong)(int)(uint)DAT_400086db
-                   ) * 100 & 0xffffffff) / 0x7d);
+                    ((longlong)(int)fuel_level_filtered_x40000 *
+                     (longlong)(int)(uint)CAL_fuel_level_filter_coeff_rise & 0xffffffffU) / 40000) +
+                   (longlong)(int)uVar5 * (longlong)(int)(uint)CAL_fuel_level_filter_coeff_rise) *
+                   100 & 0xffffffff) / 0x7d);
     }
     else {
       fuel_level_filtered_x40000 =
            (uint)((((((((ulonglong)fuel_level_filtered_x40000 & 0x3fffffff) * 4 +
                        (ulonglong)fuel_level_filtered_x40000 & 0xffffffff) >> 2) -
-                    ((longlong)(int)fuel_level_filtered_x40000 * (longlong)(int)(uint)DAT_400087e9 &
-                    0xffffffffU) / 40000) + (longlong)(int)uVar5 * (longlong)(int)(uint)DAT_400087e9
-                   ) * 100 & 0xffffffff) / 0x7d);
+                    ((longlong)(int)fuel_level_filtered_x40000 *
+                     (longlong)(int)(uint)CAL_fuel_level_filter_coeff_fall & 0xffffffffU) / 40000) +
+                   (longlong)(int)uVar5 * (longlong)(int)(uint)CAL_fuel_level_filter_coeff_fall) *
+                   100 & 0xffffffff) / 0x7d);
     }
     uVar1 = (uint8_t)((ulonglong)fuel_level_filtered_x40000 / 40000);
   }
@@ -14241,9 +14113,9 @@ longlong filter_evap_pressure_lowpass(int _obd_ii_evap_purge_pressure)
 {
   uint uVar1;
   
-  uVar1 = DAT_40001828 * (0x100 - (uint)DAT_4000c9e1);
+  uVar1 = DAT_40001828 * (0x100 - (uint)CAL_evap_pressure_filter_coeff);
   DAT_40001828 = ((int)uVar1 >> 8) + (uint)((int)uVar1 < 0 && (uVar1 & 0xff) != 0) +
-                 _obd_ii_evap_purge_pressure * (uint)DAT_4000c9e1;
+                 _obd_ii_evap_purge_pressure * (uint)CAL_evap_pressure_filter_coeff;
   return (longlong)((int)DAT_40001828 >> 8) +
          (ulonglong)((int)DAT_40001828 < 0 && (DAT_40001828 & 0xff) != 0);
 }
@@ -15046,7 +14918,7 @@ void set_driver_input_brake_clutch_100hz(void)
     }
   }
   else {
-    DAT_40001736 = 1;
+    cal_verification_lockout = 1;
     obd_ii_relay_status = obd_ii_relay_status & 0xef;
     driver_input_flags[1] = driver_input_flags[1] & 0xfe;
     bVar2 = false;
@@ -15232,7 +15104,7 @@ void adc_convert(void)
     trans_fluid_temp_u32 = (uint)trans_fluid_temp_raw << 8;
     coolant_temp_derived1 = (uint)coolant_temp_raw * 0xa00;
     iat2 = (uint)iat * 0xa00;
-    DAT_400018a8 = (int)ac_evap_temp << 8;
+    ac_evap_temp_raw = (int)ac_evap_temp << 8;
     chargecooler_temp2 = (uint)chargecooler_temp_div_160 * 0xa00;
     fuel_pressure_abs_scaled = (uint)fuel_pressure_abs << 8;
     intake_manifold_pressure2 = (uint)obd_ii_manifold_pressure << 8;
@@ -15253,23 +15125,26 @@ void adc_convert(void)
     coolant_temp_derived1 = (uint)CAL_sensor_coolant_temp_fallback_value * 0xa00;
   }
   coolant_temp_derived2 =
-       (int)((0xa00 - (uint)DAT_4000cb03) * coolant_temp_derived2) / 0xa00 +
-       (uint)DAT_4000cb03 * (uint)coolant_temp_raw;
+       (int)((0xa00 - (uint)CAL_sensor_coolant_filter_alpha) * coolant_temp_derived2) / 0xa00 +
+       (uint)CAL_sensor_coolant_filter_alpha * (uint)coolant_temp_raw;
   coolant_temp_derived3 = (u8_temp_5_8_40c)(coolant_temp_derived2 / 0xa00);
   if ((engine_state_failure_flags & 1) == 0) {
     if (bVar1) {
-      iat2 = (int)((0xa00 - (uint)DAT_400086d7) * iat2) / 0xa00 + (uint)DAT_400086d7 * (uint)iat;
+      iat2 = (int)((0xa00 - (uint)CAL_sensor_airtemp_tmaf_filter_alpha) * iat2) / 0xa00 +
+             (uint)CAL_sensor_airtemp_tmaf_filter_alpha * (uint)iat;
     }
     temp_engine_air = (u8_temp_5_8_40c)(iat2 / 0xa00);
   }
   else {
     temp_engine_air = CAL_sensor_iat_fallback;
   }
-  uVar3 = (0x100 - (uint)DAT_400086ad) * DAT_400018a8;
-  DAT_400018a8 = ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
-                 (uint)DAT_400086ad * (int)ac_evap_temp;
+  uVar3 = (0x100 - (uint)CAL_sensor_ac_evap_temp_filter_alpha) * ac_evap_temp_raw;
+  ac_evap_temp_raw =
+       ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
+       (uint)CAL_sensor_ac_evap_temp_filter_alpha * (int)ac_evap_temp;
   obd_ii_ac_evap_temp =
-       (short)(DAT_400018a8 >> 8) + (ushort)((int)DAT_400018a8 < 0 && (DAT_400018a8 & 0xff) != 0);
+       (short)(ac_evap_temp_raw >> 8) +
+       (ushort)((int)ac_evap_temp_raw < 0 && (ac_evap_temp_raw & 0xff) != 0);
   uVar3 = (0x100 - (uint)CAL_trans_cooler_temp_scaling) * trans_fluid_temp_u32;
   trans_fluid_temp_u32 =
        ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
@@ -16126,7 +16001,7 @@ void ignition(void)
   ign_target_rate_limited = _ign_adv_target;
   for (cyl3 = 0; cyl3 < 6; cyl3 = cyl3 + 1) {
     ign_adv_with_knock_retard[cyl3] =
-         ((ign_base - (ushort)ign_knock_retard[cyl3]) - (ushort)ign_retard_knock[cyl3]) +
+         ((ign_base - (ushort)ign_knock_retard[cyl3]) - (ushort)ign_knock_retard_octane[cyl3]) +
          ign_comp_iat + ign_comp_coolant;
   }
   if (CAL_ign_enable_lea_knock_retard == false) {
@@ -16138,7 +16013,7 @@ void ignition(void)
     ign_adv_base_cyl1 =
          ((__ign_comp_roughness_detection +
           (char)(CAL_ign_trim_per_cyl[0] ^ 0x80) + ign_target_rate_limited) -
-         (ushort)ign_knock_retard[0]) - (ushort)ign_retard_knock[0];
+         (ushort)ign_knock_retard[0]) - (ushort)ign_knock_retard_octane[0];
   }
   if (ign_per_cyl_enable2___[0] != false) {
     if ((int)ign_adv_min <
@@ -16168,7 +16043,7 @@ void ignition(void)
   else {
     sVar4 = ((__ign_comp_roughness_detection +
              (char)(CAL_ign_trim_per_cyl[1] ^ 0x80) + ign_target_rate_limited) -
-            (ushort)ign_knock_retard[1]) - (ushort)ign_retard_knock[1];
+            (ushort)ign_knock_retard[1]) - (ushort)ign_knock_retard_octane[1];
   }
   if (ign_per_cyl_enable2___[1] != false) {
     if ((int)ign_adv_min <
@@ -16198,7 +16073,7 @@ void ignition(void)
   else {
     sVar4 = ((__ign_comp_roughness_detection +
              (char)(CAL_ign_trim_per_cyl[2] ^ 0x80) + ign_target_rate_limited) -
-            (ushort)ign_knock_retard[2]) - (ushort)ign_retard_knock[2];
+            (ushort)ign_knock_retard[2]) - (ushort)ign_knock_retard_octane[2];
   }
   if (ign_per_cyl_enable2___[2] != false) {
     if ((int)ign_adv_min <
@@ -16228,7 +16103,7 @@ void ignition(void)
   else {
     sVar4 = ((__ign_comp_roughness_detection +
              (char)(CAL_ign_trim_per_cyl[3] ^ 0x80) + ign_target_rate_limited) -
-            (ushort)ign_knock_retard[3]) - (ushort)ign_retard_knock[3];
+            (ushort)ign_knock_retard[3]) - (ushort)ign_knock_retard_octane[3];
   }
   if (ign_per_cyl_enable2___[3] != false) {
     if ((int)ign_adv_min <
@@ -16258,7 +16133,7 @@ void ignition(void)
   else {
     sVar4 = ((__ign_comp_roughness_detection +
              (char)(CAL_ign_trim_per_cyl[4] ^ 0x80) + ign_target_rate_limited) -
-            (ushort)ign_knock_retard[4]) - (ushort)ign_retard_knock[4];
+            (ushort)ign_knock_retard[4]) - (ushort)ign_knock_retard_octane[4];
   }
   if (ign_per_cyl_enable2___[4] != false) {
     if ((int)ign_adv_min <
@@ -16288,7 +16163,7 @@ void ignition(void)
   else {
     sVar4 = ((__ign_comp_roughness_detection +
              (char)(CAL_ign_trim_per_cyl[5] ^ 0x80) + ign_target_rate_limited) -
-            (ushort)ign_knock_retard[5]) - (ushort)ign_retard_knock[5];
+            (ushort)ign_knock_retard[5]) - (ushort)ign_knock_retard_octane[5];
   }
   if (ign_per_cyl_enable2___[5] != false) {
     if ((int)ign_adv_min <
@@ -16481,37 +16356,37 @@ void o2_sensors_fault_detection_all(void)
 
 {
   if (engine_is_running) {
-    if ((DAT_40002052 & 1) == 0) {
+    if ((cylinder_seq_sync_flags & 1) == 0) {
       o2_sensor_fault_detection(0x1d,0);
     }
     else {
       o2_sensor_fault_detection(0x1d,0x1c);
     }
-    if ((DAT_40002052 & 2) == 0) {
+    if ((cylinder_seq_sync_flags & 2) == 0) {
       o2_sensor_fault_detection(0x1e,0);
     }
     else {
       o2_sensor_fault_detection(0x1e,0x1d);
     }
-    if ((DAT_40002052 & 4) == 0) {
+    if ((cylinder_seq_sync_flags & 4) == 0) {
       o2_sensor_fault_detection(0x1f,0);
     }
     else {
       o2_sensor_fault_detection(0x1f,0x1e);
     }
-    if ((DAT_40002052 & 8) == 0) {
+    if ((cylinder_seq_sync_flags & 8) == 0) {
       o2_sensor_fault_detection(0x20,0);
     }
     else {
       o2_sensor_fault_detection(0x20,0x1f);
     }
-    if ((DAT_40002052 & 0x10) == 0) {
+    if ((cylinder_seq_sync_flags & 0x10) == 0) {
       o2_sensor_fault_detection(0x21,0);
     }
     else {
       o2_sensor_fault_detection(0x21,0x20);
     }
-    if ((DAT_40002052 & 0x20) == 0) {
+    if ((cylinder_seq_sync_flags & 0x20) == 0) {
       o2_sensor_fault_detection(0x22,0);
     }
     else {
@@ -16519,7 +16394,7 @@ void o2_sensors_fault_detection_all(void)
     }
   }
   else {
-    DAT_40002052 = 0;
+    cylinder_seq_sync_flags = 0;
     DAT_40004ec4 = 0;
     DAT_40004ec5 = 0;
     DAT_40004ec6 = 5;
@@ -17163,10 +17038,10 @@ void inj_angle_offset_update_200hz(void)
   else {
     closedloop_entry_delay_timer = closedloop_entry_delay_timer + 1;
   }
-  DAT_400014a4 = DAT_400014a4 + -1;
+  soak_timer_tick_10hz___ = soak_timer_tick_10hz___ + -1;
   uVar2 = uint16_t_4000149c;
-  if (DAT_400014a4 == '\0') {
-    DAT_400014a4 = '\x14';
+  if (soak_timer_tick_10hz___ == '\0') {
+    soak_timer_tick_10hz___ = '\x14';
     if (engine_is_running) {
       if (uint16_t_4000149c != 0) {
         uVar1 = (uint)obd_ii_maf_flow / (DAT_40008964 + 1);
@@ -17279,7 +17154,7 @@ FUN_00053964(byte param_1,uint param_2,int param_3,uint param_4,undefined4 param
   *(undefined2 *)(&DAT_c3fc0404 + (uint)param_1 * 0x10) = 0xc0c0;
   clear_eTPU_channel((uint)param_1);
   if ((etpu_mcr_addr[(uint)param_1 * 4 + 0x100] & 0x7ff) == 0) {
-    puVar1 = (undefined4 *)FUN_00042440(0x18);
+    puVar1 = (undefined4 *)etpu_param_alloc(0x18);
     if (puVar1 == (undefined4 *)0x0) {
       return 1;
     }
@@ -17312,7 +17187,7 @@ FUN_00053a90(byte param_1,int param_2,uint param_3,undefined1 param_4,uint param
   *(undefined2 *)(&DAT_c3fc0404 + (uint)param_1 * 0x10) = 0xc0c0;
   clear_eTPU_channel((uint)param_1);
   if ((etpu_mcr_addr[(uint)param_1 * 4 + 0x100] & 0x7ff) == 0) {
-    puVar1 = (uint *)FUN_00042440(0x10);
+    puVar1 = (uint *)etpu_param_alloc(0x10);
     if (puVar1 == (uint *)0x0) {
       return 1;
     }
@@ -17344,7 +17219,7 @@ etpu_inj_channel_start(byte param_1,int param_2,uint param_3,undefined4 param_4,
   *(undefined2 *)(&DAT_c3fc0404 + (uint)param_1 * 0x10) = 0xc0c0;
   clear_eTPU_channel((uint)param_1);
   if ((etpu_mcr_addr[(uint)param_1 * 4 + 0x100] & 0x7ff) == 0) {
-    puVar1 = (undefined4 *)FUN_00042440(0x10);
+    puVar1 = (undefined4 *)etpu_param_alloc(0x10);
     if (puVar1 == (undefined4 *)0x0) {
       return 1;
     }
@@ -17377,7 +17252,7 @@ etpu_init_channel_mode5
   *(undefined2 *)(&DAT_c3fc0404 + (uint)channel * 0x10) = 0xc0c0;
   clear_eTPU_channel((uint)channel);
   if ((etpu_mcr_addr[(uint)channel * 4 + 0x100] & 0x7ff) == 0) {
-    puVar1 = (undefined4 *)FUN_00042440(0x20);
+    puVar1 = (undefined4 *)etpu_param_alloc(0x20);
     if (puVar1 == (undefined4 *)0x0) {
       return 1;
     }
@@ -17413,7 +17288,7 @@ etpu_init_channel_mode6
   *(undefined2 *)(&DAT_c3fc0404 + (uint)param_1 * 0x10) = 0xc0c0;
   clear_eTPU_channel((uint)param_1);
   if ((etpu_mcr_addr[(uint)param_1 * 4 + 0x100] & 0x7ff) == 0) {
-    puVar1 = (undefined4 *)FUN_00042440(8);
+    puVar1 = (undefined4 *)etpu_param_alloc(8);
     if (puVar1 == (undefined4 *)0x0) {
       return 1;
     }
@@ -17445,8 +17320,9 @@ void ign_test_fire_coil(byte param_1,uint32_t param_2,uint32_t param_3)
 
 
 undefined8
-FUN_00053fb0(byte param_1,int param_2,uint param_3,undefined4 param_4,undefined4 param_5,
-            undefined4 param_6)
+eTPU_spark_channel_init
+          (byte param_1,int param_2,uint param_3,undefined4 param_4,undefined4 param_5,
+          undefined4 param_6)
 
 {
   undefined4 *puVar1;
@@ -17454,7 +17330,7 @@ FUN_00053fb0(byte param_1,int param_2,uint param_3,undefined4 param_4,undefined4
   *(undefined2 *)(&DAT_c3fc0404 + (uint)param_1 * 0x10) = 0xc0c0;
   clear_eTPU_channel((uint)param_1);
   if ((etpu_mcr_addr[(uint)param_1 * 4 + 0x100] & 0x7ff) == 0) {
-    puVar1 = (undefined4 *)FUN_00042440(0x20);
+    puVar1 = (undefined4 *)etpu_param_alloc(0x20);
     if (puVar1 == (undefined4 *)0x0) {
       return 1;
     }
@@ -17533,7 +17409,7 @@ eTPU_init_pwm_channel
   
   clear_eTPU_channel(eTPU_chan_num & 0xff);
   if ((etpu_mcr_addr[(eTPU_chan_num & 0xff) * 4 + 0x100] & 0x7ff) == 0) {
-    piVar2 = (int *)FUN_00042440(0x18);
+    piVar2 = (int *)etpu_param_alloc(0x18);
     if (piVar2 == (int *)0x0) {
       return 1;
     }
@@ -17719,7 +17595,7 @@ void EEPROM_load(void)
   if ((_saved_crc_full != _crc_full) || ((undefined *)lea_write_size != &DAT_00001be4)) {
     _full_block_invalid = true;
   }
-  _progname_cmp = libc_memcmp(ecu_prog_version,LEA_base,32);
+  _progname_cmp = libc_memcmp(prog_name,LEA_base,32);
   if (_progname_cmp != 0) {
     lea_init_status_flags = lea_init_status_flags | 4;
   }
@@ -17742,7 +17618,7 @@ void EEPROM_load(void)
     clear_obd_dtc_and_ff();
     init_lea_o2_fuel_trim();
   }
-  libc_memcpy((byte *)LEA_base,(byte *)ecu_prog_version,0x20);
+  libc_memcpy((byte *)LEA_base,(byte *)prog_name,0x20);
   lea_cal_version_stamp = *(short *)(&UNK_ffff8010 + iVar1);
   init_lea_maf_and_trqlimit();
   init_lea_maf_and_trqlimit();
@@ -17805,30 +17681,30 @@ void lea_reset1(void)
   
   lea_init_status_flags = lea_init_status_flags | 0x200;
   for (bVar1 = 0; bVar1 < 10; bVar1 = bVar1 + 1) {
-    (&DAT_40004774)[bVar1] = 0;
-    (&DAT_40004788)[bVar1] = 0;
-    (&DAT_400047d4)[bVar1] = 0;
-    (&DAT_400047e8)[bVar1] = 0;
-    (&DAT_400047fc)[bVar1] = 0;
-    uint16_t_ARRAY_4000479c[bVar1] = 0;
-    (&DAT_400047b0)[bVar1] = 0;
-    (&DAT_40004810)[bVar1] = 0;
-    (&DAT_40004824)[bVar1] = 0;
-    (&DAT_40004838)[bVar1] = 0;
-    (&DAT_4000484c)[bVar1] = 0;
-    (&DAT_40004860)[bVar1] = 0;
-    (&DAT_40004874)[bVar1] = 0;
-    (&DAT_40004888)[bVar1] = 0;
+    (&LEA_obd_monitor_01)[bVar1] = 0;
+    (&LEA_obd_monitor_02)[bVar1] = 0;
+    (&LEA_obd_monitor_05)[bVar1] = 0;
+    (&LEA_obd_monitor_06)[bVar1] = 0;
+    (&LEA_obd_monitor_07)[bVar1] = 0;
+    LEA_obd_monitor_03[bVar1] = 0;
+    (&LEA_obd_monitor_04)[bVar1] = 0;
+    (&LEA_obd_monitor_08)[bVar1] = 0;
+    (&LEA_obd_monitor_09)[bVar1] = 0;
+    (&LEA_obd_monitor_10)[bVar1] = 0;
+    (&LEA_obd_monitor_11)[bVar1] = 0;
+    (&LEA_obd_monitor_12)[bVar1] = 0;
+    (&LEA_obd_monitor_13)[bVar1] = 0;
+    (&LEA_obd_monitor_14)[bVar1] = 0;
   }
-  DAT_400047c4 = 0;
-  DAT_400047c6 = 0;
-  DAT_400047c8 = 0;
-  DAT_400047ca = 0;
-  DAT_400047cc = 0;
-  DAT_400047ce = 0;
-  DAT_400047d0 = 0;
-  DAT_400047d2 = 0;
-  DAT_4000489c = DAT_4000d3bc;
+  LEA_obd_monitor_flag_A = 0;
+  LEA_obd_monitor_flag_B = 0;
+  LEA_obd_monitor_flag_C = 0;
+  LEA_obd_monitor_flag_D = 0;
+  LEA_obd_monitor_flag_E = 0;
+  LEA_obd_monitor_flag_F = 0;
+  LEA_obd_monitor_flag_G = 0;
+  LEA_obd_monitor_flag_H = 0;
+  LEA_obd_monitor_sentinel = CAL_obd_monitor_sentinel_init;
   DAT_400049a6 = 0;
   return;
 }
@@ -17849,18 +17725,18 @@ void lea_reset2(void)
       LEA_time_at_temp[i] = 0;
     }
     if (i < 5) {
-      struct_top_rpm_event_ARRAY_40003f24[i].rpm = 0;
-      struct_top_rpm_event_ARRAY_40003f24[i].coolant_temp = '\0';
-      struct_top_rpm_event_ARRAY_40003f24[i].runtime = 0;
+      LEA_perf_stat_gear1_hi[i].rpm = 0;
+      LEA_perf_stat_gear1_hi[i].coolant_temp = '\0';
+      LEA_perf_stat_gear1_hi[i].runtime = 0;
       obd_ii_max_vehicle_speed[i] = 0;
     }
   }
-  DAT_40003f14 = 0xff;
-  DAT_40003f15 = 0xff;
-  DAT_40003f16 = 0;
-  DAT_40003f17 = 0;
+  LEA_perf_stat_sentinel_max1 = 0xff;
+  LEA_perf_stat_sentinel_max2 = 0xff;
+  LEA_obd_ii_last_standing_start_0_100kmh = 0;
+  LEA_obd_ii_last_standing_start_0_160kmh = 0;
   engine_run_timer_total = 0;
-  DAT_40003f18 = 0;
+  LEA_number_standing_starts = 0;
   car_distance_accum_unknown = 0;
   engine_breakin_distance_complete = false;
   lea_reset_dynamics_stats();
@@ -17880,16 +17756,16 @@ void lea_reset_dynamics_stats(void)
       time_at_lat_g[bVar1] = 0;
     }
     if (bVar1 < 3) {
-      (&DAT_40004084)[(uint)bVar1 * 0xc] = 0;
-      (&DAT_40004086)[(uint)bVar1 * 6] = 0;
-      (&DAT_40004088)[(uint)bVar1 * 6] = 0;
-      (&DAT_40004085)[(uint)bVar1 * 0xc] = 0;
-      (&DAT_4000408c)[(uint)bVar1 * 3] = 0;
-      (&DAT_400040a8)[(uint)bVar1 * 0xc] = 0;
-      (&u16_rspeed_rpm_400040aa)[(uint)bVar1 * 6] = 0;
-      (&DAT_400040ac)[(uint)bVar1 * 6] = 0;
-      (&u8_speed_kph_400040a9)[(uint)bVar1 * 0xc] = '\0';
-      (&DAT_400040b0)[(uint)bVar1 * 3] = 0;
+      (&LEA_perf_struct_A_byte0)[(uint)bVar1 * 0xc] = 0;
+      (&LEA_perf_struct_A_word0)[(uint)bVar1 * 6] = 0;
+      (&LEA_perf_struct_A_word1)[(uint)bVar1 * 6] = 0;
+      (&LEA_perf_struct_A_byte1)[(uint)bVar1 * 0xc] = 0;
+      (&LEA_perf_struct_A_dword)[(uint)bVar1 * 3] = 0;
+      (&LEA_perf_struct_A_b_byte0)[(uint)bVar1 * 0xc] = 0;
+      (&LEA_perf_struct_A_b_word0)[(uint)bVar1 * 6] = 0;
+      (&LEA_perf_struct_A_b_word1)[(uint)bVar1 * 6] = 0;
+      (&LEA_perf_struct_A_b_byte1)[(uint)bVar1 * 0xc] = '\0';
+      (&LEA_perf_struct_A_b_dword)[(uint)bVar1 * 3] = 0;
     }
   }
   total_num_low_oil_pres_events = '\0';
@@ -17907,14 +17783,14 @@ void reset_obd_and_trip_data(void)
   obd_ii_clear_monitor_completion_status();
   clear_obd_dtc_and_ff();
   lea_reset1();
-  DAT_4000489e = 0x23c;
+  LEA_tps_track_a_closed_count = 0x23c;
   DAT_400048a0 = 0x725;
   DAT_400048a2 = 0;
   DAT_400048a4 = 0;
   DAT_400048a7 = 0;
   DAT_400049c1 = 0xff;
-  DAT_400048a8 = 0;
-  DAT_400048a6 = 0;
+  LEA_hc08_sf_mode_max_duration = 0;
+  LEA_hc08_sf_mode_event_count = 0;
   fuel_usage_running_total_avg_trip = 0;
   car_speed_running_total_avg_trip = 0;
   fuel_usage_running_total_range_to_empty = 0;
@@ -17992,8 +17868,8 @@ void obd_ii_clear_monitor_completion_status(void)
   
   lea_init_status_flags = lea_init_status_flags | 0x2000;
   for (bVar1 = 0; bVar1 < 0x13; bVar1 = bVar1 + 1) {
-    (&DAT_40004724)[bVar1] = 0;
-    (&DAT_4000474a)[bVar1] = 0;
+    (&LEA_obd_iumpr_denominator)[bVar1] = 0;
+    (&LEA_obd_iumpr_numerator)[bVar1] = 0;
   }
   LEA_obd_ii_J1979_IGN_CNTR = 0;
   LEA_obd_ii_J1979_OBDCOND = 0;
@@ -18012,7 +17888,7 @@ void clear_obd_dtc_and_ff(void)
   DAT_400048eb = 0;
   obd_ii_DTC_causing_FF = 0;
   DAT_400048f0 = 0;
-  DAT_400048f2 = 0;
+  obd_FF_fuel_system_status = 0;
   DAT_400048f4 = 0;
   DAT_400048f5 = 0;
   DAT_400048f6 = 0;
@@ -18021,19 +17897,19 @@ void clear_obd_dtc_and_ff(void)
   DAT_400048f9 = 0;
   DAT_400048fa = 0;
   DAT_400048fb = 0;
-  DAT_400048fc = 0;
-  DAT_400048fe = 0;
-  DAT_400048ff = 0;
-  DAT_40004900 = 0;
-  DAT_40004902 = 0;
-  DAT_40004904 = 0;
-  DAT_40004906 = 0;
-  DAT_40004908 = 0;
-  DAT_40004909 = 0;
-  DAT_4000490a = 0;
-  DAT_4000490c = 0;
-  DAT_4000490e = 0;
-  DAT_40004910 = 0;
+  obd_FF_engine_speed = 0;
+  obd_FF_car_speed = 0;
+  obd_FF_ign_advance = 0;
+  obd_FF_iat = 0;
+  obd_FF_maf_flow_1 = 0;
+  obd_FF_tps_x4 = 0;
+  obd_FF_runtime_since_start = 0;
+  obd_ff_commanded_evap_purge = 0;
+  obd_FF_fuel_level = 0;
+  obd_FF_atmo_pressure = 0;
+  obd_FF_ecu_voltage = 0;
+  obd_FF_load_abs_percentage = 0;
+  obd_FF_afr_commanded = 0;
   DAT_40004912 = 0;
   DAT_40004913 = 0;
   DAT_40004914 = 0;
@@ -18745,8 +18621,8 @@ void clear_obd_dtc_and_ff(void)
   LEA_obd_ii_U0513_pass_counter = '(';
   obd_ii_engine_tests_completeness = obd_ii_common_test_available;
   DAT_4000494a = 0;
-  DAT_4000494c = 0;
-  DAT_4000494e = 0;
+  obd_ii_car_speed_freeze_frame = 0;
+  obd_ii_maf_flow_freeze_frame = 0;
   DAT_40004950 = 0;
   DAT_40004952 = 0;
   DAT_40004954 = 0;
@@ -18761,7 +18637,7 @@ void clear_obd_dtc_and_ff(void)
   DAT_40004964 = 0;
   DAT_40004966 = 0;
   DAT_40004968 = 0;
-  DAT_4000496c = 0;
+  obd_ii_car_speed_FF____ = 0;
   DAT_4000496e = 0x3f5;
   obd_ii_distance_traveled_with_MIL = 0;
   obd_ii_warmups_since_code_cleared = '\0';
@@ -19194,20 +19070,20 @@ void lea_tps_fault_history_reset(void)
     (&LEA_tps_fault_bank1_data)[bVar1] = 0;
     (&LEA_tps_fault_trim_data)[bVar1] = 0;
   }
-  DAT_40004067 = 0;
-  DAT_40003f4c = 0;
-  DAT_40004054 = 0;
-  DAT_40004056 = 0;
+  LEA_learned_flags_0E4F = 0;
+  LEA_tps_fault_ff_engine_runtime = 0;
+  LEA_tps_fault_ff_ecu_runtime = 0;
+  LEA_tps_fault_ff_ecu_voltage = 0;
   DAT_40004058 = 0;
-  DAT_40004066 = 0;
-  DAT_40003f50 = 0;
-  DAT_4000405a = 0;
-  DAT_4000405c = 0;
-  DAT_4000405e = 0;
+  LEA_learned_flags_0E4E = 0;
+  LEA_perf_stat_extra2 = 0;
+  LEA_tps_calib_retry_count = 0;
+  LEA_tps_fault_event_count = 0;
+  LEA_tps_fault_recovery_count = 0;
   DAT_40004060 = 0;
-  DAT_40004062 = 0;
+  LEA_tps_calib_pass_first_attempt = 0;
   DAT_40004064 = 0;
-  DAT_400040cc = 0;
+  LEA_tps_both_sensors_invalid_count = 0;
   return;
 }
 
@@ -19562,37 +19438,36 @@ undefined8 init_flash_cr(void)
   uint uVar2;
   
   if (flash_saved_sll_slms_mask != 0) {
-    uVar1 = DAT_c3f88014;
-    uVar2 = DAT_c3f88014;
-    DAT_c3f88014 = uVar1 & 0xfffffff & ~flash_saved_sll_slms_mask | uVar2 & 0xf0000000;
-    uVar1 = DAT_c3f88008;
-    uVar2 = DAT_c3f88008;
-    DAT_c3f88008 = uVar1 & 0xfffffff | flash_saved_sll_slms_mask & 0xfffffff | uVar2 & 0xf0000000;
+    uVar1 = FLASH_HSR;
+    uVar2 = FLASH_HSR;
+    FLASH_HSR = uVar1 & 0xfffffff & ~flash_saved_sll_slms_mask | uVar2 & 0xf0000000;
+    uVar1 = FLASH_HLR;
+    uVar2 = FLASH_HLR;
+    FLASH_HLR = uVar1 & 0xfffffff | flash_saved_sll_slms_mask & 0xfffffff | uVar2 & 0xf0000000;
   }
   if (flash_saved_lml_hbl_lo_mask != 0) {
-    uVar1 = DAT_c3f88010;
-    uVar2 = DAT_c3f88010;
-    DAT_c3f88010 = uVar1 & 0xffff & ~flash_saved_lml_hbl_lo_mask | uVar2 & 0xffff0000;
-    uVar1 = DAT_c3f88004;
-    uVar2 = DAT_c3f88004;
-    DAT_c3f88004 = uVar1 & 0xffff | flash_saved_lml_hbl_lo_mask & 0xffff | uVar2 & 0xffff0000;
-    uVar1 = DAT_c3f8800c;
-    uVar2 = DAT_c3f8800c;
-    DAT_c3f8800c = uVar1 & 0xffff | flash_saved_lml_hbl_lo_mask & 0xffff | uVar2 & 0xffff0000;
+    uVar1 = FLASH_LMSR;
+    uVar2 = FLASH_LMSR;
+    FLASH_LMSR = uVar1 & 0xffff & ~flash_saved_lml_hbl_lo_mask | uVar2 & 0xffff0000;
+    uVar1 = FLASH_LMLR;
+    uVar2 = FLASH_LMLR;
+    FLASH_LMLR = uVar1 & 0xffff | flash_saved_lml_hbl_lo_mask & 0xffff | uVar2 & 0xffff0000;
+    uVar1 = FLASH_SLMLR;
+    uVar2 = FLASH_SLMLR;
+    FLASH_SLMLR = uVar1 & 0xffff | flash_saved_lml_hbl_lo_mask & 0xffff | uVar2 & 0xffff0000;
   }
   if (flash_saved_lml_hbl_hi_mask != 0) {
-    uVar1 = DAT_c3f88010;
-    uVar2 = DAT_c3f88010;
-    DAT_c3f88010 = (uVar1 >> 0x10 & 0xf & ~flash_saved_lml_hbl_hi_mask) << 0x10 | uVar2 & 0xfff0ffff
-    ;
-    uVar1 = DAT_c3f88004;
-    uVar2 = DAT_c3f88004;
-    DAT_c3f88004 = (uVar1 >> 0x10 & 0xf | flash_saved_lml_hbl_hi_mask & 0xf) << 0x10 |
-                   uVar2 & 0xfff0ffff;
-    uVar1 = DAT_c3f8800c;
-    uVar2 = DAT_c3f8800c;
-    DAT_c3f8800c = (uVar1 >> 0x10 & 0xf | flash_saved_lml_hbl_hi_mask & 0xf) << 0x10 |
-                   uVar2 & 0xfff0ffff;
+    uVar1 = FLASH_LMSR;
+    uVar2 = FLASH_LMSR;
+    FLASH_LMSR = (uVar1 >> 0x10 & 0xf & ~flash_saved_lml_hbl_hi_mask) << 0x10 | uVar2 & 0xfff0ffff;
+    uVar1 = FLASH_LMLR;
+    uVar2 = FLASH_LMLR;
+    FLASH_LMLR = (uVar1 >> 0x10 & 0xf | flash_saved_lml_hbl_hi_mask & 0xf) << 0x10 |
+                 uVar2 & 0xfff0ffff;
+    uVar1 = FLASH_SLMLR;
+    uVar2 = FLASH_SLMLR;
+    FLASH_SLMLR = (uVar1 >> 0x10 & 0xf | flash_saved_lml_hbl_hi_mask & 0xf) << 0x10 |
+                  uVar2 & 0xfff0ffff;
   }
   return 0;
 }
@@ -19901,7 +19776,7 @@ void gear_determination(void)
     }
   }
   else if ((COD_base.COD[0] >> 0xd & 7) == 1) {
-    car_current_gear = get_determination_auto();
+    car_current_gear = ips_gear_index_to_car_gear();
   }
   else {
     car_current_gear = NO_GEAR;
@@ -19929,7 +19804,7 @@ void cooling_pump_control(void)
     if ((obd_ii_mode2f_flags_enabled & 0x400000) == 0) {
       if (obd_ii_engine_speed == 0) {
         if (((CAL_cooling_recirc_reset_coolant_temp <= coolant_temp) &&
-            (!recirc_pump_afterrun_started)) && (DAT_40001c74 != '\0')) {
+            (!recirc_pump_afterrun_started)) && (engine_has_run != '\0')) {
           cooling_timer_recirc_pump = (uint)CAL_cooling_recirc_timer * 1000;
           if ((int)ecu_shutdown_timer < (int)cooling_timer_recirc_pump) {
             ecu_shutdown_timer = cooling_timer_recirc_pump;
@@ -20182,7 +20057,7 @@ void cooling_fan_engine_bay_control(void)
     }
     else if (((radiator_fan_duty_cycle_target < CAL_cooling_fan_engine_bay_radfan_threshold_enable)
              || (temp_engine_air_cooling_control < CAL_cooling_fan_engine_bay_airtemp_enable)) ||
-            (fan_engine_bay_inhibit)) {
+            (fan_inhibit_coolant_falling)) {
       if (radiator_fan_duty_cycle_target <= CAL_cooling_fan_engine_bay_radfan_threshold_disable) {
         cooling_system_flags = cooling_system_flags & 0xfffffbff;
       }
@@ -20388,14 +20263,14 @@ void cluster_data_send_100ms(void)
   }
   cluster_shiftlight_rpm_offset = (_cluster_shiftlight_rpm_offset & 0xff) << 1;
   if (obd_ii_engine_speed == 0) {
-    if (cluster_run_state == '\x01') {
+    if (cluster_lamp_test_state == '\x01') {
       cluster_indicator_flags = cluster_indicator_flags | 0xe0;
     }
     else {
       cluster_indicator_flags = cluster_indicator_flags & 0x1f;
     }
   }
-  else if (DAT_40001b3a == 0) {
+  else if (ips_shift_light_flags == 0) {
     if (cluster_shift_light_state == '\0') {
       cluster_indicator_flags = cluster_indicator_flags & 0x1f;
       _engine_speed_tach3 = get_engine_speed_tach();
@@ -20457,7 +20332,7 @@ void cluster_data_send_100ms(void)
     }
   }
   else {
-    cluster_indicator_flags = cluster_indicator_flags & 0x1f | DAT_40001b3a;
+    cluster_indicator_flags = cluster_indicator_flags & 0x1f | ips_shift_light_flags;
   }
   if ((((obd_ii_mode2f_flags_enabled & 0x40000000) == 0) ||
       ((obd_ii_mode2f_flags_state & 0x40000000) == 0)) && ((traction_flags_unknown & 4) == 0)) {
@@ -20502,7 +20377,8 @@ void cluster_data_send_100ms(void)
                / (int)((_fuel_tank_capacity & 0xff) -
                       (uint)CAL_cluster_fuel_level_zero_clip_threshold));
   }
-  if ((fuel_level < CAL_cluster_fuel_level_warning_threshold[0]) || (cluster_run_state == '\x01')) {
+  if ((fuel_level < CAL_cluster_fuel_level_warning_threshold[0]) ||
+     (cluster_lamp_test_state == '\x01')) {
     cluster_flags = cluster_flags | 1;
   }
   else if (CAL_cluster_fuel_level_warning_threshold[1] < fuel_level) {
@@ -20518,7 +20394,7 @@ void cluster_data_send_100ms(void)
           (oil_pressure_sensor_voltage_raw < 0x200)) ||
          (((((CAL_oil_pressure_warning_light_mode == ANALOG_SENSOR &&
              ((int)oil_pressure_switch_raw < (int)((uint)bVar1 << 4))) &&
-            (engine_is_running != false)) || (cluster_run_state == '\x01')) ||
+            (engine_is_running != false)) || (cluster_lamp_test_state == '\x01')) ||
           ((CAL_oil_pressure_warning_light_mode != SWITCH &&
            (CAL_oil_pressure_warning_light_mode != ANALOG_SENSOR)))))) {
         cluster_indicator_flags = cluster_indicator_flags | 8;
@@ -20557,7 +20433,7 @@ void cluster_data_send_100ms(void)
                     // I think this is actually the wrench light.
   if ((((lfb_state_flags & 1) == 0) || ((lfb_state_flags & 2) == 0)) &&
      (((lfb_state_flags & 1) != 0 ||
-      (((cluster_run_state != '\x01' && ((obd_ii_montior_passes_bitfield & 0x40) == 0)) &&
+      (((cluster_lamp_test_state != '\x01' && ((obd_ii_montior_passes_bitfield & 0x40) == 0)) &&
        (vehicle_mode != VM_TC_OFF)))))) {
     cluster_indicator_flags = cluster_indicator_flags & 0xfb;
   }
@@ -20679,23 +20555,23 @@ void cluster_and_exhaust_flaps_100ms(void)
 {
   bool bVar1;
   
-  trans_cooler_timer = trans_cooler_timer + 0xff;
-  if ((trans_cooler_timer == '\0') &&
-     (trans_cooler_timer = '\x05', (COD_base.COD[1] >> 0x13 & 1) == 1)) {
+  cluster_500ms_divider = cluster_500ms_divider + 0xff;
+  if ((cluster_500ms_divider == '\0') &&
+     (cluster_500ms_divider = '\x05', (COD_base.COD[1] >> 0x13 & 1) == 1)) {
     trans_cooler_control();
   }
-  if ((ign_voltage_above_threshold != false) && (cluster_run_state == '\x02')) {
-    DAT_400014ab = 0;
+  if ((ign_voltage_above_threshold != false) && (cluster_lamp_test_state == '\x02')) {
+    cluster_lamp_test_timer = 0;
   }
-  if ((ign_voltage_above_threshold == false) || (DAT_400014aa <= DAT_400014ab)) {
-    cluster_run_state = 0;
+  if ((ign_voltage_above_threshold == false) || (DAT_400014aa <= cluster_lamp_test_timer)) {
+    cluster_lamp_test_state = 0;
     if (ign_voltage_above_threshold == false) {
-      cluster_run_state = 2;
+      cluster_lamp_test_state = 2;
     }
   }
   else {
-    DAT_400014ab = DAT_400014ab + 1;
-    cluster_run_state = 1;
+    cluster_lamp_test_timer = cluster_lamp_test_timer + 1;
+    cluster_lamp_test_state = 1;
   }
   cluster_data_send_100ms();
   if (((engine_operating_state_flags & 8) == 0) || (CAL_vehicle_moving_speed_min <= car_speed_u8)) {
@@ -20711,31 +20587,31 @@ void cluster_and_exhaust_flaps_100ms(void)
   }
   if ((runtime_since_start < (uint)CAL_cooling_fan_inhibit_window_start_5s * 50) ||
      ((uint)CAL_cooling_fan_inhibit_window_end_5s * 50 < runtime_since_start)) {
-    DAT_40001ae9 = CAL_cooling_fan_inhibit_resample_period_100ms;
-    coolant_temp_sample_for_fan_control = coolant_temp;
-    fan_engine_bay_inhibit =
+    fan_coolant_fall_check_timer = CAL_cooling_fan_inhibit_resample_period_100ms;
+    fan_coolant_fall_check_prev_temp = coolant_temp;
+    fan_inhibit_coolant_falling =
          SUB41(((uint)CAL_cooling_fan_inhibit_window_start_5s * 0x32 <<
                (int)LZCOUNT((uint)CAL_cooling_fan_inhibit_window_start_5s * 0x32 ^
                             runtime_since_start)) >> 0x1f,0);
   }
-  else if (DAT_40001ae9 == '\0') {
-    DAT_40001ae9 = CAL_cooling_fan_inhibit_resample_period_100ms;
-    if (coolant_temp < coolant_temp_sample_for_fan_control) {
-      coolant_temp_fan_sample_drop_amount = coolant_temp_sample_for_fan_control - coolant_temp;
-      if (coolant_temp_fan_sample_drop_amount < CAL_cooling_fan_inhibit_temp_drop_threshold) {
-        fan_engine_bay_inhibit = false;
+  else if (fan_coolant_fall_check_timer == '\0') {
+    fan_coolant_fall_check_timer = CAL_cooling_fan_inhibit_resample_period_100ms;
+    if (coolant_temp < fan_coolant_fall_check_prev_temp) {
+      fan_coolant_fall_delta = fan_coolant_fall_check_prev_temp - coolant_temp;
+      if (fan_coolant_fall_delta < CAL_cooling_fan_inhibit_temp_drop_threshold) {
+        fan_inhibit_coolant_falling = false;
       }
       else {
-        fan_engine_bay_inhibit = true;
+        fan_inhibit_coolant_falling = true;
       }
     }
     else {
-      fan_engine_bay_inhibit = false;
+      fan_inhibit_coolant_falling = false;
     }
-    coolant_temp_sample_for_fan_control = coolant_temp;
+    fan_coolant_fall_check_prev_temp = coolant_temp;
   }
   else {
-    DAT_40001ae9 = DAT_40001ae9 + -1;
+    fan_coolant_fall_check_timer = fan_coolant_fall_check_timer + -1;
   }
   if (((COD_base.COD[1] >> 0x1b & 1) == 0) || ((engine_state_failure_flags & 0x40000) != 0)) {
     exhaust_flap_state = true;
@@ -20918,8 +20794,8 @@ void car_speed_update_200hz(void)
   uint uVar2;
   
   if ((COD_base.COD[1] >> 9 & 1) == 0) {
-    uVar1 = DAT_40001820 & 0xffff;
-    if (0xffff < DAT_40001820) {
+    uVar1 = nonabs_wheel_speed_period_ticks & 0xffff;
+    if (0xffff < nonabs_wheel_speed_period_ticks) {
       uVar1 = 0xffff;
     }
     if ((uVar1 == 0xffff) || ((engine_state_failure_flags & 0x400) != 0)) {
@@ -20927,27 +20803,27 @@ void car_speed_update_200hz(void)
     }
     else {
       if (CAL_ecu_abs_ring_teeth_count == '\0') {
-        uVar2 = (0x100 - (uint)CAL_wheel_speed_smoothing) * DAT_40001ae0;
-        DAT_40001ae0 = ((int)uVar2 >> 8) + (uint)((int)uVar2 < 0 && (uVar2 & 0xff) != 0) +
-                       (uint)CAL_wheel_speed_smoothing *
-                       (((uint)CAL_ecu_unknown_tire_circumference * 36000) / uVar1);
+        uVar2 = (0x100 - (uint)CAL_wheel_speed_smoothing) * nonabs_wheelspeed;
+        nonabs_wheelspeed =
+             ((int)uVar2 >> 8) + (uint)((int)uVar2 < 0 && (uVar2 & 0xff) != 0) +
+             (uint)CAL_wheel_speed_smoothing *
+             (((uint)CAL_ecu_unknown_tire_circumference * 36000) / uVar1);
       }
       else {
-        uVar2 = (0x100 - (uint)CAL_wheel_speed_smoothing) * DAT_40001ae0;
-        DAT_40001ae0 = ((int)uVar2 >> 8) + (uint)((int)uVar2 < 0 && (uVar2 & 0xff) != 0) +
-                       (uint)CAL_wheel_speed_smoothing *
-                       (int)((ulonglong)
-                             ((longlong)(int)(uint)CAL_ecu_unknown_tire_circumference * 36000) /
-                            (ulonglong)
-                            ((longlong)(int)uVar1 *
-                            (longlong)(int)(uint)CAL_ecu_abs_ring_teeth_count));
+        uVar2 = (0x100 - (uint)CAL_wheel_speed_smoothing) * nonabs_wheelspeed;
+        nonabs_wheelspeed =
+             ((int)uVar2 >> 8) + (uint)((int)uVar2 < 0 && (uVar2 & 0xff) != 0) +
+             (uint)CAL_wheel_speed_smoothing *
+             (int)((ulonglong)((longlong)(int)(uint)CAL_ecu_unknown_tire_circumference * 36000) /
+                  (ulonglong)
+                  ((longlong)(int)uVar1 * (longlong)(int)(uint)CAL_ecu_abs_ring_teeth_count));
       }
-      if ((int)(((int)DAT_40001ae0 >> 8) +
-               (uint)((int)DAT_40001ae0 < 0 && (DAT_40001ae0 & 0xff) != 0)) < 0xa00) {
-        car_speed_u8 = (u8_speed_kph)((int)DAT_40001ae0 / 0xa00);
+      if ((int)(((int)nonabs_wheelspeed >> 8) +
+               (uint)((int)nonabs_wheelspeed < 0 && (nonabs_wheelspeed & 0xff) != 0)) < 0xa00) {
+        car_speed_u8 = (u8_speed_kph)((int)nonabs_wheelspeed / 0xa00);
         car_speed_x100 =
-             ((short)(DAT_40001ae0 >> 8) +
-             (ushort)((int)DAT_40001ae0 < 0 && (DAT_40001ae0 & 0xff) != 0)) * 10;
+             ((short)(nonabs_wheelspeed >> 8) +
+             (ushort)((int)nonabs_wheelspeed < 0 && (nonabs_wheelspeed & 0xff) != 0)) * 10;
       }
       else {
         car_speed_u8 = 0xff;
@@ -21043,7 +20919,7 @@ void engine_roughness_200hz(void)
       }
       else {
         roughness_flags = uVar3 & 0xfffd | 5;
-        if (DAT_400088a3 < u8_count_40001af0) {
+        if (CAL_roughness_min_edge_count < u8_count_40001af0) {
           u16_rspeed_1_4rpm_40001af2 = u16_rspeed_1_4rpm_40001aee;
           DAT_40001af4 = DAT_40001af8;
           roughness_flags = uVar3 & 0xfffd | 0xd;
@@ -21084,7 +20960,7 @@ void engine_roughness_200hz(void)
       }
       else {
         roughness_flags = uVar3 & 0xfffb | 3;
-        if (DAT_400088a3 < DAT_40001af1) {
+        if (CAL_roughness_min_edge_count < DAT_40001af1) {
           u16_rspeed_1_4rpm_40001af6 = u16_rspeed_1_4rpm_40001aee;
           DAT_40001af4 = DAT_40001af8;
           roughness_flags = uVar3 & 0xfffb | 0x13;
@@ -21917,11 +21793,11 @@ void injtip(void)
           ign_per_cyl_fire_enable = 0b00111111;
         }
         else {
-          ign_per_cyl_fire_enable = (undefined1)(1 << (DAT_40001758 & 0x3f));
+          ign_per_cyl_fire_enable = (undefined1)(1 << (next_firing_cyl_index & 0x3f));
           for (cyl_idx = 0; cyl_idx < 6; cyl_idx = cyl_idx + 1) {
             injtip_fire_reenable_countdown_per_cyl[cyl_idx] =
-                 (char)((ulonglong)(longlong)(int)(uint)DAT_400087ee / 6) +
-                 (char)((int)(uint)DAT_400087ee >> 7);
+                 (char)((ulonglong)(longlong)(int)(uint)CAL_dfco_cyl_ramp_length / 6) +
+                 (char)((int)(uint)CAL_dfco_cyl_ramp_length >> 7);
           }
         }
       }
@@ -21950,13 +21826,13 @@ void injtip(void)
            (((obd_ii_cruise_status & 2) != 0 &&
             ((short)(ushort)CAL_injtip_dfco_disable_accel_pedal < tps_commanded_cruise)))))) {
     if ((inj_flags & 1) != 0) {
-      if ((engine_speed_16bit < CAL_injtip_dfco_recovery_enrichment_max_rpm) && (DAT_40001b5e == 0))
-      {
+      if ((engine_speed_16bit < CAL_injtip_dfco_recovery_enrichment_max_rpm) &&
+         (dfco_recovery_enrich_cooldown_timer == 0)) {
         uVar4 = lookup_2D_uint8_interpolated_noaxis
                           (2,dfco_cut_duration,&CAL_injtip_dfco_recovery_enrich_by_duration);
         inj_dfco_recovery_enrichment = (uint)CAL_injtip_comp_base * (uVar4 & 0xff);
         if (inj_dfco_recovery_enrichment != 0) {
-          DAT_40001b5e = DAT_40008948;
+          dfco_recovery_enrich_cooldown_timer = DAT_40008948;
         }
       }
       else {
@@ -22830,14 +22706,16 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
 {
   if ((vvt_start_time < runtime_since_start) && ((engine_state_failure_flags & 2) == 0)) {
     if ((DAT_4000ca48 < coolant_temp) && (DAT_4000ca4a < runtime_since_start)) {
-      if ((int)(short)obd_ii_vvt_inlet_angle_error_bank1 < -(int)DAT_4000ca20) {
+      if ((int)(short)obd_ii_vvt_inlet_angle_error_bank1 <
+          -(int)CAL_obd_ii_vvt_exhaust_error_bank1_limit) {
         if (DAT_40001c04 != 0xff) {
           DAT_40001c04 = DAT_40001c04 + 1;
         }
         DAT_40001c0c = 0;
         DAT_40001c08 = 0;
       }
-      else if (DAT_4000ca20 < (short)obd_ii_vvt_inlet_angle_error_bank1) {
+      else if (CAL_obd_ii_vvt_exhaust_error_bank1_limit < (short)obd_ii_vvt_inlet_angle_error_bank1)
+      {
         DAT_40001c04 = 0;
         DAT_40001c0c = 0;
         if (DAT_40001c08 != 0xff) {
@@ -22850,7 +22728,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         DAT_40001c0c = DAT_40001c0c + 1;
       }
       if (((CAL_obd_ii_P0011 & 7) != 0) && ((LEA_obd_ii_P0011_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c04) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c04) {
           DAT_400049bc = DAT_40001c04;
           DAT_400049bd = 0;
           DAT_40001c04 = 0;
@@ -22860,7 +22738,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0011_pass_counter,0x11,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0c) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0c) {
           if (((CAL_obd_ii_P0012 & 7) == 0) || ((LEA_obd_ii_P0012_dtc_state & 4) != 0)) {
             DAT_400049bd = 0;
             DAT_400049bc = 0;
@@ -22875,7 +22753,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         }
       }
       if (((CAL_obd_ii_P0012 & 7) != 0) && ((LEA_obd_ii_P0012_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c08) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c08) {
           DAT_400049bc = 0;
           DAT_400049bd = DAT_40001c08;
           DAT_40001c08 = 0;
@@ -22885,7 +22763,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0012_pass_counter,0x12,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0c) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0c) {
           DAT_400049bd = 0;
           DAT_400049bc = 0;
           DAT_40001c0c = 0;
@@ -22897,14 +22775,15 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
           }
         }
       }
-      if ((int)(short)obd_ii_vvt_exhaust_error_bank1 < -(int)DAT_4000ca20) {
+      if ((int)(short)obd_ii_vvt_exhaust_error_bank1 <
+          -(int)CAL_obd_ii_vvt_exhaust_error_bank1_limit) {
         DAT_40001c05 = 0;
         DAT_40001c0d = 0;
         if (DAT_40001c09 != 0xff) {
           DAT_40001c09 = DAT_40001c09 + 1;
         }
       }
-      else if (DAT_4000ca20 < (short)obd_ii_vvt_exhaust_error_bank1) {
+      else if (CAL_obd_ii_vvt_exhaust_error_bank1_limit < (short)obd_ii_vvt_exhaust_error_bank1) {
         if (DAT_40001c05 != 0xff) {
           DAT_40001c05 = DAT_40001c05 + 1;
         }
@@ -22917,7 +22796,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         DAT_40001c0d = DAT_40001c0d + 1;
       }
       if (((CAL_obd_ii_P0014 & 7) != 0) && ((LEA_obd_ii_P0014_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c05) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c05) {
           DAT_40001c05 = 0;
           if ((DAT_40001bfc != 0) && (DAT_40001bfc = DAT_40001bfc - 1, DAT_40001bfc == 0)) {
             obd_ii_monitor_fail_transition
@@ -22925,11 +22804,11 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0014_pass_counter,0x14,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0d) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0d) {
           if (((CAL_obd_ii_P0015 & 7) == 0) || ((LEA_obd_ii_P0015_dtc_state & 4) != 0)) {
             DAT_40001c0d = 0;
           }
-          if (DAT_40001bfc < DAT_4000d3a6) {
+          if (DAT_40001bfc < CAL_obd_ii_P0014_maturing_limit) {
             DAT_40001bfc = DAT_40001bfc + 1;
           }
           else {
@@ -22938,7 +22817,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         }
       }
       if (((CAL_obd_ii_P0015 & 7) != 0) && ((LEA_obd_ii_P0015_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c09) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c09) {
           DAT_40001c09 = 0;
           if ((DAT_40001bfd != 0) && (DAT_40001bfd = DAT_40001bfd - 1, DAT_40001bfd == 0)) {
             obd_ii_monitor_fail_transition
@@ -22946,9 +22825,9 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0015_pass_counter,0x15,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0d) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0d) {
           DAT_40001c0d = 0;
-          if (DAT_40001bfd < DAT_4000d3aa) {
+          if (DAT_40001bfd < CAL_obd_ii_P0015_maturing_limit) {
             DAT_40001bfd = DAT_40001bfd + 1;
           }
           else {
@@ -22956,14 +22835,16 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
           }
         }
       }
-      if ((int)(short)obd_ii_vvt_inlet_angle_error_bank2 < -(int)DAT_4000ca20) {
+      if ((int)(short)obd_ii_vvt_inlet_angle_error_bank2 <
+          -(int)CAL_obd_ii_vvt_exhaust_error_bank1_limit) {
         if (DAT_40001c06 != 0xff) {
           DAT_40001c06 = DAT_40001c06 + 1;
         }
         DAT_40001c0e = 0;
         DAT_40001c0a = 0;
       }
-      else if (DAT_4000ca20 < (short)obd_ii_vvt_inlet_angle_error_bank2) {
+      else if (CAL_obd_ii_vvt_exhaust_error_bank1_limit < (short)obd_ii_vvt_inlet_angle_error_bank2)
+      {
         DAT_40001c06 = 0;
         DAT_40001c0e = 0;
         if (DAT_40001c0a != 0xff) {
@@ -22976,7 +22857,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         DAT_40001c0e = DAT_40001c0e + 1;
       }
       if (((CAL_obd_ii_P0021 & 7) != 0) && ((LEA_obd_ii_P0021_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c06) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c06) {
           DAT_400049bf = 0;
           DAT_400049be = DAT_40001c06;
           DAT_40001c06 = 0;
@@ -22986,7 +22867,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0021_pass_counter,0x21,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0e) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0e) {
           if (((CAL_obd_ii_P0022 & 7) == 0) || ((LEA_obd_ii_P0022_dtc_state & 4) != 0)) {
             DAT_400049bf = 0;
             DAT_400049be = 0;
@@ -23001,7 +22882,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         }
       }
       if (((CAL_obd_ii_P0022 & 7) != 0) && ((LEA_obd_ii_P0022_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c0a) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c0a) {
           DAT_400049be = 0;
           DAT_400049bf = DAT_40001c0a;
           DAT_40001c0a = 0;
@@ -23011,7 +22892,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0022_pass_counter,0x22,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0e) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0e) {
           DAT_400049bf = 0;
           DAT_400049be = 0;
           DAT_40001c0e = 0;
@@ -23023,14 +22904,15 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
           }
         }
       }
-      if ((int)(short)obd_ii_vvt_exhaust_error_bank2 < -(int)DAT_4000ca20) {
+      if ((int)(short)obd_ii_vvt_exhaust_error_bank2 <
+          -(int)CAL_obd_ii_vvt_exhaust_error_bank1_limit) {
         DAT_40001c07 = 0;
         DAT_40001c0f = 0;
         if (DAT_40001c0b != 0xff) {
           DAT_40001c0b = DAT_40001c0b + 1;
         }
       }
-      else if (DAT_4000ca20 < (short)obd_ii_vvt_exhaust_error_bank2) {
+      else if (CAL_obd_ii_vvt_exhaust_error_bank1_limit < (short)obd_ii_vvt_exhaust_error_bank2) {
         if (DAT_40001c07 != 0xff) {
           DAT_40001c07 = DAT_40001c07 + 1;
         }
@@ -23043,7 +22925,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         DAT_40001c0f = DAT_40001c0f + 1;
       }
       if (((CAL_obd_ii_P0024 & 7) != 0) && ((LEA_obd_ii_P0024_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c07) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c07) {
           DAT_40001c07 = 0;
           if ((DAT_40001bfe != 0) && (DAT_40001bfe = DAT_40001bfe - 1, DAT_40001bfe == 0)) {
             obd_ii_monitor_fail_transition
@@ -23051,11 +22933,11 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0024_pass_counter,0x24,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0f) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0f) {
           if (((CAL_obd_ii_P0025 & 7) == 0) || ((LEA_obd_ii_P0025_dtc_state & 4) != 0)) {
             DAT_40001c0f = 0;
           }
-          if (DAT_40001bfe < DAT_4000d3ae) {
+          if (DAT_40001bfe < CAL_obd_ii_P0024_maturing_limit) {
             DAT_40001bfe = DAT_40001bfe + 1;
           }
           else {
@@ -23064,7 +22946,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
         }
       }
       if (((CAL_obd_ii_P0025 & 7) != 0) && ((LEA_obd_ii_P0025_dtc_state & 4) == 0)) {
-        if (DAT_4000ca49 < DAT_40001c0b) {
+        if (CAL_obd_ii_vvt_error_fail_count < DAT_40001c0b) {
           DAT_40001c0b = 0;
           if ((DAT_40001bff != 0) && (DAT_40001bff = DAT_40001bff - 1, DAT_40001bff == 0)) {
             obd_ii_monitor_fail_transition
@@ -23072,7 +22954,7 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
                        &LEA_obd_ii_P0025_pass_counter,0x25,0);
           }
         }
-        else if (DAT_4000ca70 < DAT_40001c0f) {
+        else if (CAL_obd_ii_vvt_ok_pass_count < DAT_40001c0f) {
           DAT_40001c0f = 0;
           if (DAT_40001bff < DAT_4000d3b2) {
             DAT_40001bff = DAT_40001bff + 1;
@@ -23084,8 +22966,8 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
       }
     }
     if ((((CAL_obd_ii_P0016 & 7) != 0) && ((LEA_obd_ii_P0016_dtc_state & 4) == 0)) &&
-       (DAT_4000243b == '\x01')) {
-      if (DAT_40002437 == '\x01') {
+       (cam_park_check_done_inlet_b1 == '\x01')) {
+      if (cam_park_offset_fault_inlet_b1 == '\x01') {
         if ((DAT_40001c00 != 0) && (DAT_40001c00 = DAT_40001c00 - 1, DAT_40001c00 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0016,&LEA_obd_ii_P0016_dtc_state,&LEA_obd_ii_P0016_fail_counter,
@@ -23100,8 +22982,8 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
       }
     }
     if ((((CAL_obd_ii_P0017 & 7) != 0) && ((LEA_obd_ii_P0017_dtc_state & 4) == 0)) &&
-       (DAT_40002439 == '\x01')) {
-      if (DAT_40002435 == '\x01') {
+       (cam_park_check_done_exhaust_b1 == '\x01')) {
+      if (cam_park_offset_fault_exhaust_b1 == '\x01') {
         if ((DAT_40001c01 != 0) && (DAT_40001c01 = DAT_40001c01 - 1, DAT_40001c01 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0017,&LEA_obd_ii_P0017_dtc_state,&LEA_obd_ii_P0017_fail_counter,
@@ -23132,8 +23014,8 @@ void obd_ii_vvt_cam_timing_monitors_update(void)
       }
     }
     if ((((CAL_obd_ii_P0019 & 7) != 0) && ((LEA_obd_ii_P0019_dtc_state & 4) == 0)) &&
-       (DAT_40002438 == '\x01')) {
-      if (DAT_40002434 == '\x01') {
+       (cam_park_check_done_exhaust_b2 == '\x01')) {
+      if (cam_park_offset_fault_exhaust_b2 == '\x01') {
         if ((DAT_40001c03 != 0) && (DAT_40001c03 = DAT_40001c03 - 1, DAT_40001c03 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0019,&LEA_obd_ii_P0019_dtc_state,&LEA_obd_ii_P0019_fail_counter,
@@ -23207,9 +23089,9 @@ void obd_ii_init_vvt_diagnostics(void)
   DAT_40001bf9 = DAT_4000d3f7;
   DAT_40001bfa = DAT_4000d42e;
   DAT_40001bfb = DAT_4000d42f;
-  DAT_40001bfc = DAT_4000d3a6;
-  DAT_40001bfd = DAT_4000d3aa;
-  DAT_40001bfe = DAT_4000d3ae;
+  DAT_40001bfc = CAL_obd_ii_P0014_maturing_limit;
+  DAT_40001bfd = CAL_obd_ii_P0015_maturing_limit;
+  DAT_40001bfe = CAL_obd_ii_P0024_maturing_limit;
   DAT_40001bff = DAT_4000d3b2;
   DAT_40001c00 = DAT_4000d41b;
   DAT_40001c01 = DAT_4000d437;
@@ -23244,7 +23126,9 @@ void obd_ii_init_vvt_diagnostics(void)
 
 
 
-void obd_ii_init_vvt_timing_dtc_monitoring(void)
+// Mode 01 DTC status update: cam timing / VVT position (P0011-P0025).
+
+void obd_ii_dtc_update_cam_timing(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -23297,9 +23181,10 @@ void obd_ii_cat_efficiency_eval(void)
   short sVar5;
   int iVar3;
   
-  DAT_40001c12 = lookup_2D_uint8_interpolated
-                           (8,coolant_temp_engine_stopped,CAL_emissions_cat_efficiency_unknown1,
-                            CAL_emissions_cat_efficiency_unknown1_X_coolant_temp);
+  cat_monitor_min_maf_accum_thresh_ =
+       lookup_2D_uint8_interpolated
+                 (8,coolant_temp_engine_stopped,CAL_emissions_cat_efficiency_unknown1,
+                  CAL_emissions_cat_efficiency_unknown1_X_coolant_temp);
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {
     uVar2 = lookup_2D_uint8_fixed
                       (8,(uint8_t)(obd_ii_maf_flow / 100),
@@ -23347,15 +23232,18 @@ void obd_ii_cat_efficiency_eval(void)
           (((LEA_obd_ii_P0102_dtc_state & 4) == 0 && ((LEA_obd_ii_P0103_dtc_state & 4) == 0))))))))
   {
     bVar1 = LEA_obd_ii_P0420_dtc_state & 0xbf;
-    if (((((((uint)((int)(uint)maf_accumulated_since_start_raw >> 4) < (uint)DAT_40001c12) ||
-           (coolant_temp <= DAT_4000c9f4)) || ((cl_status_bank1 & 2) == 0)) ||
-         ((car_speed_u8 < DAT_4000c9ff || (DAT_4000c9fe <= car_speed_u8)))) ||
-        (obd_ii_maf_flow <= DAT_4000c9f6)) ||
-       (((DAT_4000c9f8 <= obd_ii_maf_flow || (DAT_40001c1e != 0)) || (DAT_40001c20 != 0)))) {
+    if (((((((uint)((int)(uint)maf_accumulated_since_start_raw >> 4) <
+             (uint)cat_monitor_min_maf_accum_thresh_) ||
+           (coolant_temp <= CAL_obd_ii_cat_monitor_ect_min)) || ((cl_status_bank1 & 2) == 0)) ||
+         ((car_speed_u8 < CAL_obd_ii_P0420_car_speed_min ||
+          (CAL_obd_ii_P0420_car_speed_max <= car_speed_u8)))) ||
+        (obd_ii_maf_flow <= CAL_obd_ii_P0420_maf_min)) ||
+       (((CAL_obd_ii_P0420_maf_max <= obd_ii_maf_flow || (DAT_40001c1e != 0)) || (DAT_40001c20 != 0)
+        ))) {
       DAT_40001c42 = DAT_40001c42 & 0xffbc;
       LEA_obd_ii_P0420_dtc_state = bVar1;
     }
-    else if ((DAT_4000c9f5 < temp_engine_air) && (DAT_4000c9f2 < obd_ii_atmospheric_baro)) {
+    else if ((u8_temp_5_8_40c < temp_engine_air) && (DAT_4000c9f2 < obd_ii_atmospheric_baro)) {
       if (((LEA_obd_ii_P0420_dtc_state & 8) == 0) && ((CAL_obd_ii_P0420 & 7) != 0)) {
         if (obd_cat_monitor_count_b1 < obd_cat_monitor_threshold_current) {
           uVar4 = DAT_40001c42 | 0x43;
@@ -23363,7 +23251,7 @@ void obd_ii_cat_efficiency_eval(void)
               ((uint)LEA_cat_o2_accum_b1_precat[sVar5] < obd_ii_maf_flow / 100 && (sVar5 < 7));
               sVar5 = sVar5 + 1) {
           }
-          if (DAT_4000ca18 < (short)obd_ii_o2_sensor1_voltage) {
+          if (CAL_obd_ii_cat_precat_o2_rich_thresh < (short)obd_ii_o2_sensor1_voltage) {
             if (((DAT_40001c42 & 4) != 0) ||
                (LEA_obd_ii_P0420_dtc_state = bVar1, (DAT_40001c42 & 8) == 0)) {
               DAT_40001c42 = uVar4;
@@ -23374,7 +23262,7 @@ void obd_ii_cat_efficiency_eval(void)
           }
           else {
             LEA_obd_ii_P0420_dtc_state = bVar1;
-            if (((short)obd_ii_o2_sensor1_voltage < DAT_4000ca16) &&
+            if (((short)obd_ii_o2_sensor1_voltage < CAL_obd_ii_cat_precat_o2_lean_thresh) &&
                (((DAT_40001c42 & 8) != 0 || ((DAT_40001c42 & 4) == 0)))) {
               DAT_40001c42 = uVar4;
               (&DAT_400048b3)[sVar5] = (&DAT_400048b3)[sVar5] + '\x01';
@@ -23447,12 +23335,15 @@ void obd_ii_cat_efficiency_eval(void)
        ((LEA_obd_ii_P0103_dtc_state & 4) == 0)))) &&
      (((LEA_obd_ii_P0304_dtc_state & 4) == 0 && ((LEA_obd_ii_P0306_dtc_state & 4) == 0)))) {
     bVar1 = LEA_obd_ii_P0430_dtc_state & 0xbf;
-    if ((((((uint)((int)(uint)maf_accumulated_since_start_raw >> 4) < (uint)DAT_40001c12) ||
-          (coolant_temp <= DAT_4000c9f4)) || (temp_engine_air <= DAT_4000c9f5)) ||
-        (((obd_ii_atmospheric_baro <= DAT_4000c9f2 || ((cl_status_bank2 & 2) == 0)) ||
-         ((car_speed_u8 < DAT_4000c9ff ||
-          ((DAT_4000c9fe <= car_speed_u8 || (obd_ii_maf_flow <= DAT_4000c9f6)))))))) ||
-       ((DAT_4000c9f8 <= obd_ii_maf_flow || ((DAT_40001c1e != 0 || (DAT_40001c20 != 0)))))) {
+    if ((((((uint)((int)(uint)maf_accumulated_since_start_raw >> 4) <
+            (uint)cat_monitor_min_maf_accum_thresh_) ||
+          (coolant_temp <= CAL_obd_ii_cat_monitor_ect_min)) || (temp_engine_air <= u8_temp_5_8_40c))
+        || (((obd_ii_atmospheric_baro <= DAT_4000c9f2 || ((cl_status_bank2 & 2) == 0)) ||
+            ((car_speed_u8 < CAL_obd_ii_P0420_car_speed_min ||
+             ((CAL_obd_ii_P0420_car_speed_max <= car_speed_u8 ||
+              (obd_ii_maf_flow <= CAL_obd_ii_P0420_maf_min)))))))) ||
+       ((CAL_obd_ii_P0420_maf_max <= obd_ii_maf_flow || ((DAT_40001c1e != 0 || (DAT_40001c20 != 0)))
+        ))) {
       DAT_40001c42 = DAT_40001c42 & 0xffbc;
       LEA_obd_ii_P0430_dtc_state = bVar1;
     }
@@ -23463,7 +23354,7 @@ void obd_ii_cat_efficiency_eval(void)
             ((uint)LEA_cat_o2_accum_b2_precat[sVar5] < obd_ii_maf_flow / 100 && (sVar5 < 7));
             sVar5 = sVar5 + 1) {
         }
-        if (DAT_4000ca18 < (short)obd_ii_o2_sensor5_voltage) {
+        if (CAL_obd_ii_cat_precat_o2_rich_thresh < (short)obd_ii_o2_sensor5_voltage) {
           if (((DAT_40001c40 & 4) != 0) ||
              (LEA_obd_ii_P0430_dtc_state = bVar1, (DAT_40001c40 & 8) == 0)) {
             DAT_40001c40 = uVar4;
@@ -23474,7 +23365,7 @@ void obd_ii_cat_efficiency_eval(void)
         }
         else {
           LEA_obd_ii_P0430_dtc_state = bVar1;
-          if (((short)obd_ii_o2_sensor5_voltage < DAT_4000ca16) &&
+          if (((short)obd_ii_o2_sensor5_voltage < CAL_obd_ii_cat_precat_o2_lean_thresh) &&
              (((DAT_40001c40 & 8) != 0 || ((DAT_40001c40 & 4) == 0)))) {
             DAT_40001c40 = uVar4;
             (&DAT_400048c3)[sVar5] = (&DAT_400048c3)[sVar5] + '\x01';
@@ -23531,9 +23422,9 @@ void obd_ii_cat_efficiency_eval(void)
       DAT_40001c18 = DAT_40001c18 + LEA_cat_o2_accum_b1_postcat[iVar3];
     }
     DAT_4000498c = (ushort)(((uint)DAT_40001c18 * 1000) / (uint)DAT_40001c14);
-    if (DAT_4000484c < DAT_4000498c) {
-      DAT_4000484c = DAT_4000498c;
-      sort_array10(&DAT_4000484c);
+    if (LEA_obd_monitor_11 < DAT_4000498c) {
+      LEA_obd_monitor_11 = DAT_4000498c;
+      sort_array10(&LEA_obd_monitor_11);
     }
     if (DAT_4000498c < CAL_obd_ii_cat_switch_ratio_fail_threshold) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0420,&LEA_obd_ii_P0420_dtc_state);
@@ -23564,9 +23455,9 @@ void obd_ii_cat_efficiency_eval(void)
       DAT_40001c1a = DAT_40001c1a + LEA_cat_o2_accum_b2_postcat[iVar3];
     }
     DAT_40004998 = (ushort)(((uint)DAT_40001c1a * 1000) / (uint)DAT_40001c16);
-    if (DAT_40004860 < DAT_40004998) {
-      DAT_40004860 = DAT_40004998;
-      sort_array10(&DAT_40004860);
+    if (LEA_obd_monitor_12 < DAT_40004998) {
+      LEA_obd_monitor_12 = DAT_40004998;
+      sort_array10(&LEA_obd_monitor_12);
     }
     if (DAT_40004998 < CAL_obd_ii_cat_switch_ratio_fail_threshold) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0430,&LEA_obd_ii_P0430_dtc_state);
@@ -23649,8 +23540,8 @@ void catalyst_monitor_o2_filter_update_200hz(void)
     cVar1 = DAT_40001c1c;
   }
   DAT_40001c1c = cVar1;
-  if (((short)(ushort)DAT_4000872e < tps_delta_rate) ||
-     ((int)tps_delta_rate < (int)-(uint)DAT_4000872e)) {
+  if (((short)(ushort)CAL_obd_o2_tps_transient_threshold < tps_delta_rate) ||
+     ((int)tps_delta_rate < (int)-(uint)CAL_obd_o2_tps_transient_threshold)) {
     DAT_40001c20 = DAT_40008730;
   }
   else if ((DAT_40001c20 != 0) && (DAT_40001c20 = DAT_40001c20 + -1, DAT_40001c20 == 0)) {
@@ -23863,32 +23754,31 @@ void perf_stats_update(void)
   }
   if (DAT_400014c0 == '\0') {
     DAT_400014c0 = '2';
-    if (struct_top_rpm_event_ARRAY_40003f24[0].rpm < u16_rspeed_rpm_40001c56) {
-      struct_top_rpm_event_ARRAY_40003f24[0].rpm = u16_rspeed_rpm_40001c56;
-      struct_top_rpm_event_ARRAY_40003f24[0].coolant_temp = coolant_temp;
-      struct_top_rpm_event_ARRAY_40003f24[0].runtime = engine_run_timer_total;
+    if (LEA_perf_stat_gear1_hi[0].rpm < u16_rspeed_rpm_40001c56) {
+      LEA_perf_stat_gear1_hi[0].rpm = u16_rspeed_rpm_40001c56;
+      LEA_perf_stat_gear1_hi[0].coolant_temp = coolant_temp;
+      LEA_perf_stat_gear1_hi[0].runtime = engine_run_timer_total;
       for (j = 0; j < 4; j = j + 1) {
-        if (struct_top_rpm_event_ARRAY_40003f24[j + 1].rpm <
-            struct_top_rpm_event_ARRAY_40003f24[j].rpm) {
-          psVar8 = struct_top_rpm_event_ARRAY_40003f24 + j + 1;
+        if (LEA_perf_stat_gear1_hi[j + 1].rpm < LEA_perf_stat_gear1_hi[j].rpm) {
+          psVar8 = LEA_perf_stat_gear1_hi + j + 1;
           uVar12 = psVar8->rpm;
           uVar13 = psVar8->coolant_temp;
           bVar15 = psVar8->padding;
-          uVar2 = struct_top_rpm_event_ARRAY_40003f24[j + 1].runtime;
-          psVar8 = struct_top_rpm_event_ARRAY_40003f24 + j;
+          uVar2 = LEA_perf_stat_gear1_hi[j + 1].runtime;
+          psVar8 = LEA_perf_stat_gear1_hi + j;
           uVar11 = psVar8->coolant_temp;
           bVar17 = psVar8->padding;
-          uVar3 = struct_top_rpm_event_ARRAY_40003f24[j].runtime;
-          psVar9 = struct_top_rpm_event_ARRAY_40003f24 + j + 1;
+          uVar3 = LEA_perf_stat_gear1_hi[j].runtime;
+          psVar9 = LEA_perf_stat_gear1_hi + j + 1;
           psVar9->rpm = psVar8->rpm;
           psVar9->coolant_temp = uVar11;
           psVar9->padding = bVar17;
-          struct_top_rpm_event_ARRAY_40003f24[j + 1].runtime = uVar3;
-          psVar8 = struct_top_rpm_event_ARRAY_40003f24 + j;
+          LEA_perf_stat_gear1_hi[j + 1].runtime = uVar3;
+          psVar8 = LEA_perf_stat_gear1_hi + j;
           psVar8->rpm = uVar12;
           psVar8->coolant_temp = uVar13;
           psVar8->padding = bVar15;
-          struct_top_rpm_event_ARRAY_40003f24[j].runtime = uVar2;
+          LEA_perf_stat_gear1_hi[j].runtime = uVar2;
         }
       }
     }
@@ -23959,13 +23849,13 @@ void perf_stats_update(void)
       DAT_40001c58 = DAT_40001c58 + 1;
       if ((abs_a8_flag2 == '\x04') && ((DAT_40001c5b & 1) != 0)) {
         DAT_40001c5b = DAT_40001c5b & 0xfe;
-        DAT_40003f18 = DAT_40003f18 + 1;
+        LEA_number_standing_starts = LEA_number_standing_starts + 1;
       }
       if (DAT_40001c58 < 0xff) {
         if ((((byte)(car_speed_u8 + 156) < 20) && ((DAT_40001c5b & 2) != 0)) &&
            (bVar15 = DAT_40001c5b & 0xfd, bVar17 = DAT_40001c5b & 1, DAT_40001c59 = DAT_40001c58,
            DAT_40001c5b = bVar15, bVar17 != 0)) {
-          DAT_40003f18 = DAT_40003f18 + 1;
+          LEA_number_standing_starts = LEA_number_standing_starts + 1;
         }
         if (((byte)(car_speed_u8 + 0x60) < 0x14) && ((DAT_40001c5b & 4) != 0)) {
           DAT_40001c5b = DAT_40001c5b & 0xfb;
@@ -23977,12 +23867,15 @@ void perf_stats_update(void)
         DAT_40001c58 = 0;
       }
     }
-    if ((DAT_40001c59 != 0) && (DAT_40003f16 = DAT_40001c59, DAT_40001c59 < DAT_40003f14)) {
-      DAT_40003f14 = DAT_40001c59;
+    if ((DAT_40001c59 != 0) &&
+       (LEA_obd_ii_last_standing_start_0_100kmh = DAT_40001c59,
+       DAT_40001c59 < LEA_perf_stat_sentinel_max1)) {
+      LEA_perf_stat_sentinel_max1 = DAT_40001c59;
     }
     if (((0x50 < DAT_40001c5a) && (DAT_40001c59 < DAT_40001c5a)) &&
-       (DAT_40003f17 = DAT_40001c5a, DAT_40001c5a < DAT_40003f15)) {
-      DAT_40003f15 = DAT_40001c5a;
+       (LEA_obd_ii_last_standing_start_0_160kmh = DAT_40001c5a,
+       DAT_40001c5a < LEA_perf_stat_sentinel_max2)) {
+      LEA_perf_stat_sentinel_max2 = DAT_40001c5a;
     }
   }
   else {
@@ -24017,29 +23910,30 @@ void perf_stats_update(void)
     }
   }
   else {
-    if (DAT_40004084 < DAT_40001c5c) {
-      DAT_40004084 = DAT_40001c5c;
-      DAT_40004086 = engine_speed_16bit;
-      DAT_40004088 = i16_accel_1_10g_40001c5e;
-      DAT_40004085 = car_speed_u8;
-      DAT_4000408c = engine_run_timer_total;
+    if (LEA_perf_struct_A_byte0 < DAT_40001c5c) {
+      LEA_perf_struct_A_byte0 = DAT_40001c5c;
+      LEA_perf_struct_A_word0 = engine_speed_16bit;
+      LEA_perf_struct_A_word1 = i16_accel_1_10g_40001c5e;
+      LEA_perf_struct_A_byte1 = car_speed_u8;
+      LEA_perf_struct_A_dword = engine_run_timer_total;
       for (bVar17 = 0; bVar17 < 2; bVar17 = bVar17 + 1) {
-        if ((&DAT_40004084)[(bVar17 + 1) * 0xc] < (&DAT_40004084)[(uint)bVar17 * 0xc]) {
+        if ((&LEA_perf_struct_A_byte0)[(bVar17 + 1) * 0xc] <
+            (&LEA_perf_struct_A_byte0)[(uint)bVar17 * 0xc]) {
           iVar14 = bVar17 + 1;
-          uVar4 = *(undefined4 *)(&DAT_40004084 + iVar14 * 0xc);
-          uVar5 = *(undefined4 *)(&DAT_40004088 + iVar14 * 6);
-          uVar6 = (&DAT_4000408c)[iVar14 * 3];
+          uVar4 = *(undefined4 *)(&LEA_perf_struct_A_byte0 + iVar14 * 0xc);
+          uVar5 = *(undefined4 *)(&LEA_perf_struct_A_word1 + iVar14 * 6);
+          uVar6 = (&LEA_perf_struct_A_dword)[iVar14 * 3];
           uVar10 = (uint)bVar17;
           iVar14 = bVar17 + 1;
-          uVar7 = *(undefined4 *)(&DAT_40004088 + uVar10 * 6);
-          *(undefined4 *)(&DAT_40004084 + iVar14 * 0xc) =
-               *(undefined4 *)(&DAT_40004084 + uVar10 * 0xc);
-          *(undefined4 *)(&DAT_40004088 + iVar14 * 6) = uVar7;
-          (&DAT_4000408c)[iVar14 * 3] = (&DAT_4000408c)[uVar10 * 3];
+          uVar7 = *(undefined4 *)(&LEA_perf_struct_A_word1 + uVar10 * 6);
+          *(undefined4 *)(&LEA_perf_struct_A_byte0 + iVar14 * 0xc) =
+               *(undefined4 *)(&LEA_perf_struct_A_byte0 + uVar10 * 0xc);
+          *(undefined4 *)(&LEA_perf_struct_A_word1 + iVar14 * 6) = uVar7;
+          (&LEA_perf_struct_A_dword)[iVar14 * 3] = (&LEA_perf_struct_A_dword)[uVar10 * 3];
           uVar10 = (uint)bVar17;
-          *(undefined4 *)(&DAT_40004084 + uVar10 * 0xc) = uVar4;
-          *(undefined4 *)(&DAT_40004088 + uVar10 * 6) = uVar5;
-          (&DAT_4000408c)[uVar10 * 3] = uVar6;
+          *(undefined4 *)(&LEA_perf_struct_A_byte0 + uVar10 * 0xc) = uVar4;
+          *(undefined4 *)(&LEA_perf_struct_A_word1 + uVar10 * 6) = uVar5;
+          (&LEA_perf_struct_A_dword)[uVar10 * 3] = uVar6;
         }
       }
     }
@@ -24051,29 +23945,30 @@ void perf_stats_update(void)
   }
   _lat_accel_abs = libc_abs((longlong)lat_accel);
   if ((((int)_lat_accel_abs < 101) || ((DAT_40001610 & 0x20) != 0)) || (engine_speed_16bit == 0)) {
-    if (DAT_400040a8 < DAT_40001c5d) {
-      DAT_400040a8 = DAT_40001c5d;
-      u16_rspeed_rpm_400040aa = engine_speed_16bit;
-      DAT_400040ac = DAT_40001c60;
-      u8_speed_kph_400040a9 = car_speed_u8;
-      DAT_400040b0 = engine_run_timer_total;
+    if (LEA_perf_struct_A_b_byte0 < DAT_40001c5d) {
+      LEA_perf_struct_A_b_byte0 = DAT_40001c5d;
+      LEA_perf_struct_A_b_word0 = engine_speed_16bit;
+      LEA_perf_struct_A_b_word1 = DAT_40001c60;
+      LEA_perf_struct_A_b_byte1 = car_speed_u8;
+      LEA_perf_struct_A_b_dword = engine_run_timer_total;
       for (i = 0; i < 2; i = i + 1) {
-        if ((&DAT_400040a8)[(i + 1) * 0xc] < (&DAT_400040a8)[(uint)i * 0xc]) {
+        if ((&LEA_perf_struct_A_b_byte0)[(i + 1) * 0xc] <
+            (&LEA_perf_struct_A_b_byte0)[(uint)i * 0xc]) {
           iVar14 = i + 1;
-          uVar4 = *(undefined4 *)(&DAT_400040a8 + iVar14 * 0xc);
-          uVar5 = *(undefined4 *)(&DAT_400040ac + iVar14 * 6);
-          uVar6 = (&DAT_400040b0)[iVar14 * 3];
+          uVar4 = *(undefined4 *)(&LEA_perf_struct_A_b_byte0 + iVar14 * 0xc);
+          uVar5 = *(undefined4 *)(&LEA_perf_struct_A_b_word1 + iVar14 * 6);
+          uVar6 = (&LEA_perf_struct_A_b_dword)[iVar14 * 3];
           uVar10 = (uint)i;
           iVar14 = i + 1;
-          uVar7 = *(undefined4 *)(&DAT_400040ac + uVar10 * 6);
-          *(undefined4 *)(&DAT_400040a8 + iVar14 * 0xc) =
-               *(undefined4 *)(&DAT_400040a8 + uVar10 * 0xc);
-          *(undefined4 *)(&DAT_400040ac + iVar14 * 6) = uVar7;
-          (&DAT_400040b0)[iVar14 * 3] = (&DAT_400040b0)[uVar10 * 3];
+          uVar7 = *(undefined4 *)(&LEA_perf_struct_A_b_word1 + uVar10 * 6);
+          *(undefined4 *)(&LEA_perf_struct_A_b_byte0 + iVar14 * 0xc) =
+               *(undefined4 *)(&LEA_perf_struct_A_b_byte0 + uVar10 * 0xc);
+          *(undefined4 *)(&LEA_perf_struct_A_b_word1 + iVar14 * 6) = uVar7;
+          (&LEA_perf_struct_A_b_dword)[iVar14 * 3] = (&LEA_perf_struct_A_b_dword)[uVar10 * 3];
           uVar10 = (uint)i;
-          *(undefined4 *)(&DAT_400040a8 + uVar10 * 0xc) = uVar4;
-          *(undefined4 *)(&DAT_400040ac + uVar10 * 6) = uVar5;
-          (&DAT_400040b0)[uVar10 * 3] = uVar6;
+          *(undefined4 *)(&LEA_perf_struct_A_b_byte0 + uVar10 * 0xc) = uVar4;
+          *(undefined4 *)(&LEA_perf_struct_A_b_word1 + uVar10 * 6) = uVar5;
+          (&LEA_perf_struct_A_b_dword)[uVar10 * 3] = uVar6;
         }
       }
     }
@@ -24117,8 +24012,8 @@ void obd_ii_update_states(void)
        (0x62 < (ushort)(ecu_run_timer - 0x97))) {
       uVar7 = obd_ii_montior_passes_bitfield | 8;
     }
-    else if ((obd_ii_MIL_flags_unknown & 1) != 0) {
-      obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xfffe;
+    else if ((obd_monitor_task_scheduler_token & 1) != 0) {
+      obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xfffe;
       DAT_40001c7c = DAT_40001c7c + 1;
       if (4 < DAT_40001c7c) {
         DAT_40001c7c = 0;
@@ -24134,8 +24029,8 @@ void obd_ii_update_states(void)
     else if ((obd_ii_montior_passes_bitfield & 4) == 0) {
       uVar7 = obd_ii_montior_passes_bitfield & 0xfff7;
     }
-    else if ((obd_ii_MIL_flags_unknown & 1) != 0) {
-      obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xfffe;
+    else if ((obd_monitor_task_scheduler_token & 1) != 0) {
+      obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xfffe;
       DAT_40001c7c = DAT_40001c7c + 1;
       if ((0x1c < DAT_40001c7c) && (uVar7 = obd_ii_montior_passes_bitfield | 8, 0x1d < DAT_40001c7c)
          ) {
@@ -24144,8 +24039,8 @@ void obd_ii_update_states(void)
       }
     }
   }
-  else if ((obd_ii_MIL_flags_unknown & 1) != 0) {
-    obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xfffe;
+  else if ((obd_monitor_task_scheduler_token & 1) != 0) {
+    obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xfffe;
     DAT_40001c7c = DAT_40001c7c + 1;
     if (4 < DAT_40001c7c) {
       DAT_40001c7c = 0;
@@ -24170,7 +24065,7 @@ void obd_ii_update_states(void)
     if (((int)(uint)CAL_obd_ii_coolant_warmup_thresholds[0] <
          (int)((uint)coolant_temp - (uint)coolant_temp_engine_stopped)) &&
        (CAL_obd_ii_coolant_warmup_thresholds[1] < coolant_temp)) {
-      DAT_40001c75 = 1;
+      obd_warmup_ready = 1;
       paddle_shift_flags = paddle_shift_flags | 0x20;
       if ((obd_ii_warmups_since_code_cleared != 0xff) && (DAT_40001c86 == '\0')) {
         obd_ii_warmups_since_code_cleared = obd_ii_warmups_since_code_cleared + '\x01';
@@ -24201,19 +24096,19 @@ void obd_ii_update_states(void)
     }
     uVar4 = 1;
     if (engine_is_running == false) {
-      uVar4 = DAT_40001c74;
+      uVar4 = engine_has_run;
     }
-    DAT_40001c74 = uVar4;
+    engine_has_run = uVar4;
     misfire_detection_update();
     obd_ii_cat_efficiency_eval();
     obd_ii_evaluate_fuel_trim_monitors();
     obd_ii_o2_slow_response_monitor();
-    if ((obd_ii_MIL_flags_unknown & 2) == 0) {
-      if ((obd_ii_MIL_flags_unknown & 4) == 0) {
-        if ((obd_ii_MIL_flags_unknown & 8) == 0) {
-          if ((obd_ii_MIL_flags_unknown & 0x10) == 0) {
-            if ((obd_ii_MIL_flags_unknown & 0x40) != 0) {
-              obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xffbf;
+    if ((obd_monitor_task_scheduler_token & 2) == 0) {
+      if ((obd_monitor_task_scheduler_token & 4) == 0) {
+        if ((obd_monitor_task_scheduler_token & 8) == 0) {
+          if ((obd_monitor_task_scheduler_token & 0x10) == 0) {
+            if ((obd_monitor_task_scheduler_token & 0x40) != 0) {
+              obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xffbf;
               if ((obd_ii_montior_passes_bitfield & 1) == 0) {
                 obd_ii_montior_passes_bitfield = obd_ii_montior_passes_bitfield & 0xffef;
               }
@@ -24246,10 +24141,10 @@ void obd_ii_update_states(void)
             }
           }
           else {
-            obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xffef;
+            obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xffef;
             perf_stats_update();
             obd_ii_module_coding_vin_monitors_update();
-            obd_ii_evap_montior();
+            obd_ii_evap_monitor();
             obd_ii_vvt_cam_timing_monitors_update();
             obd_ii_accel_pedal_monitors();
             obd_ii_tps_and_airflow_plausibility_monitor();
@@ -24260,7 +24155,7 @@ void obd_ii_update_states(void)
           }
         }
         else {
-          obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xfff7;
+          obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xfff7;
           obd_ii_o2_no_activity_monitor();
           obd_ii_update_speed_and_timing_sensor_monitors();
           obd_ii_idle_speed_control_monitor();
@@ -24271,12 +24166,12 @@ void obd_ii_update_states(void)
         }
       }
       else {
-        obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xfffb;
+        obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xfffb;
         obd_ii_evaluate_electrical_circuit_monitors();
       }
     }
     else {
-      obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xfffd;
+      obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xfffd;
       obd_ii_monitor_completion_update();
       if (engine_is_running != false) {
         sVar3 = DAT_40001c8a + -1;
@@ -24294,9 +24189,9 @@ void obd_ii_update_states(void)
         }
         DAT_40001c8a = sVar3;
         if (((DAT_40001c88 == 0) || ((engine_operating_state_flags & 1) == 0)) ||
-           ((DAT_4000cbb1 < car_speed_u8 && (DAT_4000cbae <= uVar7)))) {
+           ((DAT_4000cbb1 < car_speed_u8 && (CAL_obd_ii_monitor_rpm_delta_max <= uVar7)))) {
           if (DAT_40001c88 != 0) {
-            DAT_40001c88 = DAT_4000cba8;
+            DAT_40001c88 = CAL_obd_ii_drive_cycle_idle_time;
           }
         }
         else {
@@ -24323,7 +24218,7 @@ void obd_ii_update_states(void)
         for (bVar9 = 0; bVar9 < 5; bVar9 = bVar9 + 1) {
           cVar1 = *pcVar6;
           pcVar6 = pcVar6 + 1;
-          s__400014d0[bVar9] = cVar1;
+          obd_ii_DTC_current[bVar9] = cVar1;
         }
         DAT_40001c8e = obd_ii_dtc_current[DAT_40001c7f];
         DAT_40001c70 = obd_ii_dtc_unpack(obd_ii_dtc_current[DAT_40001c7f]);
@@ -24341,7 +24236,7 @@ void obd_ii_update_states(void)
             for (bVar8 = 0; bVar8 < 5; bVar8 = bVar8 + 1) {
               cVar1 = *pcVar6;
               pcVar6 = pcVar6 + 1;
-              s__400014d8[bVar8] = cVar1;
+              obd_ii_perm_dtc[bVar8] = cVar1;
             }
             DAT_40001c92 = obd_ii_dtc_perm[(uint)DAT_40001c82 * 2];
             DAT_40001c98 = obd_ii_dtc_unpack(obd_ii_dtc_perm[(uint)DAT_40001c82 * 2]);
@@ -24349,7 +24244,7 @@ void obd_ii_update_states(void)
           }
           else {
             for (bVar8 = 0; bVar8 < 5; bVar8 = bVar8 + 1) {
-              s__400014d8[bVar8] = '\0';
+              obd_ii_perm_dtc[bVar8] = '\0';
             }
             DAT_40001c92 = 0;
             DAT_40001c98 = 0;
@@ -24373,7 +24268,7 @@ void obd_ii_update_states(void)
         for (bVar8 = 0; bVar8 < 5; bVar8 = bVar8 + 1) {
           cVar1 = *pcVar6;
           pcVar6 = pcVar6 + 1;
-          s__400014e0[bVar8] = cVar1;
+          obd_ii_DTC_confirmed[bVar8] = cVar1;
         }
         DAT_40001c90 = obd_DTC_confirmed[DAT_40001c80];
         DAT_40001c96 = obd_ii_dtc_unpack(obd_DTC_confirmed[DAT_40001c80]);
@@ -24390,7 +24285,7 @@ void obd_ii_update_states(void)
         for (bVar8 = 0; bVar8 < 5; bVar8 = bVar8 + 1) {
           cVar1 = *pcVar6;
           pcVar6 = pcVar6 + 1;
-          s__400014e8[bVar8] = cVar1;
+          obd_ii_DTC_pending[bVar8] = cVar1;
         }
         DAT_40001c94 = obd_ii_dtc_pending[DAT_40001c81];
         DAT_40001c72 = obd_ii_dtc_unpack(obd_ii_dtc_pending[DAT_40001c81]);
@@ -24412,20 +24307,21 @@ void obd_ii_check_test_point(uint param_1)
   if ((((int)lVar1 < (int)(uint)DAT_4000c9ca) &&
       (lVar1 = libc_abs((ulonglong)obd_ii_calc_engine_load -
                         (ulonglong)(byte)(&DAT_4000492e)[param_1 & 0xff]),
-      (int)lVar1 < (int)(uint)DAT_4000c9c8)) && (DAT_40001c75 == (&DAT_4000493e)[param_1 & 0xff])) {
-    if ((&DAT_40004d58)[param_1 & 0xff] == 0) {
-      DAT_40001c68 = DAT_40001c68 | (byte)(1 << (param_1 & 0x3f));
+      (int)lVar1 < (int)(uint)DAT_4000c9c8)) &&
+     (obd_warmup_ready == (&DAT_4000493e)[param_1 & 0xff])) {
+    if ((&obd_ii_similar_cond_debounce_timer)[param_1 & 0xff] == 0) {
+      obd_similar_cond_met_mask = obd_similar_cond_met_mask | (byte)(1 << (param_1 & 0x3f));
     }
   }
   else {
-    (&DAT_40004d58)[param_1 & 0xff] = DAT_4000c9cc;
+    (&obd_ii_similar_cond_debounce_timer)[param_1 & 0xff] = DAT_4000c9cc;
   }
   return;
 }
 
 
 
-void vvt_reset_cylinder_data(uint param_1)
+void obd_ii_clear_similar_conditions_entry(uint param_1)
 
 {
   u16_rspeed_1_4rpm_ARRAY_4000491a[param_1 & 0xff] = 0;
@@ -24502,9 +24398,9 @@ void obd_ii_monitor_fail_transition
       if ((*dtc_config & 0x10) == 0) {
         if ((*dtc_config & 0x20) != 0) {
           obd_ii_montior_passes_bitfield = obd_ii_montior_passes_bitfield | 0x20;
-          u16_time_100ms_40001c76 = (ushort)DAT_40008699 * 10;
+          u16_time_100ms_40001c76 = (ushort)CAL_ign_comp_coolant_engine_stopped_max * 10;
         }
-        obd_ii_add_mode08_test_dtc(dtc_00);
+        obd_ii_DTC_add_to_confirmed_list(dtc_00);
       }
       else {
         obd_ii_record_confirmed_dtc(dtc_00);
@@ -24533,7 +24429,7 @@ void obd_ii_monitor_fail_transition
             (&DAT_4000492e)[j] = obd_ii_calc_engine_load;
             (&DAT_40004934)[j] = obd_ii_maf_flow;
             (&DAT_40004924)[j] = obd_ii_engine_speed;
-            (&DAT_4000493e)[j] = DAT_40001c75;
+            (&DAT_4000493e)[j] = obd_warmup_ready;
             (&DAT_40004943)[j] = DAT_40004978;
             break;
           }
@@ -24557,9 +24453,9 @@ void obd_ii_monitor_fail_transition
         if ((*dtc_config & 0x10) == 0) {
           if ((*dtc_config & 0x20) != 0) {
             obd_ii_montior_passes_bitfield = obd_ii_montior_passes_bitfield | 0x20;
-            u16_time_100ms_40001c76 = (ushort)DAT_40008699 * 10;
+            u16_time_100ms_40001c76 = (ushort)CAL_ign_comp_coolant_engine_stopped_max * 10;
           }
-          obd_ii_add_mode08_test_dtc(dtc_00);
+          obd_ii_DTC_add_to_confirmed_list(dtc_00);
         }
         else {
           obd_ii_record_confirmed_dtc(dtc_00);
@@ -24581,7 +24477,7 @@ void obd_ii_monitor_fail_transition
             (&DAT_4000492e)[ii] = obd_ii_calc_engine_load;
             (&DAT_40004934)[ii] = obd_ii_maf_flow;
             (&DAT_40004924)[ii] = obd_ii_engine_speed;
-            (&DAT_4000493e)[ii] = DAT_40001c75;
+            (&DAT_4000493e)[ii] = obd_warmup_ready;
             (&DAT_40004943)[ii] = DAT_40004978;
             return;
           }
@@ -24617,9 +24513,9 @@ void obd_ii_monitor_fail_transition
         if ((*dtc_config & 0x10) == 0) {
           if ((*dtc_config & 0x20) != 0) {
             obd_ii_montior_passes_bitfield = obd_ii_montior_passes_bitfield | 0x20;
-            u16_time_100ms_40001c76 = (ushort)DAT_40008699 * 10;
+            u16_time_100ms_40001c76 = (ushort)CAL_ign_comp_coolant_engine_stopped_max * 10;
           }
-          obd_ii_add_mode08_test_dtc(dtc_00);
+          obd_ii_DTC_add_to_confirmed_list(dtc_00);
         }
         else {
           obd_ii_record_confirmed_dtc(dtc_00);
@@ -24651,7 +24547,7 @@ void obd_ii_monitor_fail_transition
           (&DAT_4000492e)[kk] = obd_ii_calc_engine_load;
           (&DAT_40004934)[kk] = obd_ii_maf_flow;
           (&DAT_40004924)[kk] = obd_ii_engine_speed;
-          (&DAT_4000493e)[kk] = DAT_40001c75;
+          (&DAT_4000493e)[kk] = obd_warmup_ready;
           (&DAT_40004943)[kk] = DAT_40004978;
           break;
         }
@@ -24679,9 +24575,9 @@ void obd_ii_monitor_fail_transition
       if ((*dtc_config & 0x10) == 0) {
         if ((*dtc_config & 0x20) != 0) {
           obd_ii_montior_passes_bitfield = obd_ii_montior_passes_bitfield | 0x20;
-          u16_time_100ms_40001c76 = (ushort)DAT_40008699 * 10;
+          u16_time_100ms_40001c76 = (ushort)CAL_ign_comp_coolant_engine_stopped_max * 10;
         }
-        obd_ii_add_mode08_test_dtc(dtc_00);
+        obd_ii_DTC_add_to_confirmed_list(dtc_00);
       }
       else {
         obd_ii_record_confirmed_dtc(dtc_00);
@@ -24736,9 +24632,9 @@ void obd_ii_capture_freeze_frame_data(ushort param_1,ulonglong param_2)
 
 {
   DAT_4000494a = (ushort)((param_2 & 0xffffffff) << 3) | param_1 & 7;
-  DAT_4000494c = obd_ii_engine_speed;
-  DAT_4000494e = obd_ii_maf_flow;
-  DAT_4000496c = car_speed_u8;
+  obd_ii_car_speed_freeze_frame = obd_ii_engine_speed;
+  obd_ii_maf_flow_freeze_frame = obd_ii_maf_flow;
+  obd_ii_car_speed_FF____ = car_speed_u8;
   DAT_40004950 = stft_bank1;
   DAT_40004952 = stft_bank2;
   DAT_40004954 = ltft_bank1;
@@ -24765,7 +24661,7 @@ void obd_ii_ff_set_data(void)
   uint uVar3;
   byte bVar4;
   
-  DAT_400048f2 = cl_status_bank1 & 0xff;
+  obd_FF_fuel_system_status = cl_status_bank1 & 0xff;
   DAT_400048f4 = obd_ii_calc_engine_load;
   DAT_400048f5 = obd_ii_engine_coolant_temp;
   DAT_400048f6 = obd_ii_stft_bank1;
@@ -24785,23 +24681,24 @@ void obd_ii_ff_set_data(void)
     uVar3 = 0xff;
   }
   DAT_400048fb = (undefined1)uVar3;
-  DAT_400048fc = obd_ii_engine_speed;
-  DAT_400048fe = car_speed_u8;
-  DAT_400048ff = (char)((int)obd_ii_ign_adv_per_cylinder[0] -
-                        ((int)obd_ii_ign_adv_per_cylinder[0] >> 0x1f) >> 1) + -0x80;
-  DAT_40004900 = (undefined1)((uint)iat * 0xa0 >> 8);
-  DAT_40004902 = obd_ii_maf_flow;
-  DAT_40004904 = get_tps();
-  DAT_40004906 = (undefined2)((ulonglong)runtime_since_start / 200);
-  DAT_40004908 = (undefined1)_obd_ii_commanded_evap_purge;
-  DAT_40004909 = fuel_level_pct;
-  DAT_4000490a = (undefined1)(obd_ii_atmospheric_baro / 10);
-  DAT_4000490c = sensor_adc_ecu_voltage * 0x12;
-  DAT_4000490e = obd_ii_load_abs;
+  obd_FF_engine_speed = obd_ii_engine_speed;
+  obd_FF_car_speed = car_speed_u8;
+  obd_FF_ign_advance =
+       (char)((int)obd_ii_ign_adv_per_cylinder[0] - ((int)obd_ii_ign_adv_per_cylinder[0] >> 0x1f) >>
+             1) + -0x80;
+  obd_FF_iat = (undefined1)((uint)iat * 0xa0 >> 8);
+  obd_FF_maf_flow_1 = obd_ii_maf_flow;
+  obd_FF_tps_x4 = get_tps();
+  obd_FF_runtime_since_start = (undefined2)((ulonglong)runtime_since_start / 200);
+  obd_ff_commanded_evap_purge = (undefined1)_obd_ii_commanded_evap_purge;
+  obd_FF_fuel_level = fuel_level_pct;
+  obd_FF_atmo_pressure = (undefined1)(obd_ii_atmospheric_baro / 10);
+  obd_FF_ecu_voltage = sensor_adc_ecu_voltage * 0x12;
+  obd_FF_load_abs_percentage = obd_ii_load_abs;
   uVar1 = (ulonglong)((longlong)(int)(uint)afr_commanded * 0x3394a09d9033) >> 0x20;
-  DAT_40004910 = (undefined2)
-                 ((((longlong)(int)(uint)afr_commanded * 0x8013 - uVar1 & 0xffffffff) >> 1) + uVar1
-                 >> 10);
+  obd_FF_afr_commanded =
+       (undefined2)
+       ((((longlong)(int)(uint)afr_commanded * 0x8013 - uVar1 & 0xffffffff) >> 1) + uVar1 >> 10);
   uVar3 = get_relative_tps();
   DAT_40004912 = (undefined1)uVar3;
   bVar4 = get_ambient_air_temp();
@@ -24819,31 +24716,31 @@ void obd_ii_ff_set_data(void)
 void obd_ii_dtc_process_all_mode_01(void)
 
 {
-  DAT_40001c79 = DAT_40001c74;
-  if (DAT_40001c74 == '\x01') {
+  DAT_40001c79 = engine_has_run;
+  if (engine_has_run == '\x01') {
     DAT_40004978 = DAT_40004978 + '\x01';
   }
   if (DAT_4000c9c6 <= obd_ii_monitors_completed_this_drive_cycle) {
     DAT_40004948 = DAT_40004948 + '\x01';
     DAT_40001c7b = 1;
   }
-  obd_ii_init_sensor_voltage_diagnostics();
-  obd_ii_init_injector_fan_diagnostics();
+  obd_ii_dtc_update_sensor_circuits();
+  obd_ii_dtc_update_actuator_circuits();
   obd_ii_init_catalyst_efficiency_diagnostics();
-  obd_ii_init_fuel_trim_diagnostics();
-  obd_ii_init_o2_sensor_diagnostics();
-  obd_ii_init_crank_cam_diagnostics();
-  obd_ii_init_idle_diagnostics();
-  obd_ii_init_misfire_and_ignition_dtc_monitoring();
-  obd_ii_init_ecu_internal_monitors();
-  obd_ii_init_fuel_evap_sensor_diagnostics();
-  obd_ii_init_thermostat_monitor();
-  obd_ii_init_vvt_timing_dtc_monitoring();
-  obd_ii_init_evap_leak_monitors();
-  obd_ii_init_evap_purge_codes();
-  obd_ii_init_pedal_and_throttle_dtc_monitoring();
-  obd_ii_init_codes_tps_and_various();
-  obd_ii_init_ac_evap_diagnostics();
+  obd_ii_dtc_update_fuel_system();
+  obd_ii_dtc_update_o2_response();
+  obd_ii_dtc_update_crank_cam_vss();
+  obd_ii_dtc_update_idle_control();
+  obd_ii_dtc_update_misfire();
+  obd_ii_dtc_update_ecu_and_knock();
+  obd_ii_dtc_update_fuel_level_evap_sensor();
+  obd_ii_dtc_update_thermostat();
+  obd_ii_dtc_update_cam_timing();
+  obd_ii_dtc_update_evap_leak();
+  obd_ii_dtc_update_evap_purge_vent();
+  obd_ii_dtc_update_accel_pedal();
+  obd_ii_dtc_update_throttle();
+  obd_ii_dtc_update_ac();
   obd_ii_init_can_network_monitors();
   obd_ii_init_fuel_pump_relay_monitor();
   obd_ii_dtc_process_trans_fluid_temp();
@@ -24881,35 +24778,38 @@ void obd_ii_set_active_code_and_FF
       }
     }
     if ((uVar4 != 0) && ((*lea_flags & 0x10) != 0)) {
-      if ((uint)DAT_4000c9c7 + (uint)(byte)(&DAT_40004943)[uVar6 & 0xff] < 0x100) {
-        if (((uint)DAT_4000c9c7 + (uint)(byte)(&DAT_40004943)[uVar6 & 0xff] < (uint)DAT_40004978) &&
-           (*lea_flags = *lea_flags & 0xef, (*lea_flags & 1) == 0)) {
-          vvt_reset_cylinder_data(uVar6 & 0xff);
+      if ((uint)CAL_obd_ii_similar_cond_load_window + (uint)(byte)(&DAT_40004943)[uVar6 & 0xff] <
+          0x100) {
+        if (((uint)CAL_obd_ii_similar_cond_load_window + (uint)(byte)(&DAT_40004943)[uVar6 & 0xff] <
+             (uint)DAT_40004978) && (*lea_flags = *lea_flags & 0xef, (*lea_flags & 1) == 0)) {
+          obd_ii_clear_similar_conditions_entry(uVar6 & 0xff);
         }
       }
-      else if (((DAT_40004978 <= DAT_4000c9c7) &&
-               (((uint)DAT_4000c9c7 + (uint)(byte)(&DAT_40004943)[uVar6 & 0xff]) - 0xff <
-                (uint)DAT_40004978)) && (*lea_flags = *lea_flags & 0xef, (*lea_flags & 1) == 0)) {
-        vvt_reset_cylinder_data(uVar6 & 0xff);
+      else if (((DAT_40004978 <= CAL_obd_ii_similar_cond_load_window) &&
+               (((uint)CAL_obd_ii_similar_cond_load_window +
+                (uint)(byte)(&DAT_40004943)[uVar6 & 0xff]) - 0xff < (uint)DAT_40004978)) &&
+              (*lea_flags = *lea_flags & 0xef, (*lea_flags & 1) == 0)) {
+        obd_ii_clear_similar_conditions_entry(uVar6 & 0xff);
       }
     }
     if (((((*lea_flags & 8) != 0) && ((*lea_flags & 4) == 0)) &&
-        ((uVar4 == 0 || ((((uint)DAT_40001c68 & 1 << (uVar6 & 0x3f)) != 0 && (uVar4 != 0)))))) &&
+        ((uVar4 == 0 ||
+         ((((uint)obd_similar_cond_met_mask & 1 << (uVar6 & 0x3f)) != 0 && (uVar4 != 0)))))) &&
        (bVar1 = *param_3, *param_3 = bVar1 + 1, 2 < (byte)(bVar1 + 1))) {
       if ((bVar3) && ((*lea_flags & 1) != 0)) {
         obd_ii_dtc_perm[(uint)bVar5 * 2] = 0;
       }
       *lea_flags = *lea_flags & 0xfe;
       if (uVar4 != 0) {
-        vvt_reset_cylinder_data(uVar6 & 0xff);
+        obd_ii_clear_similar_conditions_entry(uVar6 & 0xff);
       }
     }
   }
-  if (((((DAT_40001c75 != '\0') && ((*lea_flags & 8) != 0)) && ((*lea_flags & 4) == 0)) &&
+  if (((((obd_warmup_ready != '\0') && ((*lea_flags & 8) != 0)) && ((*lea_flags & 4) == 0)) &&
       ((*param_4 = *param_4 + 1, DAT_4000ca12 <= *param_4 && ((*lea_flags & 2) != 0)))) &&
      (((*lea_flags & 1) == 0 && (*lea_flags = *lea_flags & 0xfd, obd_ii_DTC_causing_FF == uVar2))))
   {
-    DAT_400048f2 = 0;
+    obd_FF_fuel_system_status = 0;
     DAT_400048f4 = 0;
     DAT_400048f5 = 0;
     DAT_400048f6 = 0;
@@ -24918,19 +24818,19 @@ void obd_ii_set_active_code_and_FF
     DAT_400048f9 = 0;
     DAT_400048fa = 0;
     DAT_400048fb = 0;
-    DAT_400048fc = 0;
-    DAT_400048fe = 0;
-    DAT_400048ff = 0;
-    DAT_40004900 = 0;
-    DAT_40004902 = 0;
-    DAT_40004904 = 0;
-    DAT_40004906 = 0;
-    DAT_40004908 = 0;
-    DAT_40004909 = 0;
-    DAT_4000490a = 0;
-    DAT_4000490c = 0;
-    DAT_4000490e = 0;
-    DAT_40004910 = 0;
+    obd_FF_engine_speed = 0;
+    obd_FF_car_speed = 0;
+    obd_FF_ign_advance = 0;
+    obd_FF_iat = 0;
+    obd_FF_maf_flow_1 = 0;
+    obd_FF_tps_x4 = 0;
+    obd_FF_runtime_since_start = 0;
+    obd_ff_commanded_evap_purge = 0;
+    obd_FF_fuel_level = 0;
+    obd_FF_atmo_pressure = 0;
+    obd_FF_ecu_voltage = 0;
+    obd_FF_load_abs_percentage = 0;
+    obd_FF_afr_commanded = 0;
     DAT_40004912 = 0;
     DAT_40004913 = 0;
     DAT_40004914 = 0;
@@ -24952,10 +24852,10 @@ void obd_ii_set_active_code_and_FF
               uVar4 = 0;
             }
             if (((((((*lea_flags & 8) != 0) && ((*lea_flags & 4) == 0)) && (uVar4 != 0)) &&
-                 (((uint)DAT_40001c68 & 1 << (uVar6 & 0x3f)) != 0)) || (uVar4 == 0)) &&
+                 (((uint)obd_similar_cond_met_mask & 1 << (uVar6 & 0x3f)) != 0)) || (uVar4 == 0)) &&
                (*lea_flags = *lea_flags & 0xef, (uVar4 & (uint)LZCOUNT(*lea_flags & 1) >> 5) != 0))
             {
-              vvt_reset_cylinder_data(uVar6 & 0xff);
+              obd_ii_clear_similar_conditions_entry(uVar6 & 0xff);
             }
           }
           else {
@@ -25010,7 +24910,7 @@ undefined8 obd_set_dtc_processing(void)
     uVar1 = 0;
     break;
   case '\x03':
-    obd_ii_init_runtime_variables_from_cal();
+    obd_set_actuator_circuit_dtc();
     obd_ii_dtc_state = obd_ii_dtc_state + '\x01';
     uVar1 = 0;
     break;
@@ -25030,7 +24930,7 @@ undefined8 obd_set_dtc_processing(void)
     uVar1 = 0;
     break;
   case '\a':
-    obd_ii_init_vvt_failures();
+    obd_ii_set_crank_cam_vss_dtcs();
     obd_ii_dtc_state = obd_ii_dtc_state + '\x01';
     uVar1 = 0;
     break;
@@ -25121,7 +25021,7 @@ undefined8 obd_set_dtc_processing(void)
     break;
   case '\x19':
     if ((obd_ii_montior_passes_bitfield & 0x20) != 0) {
-      u16_time_100ms_40001c76 = (ushort)DAT_40008699 * 10;
+      u16_time_100ms_40001c76 = (ushort)CAL_ign_comp_coolant_engine_stopped_max * 10;
     }
     obd_ii_dtc_state = obd_ii_dtc_state + '\x01';
     uVar1 = 0;
@@ -25161,7 +25061,7 @@ void obdii_update_dtc_state(byte *param_1,byte *param_2,ushort param_3,ulonglong
     if ((*param_2 & 2) != 0) {
       *param_2 = *param_2 | 0x80;
       if ((*param_1 & 0x10) == 0) {
-        obd_ii_add_mode08_test_dtc(uVar1);
+        obd_ii_DTC_add_to_confirmed_list(uVar1);
       }
       else {
         obd_ii_record_confirmed_dtc(uVar1);
@@ -25251,7 +25151,7 @@ ulonglong obd_ii_dtc_unpack(uint param_1)
 void obd_ii_init_timers(void)
 
 {
-  DAT_40001c88 = DAT_4000cba8;
+  DAT_40001c88 = CAL_obd_ii_drive_cycle_idle_time;
   DAT_40001c8a = DAT_4000cbaa;
   DAT_40001c8c = DAT_4000cbac;
   return;
@@ -25321,7 +25221,7 @@ void o2_sensor_fault_detection(uint param_1,byte param_2)
 
 
 
-void FUN_0006a9d8(void)
+void obd_reset_sensor_rationality_monitors(void)
 
 {
   int iVar1;
@@ -25394,7 +25294,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2135,&LEA_obd_ii_P2135_dtc_state,&LEA_obd_ii_P2135_fail_counter,
                  &LEA_obd_ii_P2135_pass_counter,0x2135,0);
-      DAT_40001cbf = '\0';
+      obd_P2135_not_failed = '\0';
     }
   }
   if ((CAL_obd_ii_P0122 & 7) != 0) {
@@ -25448,7 +25348,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     obd_ii_monitor_fail_transition
               (&CAL_obd_ii_P2119,&LEA_obd_ii_P2119_dtc_state,&LEA_obd_ii_P2119_fail_counter,
                &LEA_obd_ii_P2119_pass_counter,0x2119,0);
-    DAT_40001cbd = '\0';
+    obd_P2119_not_failed = '\0';
   }
   if ((((((CAL_obd_ii_P2173 & 7) == 0) || (engine_is_running == false)) || (DAT_40002231 == '\0'))
       || ((DAT_40002232 == '\0' || (DAT_40002244 == '\0')))) || (DAT_40002245 == '\0')) {
@@ -25464,8 +25364,8 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     DAT_40001cd4 = (ushort)bVar1 << 1;
     if ((DAT_40001cd8 < (int)((uint)bVar1 << 1)) || (DAT_40001cdc < (int)((uint)bVar1 << 1))) {
       if (DAT_40001ccc == 0) {
-        if (DAT_40001cbe < DAT_4000d41c) {
-          DAT_40001cbe = DAT_40001cbe + 1;
+        if (obd_P2173_fail_countdown_ < DAT_4000d41c) {
+          obd_P2173_fail_countdown_ = obd_P2173_fail_countdown_ + 1;
           DAT_40001ccc = DAT_4000ca88;
         }
         else {
@@ -25479,8 +25379,9 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     else {
       DAT_40001ccc = DAT_40001ccc + 1;
       if ((((int)(uint)DAT_4000ca88 <= (int)(short)DAT_40001ccc) &&
-          (DAT_40001ccc = 0, DAT_40001cbe != 0)) &&
-         (DAT_40001cbe = DAT_40001cbe - 1, DAT_40001cbe == 0)) {
+          (DAT_40001ccc = 0, obd_P2173_fail_countdown_ != 0)) &&
+         (obd_P2173_fail_countdown_ = obd_P2173_fail_countdown_ - 1, obd_P2173_fail_countdown_ == 0)
+         ) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2173,&LEA_obd_ii_P2173_dtc_state,&LEA_obd_ii_P2173_fail_counter,
                    &LEA_obd_ii_P2173_pass_counter,0x2173,0);
@@ -25547,7 +25448,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2107,&LEA_obd_ii_P2107_dtc_state,&LEA_obd_ii_P2107_fail_counter,
                    &LEA_obd_ii_P2107_pass_counter,0x2107,0);
-        DAT_40001cc9 = 1;
+        etb_module_fault_latched = 1;
       }
     }
   }
@@ -25566,8 +25467,8 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
   if (((DAT_40001cc5 != '\0') && (DAT_40001cc6 != '\0')) &&
      ((DAT_40001cc7 != '\0' && (DAT_40001cc8 != '\0')))) {
     if ((CAL_obd_ii_P2100 & 7) != 0) {
-      if (((tps_error_flags_snapshot & 0x10) == 0) ||
-         (struct_tps_shaping_flags_40007fe8.state != TS_CONFIRMED_FAULT)) {
+      if (((etb_driver_diag_latched & 0x10) == 0) ||
+         (etb_driver_fault_debounce.state != TS_CONFIRMED_FAULT)) {
         obd_ii_monitor_pass(&CAL_obd_ii_P2100,&LEA_obd_ii_P2100_dtc_state);
       }
       else {
@@ -25578,8 +25479,8 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       }
     }
     if ((CAL_obd_ii_P2102 & 7) != 0) {
-      if (((tps_error_flags_snapshot & 8) == 0) ||
-         (struct_tps_shaping_flags_40007fe8.state != TS_CONFIRMED_FAULT)) {
+      if (((etb_driver_diag_latched & 8) == 0) ||
+         (etb_driver_fault_debounce.state != TS_CONFIRMED_FAULT)) {
         obd_ii_monitor_pass(&CAL_obd_ii_P2102,&LEA_obd_ii_P2102_dtc_state);
       }
       else {
@@ -25590,8 +25491,8 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       }
     }
     if ((CAL_obd_ii_P2103 & 7) != 0) {
-      if (((tps_error_flags_snapshot & 4) == 0) ||
-         (struct_tps_shaping_flags_40007fe8.state != TS_CONFIRMED_FAULT)) {
+      if (((etb_driver_diag_latched & 4) == 0) ||
+         (etb_driver_fault_debounce.state != TS_CONFIRMED_FAULT)) {
         obd_ii_monitor_pass(&CAL_obd_ii_P2103,&LEA_obd_ii_P2103_dtc_state);
       }
       else {
@@ -25602,8 +25503,8 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       }
     }
     if ((CAL_obd_ii_P2108 & 7) != 0) {
-      if (((tps_error_flags_snapshot & 1) == 0) ||
-         (struct_tps_shaping_flags_40007fe8.state != TS_CONFIRMED_FAULT)) {
+      if (((etb_driver_diag_latched & 1) == 0) ||
+         (etb_driver_fault_debounce.state != TS_CONFIRMED_FAULT)) {
         obd_ii_monitor_pass(&CAL_obd_ii_P2108,&LEA_obd_ii_P2108_dtc_state);
       }
       else {
@@ -25615,23 +25516,25 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     }
   }
   if ((hc08_obd_flags & 0x10) == 0) {
-    DAT_40001cd2 = 0;
+    hc08_sf_mode_duration = 0;
   }
   else {
-    if ((DAT_40001cd2 != 0xffff) && (DAT_400048a8 < DAT_40001cd2)) {
-      DAT_400048a8 = DAT_40001cd2;
+    if ((hc08_sf_mode_duration != 0xffff) && (LEA_hc08_sf_mode_max_duration < hc08_sf_mode_duration)
+       ) {
+      LEA_hc08_sf_mode_max_duration = hc08_sf_mode_duration;
     }
-    if ((DAT_40001cd2 == 0) && (DAT_400048a6 != -1)) {
-      DAT_400048a6 = DAT_400048a6 + '\x01';
+    if ((hc08_sf_mode_duration == 0) && (LEA_hc08_sf_mode_event_count != -1)) {
+      LEA_hc08_sf_mode_event_count = LEA_hc08_sf_mode_event_count + '\x01';
     }
-    DAT_40001cd2 = DAT_40001cd2 + 1;
+    hc08_sf_mode_duration = hc08_sf_mode_duration + 1;
   }
-  if ((((DAT_40001cbf == '\0') || (latch_counter_p0122 == '\0')) || (latch_counter_p0123 == '\0'))
-     || ((latch_counter_p0222 == '\0' || (latch_counter_p0223 == '\0')))) {
+  if ((((obd_P2135_not_failed == '\0') || (latch_counter_p0122 == '\0')) ||
+      (latch_counter_p0123 == '\0')) ||
+     ((latch_counter_p0222 == '\0' || (latch_counter_p0223 == '\0')))) {
     engine_state_failure_flags = engine_state_failure_flags | 4;
   }
-  if (((DAT_40001cbd == '\0') || (obd_ii_throttle_monitor_pass_counter == '\0')) ||
-     (DAT_40001cbe == 0)) {
+  if (((obd_P2119_not_failed == '\0') || (obd_ii_throttle_monitor_pass_counter == '\0')) ||
+     (obd_P2173_fail_countdown_ == 0)) {
     engine_state_failure_flags = engine_state_failure_flags | 0x10000;
   }
   return;
@@ -25792,9 +25695,9 @@ void obd_ii_update_tps_and_throttle_dtcs(void)
   obd_ii_throttle_monitor_pass_counter = CAL_tps_obd_throttle_monitor_pass_threshold;
   obd_ii_throttle_monitor_fail_debounce = 0;
   DAT_40001cd0 = DAT_4000d3e6;
-  DAT_40001cbd = DAT_4000d418;
-  DAT_40001cbe = DAT_4000d41c;
-  DAT_40001cbf = DAT_4000d3f0;
+  obd_P2119_not_failed = DAT_4000d418;
+  obd_P2173_fail_countdown_ = DAT_4000d41c;
+  obd_P2135_not_failed = DAT_4000d3f0;
   DAT_40001cc0 = DAT_4000d41d;
   DAT_40001cc1 = DAT_4000d404;
   DAT_40001cc2 = DAT_4000d41e;
@@ -25827,7 +25730,10 @@ void obd_ii_update_tps_and_throttle_dtcs(void)
 
 
 
-void obd_ii_init_codes_tps_and_various(void)
+// Mode 01 DTC status update: throttle / ETB (P0122/3, P0222/3, P0638, P2100-P2108, P2119, P2135,
+// P2173, P1104, P1106).
+
+void obd_ii_dtc_update_throttle(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -25894,70 +25800,71 @@ void obd_ii_evap_leak_detection_monitor(void)
 {
   uint uVar1;
   
-  if ((((((DAT_40001e6c & 0x20000) == 0) && ((CAL_obd_ii_P0441 & 7) != 0)) &&
+  if ((((((evap_system_state_flags & 0x20000) == 0) && ((CAL_obd_ii_P0441 & 7) != 0)) &&
        ((LEA_obd_ii_P0441_dtc_state & 4) == 0)) &&
       ((((LEA_obd_ii_P0444_dtc_state & 4) == 0 && ((LEA_obd_ii_P0445_dtc_state & 4) == 0)) &&
        (((uint)DAT_4000c9e2 * 0x14 < runtime_since_start &&
-        (((DAT_4000216a & 2) == 0 && (_obd_ii_commanded_evap_purge == 0)))))))) &&
+        (((evap_purge_flags & 2) == 0 && (_obd_ii_commanded_evap_purge == 0)))))))) &&
      (((cl_state_flags_bank1 & 0x400) == 0 &&
-      (((cl_state_flags_bank2 & 0x400) == 0 && ((DAT_40001e6c & 0x10) == 0)))))) {
-    DAT_40001ce8 = 1;
+      (((cl_state_flags_bank2 & 0x400) == 0 && ((evap_system_state_flags & 0x10) == 0)))))) {
+    evap_vent_valve_closed = 1;
     siu_gpdo[0xc3] = '\x01';
     if (DAT_40001cf1 == '\0') {
       DAT_40001cf1 = DAT_4000c9e4;
-      uVar1 = DAT_40001e6c & 0xfffaffff | 0x20000;
+      uVar1 = evap_system_state_flags & 0xfffaffff | 0x20000;
     }
     else {
       DAT_40001cf1 = DAT_40001cf1 + -1;
-      uVar1 = DAT_40001e6c | 0x40000;
+      uVar1 = evap_system_state_flags | 0x40000;
       if ((int)obd_ii_evap_purge_pressure < (int)-(uint)DAT_4000c9e3) {
         DAT_40001cf1 = DAT_4000c9e4;
-        uVar1 = (DAT_40001e6c | 0x70000) & 0xfffbffff;
+        uVar1 = (evap_system_state_flags | 0x70000) & 0xfffbffff;
       }
     }
   }
   else {
     DAT_40001cf1 = DAT_4000c9e4;
-    uVar1 = DAT_40001e6c & 0xfffbffff;
+    uVar1 = evap_system_state_flags & 0xfffbffff;
   }
-  DAT_40001e6c = uVar1;
-  if ((DAT_40002182 < DAT_4000cb00) || (_obd_ii_commanded_evap_purge < DAT_4000caf6)) {
-    evap_purge_flow_state_timer = DAT_4000cafc;
+  evap_system_state_flags = uVar1;
+  if ((evap_purge_vacuum_filtered < CAL_evap_purge_vacuum_min) ||
+     (_obd_ii_commanded_evap_purge < CAL_obd_ii_commanded_evap_purge_threshold)) {
+    evap_purge_flow_state_timer = CAL_evap_purge_flow_state_timer_init;
     DAT_40001cef = '\0';
     DAT_40001cee = '\0';
   }
-  else if ((int)DAT_400023a0 < -(int)DAT_4000caf8) {
+  else if ((int)DAT_400023a0 < -(int)CAL_evap_tank_vacuum_flow_threshold) {
     if (DAT_40001cee == '\x04') {
       if (evap_purge_flow_state_timer == '\0') {
         DAT_40001cef = '\x04';
       }
     }
     else {
-      evap_purge_flow_state_timer = DAT_4000cafc;
+      evap_purge_flow_state_timer = CAL_evap_purge_flow_state_timer_init;
       DAT_40001cef = '\0';
       DAT_40001cee = '\x04';
     }
   }
-  else if ((int)DAT_400023a0 < -(int)DAT_4000cafa) {
+  else if ((int)DAT_400023a0 < -(int)CAL_evap_system_state_flags_param) {
     if (DAT_40001cee == '\x03') {
       if (evap_purge_flow_state_timer == '\0') {
         DAT_40001cef = '\x03';
       }
     }
     else {
-      evap_purge_flow_state_timer = DAT_4000cafc;
+      evap_purge_flow_state_timer = CAL_evap_purge_flow_state_timer_init;
       DAT_40001cef = '\0';
       DAT_40001cee = '\x03';
     }
   }
-  else if (-(int)DAT_4000cb08 < (int)DAT_400023a0) {
+  else if (-(int)CAL_evap_purge_flow_vacuum_min < (int)DAT_400023a0) {
     if (DAT_40001cee == '\x01') {
       if (evap_purge_flow_state_timer == '\0') {
         DAT_40001cef = '\x01';
       }
     }
     else {
-      evap_purge_flow_state_timer = DAT_4000cafc;
+      evap_purge_flow_state_timer = CAL_evap_purge_flow_state_timer_init;
       DAT_40001cef = '\0';
       DAT_40001cee = '\x01';
     }
@@ -25968,78 +25875,79 @@ void obd_ii_evap_leak_detection_monitor(void)
     }
   }
   else {
-    evap_purge_flow_state_timer = DAT_4000cafc;
+    evap_purge_flow_state_timer = CAL_evap_purge_flow_state_timer_init;
     DAT_40001cef = '\0';
     DAT_40001cee = '\x02';
   }
-  if (((((DAT_4000216a & 0x200) == 0) || ((LEA_obd_ii_P0455_dtc_state & 8) != 0)) ||
-      ((DAT_40001e6c & 0x2000) != 0)) && ((DAT_40001e6c & 0x40) == 0)) {
-    uVar1 = DAT_40001e6c & 0xffffefff;
+  if (((((evap_purge_flags & 0x200) == 0) || ((LEA_obd_ii_P0455_dtc_state & 8) != 0)) ||
+      ((evap_system_state_flags & 0x2000) != 0)) && ((evap_system_state_flags & 0x40) == 0)) {
+    uVar1 = evap_system_state_flags & 0xffffefff;
   }
   else {
-    uVar1 = DAT_40001e6c | 0x1000;
+    uVar1 = evap_system_state_flags | 0x1000;
     if (DAT_40001cef == '\x03') {
-      if ((DAT_40001e6c & 0x40) != 0) {
-        if ((DAT_40001e6c & 0x80) == 0) {
-          uVar1 = DAT_40001e6c | 0x5000;
+      if ((evap_system_state_flags & 0x40) != 0) {
+        if ((evap_system_state_flags & 0x80) == 0) {
+          uVar1 = evap_system_state_flags | 0x5000;
         }
         uVar1 = uVar1 & 0xffffffbf;
       }
-      DAT_40001e6c = uVar1;
+      evap_system_state_flags = uVar1;
       obd_ii_monitor_pass(&CAL_obd_ii_P0455,&LEA_obd_ii_P0455_dtc_state);
       obd_ii_monitor_pass(&CAL_obd_ii_P0441,&LEA_obd_ii_P0441_dtc_state);
-      uVar1 = DAT_40001e6c;
+      uVar1 = evap_system_state_flags;
     }
     else if ((byte)(DAT_40001cef - 1U) < 2) {
-      if ((DAT_40001e6c & 0x40) == 0) {
-        uVar1 = DAT_40001e6c | 0x3000;
+      if ((evap_system_state_flags & 0x40) == 0) {
+        uVar1 = evap_system_state_flags | 0x3000;
       }
       else {
-        if (((DAT_40001e6c & 0x80) == 0) || (DAT_40001cef != '\x01')) {
-          DAT_40001e6c = DAT_40001e6c | 0x3000;
+        if (((evap_system_state_flags & 0x80) == 0) || (DAT_40001cef != '\x01')) {
+          evap_system_state_flags = evap_system_state_flags | 0x3000;
           if (1 < (byte)(DAT_40001cef - 1U)) {
-            DAT_40001e6c = uVar1;
+            evap_system_state_flags = uVar1;
           }
         }
         else {
-          DAT_40001e6c = DAT_40001e6c | 0x1100;
+          evap_system_state_flags = evap_system_state_flags | 0x1100;
         }
-        uVar1 = DAT_40001e6c & 0xffffffbf;
+        uVar1 = evap_system_state_flags & 0xffffffbf;
       }
     }
   }
-  DAT_40001e6c = uVar1;
-  if ((((DAT_40001e6c & 0x4000) == 0) && ((DAT_40001e6c & 0x2000) == 0)) ||
-     ((DAT_40001e6c & 0x10) != 0)) {
-    if ((DAT_40001e6c & 0x8000) != 0) {
-      evap_canister_purge_solenoid_timer = DAT_4000cafd;
+  evap_system_state_flags = uVar1;
+  if ((((evap_system_state_flags & 0x4000) == 0) && ((evap_system_state_flags & 0x2000) == 0)) ||
+     ((evap_system_state_flags & 0x10) != 0)) {
+    if ((evap_system_state_flags & 0x8000) != 0) {
+      evap_canister_purge_solenoid_timer = CAL_evap_canister_purge_solenoid_timer_init;
     }
-    DAT_40001e6c = DAT_40001e6c & 0xffff7fff;
+    evap_system_state_flags = evap_system_state_flags & 0xffff7fff;
     if (evap_canister_purge_solenoid_timer == '\0') {
-      DAT_4000216a = DAT_4000216a & 0xdfff;
+      evap_purge_flags = evap_purge_flags & 0xdfff;
     }
-    DAT_40001cec = DAT_4000cafe;
+    DAT_40001cec = CAL_evap_purge_min_load;
   }
   else {
-    if ((DAT_40001e6c & 0x8000) == 0) {
-      evap_canister_purge_solenoid_timer = DAT_4000cafd;
+    if ((evap_system_state_flags & 0x8000) == 0) {
+      evap_canister_purge_solenoid_timer = CAL_evap_canister_purge_solenoid_timer_init;
     }
-    uVar1 = DAT_40001e6c | 0x8000;
-    DAT_4000216a = DAT_4000216a | 0x2000;
+    uVar1 = evap_system_state_flags | 0x8000;
+    evap_purge_flags = evap_purge_flags | 0x2000;
     if (((((car_speed_u8 == '\0') || (load_mass_per_stroke <= DAT_40001cec)) ||
          (DAT_40001cef == '\x04')) ||
-        ((DAT_40002182 < DAT_4000cb00 || (_obd_ii_commanded_evap_purge < DAT_4000caf6)))) ||
+        ((evap_purge_vacuum_filtered < CAL_evap_purge_vacuum_min ||
+         (_obd_ii_commanded_evap_purge < CAL_obd_ii_commanded_evap_purge_threshold)))) ||
        ((evap_canister_purge_solenoid_timer == '\0' && (DAT_40001cef != '\0')))) {
       if (DAT_40001cef == '\x04') {
-        uVar1 = DAT_40001e6c & 0xffff9fff | 0x8000;
+        uVar1 = evap_system_state_flags & 0xffff9fff | 0x8000;
       }
       else if ((DAT_40001cef != '\0') && (evap_canister_purge_solenoid_timer == '\0')) {
-        if ((DAT_40001e6c & 0x4000) != 0) {
-          uVar1 = DAT_40001e6c & 0xffffbfff | 0x8200;
+        if ((evap_system_state_flags & 0x4000) != 0) {
+          uVar1 = evap_system_state_flags & 0xffffbfff | 0x8200;
         }
-        DAT_40001e6c = uVar1;
-        uVar1 = DAT_40001e6c;
-        if ((DAT_40001e6c & 0x2000) != 0) {
+        evap_system_state_flags = uVar1;
+        uVar1 = evap_system_state_flags;
+        if ((evap_system_state_flags & 0x2000) != 0) {
           DAT_400049a4 = 1;
           if ((((CAL_obd_ii_P0455 & 7) != 0) && (DAT_40001e68 != '\0')) &&
              (DAT_40001e68 = DAT_40001e68 + -1, DAT_40001e68 == '\0')) {
@@ -26047,25 +25955,25 @@ void obd_ii_evap_leak_detection_monitor(void)
                       (&CAL_obd_ii_P0455,&LEA_obd_ii_P0455_dtc_state,&LEA_obd_ii_P0455_fail_counter,
                        &LEA_obd_ii_P0455_pass_counter,0x455,0);
           }
-          uVar1 = DAT_40001e6c & 0xffffdfff;
+          uVar1 = evap_system_state_flags & 0xffffdfff;
         }
       }
-      DAT_40001e6c = uVar1;
-      DAT_40001ce8 = 0;
+      evap_system_state_flags = uVar1;
+      evap_vent_valve_closed = 0;
       siu_gpdo[0xc3] = '\0';
-      evap_canister_purge_solenoid_timer = DAT_4000cafd;
-      DAT_40001cec = DAT_4000cafe;
+      evap_canister_purge_solenoid_timer = CAL_evap_canister_purge_solenoid_timer_init;
+      DAT_40001cec = CAL_evap_purge_min_load;
     }
     else {
-      DAT_40001ce8 = 1;
+      evap_vent_valve_closed = 1;
       siu_gpdo[0xc3] = '\x01';
       DAT_40001cec = DAT_4000caff;
-      DAT_40001e6c = uVar1;
+      evap_system_state_flags = uVar1;
     }
   }
   if ((CAL_obd_ii_P0441 & 7) != 0) {
-    if ((((int)DAT_40001e70 < -(int)DAT_4000cafa) || ((DAT_40001e6c & 0x100) != 0)) ||
-       ((DAT_40001e6c & 0x10000) != 0)) {
+    if ((((int)DAT_40001e70 < -(int)CAL_evap_system_state_flags_param) ||
+        ((evap_system_state_flags & 0x100) != 0)) || ((evap_system_state_flags & 0x10000) != 0)) {
       if ((DAT_40001ce9 != 0) && (DAT_40001ce9 = DAT_40001ce9 - 1, DAT_40001ce9 == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0441,&LEA_obd_ii_P0441_dtc_state,&LEA_obd_ii_P0441_fail_counter,
@@ -26086,23 +25994,23 @@ void obd_ii_evap_leak_detection_monitor(void)
     }
   }
   if ((CAL_obd_ii_P0446 & 7) != 0) {
-    if ((((int)DAT_400023a0 < -(int)DAT_4000caf8) && (DAT_40002180 == '\x01')) &&
-       ((DAT_4000216a & 0x2000) == 0)) {
+    if ((((int)DAT_400023a0 < -(int)CAL_evap_tank_vacuum_flow_threshold) && (DAT_40002180 == '\x01')
+        ) && ((evap_purge_flags & 0x2000) == 0)) {
       if (((evap_vent_control_timer == '\0') && (DAT_40001cea != 0)) &&
          (DAT_40001cea = DAT_40001cea - 1, DAT_40001cea == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state,&LEA_obd_ii_P0446_fail_counter,
                    &LEA_obd_ii_P0446_pass_counter,0x446,0);
-        DAT_40001e6c = DAT_40001e6c | 0x400;
+        evap_system_state_flags = evap_system_state_flags | 0x400;
       }
     }
     else {
-      evap_vent_control_timer = DAT_4000cafc;
-      if ((DAT_40001e6c & 0x200) == 0) {
+      evap_vent_control_timer = CAL_evap_purge_flow_state_timer_init;
+      if ((evap_system_state_flags & 0x200) == 0) {
         if (DAT_40001cea < DAT_4000d416) {
           DAT_40001cea = DAT_40001cea + 1;
         }
-        if (((((DAT_40001e6c & 0x80) != 0) || (obd_ii_system_leak_status == '\x05')) ||
+        if (((((evap_system_state_flags & 0x80) != 0) || (obd_ii_system_leak_status == '\x05')) ||
             ((short)CAL_evap_commanded_purge_unknown >> 1 < _obd_ii_commanded_evap_purge)) &&
            ((LEA_obd_ii_P0446_dtc_state & 8) == 0)) {
           obd_ii_monitor_pass(&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state);
@@ -26112,7 +26020,7 @@ void obd_ii_evap_leak_detection_monitor(void)
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state,&LEA_obd_ii_P0446_fail_counter,
                    &LEA_obd_ii_P0446_pass_counter,0x446,0);
-        DAT_40001e6c = DAT_40001e6c & 0xfffffdff;
+        evap_system_state_flags = evap_system_state_flags & 0xfffffdff;
       }
     }
   }
@@ -26159,7 +26067,9 @@ void obd_ii_init_evap_purge_diagnostics(void)
 
 
 
-void obd_ii_init_evap_purge_codes(void)
+// Mode 01 DTC status update: evap purge flow / vent control (P0441, P0446).
+
+void obd_ii_dtc_update_evap_purge_vent(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -26185,7 +26095,7 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
   if (engine_is_running) {
     if ((((inj_flags & 1) == 0) || (engine_speed_8bit < u8_rspeed_125_4_500rpm_4000ca3f)) ||
        (u8_rspeed_125_4_500rpm_4000ca9a < engine_speed_8bit)) {
-      DAT_40001d00 = DAT_4000ca38;
+      DAT_40001d00 = CAL_obd_ii_P0500_test_time;
       sVar2 = DAT_40001d00;
     }
     else {
@@ -26198,10 +26108,10 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     if (DAT_40001d00 == 0) {
       bVar1 = car_speed_flags_unknown | 2;
       car_speed_flags_unknown = car_speed_flags_unknown & 0xfd;
-      if (car_speed_u8 < u8_speed_kph_4000ca3c) {
+      if (car_speed_u8 < CAL_obd_ii_P0500_car_speed_min) {
         car_speed_flags_unknown = bVar1;
       }
-      DAT_40001d00 = DAT_4000ca38;
+      DAT_40001d00 = CAL_obd_ii_P0500_test_time;
     }
     if ((car_speed_flags_unknown & 4) == 0) {
       DAT_40001d02 = (ushort)CAL_obd_ii_monitor_debounce_cycles;
@@ -26216,7 +26126,7 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
   }
   if (((CAL_obd_ii_P0500 & 7) != 0) && (tc_enable_condition_1)) {
     if (((car_speed_flags_unknown & 2) == 0) && ((car_speed_flags_unknown & 1) == 0)) {
-      if (u8_speed_kph_4000ca3c <= car_speed_u8) {
+      if (CAL_obd_ii_P0500_car_speed_min <= car_speed_u8) {
         obd_ii_monitor_pass(&CAL_obd_ii_P0500,&LEA_obd_ii_P0500_dtc_state);
         if (DAT_40001cfd < DAT_4000d407) {
           DAT_40001cfd = DAT_40001cfd + 1;
@@ -26236,11 +26146,15 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     }
   }
   if (((CAL_obd_ii_P0335 & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
-    if ((DAT_4000ca3d < DAT_4000172e) ||
-       (((((int)((uint)DAT_4000ca3d * 4 - (uint)DAT_4000ca3d) < (int)(uint)DAT_4000172a ||
-          ((int)((uint)DAT_4000ca3d * 4 - (uint)DAT_4000ca3d) < (int)(uint)DAT_4000172b)) ||
-         ((int)((uint)DAT_4000ca3d * 4 - (uint)DAT_4000ca3d) < (int)(uint)DAT_4000172c)) ||
-        ((int)((uint)DAT_4000ca3d * 4 - (uint)DAT_4000ca3d) < (int)(uint)DAT_4000172d)))) {
+    if ((CAL_obd_ii_crank_cam_error_count_max < DAT_4000172e) ||
+       (((((int)((uint)CAL_obd_ii_crank_cam_error_count_max * 4 -
+                (uint)CAL_obd_ii_crank_cam_error_count_max) < (int)(uint)DAT_4000172a ||
+          ((int)((uint)CAL_obd_ii_crank_cam_error_count_max * 4 -
+                (uint)CAL_obd_ii_crank_cam_error_count_max) < (int)(uint)DAT_4000172b)) ||
+         ((int)((uint)CAL_obd_ii_crank_cam_error_count_max * 4 -
+               (uint)CAL_obd_ii_crank_cam_error_count_max) < (int)(uint)DAT_4000172c)) ||
+        ((int)((uint)CAL_obd_ii_crank_cam_error_count_max * 4 -
+              (uint)CAL_obd_ii_crank_cam_error_count_max) < (int)(uint)DAT_4000172d)))) {
       if ((DAT_40001cf8 != 0) && (DAT_40001cf8 = DAT_40001cf8 - 1, DAT_40001cf8 == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0335,&LEA_obd_ii_P0335_dtc_state,&LEA_obd_ii_P0335_fail_counter,
@@ -26255,8 +26169,9 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     }
   }
   if (((CAL_obd_ii_P0341 & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
-    if (((DAT_40002422 == '\0') && (vvt_start_time < runtime_since_start)) ||
-       ((DAT_4000ca3d < DAT_40001720 || (DAT_40001736 != '\0')))) {
+    if (((cam_edge_watchdog == '\0') && (vvt_start_time < runtime_since_start)) ||
+       ((CAL_obd_ii_crank_cam_error_count_max < DAT_40001720 || (cal_verification_lockout != '\0')))
+       ) {
       if ((DAT_40001cf9 != 0) && (DAT_40001cf9 = DAT_40001cf9 - 1, DAT_40001cf9 == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0341,&LEA_obd_ii_P0341_dtc_state,&LEA_obd_ii_P0341_fail_counter,
@@ -26271,8 +26186,8 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     }
   }
   if (((CAL_obd_ii_P0346 & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
-    if (((DAT_40002421 == '\0') && (vvt_start_time < runtime_since_start)) ||
-       (DAT_4000ca3d < DAT_40001720)) {
+    if (((cam_edge_watchdog_inlet_b2 == '\0') && (vvt_start_time < runtime_since_start)) ||
+       (CAL_obd_ii_crank_cam_error_count_max < DAT_40001720)) {
       if ((DAT_40001cfa != 0) && (DAT_40001cfa = DAT_40001cfa - 1, DAT_40001cfa == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0346,&LEA_obd_ii_P0346_dtc_state,&LEA_obd_ii_P0346_fail_counter,
@@ -26287,8 +26202,8 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     }
   }
   if (((CAL_obd_ii_P0366 & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
-    if (((DAT_40002420 == '\0') && (vvt_start_time < runtime_since_start)) ||
-       (DAT_4000ca3d < DAT_40001720)) {
+    if (((cam_edge_watchdog_exhaust_b1 == '\0') && (vvt_start_time < runtime_since_start)) ||
+       (CAL_obd_ii_crank_cam_error_count_max < DAT_40001720)) {
       if ((DAT_40001cfb != 0) && (DAT_40001cfb = DAT_40001cfb - 1, DAT_40001cfb == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0366,&LEA_obd_ii_P0366_dtc_state,&LEA_obd_ii_P0366_fail_counter,
@@ -26303,8 +26218,8 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     }
   }
   if (((CAL_obd_ii_P0391 & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
-    if (((DAT_4000241f == '\0') && (vvt_start_time < runtime_since_start)) ||
-       (DAT_4000ca3d < DAT_40001720)) {
+    if (((cam_edge_watchdog_exhaust_b2 == '\0') && (vvt_start_time < runtime_since_start)) ||
+       (CAL_obd_ii_crank_cam_error_count_max < DAT_40001720)) {
       if ((DAT_40001cfc != 0) && (DAT_40001cfc = DAT_40001cfc - 1, DAT_40001cfc == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0391,&LEA_obd_ii_P0391_dtc_state,&LEA_obd_ii_P0391_fail_counter,
@@ -26323,7 +26238,7 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
 
 
 
-void obd_ii_init_vvt_failures(void)
+void obd_ii_set_crank_cam_vss_dtcs(void)
 
 {
   DAT_40001cf8 = DAT_4000d405;
@@ -26332,7 +26247,7 @@ void obd_ii_init_vvt_failures(void)
   DAT_40001cfa = DAT_4000d440;
   DAT_40001cfb = DAT_4000d441;
   DAT_40001cfc = DAT_4000d442;
-  DAT_40001d00 = DAT_4000ca38;
+  DAT_40001d00 = CAL_obd_ii_P0500_test_time;
   car_speed_flags_unknown = 0;
   DAT_40001d02 = (ushort)CAL_obd_ii_monitor_debounce_cycles;
   obdii_update_dtc_state(&CAL_obd_ii_P0335,&LEA_obd_ii_P0335_dtc_state,0x335,0);
@@ -26346,7 +26261,10 @@ void obd_ii_init_vvt_failures(void)
 
 
 
-void obd_ii_init_crank_cam_diagnostics(void)
+// Mode 01 DTC status update: crank/cam position and vehicle speed (P0335, P0341, P0346, P0366,
+// P0391, P0500).
+
+void obd_ii_dtc_update_crank_cam_vss(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -26398,12 +26316,12 @@ void closedloop(void)
                             CAL_closedloop_integral_gain_table_X_rpm,
                             CAL_closedloop_integral_gain_table_Y_load,
                             CAL_closedloop_integral_gain_table);
-    cl_integral_gain = (i16_factor_1_20)bVar2;
+    cl_jump_lean = (i16_factor_1_20)bVar2;
     bVar2 = lookup_3D_uint8('\b','\b',engine_speed_8bit,load_mass_per_stroke,
                             CAL_closedloop_derivative_gain_table_X_rpm,
                             CAL_closedloop_derivative_gain_table_Y_load,
                             CAL_closedloop_derivative_gain_table);
-    cl_derivative_gain = (i16_factor_1_20)bVar2;
+    cl_jump_rich = (i16_factor_1_20)bVar2;
     closedloop_o2_timer_unknown = CAL_closedloop_stft_ramp_interval_manual;
     bVar2 = lookup_2D_uint8_interpolated
                       ('\b',engine_speed_8bit,CAL_closedloop_o2_switch_threshold,
@@ -26413,8 +26331,8 @@ void closedloop(void)
   else {
     cl_proportional_gain_lean = CAL_closedloop_proportional_gain_rich_ips;
     cl_proportional_gain_rich = CAL_closedloop_proportional_gain_lean_ips;
-    cl_integral_gain = CAL_closedloop_integral_gain_ips;
-    cl_derivative_gain = CAL_closedloop_derivative_gain_ips;
+    cl_jump_lean = CAL_closedloop_integral_gain_ips;
+    cl_jump_rich = CAL_closedloop_derivative_gain_ips;
     closedloop_o2_timer_unknown =
          (undefined1)
          (((uint)CAL_closedloop_o2_switch_timeout_engine_cycles_ips * 0x4b0) /
@@ -26425,22 +26343,20 @@ void closedloop(void)
   }
   if (engine_run_timer_total < (uint)CAL_closedloop_engine_run_learn_timer_unknown * 36000) {
     if ((COD_base.COD[0] >> 0xd & 7) == 1) {
-      uVar1 = ((longlong)(int)cl_integral_gain * (longlong)(int)(uint)DAT_40008874 & 0xffffffffU) *
+      uVar1 = ((longlong)(int)cl_jump_lean * (longlong)(int)(uint)DAT_40008874 & 0xffffffffU) *
               0x2040811 >> 0x20;
-      cl_integral_gain =
-           (i16_factor_1_20)
-           ((((longlong)(int)cl_integral_gain * (longlong)(int)(uint)DAT_40008874 - uVar1 &
-             0xffffffff) >> 1) + uVar1 >> 6);
+      cl_jump_lean = (i16_factor_1_20)
+                     ((((longlong)(int)cl_jump_lean * (longlong)(int)(uint)DAT_40008874 - uVar1 &
+                       0xffffffff) >> 1) + uVar1 >> 6);
     }
     else {
-      uVar1 = ((longlong)(int)cl_integral_gain *
+      uVar1 = ((longlong)(int)cl_jump_lean *
                (longlong)(int)(uint)CAL_closedloop_integral_gain_scale_manual & 0xffffffffU) *
               0x2040811 >> 0x20;
-      cl_integral_gain =
-           (i16_factor_1_20)
-           ((((longlong)(int)cl_integral_gain *
-              (longlong)(int)(uint)CAL_closedloop_integral_gain_scale_manual - uVar1 & 0xffffffff)
-            >> 1) + uVar1 >> 6);
+      cl_jump_lean = (i16_factor_1_20)
+                     ((((longlong)(int)cl_jump_lean *
+                        (longlong)(int)(uint)CAL_closedloop_integral_gain_scale_manual - uVar1 &
+                       0xffffffff) >> 1) + uVar1 >> 6);
     }
   }
   o2_threshold_lean = CAL_closedloop_o2_sensor_threshold_lean;
@@ -26452,8 +26368,8 @@ void closedloop(void)
     stft_at_o2_rich_switch_bank1 = 0;
     stft_bank2 = 0;
     stft_bank1 = 0;
-    ltft_rate_bank2 = 0;
-    ltft_rate_bank1 = 0;
+    stft_ramp_rate_bank2 = 0;
+    stft_ramp_rate_bank1 = 0;
   }
   else if (CAL_closedloop_activate_timer_o2_check <= runtime_since_start) {
     if ((obd_ii_o2_sensor1_voltage < CAL_closedloop_o2_sensor_voltage_switching_lean) ||
@@ -26481,10 +26397,10 @@ void closedloop(void)
       cl_status_bank1 = 1025;
       cl_status_bank2 = 1025;
     }
-    DAT_40001d38 = 0;
+    closed_loop_active_bank1 = 0;
     stft_at_o2_rich_switch_bank1 = 0;
     stft_bank1 = 0;
-    DAT_40001d39 = 0;
+    closed_loop_active_bank2 = 0;
     stft_at_o2_rich_switch_bank2 = 0;
     stft_bank2 = 0;
     cl_state_flags_bank1 = cl_state_flags_bank1 & 0x3f3f | 0x20;
@@ -26513,11 +26429,10 @@ void closedloop(void)
                ((int)inj_tip_adj_enleanment <=
                 (int)((uint)CAL_closedloop_max_tipout_enleanment * 10))) &&
               ((inj_trim_post_start == 0 && (cl_cross_bank_check_enabled == '\0')))) &&
-             ((o2_sensor_ready_per_cyl[0] != 0 &&
-              ((o2_sensor_ready_per_cyl[2] != 0 && (o2_sensor_ready_per_cyl[4] != 0)))))) &&
-            (cl_cross_bank_fault == 0)) {
+             ((ign_cyl_enabled[0] != 0 && ((ign_cyl_enabled[2] != 0 && (ign_cyl_enabled[4] != 0)))))
+             ) && (cl_cross_bank_fault == 0)) {
       if ((cl_state_flags_bank1 & 1) != 0) {
-        DAT_40001d38 = 1;
+        closed_loop_active_bank1 = 1;
         cl_status_bank1 = 2;
         cl_update_stft_bank1();
       }
@@ -26557,11 +26472,11 @@ void closedloop(void)
               ) && (((int)inj_tip_adj_enleanment <=
                      (int)((uint)CAL_closedloop_max_tipout_enleanment * 10) &&
                     (((inj_trim_post_start == 0 && (cl_cross_bank_check_enabled == '\0')) &&
-                     (o2_sensor_ready_per_cyl[1] != 0)))))) &&
-            (((o2_sensor_ready_per_cyl[3] != 0 && (o2_sensor_ready_per_cyl[5] != 0)) &&
-             (cl_cross_bank_fault == 0)))) {
+                     (ign_cyl_enabled[1] != 0)))))) &&
+            (((ign_cyl_enabled[3] != 0 && (ign_cyl_enabled[5] != 0)) && (cl_cross_bank_fault == 0)))
+            ) {
       if ((cl_state_flags_bank2 & 1) != 0) {
-        DAT_40001d39 = 1;
+        closed_loop_active_bank2 = 1;
         cl_status_bank2 = 2;
         cl_update_stft_bank2();
       }
@@ -26599,7 +26514,7 @@ void cl_update_stft_bank1(void)
   if (((engine_speed_8bit < CAL_closedloop_lean_protect_max_rpm) &&
       (obd_ii_o2_sensor1_voltage < o2_threshold_lean)) && (stft_bank1 < 0)) {
     stft_bank1 = 0;
-    _ltft_rate_bank1 = ltft_rate_bank1;
+    _ltft_rate_bank1 = stft_ramp_rate_bank1;
   }
   else if (o2_threshold_rich < (short)obd_ii_o2_sensor1_voltage) {
                     // bank rich path
@@ -26616,79 +26531,81 @@ void cl_update_stft_bank1(void)
     else if (((CAL_vehicle_moving_speed_min < car_speed_u8) ||
              ((((cl_status_bank2 & 2) == 0 ||
                ((short)obd_ii_o2_sensor5_voltage < (short)o2_threshold_lean)) ||
-              (ltft_rate_bank2 == 0)))) || (DAT_40001d5c == 0)) {
-      DAT_40001d3a = (ushort)closedloop_o2_timer_unknown;
+              (stft_ramp_rate_bank2 == 0)))) || (stft_bank_sync_hold_timer_bank1 == 0)) {
+      stft_ramp_timer_bank1 = (ushort)closedloop_o2_timer_unknown;
       o2_switch_counter_bank1 = o2_switch_count_threshold;
       stft_at_o2_rich_switch_bank1 = stft_bank1;
       obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 | 0x8000;
       _ltft_rate_bank1 = -cl_proportional_gain_rich;
       if ((cl_state_flags_bank1 & 0x20) == 0) {
-        stft_bank1 = stft_bank1 - cl_derivative_gain;
+        stft_bank1 = stft_bank1 - cl_jump_rich;
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xfe7f | 0x40;
       }
       else {
         stft_bank1 = stft_bank1 -
-                     (((short)((int)((int)cl_derivative_gain * (uint)DAT_4000cb86) / 0xff) +
-                      (cl_derivative_gain >> 0xf)) -
-                     (short)((longlong)(int)((int)cl_derivative_gain * (uint)DAT_4000cb86) *
-                             0x80808081 >> 0x3f));
+                     (((short)((int)((int)cl_jump_rich * (uint)DAT_4000cb86) / 0xff) +
+                      (cl_jump_rich >> 0xf)) -
+                     (short)((longlong)(int)((int)cl_jump_rich * (uint)DAT_4000cb86) * 0x80808081 >>
+                            0x3f));
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xfe5f | 0x40;
       }
     }
     else {
-      ltft_rate_bank1 = 0;
-      _ltft_rate_bank1 = ltft_rate_bank1;
+      stft_ramp_rate_bank1 = 0;
+      _ltft_rate_bank1 = stft_ramp_rate_bank1;
     }
   }
   else if ((short)obd_ii_o2_sensor1_voltage < (short)o2_threshold_lean) {
                     // bank lean path
     if (((cl_state_flags_bank1 & 0x40) == 0) && ((cl_state_flags_bank1 & 0x80) != 0)) {
       if ((cl_state_flags_bank1 & 0x100) == 0) {
-        ltft_rate_bank1 = cl_proportional_gain_lean;
-        _ltft_rate_bank1 = ltft_rate_bank1;
+        stft_ramp_rate_bank1 = cl_proportional_gain_lean;
+        _ltft_rate_bank1 = stft_ramp_rate_bank1;
       }
       else {
-        uVar1 = (int)cl_proportional_gain_lean * (uint)DAT_400087c9;
+        uVar1 = (int)cl_proportional_gain_lean *
+                (uint)CAL_closedloop_prop_gain_lean_slow_switch_scale;
         _ltft_rate_bank1 =
              (short)((int)uVar1 >> 6) + (ushort)((int)uVar1 < 0 && (uVar1 & 0x3f) != 0);
       }
     }
     else if ((((CAL_vehicle_moving_speed_min < car_speed_u8) ||
-              (((cl_status_bank2 & 2) == 0 || (ltft_rate_bank2 == 0)))) ||
-             (o2_threshold_rich < (short)obd_ii_o2_sensor5_voltage)) || (DAT_40001d5c == 0)) {
-      DAT_40001d3a = (ushort)closedloop_o2_timer_unknown;
+              (((cl_status_bank2 & 2) == 0 || (stft_ramp_rate_bank2 == 0)))) ||
+             (o2_threshold_rich < (short)obd_ii_o2_sensor5_voltage)) ||
+            (stft_bank_sync_hold_timer_bank1 == 0)) {
+      stft_ramp_timer_bank1 = (ushort)closedloop_o2_timer_unknown;
       o2_switch_counter_bank1 = o2_switch_count_threshold;
       obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 | 0x4000;
-      ltft_rate_bank1 = cl_proportional_gain_lean;
-      _ltft_rate_bank1 = ltft_rate_bank1;
+      stft_ramp_rate_bank1 = cl_proportional_gain_lean;
+      _ltft_rate_bank1 = stft_ramp_rate_bank1;
       if ((cl_state_flags_bank1 & 0x20) == 0) {
-        stft_bank1 = stft_bank1 + cl_integral_gain;
+        stft_bank1 = stft_bank1 + cl_jump_lean;
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xfebf | 0x80;
       }
       else {
         stft_bank1 = stft_bank1 +
-                     (((short)((int)((int)cl_integral_gain * (uint)DAT_4000cb85) / 0xff) +
-                      (cl_integral_gain >> 0xf)) -
-                     (short)((longlong)(int)((int)cl_integral_gain * (uint)DAT_4000cb85) *
-                             0x80808081 >> 0x3f));
+                     (((short)((int)((int)cl_jump_lean * (uint)DAT_4000cb85) / 0xff) +
+                      (cl_jump_lean >> 0xf)) -
+                     (short)((longlong)(int)((int)cl_jump_lean * (uint)DAT_4000cb85) * 0x80808081 >>
+                            0x3f));
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xfe9f | 0x80;
       }
     }
     else {
-      ltft_rate_bank1 = 0;
-      _ltft_rate_bank1 = ltft_rate_bank1;
+      stft_ramp_rate_bank1 = 0;
+      _ltft_rate_bank1 = stft_ramp_rate_bank1;
     }
   }
   else if ((cl_state_flags_bank1 & 0x40) == 0) {
     _ltft_rate_bank1 = cl_proportional_gain_lean;
     if ((cl_state_flags_bank1 & 0x80) == 0) {
-      _ltft_rate_bank1 = ltft_rate_bank1;
+      _ltft_rate_bank1 = stft_ramp_rate_bank1;
     }
   }
   else {
     _ltft_rate_bank1 = -cl_proportional_gain_rich;
   }
-  ltft_rate_bank1 = _ltft_rate_bank1;
+  stft_ramp_rate_bank1 = _ltft_rate_bank1;
   if (stft_bank1 < CAL_inj_stft_limit) {
     if (-(int)CAL_inj_stft_limit < (int)stft_bank1) {
       stft_abs = libc_abs((longlong)stft_bank1);
@@ -26721,7 +26638,7 @@ void cl_update_stft_bank2(void)
   if (((engine_speed_8bit < CAL_closedloop_lean_protect_max_rpm) &&
       (obd_ii_o2_sensor5_voltage < o2_threshold_lean)) && (stft_bank2 < 0)) {
     stft_bank2 = 0;
-    sVar1 = ltft_rate_bank2;
+    sVar1 = stft_ramp_rate_bank2;
   }
   else if (o2_threshold_rich < (short)obd_ii_o2_sensor5_voltage) {
     if (((cl_state_flags_bank2 & 0x80) == 0) && ((cl_state_flags_bank2 & 0x40) != 0)) {
@@ -26735,78 +26652,79 @@ void cl_update_stft_bank2(void)
     }
     else if ((CAL_vehicle_moving_speed_min < car_speed_u8) ||
             ((((cl_status_bank1 & 2) == 0 ||
-              ((short)obd_ii_o2_sensor1_voltage < (short)o2_threshold_lean)) || (DAT_40001d5e == 0))
-            )) {
-      DAT_40001d3e = (ushort)closedloop_o2_timer_unknown;
+              ((short)obd_ii_o2_sensor1_voltage < (short)o2_threshold_lean)) ||
+             (stft_bank_sync_hold_timer_bank2 == 0)))) {
+      stft_ramp_timer_bank2 = (ushort)closedloop_o2_timer_unknown;
       o2_switch_counter_bank2 = o2_switch_count_threshold;
       stft_at_o2_rich_switch_bank2 = stft_bank2;
       obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 | 0x8000;
       sVar1 = -cl_proportional_gain_rich;
       if ((cl_state_flags_bank2 & 0x20) == 0) {
-        stft_bank2 = stft_bank2 - cl_derivative_gain;
+        stft_bank2 = stft_bank2 - cl_jump_rich;
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xfe7f | 0x40;
       }
       else {
         stft_bank2 = stft_bank2 -
-                     (((short)((int)((int)cl_derivative_gain * (uint)DAT_4000cb86) / 0xff) +
-                      (cl_derivative_gain >> 0xf)) -
-                     (short)((longlong)(int)((int)cl_derivative_gain * (uint)DAT_4000cb86) *
-                             0x80808081 >> 0x3f));
+                     (((short)((int)((int)cl_jump_rich * (uint)DAT_4000cb86) / 0xff) +
+                      (cl_jump_rich >> 0xf)) -
+                     (short)((longlong)(int)((int)cl_jump_rich * (uint)DAT_4000cb86) * 0x80808081 >>
+                            0x3f));
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xfe5f | 0x40;
       }
     }
     else {
-      ltft_rate_bank2 = 0;
-      sVar1 = ltft_rate_bank2;
+      stft_ramp_rate_bank2 = 0;
+      sVar1 = stft_ramp_rate_bank2;
     }
   }
   else if ((short)obd_ii_o2_sensor5_voltage < (short)o2_threshold_lean) {
     if (((cl_state_flags_bank2 & 0x40) == 0) && ((cl_state_flags_bank2 & 0x80) != 0)) {
       if ((cl_state_flags_bank2 & 0x100) == 0) {
-        ltft_rate_bank2 = cl_proportional_gain_lean;
-        sVar1 = ltft_rate_bank2;
+        stft_ramp_rate_bank2 = cl_proportional_gain_lean;
+        sVar1 = stft_ramp_rate_bank2;
       }
       else {
-        uVar2 = (int)cl_proportional_gain_lean * (uint)DAT_400087c9;
+        uVar2 = (int)cl_proportional_gain_lean *
+                (uint)CAL_closedloop_prop_gain_lean_slow_switch_scale;
         sVar1 = (short)((int)uVar2 >> 6) + (ushort)((int)uVar2 < 0 && (uVar2 & 0x3f) != 0);
       }
     }
     else if (((CAL_vehicle_moving_speed_min < car_speed_u8) ||
              (((cl_status_bank1 & 2) == 0 || (o2_threshold_rich < (short)obd_ii_o2_sensor1_voltage))
-             )) || (DAT_40001d5e == 0)) {
-      DAT_40001d3e = (ushort)closedloop_o2_timer_unknown;
+             )) || (stft_bank_sync_hold_timer_bank2 == 0)) {
+      stft_ramp_timer_bank2 = (ushort)closedloop_o2_timer_unknown;
       o2_switch_counter_bank2 = o2_switch_count_threshold;
       obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 | 0x4000;
-      ltft_rate_bank2 = cl_proportional_gain_lean;
-      sVar1 = ltft_rate_bank2;
+      stft_ramp_rate_bank2 = cl_proportional_gain_lean;
+      sVar1 = stft_ramp_rate_bank2;
       if ((cl_state_flags_bank2 & 0x20) == 0) {
-        stft_bank2 = stft_bank2 + cl_integral_gain;
+        stft_bank2 = stft_bank2 + cl_jump_lean;
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xfebf | 0x80;
       }
       else {
         stft_bank2 = stft_bank2 +
-                     (((short)((int)((int)cl_integral_gain * (uint)DAT_4000cb85) / 0xff) +
-                      (cl_integral_gain >> 0xf)) -
-                     (short)((longlong)(int)((int)cl_integral_gain * (uint)DAT_4000cb85) *
-                             0x80808081 >> 0x3f));
+                     (((short)((int)((int)cl_jump_lean * (uint)DAT_4000cb85) / 0xff) +
+                      (cl_jump_lean >> 0xf)) -
+                     (short)((longlong)(int)((int)cl_jump_lean * (uint)DAT_4000cb85) * 0x80808081 >>
+                            0x3f));
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xfe9f | 0x80;
       }
     }
     else {
-      ltft_rate_bank2 = 0;
-      sVar1 = ltft_rate_bank2;
+      stft_ramp_rate_bank2 = 0;
+      sVar1 = stft_ramp_rate_bank2;
     }
   }
   else if ((cl_state_flags_bank2 & 0x40) == 0) {
     sVar1 = cl_proportional_gain_lean;
     if ((cl_state_flags_bank2 & 0x80) == 0) {
-      sVar1 = ltft_rate_bank2;
+      sVar1 = stft_ramp_rate_bank2;
     }
   }
   else {
     sVar1 = -cl_proportional_gain_rich;
   }
-  ltft_rate_bank2 = sVar1;
+  stft_ramp_rate_bank2 = sVar1;
   if (stft_bank2 < CAL_inj_stft_limit) {
     if (-(int)CAL_inj_stft_limit < (int)stft_bank2) {
       lVar3 = libc_abs((longlong)stft_bank2);
@@ -26838,10 +26756,10 @@ void closed_loop_200hz(void)
   byte bVar4;
   
   if ((cl_status_bank1 & 2) != 0) {
-    DAT_40001d3a = DAT_40001d3a - 1;
-    if ((short)DAT_40001d3a < 1) {
-      DAT_40001d3a = (ushort)closedloop_o2_timer_unknown;
-      stft_bank1 = stft_bank1 + ltft_rate_bank1;
+    stft_ramp_timer_bank1 = stft_ramp_timer_bank1 - 1;
+    if ((short)stft_ramp_timer_bank1 < 1) {
+      stft_ramp_timer_bank1 = (ushort)closedloop_o2_timer_unknown;
+      stft_bank1 = stft_bank1 + stft_ramp_rate_bank1;
       if (CAL_inj_stft_limit < stft_bank1) {
         stft_bank1 = CAL_inj_stft_limit;
       }
@@ -26857,10 +26775,10 @@ void closed_loop_200hz(void)
     }
   }
   if ((cl_status_bank2 & 2) != 0) {
-    DAT_40001d3e = DAT_40001d3e - 1;
-    if ((short)DAT_40001d3e < 1) {
-      DAT_40001d3e = (ushort)closedloop_o2_timer_unknown;
-      stft_bank2 = stft_bank2 + ltft_rate_bank2;
+    stft_ramp_timer_bank2 = stft_ramp_timer_bank2 - 1;
+    if ((short)stft_ramp_timer_bank2 < 1) {
+      stft_ramp_timer_bank2 = (ushort)closedloop_o2_timer_unknown;
+      stft_bank2 = stft_bank2 + stft_ramp_rate_bank2;
       if (CAL_inj_stft_limit < stft_bank2) {
         stft_bank2 = CAL_inj_stft_limit;
       }
@@ -26924,21 +26842,21 @@ void closed_loop_200hz(void)
     uVar3 = '\0';
   }
   stft_increment_timer_bank2 = uVar3;
-  if (ltft_rate_bank1 == 0) {
-    if (DAT_40001d5c != 0) {
-      DAT_40001d5c = DAT_40001d5c + -1;
+  if (stft_ramp_rate_bank1 == 0) {
+    if (stft_bank_sync_hold_timer_bank1 != 0) {
+      stft_bank_sync_hold_timer_bank1 = stft_bank_sync_hold_timer_bank1 + -1;
     }
   }
   else {
-    DAT_40001d5c = (ushort)DAT_40008761 << 2;
+    stft_bank_sync_hold_timer_bank1 = (ushort)CAL_closedloop_bank_sync_max_hold << 2;
   }
-  if (ltft_rate_bank2 == 0) {
-    if (DAT_40001d5e != 0) {
-      DAT_40001d5e = DAT_40001d5e + -1;
+  if (stft_ramp_rate_bank2 == 0) {
+    if (stft_bank_sync_hold_timer_bank2 != 0) {
+      stft_bank_sync_hold_timer_bank2 = stft_bank_sync_hold_timer_bank2 + -1;
     }
   }
   else {
-    DAT_40001d5e = (ushort)DAT_40008761 << 2;
+    stft_bank_sync_hold_timer_bank2 = (ushort)CAL_closedloop_bank_sync_max_hold << 2;
   }
   return;
 }
@@ -26976,32 +26894,36 @@ void o2_fuel_learn_100ms(void)
                  (int)((uint)CAL_inj_fuel_learn_zone_2_maf_min -
                       (uint)CAL_inj_fuel_learn_offset_maf_max));
   }
-  else if (obd_ii_maf_flow < u16_flow_10mg_s_4000882e) {
+  else if (obd_ii_maf_flow < CAL_inj_fuel_learn_zone_2_maf_max) {
     fuel_learning_zone = '\x02';
     uVar3 = (char)(LEA_fuel_learn_zone_2_bank1 ^ 0x80) * 500;
     ltft_bank1 = (short)((int)uVar3 >> 7) + (ushort)((int)uVar3 < 0 && (uVar3 & 0x7f) != 0);
     uVar3 = (char)(LEA_fuel_learn_zone_2_bank2 ^ 0x80) * 500;
     ltft_bank2 = (short)((int)uVar3 >> 7) + (ushort)((int)uVar3 < 0 && (uVar3 & 0x7f) != 0);
   }
-  else if ((u16_flow_10mg_s_4000882e < obd_ii_maf_flow) &&
-          (obd_ii_maf_flow < u16_flow_10mg_s_40008836)) {
+  else if ((CAL_inj_fuel_learn_zone_2_maf_max < obd_ii_maf_flow) &&
+          (obd_ii_maf_flow < CAL_inj_fuel_learn_zone_3_maf_min)) {
     fuel_learning_zone = '\x04';
     uVar3 = (char)(obd_ii_fuel_learn_zone_3_bank1 ^ 0x80) * 500;
     uVar2 = (char)(LEA_fuel_learn_zone_2_bank1 ^ 0x80) * 500;
     ltft_bank1 = (short)((int)((((int)uVar3 >> 7) + (uint)((int)uVar3 < 0 && (uVar3 & 0x7f) != 0)) *
-                              ((uint)obd_ii_maf_flow - (uint)u16_flow_10mg_s_4000882e)) /
-                        (int)((uint)u16_flow_10mg_s_40008836 - (uint)u16_flow_10mg_s_4000882e)) +
+                              ((uint)obd_ii_maf_flow - (uint)CAL_inj_fuel_learn_zone_2_maf_max)) /
+                        (int)((uint)CAL_inj_fuel_learn_zone_3_maf_min -
+                             (uint)CAL_inj_fuel_learn_zone_2_maf_max)) +
                  (short)((int)((((int)uVar2 >> 7) + (uint)((int)uVar2 < 0 && (uVar2 & 0x7f) != 0)) *
-                              ((uint)u16_flow_10mg_s_40008836 - (uint)obd_ii_maf_flow)) /
-                        (int)((uint)u16_flow_10mg_s_40008836 - (uint)u16_flow_10mg_s_4000882e));
+                              ((uint)CAL_inj_fuel_learn_zone_3_maf_min - (uint)obd_ii_maf_flow)) /
+                        (int)((uint)CAL_inj_fuel_learn_zone_3_maf_min -
+                             (uint)CAL_inj_fuel_learn_zone_2_maf_max));
     uVar3 = (char)(obd_ii_fuel_learn_zone_3_bank2 ^ 0x80) * 500;
     uVar2 = (char)(LEA_fuel_learn_zone_2_bank2 ^ 0x80) * 500;
     ltft_bank2 = (short)((int)((((int)uVar3 >> 7) + (uint)((int)uVar3 < 0 && (uVar3 & 0x7f) != 0)) *
-                              ((uint)obd_ii_maf_flow - (uint)u16_flow_10mg_s_4000882e)) /
-                        (int)((uint)u16_flow_10mg_s_40008836 - (uint)u16_flow_10mg_s_4000882e)) +
+                              ((uint)obd_ii_maf_flow - (uint)CAL_inj_fuel_learn_zone_2_maf_max)) /
+                        (int)((uint)CAL_inj_fuel_learn_zone_3_maf_min -
+                             (uint)CAL_inj_fuel_learn_zone_2_maf_max)) +
                  (short)((int)((((int)uVar2 >> 7) + (uint)((int)uVar2 < 0 && (uVar2 & 0x7f) != 0)) *
-                              ((uint)u16_flow_10mg_s_40008836 - (uint)obd_ii_maf_flow)) /
-                        (int)((uint)u16_flow_10mg_s_40008836 - (uint)u16_flow_10mg_s_4000882e));
+                              ((uint)CAL_inj_fuel_learn_zone_3_maf_min - (uint)obd_ii_maf_flow)) /
+                        (int)((uint)CAL_inj_fuel_learn_zone_3_maf_min -
+                             (uint)CAL_inj_fuel_learn_zone_2_maf_max));
   }
   else if ((DAT_40008890 < engine_speed_8bit) && (DAT_4000888f < load_mass_per_stroke)) {
     fuel_learning_zone = '\x05';
@@ -27023,7 +26945,7 @@ void o2_fuel_learn_100ms(void)
       ltft_bank2 = (short)((int)uVar3 >> 7) + (ushort)((int)uVar3 < 0 && (uVar3 & 0x7f) != 0);
     }
   }
-  else if (u16_flow_10mg_s_40008836 < obd_ii_maf_flow) {
+  else if (CAL_inj_fuel_learn_zone_3_maf_min < obd_ii_maf_flow) {
     fuel_learning_zone = '\x03';
     uVar3 = (char)(obd_ii_fuel_learn_zone_3_bank1 ^ 0x80) * 500;
     ltft_bank1 = (short)((int)uVar3 >> 7) + (ushort)((int)uVar3 < 0 && (uVar3 & 0x7f) != 0);
@@ -27063,84 +26985,88 @@ void o2_fuel_learn_100ms(void)
             ((int)load_mass_per_stroke_raw < (int)(uint)DAT_4000885a)) &&
            (((engine_operating_state_flags & 8) != 0 &&
             (obd_ii_idle_speed_error < (short)(ushort)DAT_4000880a)))) &&
-          (DAT_4000880b < current_gear_time)) && (DAT_400087a9 < DAT_400016d8)) {
+          (DAT_4000880b < current_gear_time)) && (DAT_400087a9 < fan_engine_bay_stationary_timer)) {
         if ((cl_state_flags_bank1 & 0x800) == 0) {
-          DAT_40001d50 = DAT_4000883b + DAT_4000cb59;
+          DAT_40001d50 = CAL_inj_fuel_learn_step_period + DAT_4000cb59;
           DAT_40001d60 = DAT_4000cb59;
         }
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xcfff | 0xc10;
         bVar1 = DAT_40001d50 == '\0';
         DAT_40001d50 = DAT_40001d50 + -1;
         if (bVar1) {
-          DAT_40001d50 = DAT_4000883b;
-          if (DAT_40001d14 < (short)(DAT_4000883c ^ 0x8000)) {
-            if (DAT_40001d14 <= (short)(DAT_4000883e ^ 0x8000)) {
+          DAT_40001d50 = CAL_inj_fuel_learn_step_period;
+          if (stft_filtered_bank1 < (short)(DAT_4000883c ^ 0x8000)) {
+            if (stft_filtered_bank1 <= (short)(CAL_inj_fuel_learn_stft_rich_limit ^ 0x8000)) {
               if (((vvt_intake_mode_flags & 1) == 0) || (vvt_error_scale == '\0')) {
-                if ((int)((uint)DAT_40008841 * -10) < (int)LEA_fuel_learn_lean_time_bank1) {
+                if ((int)((uint)CAL_inj_fuel_learn_rich_time_limit * -10) <
+                    (int)LEA_fuel_learn_lean_time_bank1) {
                   LEA_fuel_learn_lean_time_bank1 =
                        LEA_fuel_learn_lean_time_bank1 - (ushort)CAL_inj_fuel_learn_time_step;
                 }
               }
-              else if ((int)((uint)DAT_40008841 * -10) < (int)LEA_fuel_learn_lean_time_bank1) {
+              else if ((int)((uint)CAL_inj_fuel_learn_rich_time_limit * -10) <
+                       (int)LEA_fuel_learn_lean_time_bank1) {
                 LEA_fuel_learn_lean_time_bank1 =
                      LEA_fuel_learn_lean_time_bank1 - (ushort)CAL_inj_fuel_learn_time_step;
               }
             }
           }
           else if (((vvt_intake_mode_flags & 1) == 0) || (vvt_error_scale == '\0')) {
-            if ((int)LEA_fuel_learn_lean_time_bank1 < (int)((uint)DAT_40008840 * 10)) {
+            if ((int)LEA_fuel_learn_lean_time_bank1 <
+                (int)((uint)CAL_inj_fuel_learn_lean_time_limit * 10)) {
               LEA_fuel_learn_lean_time_bank1 =
                    LEA_fuel_learn_lean_time_bank1 + (ushort)CAL_inj_fuel_learn_time_step;
             }
           }
-          else if ((int)LEA_fuel_learn_lean_time_bank1 < (int)((uint)DAT_40008840 * 10)) {
+          else if ((int)LEA_fuel_learn_lean_time_bank1 <
+                   (int)((uint)CAL_inj_fuel_learn_lean_time_limit * 10)) {
             LEA_fuel_learn_lean_time_bank1 =
                  LEA_fuel_learn_lean_time_bank1 + (ushort)CAL_inj_fuel_learn_time_step;
           }
         }
       }
-      else if (((obd_ii_maf_flow < u16_flow_10mg_s_4000882e) &&
+      else if (((obd_ii_maf_flow < CAL_inj_fuel_learn_zone_2_maf_max) &&
                (CAL_inj_fuel_learn_zone_2_maf_min < obd_ii_maf_flow)) &&
-              (((int)(uint)DAT_40008834 < (int)load_mass_per_stroke_raw &&
-               ((int)load_mass_per_stroke_raw < (int)(uint)DAT_40008832)))) {
+              (((int)(uint)CAL_inj_fuel_learn_zone_2_load_min < (int)load_mass_per_stroke_raw &&
+               ((int)load_mass_per_stroke_raw < (int)(uint)CAL_inj_fuel_learn_zone_2_load_max)))) {
         if ((cl_state_flags_bank1 & 0x1000) == 0) {
-          DAT_40001d50 = DAT_4000883b + DAT_4000cb5a;
+          DAT_40001d50 = CAL_inj_fuel_learn_step_period + DAT_4000cb5a;
           DAT_40001d61 = DAT_4000cb5a;
         }
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xd7ff | 0x1410;
         bVar1 = DAT_40001d50 == '\0';
         DAT_40001d50 = DAT_40001d50 + -1;
         if (bVar1) {
-          DAT_40001d50 = DAT_4000883b;
-          if (DAT_40001d14 < (short)(DAT_4000883c ^ 0x8000)) {
-            if ((DAT_40001d14 <= (short)(DAT_4000883e ^ 0x8000)) &&
-               (DAT_40008843 < LEA_fuel_learn_zone_2_bank1)) {
+          DAT_40001d50 = CAL_inj_fuel_learn_step_period;
+          if (stft_filtered_bank1 < (short)(DAT_4000883c ^ 0x8000)) {
+            if ((stft_filtered_bank1 <= (short)(CAL_inj_fuel_learn_stft_rich_limit ^ 0x8000)) &&
+               (CAL_inj_fuel_learn_zone_2_min < LEA_fuel_learn_zone_2_bank1)) {
               LEA_fuel_learn_zone_2_bank1 = LEA_fuel_learn_zone_2_bank1 - 1;
             }
           }
-          else if (LEA_fuel_learn_zone_2_bank1 < DAT_40008842) {
+          else if (LEA_fuel_learn_zone_2_bank1 < CAL_inj_fuel_learn_zone_2_max) {
             LEA_fuel_learn_zone_2_bank1 = LEA_fuel_learn_zone_2_bank1 + 1;
           }
         }
       }
-      else if ((u16_flow_10mg_s_40008836 < obd_ii_maf_flow) &&
-              ((int)(uint)DAT_40008838 < (int)load_mass_per_stroke_raw)) {
+      else if ((CAL_inj_fuel_learn_zone_3_maf_min < obd_ii_maf_flow) &&
+              ((int)(uint)CAL_inj_fuel_learn_zone_3_load_min < (int)load_mass_per_stroke_raw)) {
         if ((cl_state_flags_bank1 & 0x2000) == 0) {
-          DAT_40001d50 = DAT_4000883b + DAT_4000cb5b;
+          DAT_40001d50 = CAL_inj_fuel_learn_step_period + DAT_4000cb5b;
           DAT_40001d62 = DAT_4000cb5b;
         }
         cl_state_flags_bank1 = cl_state_flags_bank1 & 0xe7ff | 0x2410;
         bVar1 = DAT_40001d50 == '\0';
         DAT_40001d50 = DAT_40001d50 + -1;
         if (bVar1) {
-          DAT_40001d50 = DAT_4000883b;
-          if (DAT_40001d14 < (short)(DAT_4000883c ^ 0x8000)) {
-            if ((DAT_40001d14 <= (short)(DAT_4000883e ^ 0x8000)) &&
-               (DAT_40008845 < obd_ii_fuel_learn_zone_3_bank1)) {
+          DAT_40001d50 = CAL_inj_fuel_learn_step_period;
+          if (stft_filtered_bank1 < (short)(DAT_4000883c ^ 0x8000)) {
+            if ((stft_filtered_bank1 <= (short)(CAL_inj_fuel_learn_stft_rich_limit ^ 0x8000)) &&
+               (CAL_inj_fuel_learn_zone_3_min < obd_ii_fuel_learn_zone_3_bank1)) {
               obd_ii_fuel_learn_zone_3_bank1 = obd_ii_fuel_learn_zone_3_bank1 - 1;
             }
           }
-          else if (obd_ii_fuel_learn_zone_3_bank1 < DAT_40008844) {
+          else if (obd_ii_fuel_learn_zone_3_bank1 < CAL_inj_fuel_learn_zone_3_max) {
             obd_ii_fuel_learn_zone_3_bank1 = obd_ii_fuel_learn_zone_3_bank1 + 1;
           }
         }
@@ -27170,84 +27096,89 @@ void o2_fuel_learn_100ms(void)
           ((int)load_mass_per_stroke_raw < (int)(uint)DAT_4000885a)) &&
          ((((engine_operating_state_flags & 8) != 0 &&
            (obd_ii_idle_speed_error < (short)(ushort)DAT_4000880a)) &&
-          ((DAT_4000880b < current_gear_time && (DAT_400087a9 < DAT_400016d8)))))) {
+          ((DAT_4000880b < current_gear_time && (DAT_400087a9 < fan_engine_bay_stationary_timer)))))
+         ) {
         if ((cl_state_flags_bank2 & 0x800) == 0) {
-          DAT_40001d51 = DAT_4000883b + DAT_4000cb59;
+          DAT_40001d51 = CAL_inj_fuel_learn_step_period + DAT_4000cb59;
           DAT_40001d63 = DAT_4000cb59;
         }
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xcfff | 0xc10;
         bVar1 = DAT_40001d51 == '\0';
         DAT_40001d51 = DAT_40001d51 + -1;
         if (bVar1) {
-          DAT_40001d51 = DAT_4000883b;
-          if (DAT_40001d16 < (short)(DAT_4000883c ^ 0x8000)) {
-            if (DAT_40001d16 <= (short)(DAT_4000883e ^ 0x8000)) {
+          DAT_40001d51 = CAL_inj_fuel_learn_step_period;
+          if (stft_filtered_bank2 < (short)(DAT_4000883c ^ 0x8000)) {
+            if (stft_filtered_bank2 <= (short)(CAL_inj_fuel_learn_stft_rich_limit ^ 0x8000)) {
               if (((vvt_intake_mode_flags & 1) == 0) || (vvt_error_scale == '\0')) {
-                if ((int)((uint)DAT_40008841 * -10) < (int)LEA_fuel_learn_lean_time_bank2) {
+                if ((int)((uint)CAL_inj_fuel_learn_rich_time_limit * -10) <
+                    (int)LEA_fuel_learn_lean_time_bank2) {
                   LEA_fuel_learn_lean_time_bank2 =
                        LEA_fuel_learn_lean_time_bank2 - (ushort)CAL_inj_fuel_learn_time_step;
                 }
               }
-              else if ((int)((uint)DAT_40008841 * -10) < (int)LEA_fuel_learn_lean_time_bank2) {
+              else if ((int)((uint)CAL_inj_fuel_learn_rich_time_limit * -10) <
+                       (int)LEA_fuel_learn_lean_time_bank2) {
                 LEA_fuel_learn_lean_time_bank2 =
                      LEA_fuel_learn_lean_time_bank2 - (ushort)CAL_inj_fuel_learn_time_step;
               }
             }
           }
           else if (((vvt_intake_mode_flags & 1) == 0) || (vvt_error_scale == '\0')) {
-            if ((int)LEA_fuel_learn_lean_time_bank2 < (int)((uint)DAT_40008840 * 10)) {
+            if ((int)LEA_fuel_learn_lean_time_bank2 <
+                (int)((uint)CAL_inj_fuel_learn_lean_time_limit * 10)) {
               LEA_fuel_learn_lean_time_bank2 =
                    LEA_fuel_learn_lean_time_bank2 + (ushort)CAL_inj_fuel_learn_time_step;
             }
           }
-          else if ((int)LEA_fuel_learn_lean_time_bank2 < (int)((uint)DAT_40008840 * 10)) {
+          else if ((int)LEA_fuel_learn_lean_time_bank2 <
+                   (int)((uint)CAL_inj_fuel_learn_lean_time_limit * 10)) {
             LEA_fuel_learn_lean_time_bank2 =
                  LEA_fuel_learn_lean_time_bank2 + (ushort)CAL_inj_fuel_learn_time_step;
           }
         }
       }
-      else if (((obd_ii_maf_flow < u16_flow_10mg_s_4000882e) &&
+      else if (((obd_ii_maf_flow < CAL_inj_fuel_learn_zone_2_maf_max) &&
                (CAL_inj_fuel_learn_zone_2_maf_min < obd_ii_maf_flow)) &&
-              (((int)(uint)DAT_40008834 < (int)load_mass_per_stroke_raw &&
-               ((int)load_mass_per_stroke_raw < (int)(uint)DAT_40008832)))) {
+              (((int)(uint)CAL_inj_fuel_learn_zone_2_load_min < (int)load_mass_per_stroke_raw &&
+               ((int)load_mass_per_stroke_raw < (int)(uint)CAL_inj_fuel_learn_zone_2_load_max)))) {
         if ((cl_state_flags_bank2 & 0x1000) == 0) {
-          DAT_40001d51 = DAT_4000883b + DAT_4000cb5a;
+          DAT_40001d51 = CAL_inj_fuel_learn_step_period + DAT_4000cb5a;
           DAT_40001d64 = DAT_4000cb5a;
         }
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xd7ff | 0x1410;
         bVar1 = DAT_40001d51 == '\0';
         DAT_40001d51 = DAT_40001d51 + -1;
         if (bVar1) {
-          DAT_40001d51 = DAT_4000883b;
-          if (DAT_40001d16 < (short)(DAT_4000883c ^ 0x8000)) {
-            if ((DAT_40001d16 <= (short)(DAT_4000883e ^ 0x8000)) &&
-               (DAT_40008843 < LEA_fuel_learn_zone_2_bank2)) {
+          DAT_40001d51 = CAL_inj_fuel_learn_step_period;
+          if (stft_filtered_bank2 < (short)(DAT_4000883c ^ 0x8000)) {
+            if ((stft_filtered_bank2 <= (short)(CAL_inj_fuel_learn_stft_rich_limit ^ 0x8000)) &&
+               (CAL_inj_fuel_learn_zone_2_min < LEA_fuel_learn_zone_2_bank2)) {
               LEA_fuel_learn_zone_2_bank2 = LEA_fuel_learn_zone_2_bank2 - 1;
             }
           }
-          else if (LEA_fuel_learn_zone_2_bank2 < DAT_40008842) {
+          else if (LEA_fuel_learn_zone_2_bank2 < CAL_inj_fuel_learn_zone_2_max) {
             LEA_fuel_learn_zone_2_bank2 = LEA_fuel_learn_zone_2_bank2 + 1;
           }
         }
       }
-      else if ((u16_flow_10mg_s_40008836 < obd_ii_maf_flow) &&
-              ((int)(uint)DAT_40008838 < (int)load_mass_per_stroke_raw)) {
+      else if ((CAL_inj_fuel_learn_zone_3_maf_min < obd_ii_maf_flow) &&
+              ((int)(uint)CAL_inj_fuel_learn_zone_3_load_min < (int)load_mass_per_stroke_raw)) {
         if ((cl_state_flags_bank2 & 0x2000) == 0) {
-          DAT_40001d51 = DAT_4000883b + DAT_4000cb5b;
+          DAT_40001d51 = CAL_inj_fuel_learn_step_period + DAT_4000cb5b;
           DAT_40001d65 = DAT_4000cb5b;
         }
         cl_state_flags_bank2 = cl_state_flags_bank2 & 0xe7ff | 0x2410;
         bVar1 = DAT_40001d51 == '\0';
         DAT_40001d51 = DAT_40001d51 + -1;
         if (bVar1) {
-          DAT_40001d51 = DAT_4000883b;
-          if (DAT_40001d16 < (short)(DAT_4000883c ^ 0x8000)) {
-            if ((DAT_40001d16 <= (short)(DAT_4000883e ^ 0x8000)) &&
-               (DAT_40008845 < obd_ii_fuel_learn_zone_3_bank2)) {
+          DAT_40001d51 = CAL_inj_fuel_learn_step_period;
+          if (stft_filtered_bank2 < (short)(DAT_4000883c ^ 0x8000)) {
+            if ((stft_filtered_bank2 <= (short)(CAL_inj_fuel_learn_stft_rich_limit ^ 0x8000)) &&
+               (CAL_inj_fuel_learn_zone_3_min < obd_ii_fuel_learn_zone_3_bank2)) {
               obd_ii_fuel_learn_zone_3_bank2 = obd_ii_fuel_learn_zone_3_bank2 - 1;
             }
           }
-          else if (obd_ii_fuel_learn_zone_3_bank2 < DAT_40008844) {
+          else if (obd_ii_fuel_learn_zone_3_bank2 < CAL_inj_fuel_learn_zone_3_max) {
             obd_ii_fuel_learn_zone_3_bank2 = obd_ii_fuel_learn_zone_3_bank2 + 1;
           }
         }
@@ -27279,30 +27210,30 @@ void o2_fuel_learn_100ms(void)
   if (((cl_state_flags_bank1 & 0x800) == 0) || (DAT_40001d60 != '\0')) {
     if (((((cl_state_flags_bank1 & 0x1000) != 0) && (DAT_40001d61 == '\0')) ||
         (((cl_state_flags_bank1 & 0x2000) != 0 && (DAT_40001d62 == '\0')))) &&
-       (DAT_40001d26 != 0xffff)) {
-      DAT_40001d26 = DAT_40001d26 + 1;
+       (obd_ii_fuel_trim_zone3_time_bank1 != 0xffff)) {
+      obd_ii_fuel_trim_zone3_time_bank1 = obd_ii_fuel_trim_zone3_time_bank1 + 1;
     }
   }
-  else if (((DAT_40001d22 < 0xffff) && ((vvt_intake_mode_flags & 1) != 0)) &&
+  else if (((obd_ii_fuel_trim_idle_time_bank1 < 0xffff) && ((vvt_intake_mode_flags & 1) != 0)) &&
           (vvt_error_scale != '\0')) {
-    DAT_40001d22 = DAT_40001d22 + 1;
+    obd_ii_fuel_trim_idle_time_bank1 = obd_ii_fuel_trim_idle_time_bank1 + 1;
   }
-  else if (DAT_40001d1e != 0xffff) {
-    DAT_40001d1e = DAT_40001d1e + 1;
+  else if (obd_ii_fuel_trim_offidle_time_bank1 != 0xffff) {
+    obd_ii_fuel_trim_offidle_time_bank1 = obd_ii_fuel_trim_offidle_time_bank1 + 1;
   }
   if (((cl_state_flags_bank2 & 0x800) == 0) || (DAT_40001d63 != '\0')) {
     if (((((cl_state_flags_bank2 & 0x1000) != 0) && (DAT_40001d64 == '\0')) ||
         (((cl_state_flags_bank2 & 0x2000) != 0 && (DAT_40001d65 == '\0')))) &&
-       (DAT_40001d28 != 0xffff)) {
-      DAT_40001d28 = DAT_40001d28 + 1;
+       (obd_ii_fuel_trim_zone3_time_bank2 != 0xffff)) {
+      obd_ii_fuel_trim_zone3_time_bank2 = obd_ii_fuel_trim_zone3_time_bank2 + 1;
     }
   }
-  else if (((DAT_40001d24 < 0xffff) && ((vvt_intake_mode_flags & 1) != 0)) &&
+  else if (((obd_ii_fuel_trim_idle_time_bank2 < 0xffff) && ((vvt_intake_mode_flags & 1) != 0)) &&
           (vvt_error_scale != '\0')) {
-    DAT_40001d24 = DAT_40001d24 + 1;
+    obd_ii_fuel_trim_idle_time_bank2 = obd_ii_fuel_trim_idle_time_bank2 + 1;
   }
-  else if (DAT_40001d20 != 0xffff) {
-    DAT_40001d20 = DAT_40001d20 + 1;
+  else if (obd_ii_fuel_trim_offidle_time_bank2 != 0xffff) {
+    obd_ii_fuel_trim_offidle_time_bank2 = obd_ii_fuel_trim_offidle_time_bank2 + 1;
   }
   cVar4 = DAT_40001d60 + -1;
   if (DAT_40001d60 == '\0') {
@@ -27334,30 +27265,30 @@ void o2_fuel_learn_100ms(void)
     cVar4 = '\0';
   }
   DAT_40001d65 = cVar4;
-  if ((DAT_4000216a & 0x1000) == 0) {
+  if ((evap_purge_flags & 0x1000) == 0) {
     if (DAT_40001d6e != 0x3f) {
       bVar5 = DAT_40001d6e | 4;
-      if (DAT_40001d26 < DAT_4000cac2) {
+      if (obd_ii_fuel_trim_zone3_time_bank1 < DAT_4000cac2) {
         bVar5 = DAT_40001d6e;
       }
       bVar6 = bVar5 | 1;
-      if (DAT_40001d1e < DAT_4000cac0) {
+      if (obd_ii_fuel_trim_offidle_time_bank1 < DAT_4000cac0) {
         bVar6 = bVar5;
       }
       bVar5 = bVar6 | 2;
-      if (DAT_40001d22 < DAT_4000cac0) {
+      if (obd_ii_fuel_trim_idle_time_bank1 < DAT_4000cac0) {
         bVar5 = bVar6;
       }
       bVar6 = bVar5 | 0x20;
-      if (DAT_40001d28 < DAT_4000cac2) {
+      if (obd_ii_fuel_trim_zone3_time_bank2 < DAT_4000cac2) {
         bVar6 = bVar5;
       }
       bVar5 = bVar6 | 8;
-      if (DAT_40001d20 < DAT_4000cac0) {
+      if (obd_ii_fuel_trim_offidle_time_bank2 < DAT_4000cac0) {
         bVar5 = bVar6;
       }
       DAT_40001d6e = bVar5 | 0x10;
-      if (DAT_40001d24 < DAT_4000cac0) {
+      if (obd_ii_fuel_trim_idle_time_bank2 < DAT_4000cac0) {
         DAT_40001d6e = bVar5;
       }
     }
@@ -27365,16 +27296,20 @@ void o2_fuel_learn_100ms(void)
   else {
     DAT_40001d6e = 0x3f;
   }
-  uVar3 = DAT_40001d44 * (0x100 - (uint)DAT_400086f7);
-  DAT_40001d44 = ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
-                 (int)stft_bank1 * (uint)DAT_400086f7;
-  DAT_40001d14 = (short)(DAT_40001d44 >> 8) +
-                 (ushort)((int)DAT_40001d44 < 0 && (DAT_40001d44 & 0xff) != 0);
-  uVar3 = DAT_40001d48 * (0x100 - (uint)DAT_400086f7);
-  DAT_40001d48 = ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
-                 (int)stft_bank2 * (uint)DAT_400086f7;
-  DAT_40001d16 = (short)(DAT_40001d48 >> 8) +
-                 (ushort)((int)DAT_40001d48 < 0 && (DAT_40001d48 & 0xff) != 0);
+  uVar3 = stft_filter_accum_bank1 * (0x100 - (uint)CAL_closedloop_stft_filter_unknown);
+  stft_filter_accum_bank1 =
+       ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
+       (int)stft_bank1 * (uint)CAL_closedloop_stft_filter_unknown;
+  stft_filtered_bank1 =
+       (short)(stft_filter_accum_bank1 >> 8) +
+       (ushort)((int)stft_filter_accum_bank1 < 0 && (stft_filter_accum_bank1 & 0xff) != 0);
+  uVar3 = stft_filter_accum_bank2 * (0x100 - (uint)CAL_closedloop_stft_filter_unknown);
+  stft_filter_accum_bank2 =
+       ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
+       (int)stft_bank2 * (uint)CAL_closedloop_stft_filter_unknown;
+  stft_filtered_bank2 =
+       (short)(stft_filter_accum_bank2 >> 8) +
+       (ushort)((int)stft_filter_accum_bank2 < 0 && (stft_filter_accum_bank2 & 0xff) != 0);
   return;
 }
 
@@ -27400,13 +27335,15 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
          ((LEA_obd_ii_P0301_dtc_state & 4) == 0)))) &&
        (((LEA_obd_ii_P0303_dtc_state & 4) == 0 && ((LEA_obd_ii_P0305_dtc_state & 4) == 0)))) {
       if ((CAL_obd_ii_P0171 & 7) != 0) {
-        if ((((DAT_4000ca22 < ltft_bank1) && ((DAT_40001d6e & 4) != 0)) ||
-            (((int)((uint)DAT_4000ca56 * 10) < (int)LEA_fuel_learn_lean_time_bank1 &&
-             ((DAT_40001d6e & 1) != 0)))) ||
-           (((int)((uint)DAT_4000ca56 * 10) < (int)LEA_fuel_learn_lean_time_bank1 &&
-            ((DAT_40001d6e & 2) != 0)))) {
+        if ((((CAL_obd_P0171_ltft_limit < ltft_bank1) && ((DAT_40001d6e & 4) != 0)) ||
+            (((int)((uint)CAL_obd_P0171_learn_time_threshold * 10) <
+              (int)LEA_fuel_learn_lean_time_bank1 && ((DAT_40001d6e & 1) != 0)))) ||
+           (((int)((uint)CAL_obd_P0171_learn_time_threshold * 10) <
+             (int)LEA_fuel_learn_lean_time_bank1 && ((DAT_40001d6e & 2) != 0)))) {
           DAT_400049a5 = DAT_400049a5 | 1;
-          if ((DAT_40001d68 != 0) && (DAT_40001d68 = DAT_40001d68 - 1, DAT_40001d68 == 0)) {
+          if ((obd_ii_P0171_debounce_counter != 0) &&
+             (obd_ii_P0171_debounce_counter = obd_ii_P0171_debounce_counter - 1,
+             obd_ii_P0171_debounce_counter == 0)) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0171,&LEA_obd_ii_P0171_dtc_state,&LEA_obd_ii_P0171_fail_counter,
                        &LEA_obd_ii_P0171_pass_counter,0x171,0);
@@ -27416,19 +27353,22 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 4) != 0)) {
           DAT_400049a5 = DAT_400049a5 | 1;
           obd_ii_monitor_pass(&CAL_obd_ii_P0171,&LEA_obd_ii_P0171_dtc_state);
-          if (DAT_40001d68 < DAT_4000d3f8) {
-            DAT_40001d68 = DAT_40001d68 + 1;
+          if (obd_ii_P0171_debounce_counter < DAT_4000d3f8) {
+            obd_ii_P0171_debounce_counter = obd_ii_P0171_debounce_counter + 1;
           }
         }
       }
       if ((CAL_obd_ii_P0172 & 7) != 0) {
-        if (((((int)ltft_bank1 < -(int)DAT_4000ca24) && ((DAT_40001d6e & 4) != 0)) ||
-            (((int)LEA_fuel_learn_lean_time_bank1 < (int)((uint)DAT_4000ca57 * -10) &&
-             ((DAT_40001d6e & 1) != 0)))) ||
-           (((int)LEA_fuel_learn_lean_time_bank1 < (int)((uint)DAT_4000ca57 * -10) &&
-            ((DAT_40001d6e & 2) != 0)))) {
+        if (((((int)ltft_bank1 < -(int)CAL_obd_P0172_ltft_limit) && ((DAT_40001d6e & 4) != 0)) ||
+            (((int)LEA_fuel_learn_lean_time_bank1 <
+              (int)((uint)CAL_obd_P0172_learn_time_threshold * -10) && ((DAT_40001d6e & 1) != 0))))
+           || (((int)LEA_fuel_learn_lean_time_bank1 <
+                (int)((uint)CAL_obd_P0172_learn_time_threshold * -10) && ((DAT_40001d6e & 2) != 0)))
+           ) {
           DAT_400049a5 = DAT_400049a5 | 1;
-          if ((DAT_40001d69 != 0) && (DAT_40001d69 = DAT_40001d69 - 1, DAT_40001d69 == 0)) {
+          if ((obd_ii_P0172_debounce_counter != 0) &&
+             (obd_ii_P0172_debounce_counter = obd_ii_P0172_debounce_counter - 1,
+             obd_ii_P0172_debounce_counter == 0)) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0172,&LEA_obd_ii_P0172_dtc_state,&LEA_obd_ii_P0172_fail_counter,
                        &LEA_obd_ii_P0172_pass_counter,0x172,0);
@@ -27438,8 +27378,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 4) != 0)) {
           DAT_400049a5 = DAT_400049a5 | 1;
           obd_ii_monitor_pass(&CAL_obd_ii_P0172,&LEA_obd_ii_P0172_dtc_state);
-          if (DAT_40001d69 < DAT_4000d3f9) {
-            DAT_40001d69 = DAT_40001d69 + 1;
+          if (obd_ii_P0172_debounce_counter < DAT_4000d3f9) {
+            obd_ii_P0172_debounce_counter = obd_ii_P0172_debounce_counter + 1;
           }
         }
       }
@@ -27451,13 +27391,15 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
         ((((LEA_obd_ii_P0302_dtc_state & 4) == 0 && ((LEA_obd_ii_P0304_dtc_state & 4) == 0)) &&
          ((LEA_obd_ii_P0306_dtc_state & 4) == 0)))))) {
       if ((CAL_obd_ii_P0174 & 7) != 0) {
-        if (((DAT_4000ca22 < ltft_bank2) && ((DAT_40001d6e & 0x20) != 0)) ||
-           ((((int)((uint)DAT_4000ca56 * 10) < (int)LEA_fuel_learn_lean_time_bank2 &&
-             ((DAT_40001d6e & 8) != 0)) ||
-            (((int)((uint)DAT_4000ca56 * 10) < (int)LEA_fuel_learn_lean_time_bank2 &&
-             ((DAT_40001d6e & 0x10) != 0)))))) {
+        if (((CAL_obd_P0171_ltft_limit < ltft_bank2) && ((DAT_40001d6e & 0x20) != 0)) ||
+           ((((int)((uint)CAL_obd_P0171_learn_time_threshold * 10) <
+              (int)LEA_fuel_learn_lean_time_bank2 && ((DAT_40001d6e & 8) != 0)) ||
+            (((int)((uint)CAL_obd_P0171_learn_time_threshold * 10) <
+              (int)LEA_fuel_learn_lean_time_bank2 && ((DAT_40001d6e & 0x10) != 0)))))) {
           DAT_400049a5 = DAT_400049a5 | 2;
-          if ((DAT_40001d6a != 0) && (DAT_40001d6a = DAT_40001d6a - 1, DAT_40001d6a == 0)) {
+          if ((obd_ii_P0174_debounce_counter != 0) &&
+             (obd_ii_P0174_debounce_counter = obd_ii_P0174_debounce_counter - 1,
+             obd_ii_P0174_debounce_counter == 0)) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0174,&LEA_obd_ii_P0174_dtc_state,&LEA_obd_ii_P0174_fail_counter,
                        &LEA_obd_ii_P0174_pass_counter,0x174,0);
@@ -27467,19 +27409,22 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 0x20) != 0)) {
           DAT_400049a5 = DAT_400049a5 | 2;
           obd_ii_monitor_pass(&CAL_obd_ii_P0174,&LEA_obd_ii_P0174_dtc_state);
-          if (DAT_40001d6a < DAT_4000d430) {
-            DAT_40001d6a = DAT_40001d6a + 1;
+          if (obd_ii_P0174_debounce_counter < DAT_4000d430) {
+            obd_ii_P0174_debounce_counter = obd_ii_P0174_debounce_counter + 1;
           }
         }
       }
       if ((CAL_obd_ii_P0175 & 7) != 0) {
-        if (((((int)ltft_bank2 < -(int)DAT_4000ca24) && ((DAT_40001d6e & 0x20) != 0)) ||
-            (((int)LEA_fuel_learn_lean_time_bank2 < (int)((uint)DAT_4000ca57 * -10) &&
-             ((DAT_40001d6e & 8) != 0)))) ||
-           (((int)LEA_fuel_learn_lean_time_bank2 < (int)((uint)DAT_4000ca57 * -10) &&
-            ((DAT_40001d6e & 0x10) != 0)))) {
+        if (((((int)ltft_bank2 < -(int)CAL_obd_P0172_ltft_limit) && ((DAT_40001d6e & 0x20) != 0)) ||
+            (((int)LEA_fuel_learn_lean_time_bank2 <
+              (int)((uint)CAL_obd_P0172_learn_time_threshold * -10) && ((DAT_40001d6e & 8) != 0))))
+           || (((int)LEA_fuel_learn_lean_time_bank2 <
+                (int)((uint)CAL_obd_P0172_learn_time_threshold * -10) &&
+               ((DAT_40001d6e & 0x10) != 0)))) {
           DAT_400049a5 = DAT_400049a5 | 2;
-          if ((DAT_40001d6b != 0) && (DAT_40001d6b = DAT_40001d6b - 1, DAT_40001d6b == 0)) {
+          if ((obd_ii_P0175_debounce_counter != 0) &&
+             (obd_ii_P0175_debounce_counter = obd_ii_P0175_debounce_counter - 1,
+             obd_ii_P0175_debounce_counter == 0)) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0175,&LEA_obd_ii_P0175_dtc_state,&LEA_obd_ii_P0175_fail_counter,
                        &LEA_obd_ii_P0175_pass_counter,0x175,0);
@@ -27489,14 +27434,14 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 0x20) != 0)) {
           DAT_400049a5 = DAT_400049a5 | 2;
           obd_ii_monitor_pass(&CAL_obd_ii_P0175,&LEA_obd_ii_P0175_dtc_state);
-          if (DAT_40001d6b < DAT_4000d431) {
-            DAT_40001d6b = DAT_40001d6b + 1;
+          if (obd_ii_P0175_debounce_counter < DAT_4000d431) {
+            obd_ii_P0175_debounce_counter = obd_ii_P0175_debounce_counter + 1;
           }
         }
       }
     }
-    if ((obd_ii_MIL_flags_unknown & 0x80) != 0) {
-      obd_ii_MIL_flags_unknown = obd_ii_MIL_flags_unknown & 0xff7f;
+    if ((obd_monitor_task_scheduler_token & 0x80) != 0) {
+      obd_monitor_task_scheduler_token = obd_monitor_task_scheduler_token & 0xff7f;
       if ((((((LEA_obd_ii_P0131_dtc_state & 4) == 0) && ((LEA_obd_ii_P0135_dtc_state & 4) == 0)) &&
            (((coilpack_failure_flags & 0x15) == 0 &&
             (((LEA_obd_ii_P0132_dtc_state & 4) == 0 && ((LEA_obd_ii_P0133_dtc_state & 4) == 0))))))
@@ -27508,15 +27453,18 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
              (coolant_temp <= CAL_closedloop_fuel_learn_coolant_min)) ||
             ((engine_speed_16bit == 0 ||
              (((torque_limit_source_flags & 0x3f) != 0 || ((inj_flags & 2) != 0)))))) ||
-           ((load_mass_per_stroke <= DAT_4000cba6 || (DAT_4000cba2 <= afr_commanded)))) {
-          DAT_40001d95 = DAT_4000cba4;
-          DAT_40001d93 = DAT_4000cba5;
+           ((load_mass_per_stroke <= CAL_obd_ii_high_load_monitor_load_min ||
+            (CAL_obd_ii_high_load_monitor_afr_max <= afr_commanded)))) {
+          DAT_40001d95 = CAL_obd_ii_P2191_lean_confirm_time;
+          DAT_40001d93 = CAL_obd_ii_P2192_rich_confirm_time;
         }
         else if (obd_ii_o2_sensor1_voltage < CAL_sensor_o2_lean_voltage_threshold) {
-          DAT_40001d93 = DAT_4000cba5;
+          DAT_40001d93 = CAL_obd_ii_P2192_rich_confirm_time;
           if (DAT_40001d95 == '\0') {
-            DAT_40001d95 = DAT_4000cba4;
-            if ((DAT_40001d6c != 0) && (DAT_40001d6c = DAT_40001d6c - 1, DAT_40001d6c == 0)) {
+            DAT_40001d95 = CAL_obd_ii_P2191_lean_confirm_time;
+            if ((obd_ii_P2191_debounce_counter != 0) &&
+               (obd_ii_P2191_debounce_counter = obd_ii_P2191_debounce_counter - 1,
+               obd_ii_P2191_debounce_counter == 0)) {
               obd_ii_monitor_fail_transition
                         (&CAL_obd_ii_P2191,&LEA_obd_ii_P2191_dtc_state,
                          &LEA_obd_ii_P2191_fail_counter,&LEA_obd_ii_P2191_pass_counter,0x2191,0);
@@ -27527,11 +27475,11 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
           }
         }
         else {
-          DAT_40001d95 = DAT_4000cba4;
+          DAT_40001d95 = CAL_obd_ii_P2191_lean_confirm_time;
           if (DAT_40001d93 == '\0') {
-            DAT_40001d93 = DAT_4000cba5;
-            if (DAT_40001d6c < DAT_4000d45b) {
-              DAT_40001d6c = DAT_40001d6c + 1;
+            DAT_40001d93 = CAL_obd_ii_P2192_rich_confirm_time;
+            if (obd_ii_P2191_debounce_counter < DAT_4000d45b) {
+              obd_ii_P2191_debounce_counter = obd_ii_P2191_debounce_counter + 1;
             }
             else {
               obd_ii_monitor_pass(&CAL_obd_ii_P2191,&LEA_obd_ii_P2191_dtc_state);
@@ -27552,15 +27500,18 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
         if (((((CAL_obd_ii_P2193 & 7) == 0) ||
              (coolant_temp <= CAL_closedloop_fuel_learn_coolant_min)) || (engine_speed_16bit == 0))
            || ((((torque_limit_source_flags & 0x3f) != 0 || ((inj_flags & 2) != 0)) ||
-               ((load_mass_per_stroke <= DAT_4000cba6 || (DAT_4000cba2 <= afr_commanded)))))) {
-          DAT_40001d94 = DAT_4000cba4;
-          DAT_40001d92 = DAT_4000cba5;
+               ((load_mass_per_stroke <= CAL_obd_ii_high_load_monitor_load_min ||
+                (CAL_obd_ii_high_load_monitor_afr_max <= afr_commanded)))))) {
+          DAT_40001d94 = CAL_obd_ii_P2191_lean_confirm_time;
+          DAT_40001d92 = CAL_obd_ii_P2192_rich_confirm_time;
         }
         else if (obd_ii_o2_sensor5_voltage < CAL_sensor_o2_lean_voltage_threshold) {
-          DAT_40001d92 = DAT_4000cba5;
+          DAT_40001d92 = CAL_obd_ii_P2192_rich_confirm_time;
           if (DAT_40001d94 == '\0') {
-            DAT_40001d94 = DAT_4000cba4;
-            if ((DAT_40001d6d != 0) && (DAT_40001d6d = DAT_40001d6d - 1, DAT_40001d6d == 0)) {
+            DAT_40001d94 = CAL_obd_ii_P2191_lean_confirm_time;
+            if ((obd_ii_P2193_debounce_counter != 0) &&
+               (obd_ii_P2193_debounce_counter = obd_ii_P2193_debounce_counter - 1,
+               obd_ii_P2193_debounce_counter == 0)) {
               obd_ii_monitor_fail_transition
                         (&CAL_obd_ii_P2193,&LEA_obd_ii_P2193_dtc_state,
                          &LEA_obd_ii_P2193_fail_counter,&LEA_obd_ii_P2193_pass_counter,0x2193,0);
@@ -27571,11 +27522,11 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
           }
         }
         else {
-          DAT_40001d94 = DAT_4000cba4;
+          DAT_40001d94 = CAL_obd_ii_P2191_lean_confirm_time;
           if (DAT_40001d92 == '\0') {
-            DAT_40001d92 = DAT_4000cba5;
-            if (DAT_40001d6d < DAT_4000d45c) {
-              DAT_40001d6d = DAT_40001d6d + 1;
+            DAT_40001d92 = CAL_obd_ii_P2192_rich_confirm_time;
+            if (obd_ii_P2193_debounce_counter < DAT_4000d45c) {
+              obd_ii_P2193_debounce_counter = obd_ii_P2193_debounce_counter + 1;
             }
             else {
               obd_ii_monitor_pass(&CAL_obd_ii_P2193,&LEA_obd_ii_P2193_dtc_state);
@@ -27600,13 +27551,14 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
        (((LEA_obd_ii_P0131_dtc_state & 4) == 0 &&
         (((((LEA_obd_ii_P0132_dtc_state & 4) == 0 && ((LEA_obd_ii_P0133_dtc_state & 4) == 0)) &&
           ((LEA_obd_ii_P0134_dtc_state & 4) == 0)) && ((LEA_obd_ii_P0135_dtc_state & 4) == 0)))))) {
-      if (((((int)(uint)DAT_4000cbd8 < (int)load_mass_per_stroke_raw) &&
-           ((int)load_mass_per_stroke_raw < (int)(uint)DAT_4000cbda)) &&
-          ((DAT_4000cbdc < engine_speed_8bit &&
-           ((engine_speed_8bit < DAT_4000cbdd && (DAT_4000cbe4 < coolant_temp)))))) &&
+      if (((((int)(uint)CAL_load_mass_per_stroke_raw_limit_3 < (int)load_mass_per_stroke_raw) &&
+           ((int)load_mass_per_stroke_raw < (int)(uint)CAL_obd_high_load_monitor_load_max)) &&
+          ((CAL_engine_speed_3_limit_0 < engine_speed_8bit &&
+           ((engine_speed_8bit < CAL_engine_speed_3_threshold_4 &&
+            (CAL_coolant_temp_limit_2 < coolant_temp)))))) &&
          (((DAT_40001d78 == 0 &&
-           (((DAT_4000cbde < obd_ii_maf_flow && (obd_ii_maf_flow < DAT_4000cbe0)) &&
-            ((cl_status_bank1 & 2) != 0)))) &&
+           (((CAL_maf_flow_1_limit_2 < obd_ii_maf_flow &&
+             (obd_ii_maf_flow < CAL_maf_flow_1_threshold_4)) && ((cl_status_bank1 & 2) != 0)))) &&
           ((((cl_state_flags_bank1 & 1) != 0 && ((DAT_40001d97 & 4) == 0)) &&
            ((DAT_40001d97 & 8) == 0)))))) {
         DAT_40001d97 = DAT_40001d97 | 1;
@@ -27651,13 +27603,13 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
        ((((LEA_obd_ii_P0151_dtc_state & 4) == 0 &&
          ((((LEA_obd_ii_P0152_dtc_state & 4) == 0 && ((LEA_obd_ii_P0153_dtc_state & 4) == 0)) &&
           ((LEA_obd_ii_P0154_dtc_state & 4) == 0)))) && ((LEA_obd_ii_P0155_dtc_state & 4) == 0)))) {
-      if ((((((int)(uint)DAT_4000cbd8 < (int)load_mass_per_stroke_raw) &&
-            ((int)load_mass_per_stroke_raw < (int)(uint)DAT_4000cbda)) &&
-           ((DAT_4000cbdc < engine_speed_8bit &&
-            ((engine_speed_8bit < DAT_4000cbdd && (DAT_4000cbe4 < coolant_temp)))))) &&
-          (DAT_40001d78 == 0)) &&
-         (((((DAT_4000cbde < obd_ii_maf_flow && (obd_ii_maf_flow < DAT_4000cbe0)) &&
-            ((cl_status_bank2 & 2) != 0)) &&
+      if ((((((int)(uint)CAL_load_mass_per_stroke_raw_limit_3 < (int)load_mass_per_stroke_raw) &&
+            ((int)load_mass_per_stroke_raw < (int)(uint)CAL_obd_high_load_monitor_load_max)) &&
+           ((CAL_engine_speed_3_limit_0 < engine_speed_8bit &&
+            ((engine_speed_8bit < CAL_engine_speed_3_threshold_4 &&
+             (CAL_coolant_temp_limit_2 < coolant_temp)))))) && (DAT_40001d78 == 0)) &&
+         (((((CAL_maf_flow_1_limit_2 < obd_ii_maf_flow &&
+             (obd_ii_maf_flow < CAL_maf_flow_1_threshold_4)) && ((cl_status_bank2 & 2) != 0)) &&
            (((cl_state_flags_bank2 & 1) != 0 && ((DAT_40001d96 & 4) == 0)))) &&
           ((DAT_40001d96 & 8) == 0)))) {
         DAT_40001d96 = DAT_40001d96 | 1;
@@ -27690,8 +27642,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
       DAT_40001d7b = 0;
     }
   }
-  if ((((DAT_40001d68 == 0) || (DAT_40001d6a == 0)) || (DAT_40001d6c == 0)) || (DAT_40001d6d == 0))
-  {
+  if ((((obd_ii_P0171_debounce_counter == 0) || (obd_ii_P0174_debounce_counter == 0)) ||
+      (obd_ii_P2191_debounce_counter == 0)) || (obd_ii_P2193_debounce_counter == 0)) {
     engine_state_failure_flags = engine_state_failure_flags | 0x80000;
   }
   else {
@@ -27784,7 +27736,7 @@ void o2_imbalance_window_update
       *param_4 = 0;
       param_3[0] = 0;
       param_3[1] = 0;
-      if (DAT_4000cbea < *param_5) {
+      if (CAL_obd_ii_o2_imbalance_threshold < *param_5) {
         *param_8 = *param_8 + '\x01';
         if (*param_8 == DAT_4000cbd7) {
           *flags = *flags | 6;
@@ -27807,12 +27759,12 @@ void o2_imbalance_window_update
 void obd_ii_init_fuel_trim_diagnostics(void)
 
 {
-  DAT_40001d68 = DAT_4000d3f8;
-  DAT_40001d69 = DAT_4000d3f9;
-  DAT_40001d6a = DAT_4000d430;
-  DAT_40001d6b = DAT_4000d431;
-  DAT_40001d6c = DAT_4000d45b;
-  DAT_40001d6d = DAT_4000d45c;
+  obd_ii_P0171_debounce_counter = DAT_4000d3f8;
+  obd_ii_P0172_debounce_counter = DAT_4000d3f9;
+  obd_ii_P0174_debounce_counter = DAT_4000d430;
+  obd_ii_P0175_debounce_counter = DAT_4000d431;
+  obd_ii_P2191_debounce_counter = DAT_4000d45b;
+  obd_ii_P2193_debounce_counter = DAT_4000d45c;
   obdii_update_dtc_state(&CAL_obd_ii_P0171,&LEA_obd_ii_P0171_dtc_state,0x171,0);
   obdii_update_dtc_state(&CAL_obd_ii_P0172,&LEA_obd_ii_P0172_dtc_state,0x172,0);
   obdii_update_dtc_state(&CAL_obd_ii_P0174,&LEA_obd_ii_P0174_dtc_state,0x174,0);
@@ -27821,21 +27773,21 @@ void obd_ii_init_fuel_trim_diagnostics(void)
   obdii_update_dtc_state(&CAL_obd_ii_P2193,&LEA_obd_ii_P2193_dtc_state,0x2193,0);
   obdii_update_dtc_state(&CAL_obd_ii_P219A,&LEA_obd_ii_P219A_dtc_state,0x219a,0);
   obdii_update_dtc_state(&CAL_obd_ii_P219B,&LEA_obd_ii_P219B_dtc_state,0x219b,0);
-  DAT_40001d94 = DAT_4000cba4;
-  DAT_40001d95 = DAT_4000cba4;
-  DAT_40001d92 = DAT_4000cba5;
-  DAT_40001d93 = DAT_4000cba5;
-  DAT_40001d20 = 0;
-  DAT_40001d1e = 0;
-  DAT_40001d24 = 0;
-  DAT_40001d22 = 0;
-  DAT_40001d28 = 0;
-  DAT_40001d26 = 0;
+  DAT_40001d94 = CAL_obd_ii_P2191_lean_confirm_time;
+  DAT_40001d95 = CAL_obd_ii_P2191_lean_confirm_time;
+  DAT_40001d92 = CAL_obd_ii_P2192_rich_confirm_time;
+  DAT_40001d93 = CAL_obd_ii_P2192_rich_confirm_time;
+  obd_ii_fuel_trim_offidle_time_bank2 = 0;
+  obd_ii_fuel_trim_offidle_time_bank1 = 0;
+  obd_ii_fuel_trim_idle_time_bank2 = 0;
+  obd_ii_fuel_trim_idle_time_bank1 = 0;
+  obd_ii_fuel_trim_zone3_time_bank2 = 0;
+  obd_ii_fuel_trim_zone3_time_bank1 = 0;
   DAT_40001d96 = 0;
   DAT_40001d97 = 0;
   DAT_40001d6e = 0;
-  DAT_40002190 = DAT_400087fe;
-  DAT_4000216a = DAT_4000216a & 0xe7ff;
+  evap_stft_settle_timer = DAT_400087fe;
+  evap_purge_flags = evap_purge_flags & 0xe7ff;
   DAT_40001d90 = 0;
   DAT_40001d8c = 0;
   DAT_40001d8a = 0;
@@ -27853,7 +27805,10 @@ void obd_ii_init_fuel_trim_diagnostics(void)
 
 
 
-void obd_ii_init_fuel_trim_diagnostics(void)
+// Mode 01 DTC status update: fuel system (P0171/2/4/5 lean/rich, P2191/3, P219A/B bank A/F
+// imbalance).
+
+void obd_ii_dtc_update_fuel_system(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -27892,7 +27847,7 @@ void throttle_actuator_init(void)
   int iVar2;
   
   DAT_40001d98 = 0;
-  FUN_000b8d74();
+  init_esci_a();
   siu_pcr[0xc6] = 0x100;
   uVar1 = REG_SIU_ECCR;
   REG_SIU_ECCR = uVar1 & 0xffffc0ff | 0x200;
@@ -27959,8 +27914,8 @@ void HC08_com(void)
         DAT_40001d9c = DAT_40001d9c + 1;
       }
     }
-    else if (((hc08_obd_flags & 0x80) != 0) && (DAT_40001d9a != -1)) {
-      DAT_40001d9a = DAT_40001d9a + 1;
+    else if (((hc08_obd_flags & 0x80) != 0) && (hc08_remote_comm_fault_count != -1)) {
+      hc08_remote_comm_fault_count = hc08_remote_comm_fault_count + 1;
     }
   }
   HC08_recv();
@@ -28141,7 +28096,7 @@ void idle(void)
   obd_ii_idle_speed_error = engine_speed_16bit - obd_ii_idle_speed_target_total;
   idle_speed_error_tps_compensated = engine_speed_16bit - u16_rspeed_rpm_40001db6;
   idle_comp_moving_blend_rpm_high = obd_ii_idle_speed_target_total + (ushort)CAL_idle_unknown1 * 8;
-  u16_rspeed_rpm_40001dd6 = obd_ii_idle_speed_target_total + (ushort)CAL_idle_unknown2 * 8;
+  idle_control_entry_rpm = obd_ii_idle_speed_target_total + (ushort)CAL_idle_unknown2 * 8;
   u16_rspeed_rpm_40001dd8 = obd_ii_idle_speed_target_total + (ushort)CAL_idle_unknown3 * 8;
   u16_rspeed_rpm_40001dda = obd_ii_idle_speed_target_total + (ushort)CAL_idle_unknown4 * 8;
   idle_rolling_target_delta_slewed = uVar6;
@@ -28152,13 +28107,13 @@ void idle(void)
                     CAL_idle_airflow_expected_X_rpm);
     if ((vvt_intake_mode_flags & 1) == 0) {
       uVar4 = 0;
-      if (DAT_40001e02 != '\0') {
-        DAT_40001e03 = 1;
-        DAT_40001e02 = '\0';
+      if (idle_air_low_load_cam_active != '\0') {
+        idle_air_fast_decay_flag = 1;
+        idle_air_low_load_cam_active = '\0';
       }
     }
     else {
-      DAT_40001e02 = '\x01';
+      idle_air_low_load_cam_active = '\x01';
       uVar4 = lookup_3D_uint32_interpolated
                         (8,8,(uint)vvt_error_scale,(uint)obd_ii_idle_speed_target_total,
                          u16_flow_100mg_s_ARRAY_4000cd34,u16_factor_1_255_ARRAY_4000cd14,
@@ -28177,9 +28132,9 @@ void idle(void)
          lookup_2D_uint16_interpolated
                    ('\x10',obd_ii_idle_speed_target_total,(uint16_t *)&DAT_4000bfda,
                     (uint16_t *)&DAT_4000bfba);
-    if (DAT_40001e02 != '\0') {
-      DAT_40001e03 = 1;
-      DAT_40001e02 = '\0';
+    if (idle_air_low_load_cam_active != '\0') {
+      idle_air_fast_decay_flag = 1;
+      idle_air_low_load_cam_active = '\0';
     }
   }
   else if (idle_strategy == IDLE_IPS_NORMAL) {
@@ -28187,9 +28142,9 @@ void idle(void)
          lookup_2D_uint16_interpolated
                    ('\x10',obd_ii_idle_speed_target_total,(uint16_t *)&DAT_4000c74a,
                     (uint16_t *)&DAT_4000c72a);
-    if (DAT_40001e02 != '\0') {
-      DAT_40001e03 = 1;
-      DAT_40001e02 = '\0';
+    if (idle_air_low_load_cam_active != '\0') {
+      idle_air_fast_decay_flag = 1;
+      idle_air_low_load_cam_active = '\0';
     }
   }
   else {
@@ -28203,27 +28158,36 @@ void idle(void)
   }
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {
     if (maf_accumulated_since_start_raw < 0x400) {
-      DAT_40001df2 = lookup_3D_uint8_interpolated
-                               (16,8,(ushort)coolant_temp,
-                                (ushort)((int)(uint)maf_accumulated_since_start_raw >> 2) & 0xff,
-                                &DAT_4000e1a8,s_0_P_p_4000e190,&DAT_4000e1a0);
+      idle_air_warmup_factor =
+           lookup_3D_uint8_interpolated
+                     (16,8,(ushort)coolant_temp,
+                      (ushort)((int)(uint)maf_accumulated_since_start_raw >> 2) & 0xff,
+                      &CAL_idle_air_warmup_factor_ips,CAL_idle_air_warmup_factor_ips_X_coolant_temp,
+                      &CAL_idle_air_warmup_factor_ips_Y_maf_accum);
     }
     else {
-      DAT_40001df2 = lookup_3D_uint8_interpolated
-                               ('\x10','\b',(ushort)coolant_temp,0xff,&DAT_4000e1a8,s_0_P_p_4000e190
-                                ,&DAT_4000e1a0);
+      idle_air_warmup_factor =
+           lookup_3D_uint8_interpolated
+                     ('\x10','\b',(ushort)coolant_temp,0xff,&CAL_idle_air_warmup_factor_ips,
+                      CAL_idle_air_warmup_factor_ips_X_coolant_temp,
+                      &CAL_idle_air_warmup_factor_ips_Y_maf_accum);
     }
   }
   else if (maf_accumulated_since_start_raw < 0x400) {
-    DAT_40001df2 = lookup_3D_uint8_interpolated
-                             ('\x10','\b',(ushort)coolant_temp,
-                              (ushort)((int)(uint)maf_accumulated_since_start_raw >> 2) & 0xff,
-                              &DAT_400091fa,&DAT_400091e2,&DAT_400091f2);
+    idle_air_warmup_factor =
+         lookup_3D_uint8_interpolated
+                   ('\x10','\b',(ushort)coolant_temp,
+                    (ushort)((int)(uint)maf_accumulated_since_start_raw >> 2) & 0xff,
+                    &CAL_idle_air_warmup_factor_manual,
+                    &CAL_idle_air_warmup_factor_manual_X_coolant_temp,
+                    &CAL_idle_air_warmup_factor_manual_Y_maf_accumulated);
   }
   else {
-    DAT_40001df2 = lookup_3D_uint8_interpolated
-                             ('\x10','\b',(ushort)coolant_temp,0xff,&DAT_400091fa,&DAT_400091e2,
-                              &DAT_400091f2);
+    idle_air_warmup_factor =
+         lookup_3D_uint8_interpolated
+                   ('\x10','\b',(ushort)coolant_temp,0xff,&CAL_idle_air_warmup_factor_manual,
+                    &CAL_idle_air_warmup_factor_manual_X_coolant_temp,
+                    &CAL_idle_air_warmup_factor_manual_Y_maf_accumulated);
   }
   if (((engine_operating_state_flags & 1) != 0) &&
      (((COD_base.COD[0] >> 0x19 & 7) == 0 || ((obd_ii_cruise_status & 2) == 0)))) {
@@ -28238,13 +28202,13 @@ void idle(void)
   }
   else {
     idle_air_target_flow = obd_ii_idle_air_output;
-    if (u16_rspeed_rpm_40001dd6 <= engine_speed_16bit) {
+    if (idle_control_entry_rpm <= engine_speed_16bit) {
       idle_air_target_flow =
            obd_ii_idle_air_output +
            (short)(((longlong)(int)(uint)idle_air_comp_while_moving *
-                    (longlong)(int)((uint)engine_speed_16bit - (uint)u16_rspeed_rpm_40001dd6) &
+                    (longlong)(int)((uint)engine_speed_16bit - (uint)idle_control_entry_rpm) &
                    0xffffffffU) /
-                  ((ulonglong)idle_comp_moving_blend_rpm_high - (ulonglong)u16_rspeed_rpm_40001dd6 &
+                  ((ulonglong)idle_comp_moving_blend_rpm_high - (ulonglong)idle_control_entry_rpm &
                   0xffffffff));
     }
   }
@@ -28339,11 +28303,11 @@ void idle(void)
   }
   bVar8 = lookup_2D_uint8_interpolated('\b',engine_speed_8bit,&DAT_40009402,&DAT_400093fa);
   idle_comp_high_rpm_transient_max = (ushort)bVar8 * 10;
-  sVar1 = idle_comp_carspeed_decaying + (ushort)DAT_4000872c + sVar1;
+  sVar1 = idle_comp_carspeed_decaying + (ushort)CAL_idle_exit_rpm_offset + sVar1;
   if ((((((engine_operating_state_flags & 1) == 0) ||
         (runtime_since_start <= (uint)DAT_400088f5 * 10)) ||
        ((int)(uint)engine_speed_16bit <=
-        (int)((int)(short)obd_ii_idle_speed_target_total + (uint)DAT_4000872c))) ||
+        (int)((int)(short)obd_ii_idle_speed_target_total + (uint)CAL_idle_exit_rpm_offset))) ||
       ((int)-(uint)DAT_4000872d <= engine_rpm_rate)) &&
      (((engine_operating_state_flags & 0x10) == 0 || (idle_comp_high_rpm_transient == 0)))) {
     engine_operating_state_flags = engine_operating_state_flags & 0xffef;
@@ -28361,7 +28325,7 @@ void idle(void)
       else {
         uVar6 = idle_comp_high_rpm_transient;
         if ((engine_operating_state_flags & 8) == 0) {
-          uVar6 = (ushort)DAT_4000872c;
+          uVar6 = (ushort)CAL_idle_exit_rpm_offset;
         }
       }
     }
@@ -28464,8 +28428,8 @@ void idle(void)
   }
   if (((((engine_operating_state_flags & 1) == 0) ||
        (((COD_base.COD[0] >> 0x19 & 7) != 0 && ((obd_ii_cruise_status & 2) != 0)))) ||
-      (u16_rspeed_rpm_40001dd6 <= engine_speed_16bit)) || (engine_is_running == false)) {
-    if (((engine_speed_16bit < u16_rspeed_rpm_40001dd6) && (engine_is_running != false)) &&
+      (idle_control_entry_rpm <= engine_speed_16bit)) || (engine_is_running == false)) {
+    if (((engine_speed_16bit < idle_control_entry_rpm) && (engine_is_running != false)) &&
        (obd_ii_idle_speed_error < 0)) {
       idle_air_control_proportional_term = DAT_40001de0;
       if (iVar10 < (int)idle_air_control_integral_term) {
@@ -28496,7 +28460,7 @@ void idle(void)
       DAT_40001dde = (ushort)DAT_400087c2;
       if ((((engine_operating_state_flags & 1) == 0) ||
           (((COD_base.COD[0] >> 0x19 & 7) != 0 && ((obd_ii_cruise_status & 2) != 0)))) ||
-         ((engine_speed_16bit <= u16_rspeed_rpm_40001dd6 ||
+         ((engine_speed_16bit <= idle_control_entry_rpm ||
           (((inj_flags & 1) == 0 || (ign_per_cyl_fire_enable != '?')))))) {
         engine_operating_state_flags = engine_operating_state_flags & 0xfff5;
       }
@@ -28523,15 +28487,17 @@ void idle(void)
           (obd_ii_idle_speed_error < 0)) &&
          ((0 < (int)idle_air_control_integral_term || (-200 < obd_ii_idle_speed_error)))) {
         idle_air_control_integral_term = idle_air_control_integral_term + (int)(short)DAT_40001de2;
-        if ((int)idle_air_control_integral_term / 0x2800 < (int)(uint)DAT_400087c3) {
+        if ((int)idle_air_control_integral_term / 0x2800 < (int)(uint)CAL_idle_air_control_unknown)
+        {
           if ((int)idle_air_control_integral_term / 0x2800 <= (int)-(uint)DAT_400087c4) {
             idle_air_control_integral_term = (uint)DAT_400087c4 * -0x2800;
           }
         }
         else {
-          idle_air_control_integral_term = (uint)DAT_400087c3 * 0x2800;
+          idle_air_control_integral_term = (uint)CAL_idle_air_control_unknown * 0x2800;
         }
-        if ((maf_accumulated_since_start_raw < DAT_40008816) || ((DAT_4000216a & 2) != 0)) {
+        if ((maf_accumulated_since_start_raw < CAL_idle_flow_adj1_maf_accum_max) ||
+           ((evap_purge_flags & 2) != 0)) {
           engine_operating_state_flags = engine_operating_state_flags & 0xfffb;
         }
         else {
@@ -28544,19 +28510,20 @@ void idle(void)
                 if (((int)(((int)(short)LEA_idle_cold_learning_coolant >> 10) +
                           (uint)((short)LEA_idle_cold_learning_coolant < 0 &&
                                 (LEA_idle_cold_learning_coolant & 0x3ff) != 0)) <
-                     (int)(uint)DAT_400086c2) &&
+                     (int)(uint)CAL_idle_learn_integral_max) &&
                    (LEA_idle_cold_learning_coolant = LEA_idle_cold_learning_coolant + 1,
-                   (short)DAT_400047d0 < (short)LEA_idle_cold_learning_coolant)) {
-                  DAT_400047d0 = LEA_idle_cold_learning_coolant;
+                   (short)LEA_obd_monitor_flag_G < (short)LEA_idle_cold_learning_coolant)) {
+                  LEA_obd_monitor_flag_G = LEA_idle_cold_learning_coolant;
                 }
               }
               else if (((CAL_idle_learn_temp_range[1] < coolant_temp) &&
                        ((int)(((int)(short)LEA_obd_ii_idle_learn >> 10) +
                              (uint)((short)LEA_obd_ii_idle_learn < 0 &&
-                                   (LEA_obd_ii_idle_learn & 0x3ff) != 0)) < (int)(uint)DAT_400086c2)
-                       ) && (LEA_obd_ii_idle_learn = LEA_obd_ii_idle_learn + 1,
-                            (short)DAT_400047c8 < (short)LEA_obd_ii_idle_learn)) {
-                DAT_400047c8 = LEA_obd_ii_idle_learn;
+                                   (LEA_obd_ii_idle_learn & 0x3ff) != 0)) <
+                        (int)(uint)CAL_idle_learn_integral_max)) &&
+                      (LEA_obd_ii_idle_learn = LEA_obd_ii_idle_learn + 1,
+                      (short)LEA_obd_monitor_flag_C < (short)LEA_obd_ii_idle_learn)) {
+                LEA_obd_monitor_flag_C = LEA_obd_ii_idle_learn;
               }
             }
             else if ((CAL_idle_unknown6 < coolant_temp) &&
@@ -28564,19 +28531,20 @@ void idle(void)
               if (((int)(((int)(short)LEA_idle_cold_learning_coolant_ac_on >> 10) +
                         (uint)((short)LEA_idle_cold_learning_coolant_ac_on < 0 &&
                               (LEA_idle_cold_learning_coolant_ac_on & 0x3ff) != 0)) <
-                   (int)(uint)DAT_400086c2) &&
+                   (int)(uint)CAL_idle_learn_integral_max) &&
                  (LEA_idle_cold_learning_coolant_ac_on = LEA_idle_cold_learning_coolant_ac_on + 1,
-                 (short)DAT_400047cc < (short)LEA_idle_cold_learning_coolant_ac_on)) {
-                DAT_400047cc = LEA_idle_cold_learning_coolant_ac_on;
+                 (short)LEA_obd_monitor_flag_E < (short)LEA_idle_cold_learning_coolant_ac_on)) {
+                LEA_obd_monitor_flag_E = LEA_idle_cold_learning_coolant_ac_on;
               }
             }
             else if ((CAL_idle_learn_temp_range[1] < coolant_temp) &&
                     (((int)(((int)(short)LEA_idle_learn_ac_on >> 10) +
                            (uint)((short)LEA_idle_learn_ac_on < 0 &&
-                                 (LEA_idle_learn_ac_on & 0x3ff) != 0)) < (int)(uint)DAT_400086c2 &&
+                                 (LEA_idle_learn_ac_on & 0x3ff) != 0)) <
+                      (int)(uint)CAL_idle_learn_integral_max &&
                      (LEA_idle_learn_ac_on = LEA_idle_learn_ac_on + 1,
-                     (short)DAT_400047c4 < (short)LEA_idle_learn_ac_on)))) {
-              DAT_400047c4 = LEA_idle_learn_ac_on;
+                     (short)LEA_obd_monitor_flag_A < (short)LEA_idle_learn_ac_on)))) {
+              LEA_obd_monitor_flag_A = LEA_idle_learn_ac_on;
             }
           }
           if ((int)idle_air_control_integral_term / 0x2800 < (int)-(uint)DAT_400086c1) {
@@ -28584,44 +28552,44 @@ void idle(void)
                (ac_compressor_ign_compensation_active == false)) {
               if ((CAL_idle_unknown6 < coolant_temp) &&
                  (coolant_temp < CAL_idle_learn_temp_range[0])) {
-                if (((int)-(uint)DAT_400086c3 <
+                if (((int)-(uint)CAL_idle_learn_integral_min <
                      (int)(((int)(short)LEA_idle_cold_learning_coolant >> 10) +
                           (uint)((short)LEA_idle_cold_learning_coolant < 0 &&
                                 (LEA_idle_cold_learning_coolant & 0x3ff) != 0))) &&
                    (LEA_idle_cold_learning_coolant = LEA_idle_cold_learning_coolant - 1,
-                   (short)LEA_idle_cold_learning_coolant < (short)DAT_400047d2)) {
-                  DAT_400047d2 = LEA_idle_cold_learning_coolant;
+                   (short)LEA_idle_cold_learning_coolant < (short)LEA_obd_monitor_flag_H)) {
+                  LEA_obd_monitor_flag_H = LEA_idle_cold_learning_coolant;
                 }
               }
               else if (((CAL_idle_learn_temp_range[1] < coolant_temp) &&
-                       ((int)-(uint)DAT_400086c3 <
+                       ((int)-(uint)CAL_idle_learn_integral_min <
                         (int)(((int)(short)LEA_obd_ii_idle_learn >> 10) +
                              (uint)((short)LEA_obd_ii_idle_learn < 0 &&
                                    (LEA_obd_ii_idle_learn & 0x3ff) != 0)))) &&
                       (LEA_obd_ii_idle_learn = LEA_obd_ii_idle_learn - 1,
-                      (short)LEA_obd_ii_idle_learn < (short)DAT_400047ca)) {
-                DAT_400047ca = LEA_obd_ii_idle_learn;
+                      (short)LEA_obd_ii_idle_learn < (short)LEA_obd_monitor_flag_D)) {
+                LEA_obd_monitor_flag_D = LEA_obd_ii_idle_learn;
               }
             }
             else if ((CAL_idle_unknown6 < coolant_temp) &&
                     (coolant_temp < CAL_idle_learn_temp_range[0])) {
-              if (((int)-(uint)DAT_400086c3 <
+              if (((int)-(uint)CAL_idle_learn_integral_min <
                    (int)(((int)(short)LEA_idle_cold_learning_coolant_ac_on >> 10) +
                         (uint)((short)LEA_idle_cold_learning_coolant_ac_on < 0 &&
                               (LEA_idle_cold_learning_coolant_ac_on & 0x3ff) != 0))) &&
                  (LEA_idle_cold_learning_coolant_ac_on = LEA_idle_cold_learning_coolant_ac_on - 1,
-                 (short)LEA_idle_cold_learning_coolant_ac_on < (short)DAT_400047ce)) {
-                DAT_400047ce = LEA_idle_cold_learning_coolant_ac_on;
+                 (short)LEA_idle_cold_learning_coolant_ac_on < (short)LEA_obd_monitor_flag_F)) {
+                LEA_obd_monitor_flag_F = LEA_idle_cold_learning_coolant_ac_on;
               }
             }
             else if ((CAL_idle_learn_temp_range[1] < coolant_temp) &&
-                    (((int)-(uint)DAT_400086c3 <
+                    (((int)-(uint)CAL_idle_learn_integral_min <
                       (int)(((int)(short)LEA_idle_learn_ac_on >> 10) +
                            (uint)((short)LEA_idle_learn_ac_on < 0 &&
                                  (LEA_idle_learn_ac_on & 0x3ff) != 0)) &&
                      (LEA_idle_learn_ac_on = LEA_idle_learn_ac_on - 1,
-                     (short)LEA_idle_learn_ac_on < (short)DAT_400047c6)))) {
-              DAT_400047c6 = LEA_idle_learn_ac_on;
+                     (short)LEA_idle_learn_ac_on < (short)LEA_obd_monitor_flag_B)))) {
+              LEA_obd_monitor_flag_B = LEA_idle_learn_ac_on;
             }
           }
         }
@@ -28646,7 +28614,7 @@ void idle(void)
     obd_ii_idle_status = 0;
   }
   else if (((engine_operating_state_flags & 8) == 0) ||
-          (maf_accumulated_since_start_raw < DAT_40008816)) {
+          (maf_accumulated_since_start_raw < CAL_idle_flow_adj1_maf_accum_max)) {
     obd_ii_idle_status = 1;
   }
   else if (((int)(uint)DAT_400086c0 < (int)idle_air_control_integral_term / 0x2800) ||
@@ -28670,7 +28638,8 @@ void idle(void)
             ((int)uVar11 >> 10) + (uint)((int)uVar11 < 0 && (uVar11 & 0x3ff) != 0) +
             (uint)DAT_40001dec +
             (uint)idle_comp_ac +
-            (uint)DAT_40001de6 + ((int)((uint)idle_airflow_expected * (uint)DAT_40001df2) >> 6)) -
+            (uint)DAT_40001de6 +
+            ((int)((uint)idle_airflow_expected * (uint)idle_air_warmup_factor) >> 6)) -
            idle_bypass_airflow / 10) +
            (uint)(ushort)bVar8 +
            (uint)idle_comp_failed_cylinder_misfire +
@@ -28755,21 +28724,22 @@ void idle_airflow_decay_manager_1000hz(void)
     if (idle_air_target_flow < 0x13ec) {
       DAT_40001dca = idle_air_target_flow;
     }
-    DAT_40001e03 = '\0';
+    idle_air_fast_decay_flag = '\0';
   }
-  else if (DAT_40001e0b == 0) {
-    if (DAT_40001e03 == '\0') {
+  else if (idle_air_decay_step_timer == 0) {
+    if (idle_air_fast_decay_flag == '\0') {
       if ((ulonglong)DAT_40001dca / 10 < 0x100) {
         x_val = (uint8_t)((ulonglong)DAT_40001dca / 10);
       }
       else {
         x_val = 0xff;
       }
-      DAT_40001e0b = lookup_2D_uint8_interpolated
-                               ('\x05',x_val,CAL_ign_comp_coldstart_X_coolant_temp,&DAT_40008d04);
+      idle_air_decay_step_timer =
+           lookup_2D_uint8_interpolated
+                     ('\x05',x_val,CAL_ign_comp_coldstart_X_coolant_temp,&DAT_40008d04);
     }
     else {
-      DAT_40001e0b = DAT_40008889;
+      idle_air_decay_step_timer = CAL_idle_air_fast_decay_period;
     }
     if (idle_air_target_flow < DAT_40001dca) {
       if (1 < DAT_400087a5) {
@@ -28783,14 +28753,15 @@ void idle_airflow_decay_manager_1000hz(void)
       }
     }
     else {
-      DAT_40001e03 = '\0';
+      idle_air_fast_decay_flag = '\0';
     }
   }
-  else if ((DAT_40001e03 == '\0') || (DAT_40001e0b <= DAT_40008889)) {
-    DAT_40001e0b = DAT_40001e0b - 1;
+  else if ((idle_air_fast_decay_flag == '\0') ||
+          (idle_air_decay_step_timer <= CAL_idle_air_fast_decay_period)) {
+    idle_air_decay_step_timer = idle_air_decay_step_timer - 1;
   }
   else {
-    DAT_40001e0b = DAT_40008889;
+    idle_air_decay_step_timer = CAL_idle_air_fast_decay_period;
   }
   sVar4 = DAT_40001dde + -1;
   if (DAT_40001dde == 0) {
@@ -28808,22 +28779,22 @@ void idle_airflow_decay_manager_1000hz(void)
   }
   if (idle_comp_decay_step_timer == '\0') {
     if (((COD_base.COD[0] >> 0x1c & 7) < 2) || (ac_compressor_ign_compensation_active == false)) {
-      DAT_40001e0c = DAT_4000880c;
+      idle_comp_decay_step = DAT_4000880c;
       idle_comp_decay_step_timer = DAT_400087ef;
     }
     else {
-      DAT_40001e0c = DAT_40008767;
+      idle_comp_decay_step = DAT_40008767;
       idle_comp_decay_step_timer = DAT_40008733;
     }
     if (((short)idle_comp_car_speed < (short)idle_comp_carspeed_decaying) &&
-       ((short)(ushort)DAT_40001e0c < (short)idle_comp_carspeed_decaying)) {
-      idle_comp_carspeed_decaying = idle_comp_carspeed_decaying - DAT_40001e0c;
+       ((short)(ushort)idle_comp_decay_step < (short)idle_comp_carspeed_decaying)) {
+      idle_comp_carspeed_decaying = idle_comp_carspeed_decaying - idle_comp_decay_step;
     }
     else {
       idle_comp_carspeed_decaying = idle_comp_car_speed;
     }
-    bVar1 = (short)(ushort)DAT_40001e0c < (short)idle_comp_high_rpm_transient;
-    uVar5 = idle_comp_high_rpm_transient - DAT_40001e0c;
+    bVar1 = (short)(ushort)idle_comp_decay_step < (short)idle_comp_high_rpm_transient;
+    uVar5 = idle_comp_high_rpm_transient - idle_comp_decay_step;
     idle_comp_high_rpm_transient = 0;
     if (bVar1) {
       idle_comp_high_rpm_transient = uVar5;
@@ -28859,10 +28830,11 @@ void obd_ii_idle_speed_control_monitor(void)
       DAT_40001e23 = 0;
       DAT_40001e25 = 0;
     }
-    else if (coolant_temp < DAT_4000ca5c) {
+    else if (coolant_temp < CAL_coolant_temp_threshold) {
       if ((short)(ushort)CAL_idle_unknown2 < obd_ii_idle_speed_error) {
         DAT_40001e26 = DAT_40001e26 + 1;
-        if (((DAT_4000ca46 <= DAT_40001e26) && (DAT_40001e26 = 0, DAT_40001e22 != 0)) &&
+        if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e26) &&
+            (DAT_40001e26 = 0, DAT_40001e22 != 0)) &&
            (DAT_40001e22 = DAT_40001e22 - 1, DAT_40001e22 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state,&LEA_obd_ii_P050A_fail_counter,
@@ -28879,7 +28851,8 @@ void obd_ii_idle_speed_control_monitor(void)
     }
     else if ((short)(ushort)CAL_idle_unknown2 < obd_ii_idle_speed_error) {
       DAT_40001e27 = DAT_40001e27 + 1;
-      if (((DAT_4000ca46 <= DAT_40001e27) && (DAT_40001e27 = 0, DAT_40001e21 != 0)) &&
+      if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e27) &&
+          (DAT_40001e27 = 0, DAT_40001e21 != 0)) &&
          (DAT_40001e21 = DAT_40001e21 - 1, DAT_40001e21 == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state,&LEA_obd_ii_P0507_fail_counter,
@@ -28889,20 +28862,20 @@ void obd_ii_idle_speed_control_monitor(void)
     else {
       DAT_40001e27 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state);
-      if (DAT_40001e21 < DAT_4000d409) {
+      if (DAT_40001e21 < CAL_idle_unknown10) {
         DAT_40001e21 = DAT_40001e21 + 1;
       }
     }
   }
-  else if (coolant_temp < DAT_4000ca5c) {
+  else if (coolant_temp < CAL_coolant_temp_threshold) {
     if ((CAL_obd_ii_P050A & 7) != 0) {
       if ((((((1 < (COD_base.COD[0] >> 0x1c & 7)) && (ac_compressor_ign_compensation_active)) &&
-            ((int)(uint)DAT_4000ca45 <
+            ((int)(uint)CAL_obd_ii_idle_learn_limit <
              (int)(((int)(short)LEA_idle_cold_learning_coolant_ac_on >> 10) +
                   (uint)((short)LEA_idle_cold_learning_coolant_ac_on < 0 &&
                         (LEA_idle_cold_learning_coolant_ac_on & 0x3ff) != 0)))) ||
            ((((COD_base.COD[0] >> 0x1c & 7) < 2 || (!ac_compressor_ign_compensation_active)) &&
-            ((int)(uint)DAT_4000ca45 <
+            ((int)(uint)CAL_obd_ii_idle_learn_limit <
              (int)(((int)(short)LEA_idle_cold_learning_coolant >> 10) +
                   (uint)((short)LEA_idle_cold_learning_coolant < 0 &&
                         (LEA_idle_cold_learning_coolant & 0x3ff) != 0)))))) &&
@@ -28911,14 +28884,16 @@ void obd_ii_idle_speed_control_monitor(void)
             ((int)(((int)(short)LEA_idle_cold_learning_coolant_ac_on >> 10) +
                   (uint)((short)LEA_idle_cold_learning_coolant_ac_on < 0 &&
                         (LEA_idle_cold_learning_coolant_ac_on & 0x3ff) != 0)) <
-             (int)-(uint)DAT_4000ca44)) ||
+             (int)-(uint)CAL_idle_learn_ac_on_param)) ||
            ((((COD_base.COD[0] >> 0x1c & 7) < 2 || (!ac_compressor_ign_compensation_active)) &&
             ((int)(((int)(short)LEA_idle_cold_learning_coolant >> 10) +
                   (uint)((short)LEA_idle_cold_learning_coolant < 0 &&
-                        (LEA_idle_cold_learning_coolant & 0x3ff) != 0)) < (int)-(uint)DAT_4000ca44))
-           )) && ((int)((uint)DAT_4000ca67 << 1) < (int)obd_ii_idle_speed_error)))) {
+                        (LEA_idle_cold_learning_coolant & 0x3ff) != 0)) <
+             (int)-(uint)CAL_idle_learn_ac_on_param)))) &&
+          ((int)((uint)DAT_4000ca67 << 1) < (int)obd_ii_idle_speed_error)))) {
         DAT_40001e25 = DAT_40001e25 + 1;
-        if (((DAT_4000ca46 <= DAT_40001e25) && (DAT_40001e25 = 0, DAT_40001e22 != 0)) &&
+        if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e25) &&
+            (DAT_40001e25 = 0, DAT_40001e22 != 0)) &&
            (DAT_40001e22 = DAT_40001e22 - 1, DAT_40001e22 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state,&LEA_obd_ii_P050A_fail_counter,
@@ -28939,11 +28914,11 @@ void obd_ii_idle_speed_control_monitor(void)
       if ((((((COD_base.COD[0] >> 0x1c & 7) < 2) || (!ac_compressor_ign_compensation_active)) ||
            ((int)(((int)(short)LEA_idle_learn_ac_on >> 10) +
                  (uint)((short)LEA_idle_learn_ac_on < 0 && (LEA_idle_learn_ac_on & 0x3ff) != 0)) <=
-            (int)(uint)DAT_4000ca45)) &&
+            (int)(uint)CAL_obd_ii_idle_learn_limit)) &&
           (((1 < (COD_base.COD[0] >> 0x1c & 7) && (ac_compressor_ign_compensation_active)) ||
            ((int)(((int)(short)LEA_obd_ii_idle_learn >> 10) +
                  (uint)((short)LEA_obd_ii_idle_learn < 0 && (LEA_obd_ii_idle_learn & 0x3ff) != 0))
-            <= (int)(uint)DAT_4000ca45)))) ||
+            <= (int)(uint)CAL_obd_ii_idle_learn_limit)))) ||
          ((int)((uint)DAT_4000ca68 * -2) <= (int)obd_ii_idle_speed_error)) {
         DAT_40001e23 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0506,&LEA_obd_ii_P0506_dtc_state);
@@ -28953,7 +28928,8 @@ void obd_ii_idle_speed_control_monitor(void)
       }
       else {
         DAT_40001e23 = DAT_40001e23 + 1;
-        if (((DAT_4000ca46 <= DAT_40001e23) && (DAT_40001e23 = 0, DAT_40001e20 != 0)) &&
+        if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e23) &&
+            (DAT_40001e23 = 0, DAT_40001e20 != 0)) &&
            (DAT_40001e20 = DAT_40001e20 - 1, DAT_40001e20 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0506,&LEA_obd_ii_P0506_dtc_state,&LEA_obd_ii_P0506_fail_counter,
@@ -28963,24 +28939,25 @@ void obd_ii_idle_speed_control_monitor(void)
     }
     if ((CAL_obd_ii_P0507 & 7) != 0) {
       if ((((((COD_base.COD[0] >> 0x1c & 7) < 2) || (ac_compressor_ign_compensation_active == false)
-            ) || ((int)-(uint)DAT_4000ca44 <=
+            ) || ((int)-(uint)CAL_idle_learn_ac_on_param <=
                   (int)(((int)(short)LEA_idle_learn_ac_on >> 10) +
                        (uint)((short)LEA_idle_learn_ac_on < 0 && (LEA_idle_learn_ac_on & 0x3ff) != 0
                              )))) &&
           (((1 < (COD_base.COD[0] >> 0x1c & 7) && (ac_compressor_ign_compensation_active != false))
-           || ((int)-(uint)DAT_4000ca44 <=
+           || ((int)-(uint)CAL_idle_learn_ac_on_param <=
                (int)(((int)(short)LEA_obd_ii_idle_learn >> 10) +
                     (uint)((short)LEA_obd_ii_idle_learn < 0 && (LEA_obd_ii_idle_learn & 0x3ff) != 0)
                     ))))) || ((int)obd_ii_idle_speed_error <= (int)((uint)DAT_4000ca67 << 1))) {
         DAT_40001e24 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state);
-        if (DAT_40001e21 < DAT_4000d409) {
+        if (DAT_40001e21 < CAL_idle_unknown10) {
           DAT_40001e21 = DAT_40001e21 + 1;
         }
       }
       else {
         DAT_40001e24 = DAT_40001e24 + 1;
-        if (((DAT_4000ca46 <= DAT_40001e24) && (DAT_40001e24 = 0, DAT_40001e21 != 0)) &&
+        if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e24) &&
+            (DAT_40001e24 = 0, DAT_40001e21 != 0)) &&
            (DAT_40001e21 = DAT_40001e21 - 1, DAT_40001e21 == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state,&LEA_obd_ii_P0507_fail_counter,
@@ -28998,7 +28975,7 @@ void obd_ii_init_idle_control_diagnostics(void)
 
 {
   DAT_40001e20 = DAT_4000d408;
-  DAT_40001e21 = DAT_4000d409;
+  DAT_40001e21 = CAL_idle_unknown10;
   DAT_40001e22 = DAT_4000d451;
   obdii_update_dtc_state(&CAL_obd_ii_P0506,&LEA_obd_ii_P0506_dtc_state,0x506,0);
   obdii_update_dtc_state(&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state,0x507,0);
@@ -29008,35 +28985,39 @@ void obd_ii_init_idle_control_diagnostics(void)
 
 
 
-void obd_ii_init_idle_diagnostics(void)
+// Mode 01 DTC status update: idle speed control (P0506, P0507, P050A).
+
+void obd_ii_dtc_update_idle_control(void)
 
 {
   if (((LEA_obd_ii_P0506_dtc_state & 4) != 0) || ((LEA_obd_ii_P0507_dtc_state & 4) != 0)) {
-    if ((short)(ushort)DAT_4000ca45 < (short)LEA_idle_learn_ac_on >> 10) {
-      LEA_idle_learn_ac_on = (ushort)DAT_4000ca45 << 9;
+    if ((short)(ushort)CAL_obd_ii_idle_learn_limit < (short)LEA_idle_learn_ac_on >> 10) {
+      LEA_idle_learn_ac_on = (ushort)CAL_obd_ii_idle_learn_limit << 9;
     }
-    if ((short)(ushort)DAT_4000ca45 < (short)LEA_obd_ii_idle_learn >> 10) {
-      LEA_obd_ii_idle_learn = (ushort)DAT_4000ca45 << 9;
+    if ((short)(ushort)CAL_obd_ii_idle_learn_limit < (short)LEA_obd_ii_idle_learn >> 10) {
+      LEA_obd_ii_idle_learn = (ushort)CAL_obd_ii_idle_learn_limit << 9;
     }
-    if ((int)(short)LEA_idle_learn_ac_on >> 10 < (int)-(uint)DAT_4000ca44) {
-      LEA_idle_learn_ac_on = (ushort)DAT_4000ca44 * -0x200;
+    if ((int)(short)LEA_idle_learn_ac_on >> 10 < (int)-(uint)CAL_idle_learn_ac_on_param) {
+      LEA_idle_learn_ac_on = (ushort)CAL_idle_learn_ac_on_param * -0x200;
     }
-    if ((int)(short)LEA_obd_ii_idle_learn >> 10 < (int)-(uint)DAT_4000ca44) {
-      LEA_obd_ii_idle_learn = (ushort)DAT_4000ca44 * -0x200;
+    if ((int)(short)LEA_obd_ii_idle_learn >> 10 < (int)-(uint)CAL_idle_learn_ac_on_param) {
+      LEA_obd_ii_idle_learn = (ushort)CAL_idle_learn_ac_on_param * -0x200;
     }
   }
   if ((LEA_obd_ii_P050A_dtc_state & 4) != 0) {
-    if ((short)(ushort)DAT_4000ca45 < (short)LEA_idle_cold_learning_coolant_ac_on >> 10) {
-      LEA_idle_cold_learning_coolant_ac_on = (ushort)DAT_4000ca45 << 9;
+    if ((short)(ushort)CAL_obd_ii_idle_learn_limit <
+        (short)LEA_idle_cold_learning_coolant_ac_on >> 10) {
+      LEA_idle_cold_learning_coolant_ac_on = (ushort)CAL_obd_ii_idle_learn_limit << 9;
     }
-    if ((short)(ushort)DAT_4000ca45 < (short)LEA_idle_cold_learning_coolant >> 10) {
-      LEA_idle_cold_learning_coolant = (ushort)DAT_4000ca45 << 9;
+    if ((short)(ushort)CAL_obd_ii_idle_learn_limit < (short)LEA_idle_cold_learning_coolant >> 10) {
+      LEA_idle_cold_learning_coolant = (ushort)CAL_obd_ii_idle_learn_limit << 9;
     }
-    if ((int)(short)LEA_idle_cold_learning_coolant_ac_on >> 10 < (int)-(uint)DAT_4000ca44) {
-      LEA_idle_cold_learning_coolant_ac_on = (ushort)DAT_4000ca44 * -0x200;
+    if ((int)(short)LEA_idle_cold_learning_coolant_ac_on >> 10 <
+        (int)-(uint)CAL_idle_learn_ac_on_param) {
+      LEA_idle_cold_learning_coolant_ac_on = (ushort)CAL_idle_learn_ac_on_param * -0x200;
     }
-    if ((int)(short)LEA_idle_cold_learning_coolant >> 10 < (int)-(uint)DAT_4000ca44) {
-      LEA_idle_cold_learning_coolant = (ushort)DAT_4000ca44 * -0x200;
+    if ((int)(short)LEA_idle_cold_learning_coolant >> 10 < (int)-(uint)CAL_idle_learn_ac_on_param) {
+      LEA_idle_cold_learning_coolant = (ushort)CAL_idle_learn_ac_on_param * -0x200;
     }
   }
   obd_ii_set_active_code_and_FF
@@ -29268,7 +29249,7 @@ void knock(void)
     }
     if ((engine_state_failure_flags & 0x8013f3) == 0) {
       if ((knock_flags & 4) == 0) {
-        ign_retard_knock[cyl2] = '\0';
+        ign_knock_retard_octane[cyl2] = '\0';
       }
       else {
         knock_octane_correction_per_cyl[cyl2] =
@@ -29278,14 +29259,14 @@ void knock(void)
               (longlong)((int)(uint)octane_scaler_shortterm[cyl2] >> 8)) >> 8);
         if (((knock_flags & 0x20) == 0) &&
            (CAL_knock_detection_engine_speed_min < engine_speed_8bit)) {
-          ign_retard_knock[cyl2] =
+          ign_knock_retard_octane[cyl2] =
                (char)knock_octane_correction_per_cyl[cyl2] +
                (char)((ulonglong)
                       ((longlong)(int)(uint)(ushort)ign_adv_delta_to_knock_safe *
                       (longlong)((int)(uint)octane_scaler_current_min >> 8)) >> 8);
         }
         else {
-          ign_retard_knock[cyl2] =
+          ign_knock_retard_octane[cyl2] =
                (char)knock_octane_correction_per_cyl[cyl2] +
                (char)((ulonglong)
                       ((longlong)(int)(uint)(ushort)ign_adv_delta_to_knock_safe *
@@ -29294,13 +29275,13 @@ void knock(void)
       }
     }
     else {
-      ign_retard_knock[cyl2] = (u8_angle_1_4deg)ign_adv_delta_to_knock_safe;
+      ign_knock_retard_octane[cyl2] = (u8_angle_1_4deg)ign_adv_delta_to_knock_safe;
     }
     if (cyl2 == 0) {
-      knock_ign_retard_sum = (u16_angle_1_4deg)ign_retard_knock[0];
+      knock_ign_retard_sum = (u16_angle_1_4deg)ign_knock_retard_octane[0];
     }
     else {
-      knock_ign_retard_sum = knock_ign_retard_sum + ign_retard_knock[cyl2];
+      knock_ign_retard_sum = knock_ign_retard_sum + ign_knock_retard_octane[cyl2];
     }
   }
   return;
@@ -29362,7 +29343,7 @@ void knock_detect_and_update_baseline(uint8_t cur_cyl,uint32_t total_magnitude)
     else {
       knock_count_per_cyl[cur_cyl] = 0xff;
     }
-    (&DAT_40001e28)[cur_cyl] = CAL_knock_retard_hold_time;
+    (&knock_ign_retard_hold_counter_per_cyl)[cur_cyl] = CAL_knock_retard_hold_time;
   }
   else {
     DAT_40001e42 = '\0';
@@ -29470,8 +29451,9 @@ void knock_ign_retard_decay_200hz(void)
     }
     knock_inhibit_timer_tps_rate = uVar1;
     for (cyl = 0; cyl < 6; cyl = cyl + 1) {
-      if ((&DAT_40001e28)[cyl] != '\0') {
-        (&DAT_40001e28)[cyl] = (&DAT_40001e28)[cyl] + -1;
+      if ((&knock_ign_retard_hold_counter_per_cyl)[cyl] != '\0') {
+        (&knock_ign_retard_hold_counter_per_cyl)[cyl] =
+             (&knock_ign_retard_hold_counter_per_cyl)[cyl] + -1;
       }
     }
     if ((knock_flags & 2) != 0) {
@@ -29484,7 +29466,7 @@ void knock_ign_retard_decay_200hz(void)
   else {
     knock_ign_retard_timer_unknown2 = '\0';
     for (cyl = 0; cyl < 6; cyl = cyl + 1) {
-      if ((&DAT_40001e28)[cyl] == '\0') {
+      if ((&knock_ign_retard_hold_counter_per_cyl)[cyl] == '\0') {
         if (CAL_knock_ign_retard_decay_rate < ign_knock_retard[cyl]) {
           ign_knock_retard[cyl] = ign_knock_retard[cyl] - CAL_knock_ign_retard_decay_rate;
         }
@@ -29569,10 +29551,10 @@ void obd_ii_evap_leak_detection_monitor(void)
   if ((LEA_obd_ii_P0500_dtc_state & 4) == 0) {
     DAT_40001e8c = uVar4;
   }
-  if ((DAT_40001d68 == '\0') || (DAT_40001d6a == '\0')) {
+  if ((obd_ii_P0171_debounce_counter == '\0') || (obd_ii_P0174_debounce_counter == '\0')) {
     DAT_40001e8c = DAT_40001e8c | 0x8000;
   }
-  if ((DAT_40001d69 == '\0') || (DAT_40001d6b == '\0')) {
+  if ((obd_ii_P0172_debounce_counter == '\0') || (obd_ii_P0175_debounce_counter == '\0')) {
     DAT_40001e8c = DAT_40001e8c | 0x10000;
   }
   uVar3 = DAT_40001e8c;
@@ -29583,9 +29565,9 @@ void obd_ii_evap_leak_detection_monitor(void)
   if ((engine_state_failure_flags & 0x40000000) == 0) {
     DAT_40001e8c = uVar3;
   }
-  uVar3 = DAT_40001e6c | 2;
+  uVar3 = evap_system_state_flags | 2;
   if (DAT_40001e8c == 0) {
-    uVar3 = DAT_40001e6c;
+    uVar3 = evap_system_state_flags;
   }
   if ((((DAT_40001e8c & 0x1fffc) == 0) && ((LEA_obd_ii_P0455_dtc_state & 4) == 0)) &&
      ((LEA_obd_ii_P0442_dtc_state & 4) == 0)) {
@@ -29596,20 +29578,20 @@ void obd_ii_evap_leak_detection_monitor(void)
   }
   if (((((((uVar3 & 2) == 0) && ((int)DAT_4000cb1a < (int)(uint)obd_ii_atmospheric_baro)) &&
         (DAT_40001e94 == 0)) &&
-       (((((LEA_obd_ii_P0442_dtc_state & 8) == 0 && ((DAT_4000216a & 0x200) == 0)) ||
+       (((((LEA_obd_ii_P0442_dtc_state & 8) == 0 && ((evap_purge_flags & 0x200) == 0)) ||
          (DAT_40001e92 == 0)) &&
-        ((fuel_level < DAT_4000cb07 &&
+        ((fuel_level < CAL_evap_leak_test_fuel_level_max &&
          ((((DAT_4000cb06 < fuel_level || (obd_dyno_mode_active)) && (DAT_4000caef < coolant_temp))
           && ((temp_engine_air < DAT_4000caf0 && ((uVar3 & 0x6040) == 0)))))))))) ||
       ((uVar3 & 1) != 0)) &&
      (((car_speed_u8 == '\0' && ((cl_status_bank1 & 2) != 0)) &&
       (((cl_status_bank2 & 2) != 0 &&
        (((engine_operating_state_flags & 8) != 0 && ((ignition_on_flags & 1) != 0)))))))) {
-    DAT_40001e6c = uVar3 | 4;
+    evap_system_state_flags = uVar3 | 4;
     uVar2 = obd_ii_monitor_status_this_drive_cycle;
   }
   else {
-    DAT_40001e6c = uVar3 & 0xfffffffb;
+    evap_system_state_flags = uVar3 & 0xfffffffb;
     uVar2 = obd_ii_monitor_status_this_drive_cycle & 0xfbff;
     if ((int)DAT_4000cb1a < (int)(uint)obd_ii_atmospheric_baro) {
       uVar2 = obd_ii_monitor_status_this_drive_cycle;
@@ -29638,41 +29620,41 @@ void obd_ii_evap_leak_detection_monitor(void)
   }
   else {
     DAT_40001e82 = DAT_4000cb0a;
-    if (((LEA_obd_ii_P0442_dtc_state & 8) != 0) || ((DAT_4000216a & 0x200) != 0)) {
+    if (((LEA_obd_ii_P0442_dtc_state & 8) != 0) || ((evap_purge_flags & 0x200) != 0)) {
       DAT_40001e92 = DAT_4000cb1e;
     }
   }
-  if (((DAT_40001e6c & 4) == 0) || ((DAT_40001e6c & 8) == 0)) {
+  if (((evap_system_state_flags & 4) == 0) || ((evap_system_state_flags & 8) == 0)) {
     if (((obd_ii_mode2f_flags_enabled & 0x4000000) == 0) &&
-       ((((ulonglong)DAT_40001f90 - 0x4000000 & 0xffffffff) != 0 &&
+       ((((ulonglong)obd_ii_mode08_active_test_mask - 0x4000000 & 0xffffffff) != 0 &&
         (CAL_obd_ii_standards_supported != '\x06')))) {
-      if ((DAT_40001e6c & 0x40000) == 0) {
-        DAT_40001ce8 = 0;
+      if ((evap_system_state_flags & 0x40000) == 0) {
+        evap_vent_valve_closed = 0;
         siu_gpdo[0xc3] = '\0';
       }
     }
     else if ((obd_ii_mode2f_flags_state & 0x4000000) == 0) {
-      DAT_40001ce8 = 0;
+      evap_vent_valve_closed = 0;
       siu_gpdo[0xc3] = '\0';
     }
     else {
-      DAT_40001ce8 = 1;
+      evap_vent_valve_closed = 1;
       siu_gpdo[0xc3] = '\x01';
     }
     obd_ii_system_leak_status = 0;
-    uVar3 = DAT_40001e6c & 0xffffffcf | 1;
+    uVar3 = evap_system_state_flags & 0xffffffcf | 1;
     if (DAT_4000cb1c == '\0') {
-      uVar3 = DAT_40001e6c & 0xffffffcf;
+      uVar3 = evap_system_state_flags & 0xffffffcf;
     }
     DAT_40001e7c = 0xff;
   }
   else {
-    uVar3 = DAT_40001e6c | 0x10;
+    uVar3 = evap_system_state_flags | 0x10;
     if (obd_ii_system_leak_status == 0) {
       if (DAT_40001e82 == '\0') {
-        DAT_40001ce8 = 1;
+        evap_vent_valve_closed = 1;
         siu_gpdo[0xc3] = '\x01';
-        DAT_40001e83 = DAT_4000cb0b;
+        DAT_40001e83 = CAL_evap_leak_test_purge_settle_delay;
         obd_ii_system_leak_status = 1;
       }
     }
@@ -29683,7 +29665,7 @@ void obd_ii_evap_leak_detection_monitor(void)
                        ) - CAL_evap_purge_pressure_offset;
         DAT_40001e7e = 0;
         DAT_40001e70 = 0;
-        DAT_40001e84 = DAT_4000cb0c;
+        DAT_40001e84 = CAL_evap_leak_test_settle_samples;
         obd_ii_system_leak_status = 2;
       }
       else {
@@ -29692,7 +29674,7 @@ void obd_ii_evap_leak_detection_monitor(void)
     }
     else if (obd_ii_system_leak_status == 2) {
       if (DAT_40001e84 == 0) {
-        DAT_40001e6c = uVar3;
+        evap_system_state_flags = uVar3;
         bVar6 = lookup_3D_uint8_interpolated
                           (8,16,DAT_40001e7a & 0xff,(ushort)fuel_level,
                            s_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx_4000df58,s__4000df40,s__4000df48);
@@ -29700,11 +29682,11 @@ void obd_ii_evap_leak_detection_monitor(void)
         DAT_40001e98 = (ushort)DAT_4000caf3;
         DAT_40001e9a = 0;
         obd_ii_system_leak_status = obd_ii_system_leak_status + 1;
-        DAT_40001e6c = DAT_40001e6c & 0xfffff7ff;
+        evap_system_state_flags = evap_system_state_flags & 0xfffff7ff;
       }
       else {
         DAT_40001e84 = DAT_40001e84 - 1;
-        DAT_40001e6c = uVar3;
+        evap_system_state_flags = uVar3;
       }
       if (DAT_40001e7e < obd_ii_evap_purge_pressure) {
         DAT_40001e7e = obd_ii_evap_purge_pressure;
@@ -29712,7 +29694,7 @@ void obd_ii_evap_leak_detection_monitor(void)
       if (obd_ii_evap_purge_pressure < DAT_40001e70) {
         DAT_40001e70 = obd_ii_evap_purge_pressure;
       }
-      uVar3 = DAT_40001e6c;
+      uVar3 = evap_system_state_flags;
       if (DAT_40001e7e < DAT_40001e70) {
         DAT_40001e7a = 0;
       }
@@ -29721,7 +29703,7 @@ void obd_ii_evap_leak_detection_monitor(void)
       }
     }
     else if (obd_ii_system_leak_status == 3) {
-      uVar3 = DAT_40001e6c | 0x30;
+      uVar3 = evap_system_state_flags | 0x30;
       if (DAT_40001e88 < obd_ii_evap_purge_pressure) {
         if ((int)DAT_40001e88 + (int)DAT_40001510 < (int)obd_ii_evap_purge_pressure) {
           DAT_40001e96 = DAT_4000216c;
@@ -29744,32 +29726,33 @@ void obd_ii_evap_leak_detection_monitor(void)
           }
         }
         if (DAT_40001e98 == 0) {
-          if ((((DAT_40001e6c & 0x800) == 0) && (DAT_4000cb10 < _obd_ii_commanded_evap_purge)) ||
+          if ((((evap_system_state_flags & 0x800) == 0) &&
+              (DAT_4000cb10 < _obd_ii_commanded_evap_purge)) ||
              (DAT_4000cb12 < _obd_ii_commanded_evap_purge)) {
-            uVar3 = DAT_40001e6c | 0x70;
+            uVar3 = evap_system_state_flags | 0x70;
           }
-          DAT_40001e6c = uVar3;
-          uVar3 = DAT_40001e6c & 0xfffffffe;
+          evap_system_state_flags = uVar3;
+          uVar3 = evap_system_state_flags & 0xfffffffe;
         }
         else {
           DAT_40001e98 = DAT_40001e98 - 1;
           if (DAT_4000cb04 < obd_ii_evap_purge_pressure) {
-            DAT_40001e6c = uVar3;
+            evap_system_state_flags = uVar3;
             obd_ii_monitor_pass(&CAL_obd_ii_P0455,&LEA_obd_ii_P0455_dtc_state);
-            uVar3 = DAT_40001e6c | 0x80;
+            uVar3 = evap_system_state_flags | 0x80;
           }
-          else if ((int)obd_ii_evap_purge_pressure < -(int)DAT_4000cb08) {
-            uVar3 = DAT_40001e6c | 0x830;
+          else if ((int)obd_ii_evap_purge_pressure < -(int)CAL_evap_purge_flow_vacuum_min) {
+            uVar3 = evap_system_state_flags | 0x830;
           }
         }
       }
       else {
-        DAT_40001e6c = uVar3 & 0xffffffdf;
-        DAT_40001e83 = DAT_4000cb0b;
+        evap_system_state_flags = uVar3 & 0xffffffdf;
+        DAT_40001e83 = CAL_evap_leak_test_purge_settle_delay;
         obd_ii_monitor_pass(&CAL_obd_ii_P0455,&LEA_obd_ii_P0455_dtc_state);
         DAT_400049a4 = 0;
         obd_ii_system_leak_status = obd_ii_system_leak_status + 1;
-        uVar3 = DAT_40001e6c;
+        uVar3 = evap_system_state_flags;
       }
     }
     else if (obd_ii_system_leak_status == 4) {
@@ -29780,14 +29763,14 @@ void obd_ii_evap_leak_detection_monitor(void)
           DAT_40001e80 = obd_ii_evap_purge_pressure;
           DAT_40001e85 = DAT_4000cb0d;
           DAT_40001e86 = DAT_4000cb0e;
-          DAT_40001e6c = uVar3;
+          evap_system_state_flags = uVar3;
           DAT_40001e78 = lookup_3D_uint8_interpolated
                                    (4,10,(ushort)air_temp_ambient,(ushort)fuel_level,
                                     s________________4000e106,s_00__4000e0f8,s__<KZix_4000e0fc);
           DAT_40001e79 = lookup_2D_uint8_interpolated
                                    (16,fuel_level,s______049_4000df30,s__<KZix_4000df20);
           obd_ii_system_leak_status = obd_ii_system_leak_status + 1;
-          uVar3 = DAT_40001e6c;
+          uVar3 = evap_system_state_flags;
         }
         else {
           DAT_40001e83 = DAT_40001e83 + -1;
@@ -29797,14 +29780,14 @@ void obd_ii_evap_leak_detection_monitor(void)
     else if (obd_ii_system_leak_status == 5) {
       DAT_40001e74 = (obd_ii_evap_purge_pressure - DAT_40001e80) -
                      (short)(((int)(short)DAT_40001e7a * (int)(short)(DAT_4000cb0e - DAT_40001e86))
-                            / (int)(uint)DAT_4000cb0c);
+                            / (int)(uint)CAL_evap_leak_test_settle_samples);
       sVar5 = DAT_40001e86 + -1;
       if (DAT_40001e86 == 0) {
         sVar5 = DAT_40001e86;
       }
       DAT_40001e86 = sVar5;
       if (DAT_40001e85 == '\0') {
-        DAT_40001e6c = uVar3;
+        evap_system_state_flags = uVar3;
         obd_ii_monitor_pass(&CAL_obd_ii_P0442,&LEA_obd_ii_P0442_dtc_state);
         if (DAT_40001e91 < DAT_4000d40b) {
           DAT_40001e91 = DAT_40001e91 + 1;
@@ -29814,11 +29797,12 @@ void obd_ii_evap_leak_detection_monitor(void)
           if (DAT_40001e90 < DAT_4000d41a) {
             DAT_40001e90 = DAT_40001e90 + 1;
           }
-          if (((int)(uint)DAT_40004888 < (int)(short)DAT_40001e74) && (0 < (short)DAT_40001e74)) {
-            DAT_40004888 = DAT_40001e74;
-            sort_array10(&DAT_40004888);
+          if (((int)(uint)LEA_obd_monitor_14 < (int)(short)DAT_40001e74) &&
+             (0 < (short)DAT_40001e74)) {
+            LEA_obd_monitor_14 = DAT_40001e74;
+            sort_array10(&LEA_obd_monitor_14);
           }
-          DAT_40001e6c = DAT_40001e6c & 0xfffffffe;
+          evap_system_state_flags = evap_system_state_flags & 0xfffffffe;
         }
         else if (((((short)(ushort)DAT_40001e78 < (short)DAT_40001e74) &&
                   ((DAT_4000cb1c == '\0' || (DAT_40001e86 == 0)))) && (DAT_40001e90 != 0)) &&
@@ -29826,12 +29810,12 @@ void obd_ii_evap_leak_detection_monitor(void)
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0456,&LEA_obd_ii_P0456_dtc_state,&LEA_obd_ii_P0456_fail_counter,
                      &LEA_obd_ii_P0456_pass_counter,0x456,0);
-          DAT_40001e6c = DAT_40001e6c & 0xfffffffe;
+          evap_system_state_flags = evap_system_state_flags & 0xfffffffe;
         }
       }
       else {
         DAT_40001e85 = DAT_40001e85 + -1;
-        DAT_40001e6c = uVar3;
+        evap_system_state_flags = uVar3;
         obd_ii_eval_leak_check_result = DAT_40001e74;
         if ((((short)(ushort)DAT_40001e79 < (short)DAT_40001e74) &&
             (((DAT_4000cb1c == '\0' || (DAT_40001e85 == '\0')) && (DAT_40001e91 != 0)))) &&
@@ -29839,21 +29823,21 @@ void obd_ii_evap_leak_detection_monitor(void)
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0442,&LEA_obd_ii_P0442_dtc_state,&LEA_obd_ii_P0442_fail_counter,
                      &LEA_obd_ii_P0442_pass_counter,0x442,0);
-          DAT_40001e6c = DAT_40001e6c & 0xfffffffe;
+          evap_system_state_flags = evap_system_state_flags & 0xfffffffe;
         }
       }
       if ((LEA_obd_ii_P0442_dtc_state & 8) != 0) {
         DAT_400049a8 = obd_ii_eval_leak_check_result;
         DAT_400049ac = DAT_40001e79;
       }
-      uVar3 = DAT_40001e6c;
+      uVar3 = evap_system_state_flags;
       if ((LEA_obd_ii_P0456_dtc_state & 8) != 0) {
         DAT_400049aa = DAT_40001e74;
         DAT_400049ad = DAT_40001e78;
       }
     }
   }
-  DAT_40001e6c = uVar3;
+  evap_system_state_flags = uVar3;
   if ((((LEA_obd_ii_P0456_dtc_state & 8) != 0) && ((LEA_obd_ii_P0456_dtc_state & 4) == 0)) ||
      (((LEA_obd_ii_P0456_dtc_state & 4) != 0 && ((LEA_obd_ii_P0456_dtc_state & 0x10) != 0)))) {
     obd_ii_engine_tests_completeness = obd_ii_engine_tests_completeness & 0xfb;
@@ -29866,7 +29850,7 @@ void obd_ii_evap_leak_detection_monitor(void)
     LEA_obd_ii_P0442_dtc_state = LEA_obd_ii_P0442_dtc_state & 0xf7;
     LEA_obd_ii_P0455_dtc_state = LEA_obd_ii_P0455_dtc_state & 0xf7;
     LEA_obd_ii_P0456_dtc_state = LEA_obd_ii_P0456_dtc_state & 0xf7;
-    DAT_40001e6c = DAT_40001e6c & 0xffffff7f;
+    evap_system_state_flags = evap_system_state_flags & 0xffffff7f;
     DAT_40001e94 = (ushort)DAT_4000caee << 4;
   }
   return;
@@ -29889,7 +29873,9 @@ void obd_ii_init_evap_leak_diagnostics(void)
 
 
 
-void obd_ii_init_evap_leak_monitors(void)
+// Mode 01 DTC status update: evap leak (P0442, P0455, P0456).
+
+void obd_ii_dtc_update_evap_leak(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -29986,7 +29972,7 @@ void obd_ii_module_coding_vin_monitors_update(void)
 
 
 
-void obd_ii_knock_threshold_per_clyinder_100ms(void)
+void obd_ii_knock_threshold_per_cylinder_100ms(void)
 
 {
   if (((CAL_obd_ii_P050B & 7) != 0) && ((ign_operating_state_flags & 2) != 0)) {
@@ -29999,7 +29985,7 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
          (obd_ii_ign_adv_per_cylinder[5] <= ign_target_rate_limited)))))) {
       p050b_fail_cycle_counter = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P050B,&LEA_obd_ii_P050B_dtc_state);
-      if (DAT_40001ea4 < DAT_4000d453) {
+      if (DAT_40001ea4 < CAL_obd_ii_P050B_maturing_limit) {
         DAT_40001ea4 = DAT_40001ea4 + 1;
       }
     }
@@ -30036,7 +30022,7 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
     if ((knock_flags & 0x80) != 0) {
       if ((ign_adv_min < obd_ii_ign_adv_per_cylinder[0]) || (ign_knock_retard[0] == '\0')) {
         if (DAT_40001ea5 == 0) {
-          if (DAT_40001ea6 < DAT_4000d45e) {
+          if (DAT_40001ea6 < CAL_obd_ii_P2336_maturing_limit) {
             DAT_40001ea6 = DAT_40001ea6 + 1;
           }
         }
@@ -30046,33 +30032,37 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
       }
       else {
         DAT_40001ea5 = DAT_40001ea5 + 1;
-        if ((DAT_4000cbf5 < DAT_40001ea5) && (DAT_40001ea5 = 0, DAT_40001ea6 != 0)) {
+        if ((CAL_obd_ii_knock_no_activity_count < DAT_40001ea5) &&
+           (DAT_40001ea5 = 0, DAT_40001ea6 != 0)) {
           DAT_40001ea6 = DAT_40001ea6 - 1;
         }
       }
     }
     if ((knock_flags & 8) != 0) {
-      if ((LEA_octane_scaler[0] == 0xffff) && (DAT_4000cbf8 < octane_scaler_shortterm[0])) {
+      if ((LEA_octane_scaler[0] == 0xffff) &&
+         (CAL_knock_octane_scaler_short_term_limit < octane_scaler_shortterm[0])) {
         DAT_40001eb1 = DAT_40001eb1 + 1;
-        if ((DAT_4000cbfd < DAT_40001eb1) && (DAT_40001eb1 = 0, DAT_40001eb2 != 0)) {
-          DAT_40001eb2 = DAT_40001eb2 - 1;
+        if ((DAT_4000cbfd < DAT_40001eb1) && (DAT_40001eb1 = 0, obd_ii_knock_monitor_counters != 0))
+        {
+          obd_ii_knock_monitor_counters = obd_ii_knock_monitor_counters - 1;
         }
       }
       else if (DAT_40001eb1 == 0) {
-        if (DAT_40001eb2 < DAT_4000d45e) {
-          DAT_40001eb2 = DAT_40001eb2 + 1;
+        if (obd_ii_knock_monitor_counters < CAL_obd_ii_P2336_maturing_limit) {
+          obd_ii_knock_monitor_counters = obd_ii_knock_monitor_counters + 1;
         }
       }
       else {
         DAT_40001eb1 = DAT_40001eb1 - 1;
       }
     }
-    if ((DAT_40001ea6 == 0) || (DAT_40001eb2 == 0)) {
+    if ((DAT_40001ea6 == 0) || (obd_ii_knock_monitor_counters == 0)) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2336,&LEA_obd_ii_P2336_dtc_state,&LEA_obd_ii_P2336_fail_counter,
                  &LEA_obd_ii_P2336_pass_counter,0x2336,0);
     }
-    else if (((DAT_40001ea6 == DAT_4000d45e) && (DAT_40001eb2 == DAT_4000d45e)) &&
+    else if (((DAT_40001ea6 == CAL_obd_ii_P2336_maturing_limit) &&
+             (obd_ii_knock_monitor_counters == CAL_obd_ii_P2336_maturing_limit)) &&
             ((knock_flags & 8) != 0)) {
       obd_ii_monitor_pass(&CAL_obd_ii_P2336,&LEA_obd_ii_P2336_dtc_state);
     }
@@ -30081,7 +30071,7 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
     if ((knock_flags & 0x80) != 0) {
       if ((ign_adv_min < obd_ii_ign_adv_per_cylinder[1]) || (ign_knock_retard[1] == '\0')) {
         if (DAT_40001ea7 == 0) {
-          if (DAT_40001ea8 < DAT_4000d45f) {
+          if (DAT_40001ea8 < CAL_obd_ii_P2337_maturing_limit) {
             DAT_40001ea8 = DAT_40001ea8 + 1;
           }
         }
@@ -30091,20 +30081,22 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
       }
       else {
         DAT_40001ea7 = DAT_40001ea7 + 1;
-        if ((DAT_4000cbf5 < DAT_40001ea7) && (DAT_40001ea7 = 0, DAT_40001ea8 != 0)) {
+        if ((CAL_obd_ii_knock_no_activity_count < DAT_40001ea7) &&
+           (DAT_40001ea7 = 0, DAT_40001ea8 != 0)) {
           DAT_40001ea8 = DAT_40001ea8 - 1;
         }
       }
     }
     if ((knock_flags & 8) != 0) {
-      if ((LEA_octane_scaler[1] == 0xffff) && (DAT_4000cbf8 < octane_scaler_shortterm[1])) {
+      if ((LEA_octane_scaler[1] == 0xffff) &&
+         (CAL_knock_octane_scaler_short_term_limit < octane_scaler_shortterm[1])) {
         DAT_40001eb3 = DAT_40001eb3 + 1;
         if ((DAT_4000cbfd < DAT_40001eb3) && (DAT_40001eb3 = 0, DAT_40001eb4 != 0)) {
           DAT_40001eb4 = DAT_40001eb4 - 1;
         }
       }
       else if (DAT_40001eb3 == 0) {
-        if (DAT_40001eb4 < DAT_4000d45f) {
+        if (DAT_40001eb4 < CAL_obd_ii_P2337_maturing_limit) {
           DAT_40001eb4 = DAT_40001eb4 + 1;
         }
       }
@@ -30117,8 +30109,8 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
                 (&CAL_obd_ii_P2337,&LEA_obd_ii_P2337_dtc_state,&LEA_obd_ii_P2337_fail_counter,
                  &LEA_obd_ii_P2337_pass_counter,0x2337,0);
     }
-    else if (((DAT_40001ea8 == DAT_4000d45f) && (DAT_40001eb4 == DAT_4000d45f)) &&
-            ((knock_flags & 8) != 0)) {
+    else if (((DAT_40001ea8 == CAL_obd_ii_P2337_maturing_limit) &&
+             (DAT_40001eb4 == CAL_obd_ii_P2337_maturing_limit)) && ((knock_flags & 8) != 0)) {
       obd_ii_monitor_pass(&CAL_obd_ii_P2337,&LEA_obd_ii_P2337_dtc_state);
     }
   }
@@ -30126,7 +30118,7 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
     if ((knock_flags & 0x80) != 0) {
       if ((ign_adv_min < obd_ii_ign_adv_per_cylinder[2]) || (ign_knock_retard[2] == '\0')) {
         if (DAT_40001ea9 == 0) {
-          if (DAT_40001eaa < DAT_4000d460) {
+          if (DAT_40001eaa < CAL_obd_ii_P2338_maturing_limit) {
             DAT_40001eaa = DAT_40001eaa + 1;
           }
         }
@@ -30136,20 +30128,22 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
       }
       else {
         DAT_40001ea9 = DAT_40001ea9 + 1;
-        if ((DAT_4000cbf5 < DAT_40001ea9) && (DAT_40001ea9 = 0, DAT_40001eaa != 0)) {
+        if ((CAL_obd_ii_knock_no_activity_count < DAT_40001ea9) &&
+           (DAT_40001ea9 = 0, DAT_40001eaa != 0)) {
           DAT_40001eaa = DAT_40001eaa - 1;
         }
       }
     }
     if ((knock_flags & 8) != 0) {
-      if ((LEA_octane_scaler[2] == 0xffff) && (DAT_4000cbf8 < octane_scaler_shortterm[2])) {
+      if ((LEA_octane_scaler[2] == 0xffff) &&
+         (CAL_knock_octane_scaler_short_term_limit < octane_scaler_shortterm[2])) {
         DAT_40001eb5 = DAT_40001eb5 + 1;
         if ((DAT_4000cbfd < DAT_40001eb5) && (DAT_40001eb5 = 0, DAT_40001eb6 != 0)) {
           DAT_40001eb6 = DAT_40001eb6 - 1;
         }
       }
       else if (DAT_40001eb5 == 0) {
-        if (DAT_40001eb6 < DAT_4000d460) {
+        if (DAT_40001eb6 < CAL_obd_ii_P2338_maturing_limit) {
           DAT_40001eb6 = DAT_40001eb6 + 1;
         }
       }
@@ -30162,8 +30156,8 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
                 (&CAL_obd_ii_P2338,&LEA_obd_ii_P2338_dtc_state,&LEA_obd_ii_P2338_fail_counter,
                  &LEA_obd_ii_P2338_pass_counter,0x2338,0);
     }
-    else if (((DAT_40001eaa == DAT_4000d460) && (DAT_40001eb6 == DAT_4000d460)) &&
-            ((knock_flags & 8) != 0)) {
+    else if (((DAT_40001eaa == CAL_obd_ii_P2338_maturing_limit) &&
+             (DAT_40001eb6 == CAL_obd_ii_P2338_maturing_limit)) && ((knock_flags & 8) != 0)) {
       obd_ii_monitor_pass(&CAL_obd_ii_P2338,&LEA_obd_ii_P2338_dtc_state);
     }
   }
@@ -30171,7 +30165,7 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
     if ((knock_flags & 0x80) != 0) {
       if ((ign_adv_min < obd_ii_ign_adv_per_cylinder[3]) || (ign_knock_retard[3] == '\0')) {
         if (DAT_40001eab == 0) {
-          if (DAT_40001eac < DAT_4000d461) {
+          if (DAT_40001eac < CAL_obd_ii_P2339_maturing_limit) {
             DAT_40001eac = DAT_40001eac + 1;
           }
         }
@@ -30181,20 +30175,22 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
       }
       else {
         DAT_40001eab = DAT_40001eab + 1;
-        if ((DAT_4000cbf5 < DAT_40001eab) && (DAT_40001eab = 0, DAT_40001eac != 0)) {
+        if ((CAL_obd_ii_knock_no_activity_count < DAT_40001eab) &&
+           (DAT_40001eab = 0, DAT_40001eac != 0)) {
           DAT_40001eac = DAT_40001eac - 1;
         }
       }
     }
     if ((knock_flags & 8) != 0) {
-      if ((LEA_octane_scaler[3] == 0xffff) && (DAT_4000cbf8 < octane_scaler_shortterm[3])) {
+      if ((LEA_octane_scaler[3] == 0xffff) &&
+         (CAL_knock_octane_scaler_short_term_limit < octane_scaler_shortterm[3])) {
         DAT_40001eb7 = DAT_40001eb7 + 1;
         if ((DAT_4000cbfd < DAT_40001eb7) && (DAT_40001eb7 = 0, DAT_40001eb8 != 0)) {
           DAT_40001eb8 = DAT_40001eb8 - 1;
         }
       }
       else if (DAT_40001eb7 == 0) {
-        if (DAT_40001eb8 < DAT_4000d461) {
+        if (DAT_40001eb8 < CAL_obd_ii_P2339_maturing_limit) {
           DAT_40001eb8 = DAT_40001eb8 + 1;
         }
       }
@@ -30207,8 +30203,8 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
                 (&CAL_obd_ii_P2339,&LEA_obd_ii_P2339_dtc_state,&LEA_obd_ii_P2339_fail_counter,
                  &LEA_obd_ii_P2339_pass_counter,0x2339,0);
     }
-    else if (((DAT_40001eac == DAT_4000d461) && (DAT_40001eb8 == DAT_4000d461)) &&
-            ((knock_flags & 8) != 0)) {
+    else if (((DAT_40001eac == CAL_obd_ii_P2339_maturing_limit) &&
+             (DAT_40001eb8 == CAL_obd_ii_P2339_maturing_limit)) && ((knock_flags & 8) != 0)) {
       obd_ii_monitor_pass(&CAL_obd_ii_P2339,&LEA_obd_ii_P2339_dtc_state);
     }
   }
@@ -30226,13 +30222,15 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
       }
       else {
         DAT_40001ead = DAT_40001ead + 1;
-        if ((DAT_4000cbf5 < DAT_40001ead) && (DAT_40001ead = 0, DAT_40001eae != 0)) {
+        if ((CAL_obd_ii_knock_no_activity_count < DAT_40001ead) &&
+           (DAT_40001ead = 0, DAT_40001eae != 0)) {
           DAT_40001eae = DAT_40001eae - 1;
         }
       }
     }
     if ((knock_flags & 8) != 0) {
-      if ((LEA_octane_scaler[4] == 0xffff) && (DAT_4000cbf8 < octane_scaler_shortterm[4])) {
+      if ((LEA_octane_scaler[4] == 0xffff) &&
+         (CAL_knock_octane_scaler_short_term_limit < octane_scaler_shortterm[4])) {
         DAT_40001eb9 = DAT_40001eb9 + 1;
         if ((DAT_4000cbfd < DAT_40001eb9) && (DAT_40001eb9 = 0, DAT_40001eba != 0)) {
           DAT_40001eba = DAT_40001eba - 1;
@@ -30271,13 +30269,15 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
       }
       else {
         DAT_40001eaf = DAT_40001eaf + 1;
-        if ((DAT_4000cbf5 < DAT_40001eaf) && (DAT_40001eaf = 0, DAT_40001eb0 != 0)) {
+        if ((CAL_obd_ii_knock_no_activity_count < DAT_40001eaf) &&
+           (DAT_40001eaf = 0, DAT_40001eb0 != 0)) {
           DAT_40001eb0 = DAT_40001eb0 - 1;
         }
       }
     }
     if ((knock_flags & 8) != 0) {
-      if ((LEA_octane_scaler[5] == 0xffff) && (DAT_4000cbf8 < octane_scaler_shortterm[5])) {
+      if ((LEA_octane_scaler[5] == 0xffff) &&
+         (CAL_knock_octane_scaler_short_term_limit < octane_scaler_shortterm[5])) {
         DAT_40001ebb = DAT_40001ebb + 1;
         if ((DAT_4000cbfd < DAT_40001ebb) && (DAT_40001ebb = 0, DAT_40001ebc != 0)) {
           DAT_40001ebc = DAT_40001ebc - 1;
@@ -30305,7 +30305,7 @@ void obd_ii_knock_threshold_per_clyinder_100ms(void)
   if ((((DAT_40001ea6 == 0) || (DAT_40001ea8 == 0)) ||
       ((DAT_40001eaa == 0 || ((DAT_40001eac == 0 || (DAT_40001eae == 0)))))) ||
      ((DAT_40001eb0 == 0 ||
-      (((((DAT_40001eb2 == 0 || (DAT_40001eb4 == 0)) || (DAT_40001eb6 == 0)) ||
+      (((((obd_ii_knock_monitor_counters == 0 || (DAT_40001eb4 == 0)) || (DAT_40001eb6 == 0)) ||
         ((DAT_40001eb8 == 0 || (DAT_40001eba == 0)))) || (DAT_40001ebc == 0)))))) {
     engine_state_failure_flags = engine_state_failure_flags | 0x400000;
   }
@@ -30329,15 +30329,15 @@ void obd_ii_init_ecu_diagnostics(void)
   obdii_update_dtc_state(&CAL_obd_ii_P2339,&LEA_obd_ii_P2339_dtc_state,0x2339,0);
   obdii_update_dtc_state(&CAL_obd_ii_P2340,&LEA_obd_ii_P2340_dtc_state,0x2340,0);
   obdii_update_dtc_state(&CAL_obd_ii_P2341,&LEA_obd_ii_P2341_dtc_state,0x2341,0);
-  DAT_40001ea4 = DAT_4000d453;
-  DAT_40001eb2 = DAT_4000d45e;
-  DAT_40001ea6 = DAT_4000d45e;
-  DAT_40001eb4 = DAT_4000d45f;
-  DAT_40001ea8 = DAT_4000d45f;
-  DAT_40001eb6 = DAT_4000d460;
-  DAT_40001eaa = DAT_4000d460;
-  DAT_40001eb8 = DAT_4000d461;
-  DAT_40001eac = DAT_4000d461;
+  DAT_40001ea4 = CAL_obd_ii_P050B_maturing_limit;
+  obd_ii_knock_monitor_counters = CAL_obd_ii_P2336_maturing_limit;
+  DAT_40001ea6 = CAL_obd_ii_P2336_maturing_limit;
+  DAT_40001eb4 = CAL_obd_ii_P2337_maturing_limit;
+  DAT_40001ea8 = CAL_obd_ii_P2337_maturing_limit;
+  DAT_40001eb6 = CAL_obd_ii_P2338_maturing_limit;
+  DAT_40001eaa = CAL_obd_ii_P2338_maturing_limit;
+  DAT_40001eb8 = CAL_obd_ii_P2339_maturing_limit;
+  DAT_40001eac = CAL_obd_ii_P2339_maturing_limit;
   DAT_40001eba = DAT_4000d462;
   DAT_40001eae = DAT_4000d462;
   DAT_40001ebc = DAT_4000d463;
@@ -30359,7 +30359,10 @@ void obd_ii_init_ecu_diagnostics(void)
 
 
 
-void obd_ii_init_ecu_internal_monitors(void)
+// Mode 01 DTC status update: ECU internal / cold-start / knock (P050B, P0601, P0606, P0610, P0630,
+// P0700, P2336-P2341).
+
+void obd_ii_dtc_update_ecu_and_knock(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -30483,13 +30486,13 @@ void init_lea_misfire_baselines(void)
 
 
 
-void FUN_0007b2c8(undefined4 param_1,byte param_2)
+void misfire_record_segment_period(undefined4 param_1,byte param_2)
 
 {
-  *(undefined4 *)(&DAT_40005d38 + (uint)param_2 * 4) =
+  *(undefined4 *)(&misfire_seg_period_prev + (uint)param_2 * 4) =
        *(undefined4 *)(&DAT_40005d50 + (uint)param_2 * 4);
   *(undefined4 *)(&DAT_40005d50 + (uint)param_2 * 4) = param_1;
-  DAT_40001f1e = param_2;
+  misfire_last_sampled_cyl = param_2;
   return;
 }
 
@@ -30559,10 +30562,10 @@ void misfire_detect_per_cylinder_200hz(uint8_t last_fired_cylinder)
       uVar9 = 5;
     }
     if (((*(int *)(&DAT_40005d50 + (uint)DAT_40001ed8 * 4) != 0) &&
-        (*(int *)(&DAT_40005d38 + (uint)DAT_40001ed8 * 4) != 0)) &&
+        (*(int *)(&misfire_seg_period_prev + (uint)DAT_40001ed8 * 4) != 0)) &&
        (*(int *)(&DAT_40005d50 + (int)(uVar9 << 2)) != 0)) {
       iVar5 = *(int *)(&DAT_40005d50 + (uint)DAT_40001ed8 * 4) -
-              *(int *)(&DAT_40005d38 + (uint)DAT_40001ed8 * 4);
+              *(int *)(&misfire_seg_period_prev + (uint)DAT_40001ed8 * 4);
       sVar7 = ((short)*(undefined4 *)(&DAT_40005d50 + (uint)DAT_40001ed8 * 4) -
               (((short)((longlong)iVar5 / 6) + (short)(iVar5 >> 0xf)) -
               ((short)((short)(iVar5 / 0x60000) + (short)(iVar5 >> 0x1f)) >> 0xf))) -
@@ -30813,10 +30816,9 @@ void misfire_detection_update(void)
   else {
     misfire_condition_flags = misfire_condition_flags | 0x20000;
   }
-  if ((((o2_sensor_ready_per_cyl[0] == 0) || (o2_sensor_ready_per_cyl[1] == 0)) ||
-      ((o2_sensor_ready_per_cyl[2] == 0 ||
-       ((o2_sensor_ready_per_cyl[3] == 0 || (o2_sensor_ready_per_cyl[4] == 0)))))) ||
-     (o2_sensor_ready_per_cyl[5] == 0)) {
+  if ((((ign_cyl_enabled[0] == 0) || (ign_cyl_enabled[1] == 0)) ||
+      ((ign_cyl_enabled[2] == 0 || ((ign_cyl_enabled[3] == 0 || (ign_cyl_enabled[4] == 0)))))) ||
+     (ign_cyl_enabled[5] == 0)) {
     misfire_condition_flags = misfire_condition_flags | 0x40000;
   }
   else {
@@ -30826,7 +30828,7 @@ void misfire_detection_update(void)
         ((misfire_condition_flags & 0x10000) != 0)) ||
        (((misfire_condition_flags & 0x20000) != 0 && ((misfire_condition_flags & 8) == 0)))) ||
       ((misfire_condition_flags & 0x40000) != 0)) || ((inj_flags & 1) != 0)) {
-    DAT_40001f26 = DAT_4000ca4e;
+    misfire_enable_hold_timer = DAT_4000ca4e;
   }
   if ((((car_current_gear == NO_GEAR) ||
        ((((COD_base.COD[1] >> 0x15 & 3) == 2 && ((clutch_pos_sensor & 8) == 0)) &&
@@ -30834,13 +30836,14 @@ void misfire_detection_update(void)
       ((short)(ushort)DAT_4000c9d2 < tps_delta_rate)) ||
      (((short)(ushort)DAT_4000c9d3 < tps_delta_rate ||
       ((int)tps_delta_rate < (int)-(uint)DAT_4000c9d4)))) {
-    DAT_40001ed0 = DAT_4000ca4c;
+    misfire_p1302_pass_holdoff_timer = DAT_4000ca4c;
     misfire_condition_flags = misfire_condition_flags | 0x10;
   }
-  else if (DAT_40001ed0 == 0) {
+  else if (misfire_p1302_pass_holdoff_timer == 0) {
     misfire_condition_flags = misfire_condition_flags & 0xffffffef;
   }
-  if (((DAT_40001f26 == 0) && (DAT_40001ece == 0)) && (DAT_40001ed0 == 0)) {
+  if (((misfire_enable_hold_timer == 0) && (DAT_40001ece == 0)) &&
+     (misfire_p1302_pass_holdoff_timer == 0)) {
     misfire_condition_flags = misfire_condition_flags | 2;
   }
   else {
@@ -30962,9 +30965,9 @@ void misfire_detection_update(void)
     if (DAT_40001f1c != 0) {
       obd_ii_max_misfire_results_emissions = DAT_40001f1c;
     }
-    if (DAT_40004874 < obd_ii_max_misfire_results_emissions) {
-      DAT_40004874 = obd_ii_max_misfire_results_emissions;
-      sort_array10(&DAT_40004874);
+    if (LEA_obd_monitor_13 < obd_ii_max_misfire_results_emissions) {
+      LEA_obd_monitor_13 = obd_ii_max_misfire_results_emissions;
+      sort_array10(&LEA_obd_monitor_13);
     }
     DAT_400049ae = 1;
     for (bVar5 = 0; bVar5 < 6; bVar5 = bVar5 + 1) {
@@ -31189,7 +31192,9 @@ void obd_ii_init_misfire_diagnostics(void)
 
 
 
-void obd_ii_init_misfire_and_ignition_dtc_monitoring(void)
+// Mode 01 DTC status update: misfire (P0300-P0306, P1301, P1302).
+
+void obd_ii_dtc_update_misfire(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -31224,44 +31229,47 @@ void obd_ii_init_misfire_and_ignition_dtc_monitoring(void)
 
 
 
-void timer_decrement1_200hz(void)
+void misfire_monitor_200hz(void)
 
 {
   bool bVar1;
   
-  bVar1 = DAT_40001f26 == 0;
-  DAT_40001f26 = DAT_40001f26 + -1;
+  bVar1 = misfire_enable_hold_timer == 0;
+  misfire_enable_hold_timer = misfire_enable_hold_timer + -1;
   if (bVar1) {
-    DAT_40001f26 = 0;
+    misfire_enable_hold_timer = 0;
   }
   bVar1 = DAT_40001ece == 0;
   DAT_40001ece = DAT_40001ece + -1;
   if (bVar1) {
     DAT_40001ece = 0;
   }
-  bVar1 = DAT_40001ed0 == 0;
-  DAT_40001ed0 = DAT_40001ed0 + -1;
+  bVar1 = misfire_p1302_pass_holdoff_timer == 0;
+  misfire_p1302_pass_holdoff_timer = misfire_p1302_pass_holdoff_timer + -1;
   if (bVar1) {
-    DAT_40001ed0 = 0;
+    misfire_p1302_pass_holdoff_timer = 0;
   }
-  misfire_detect_per_cylinder_200hz(DAT_40001f1e);
-  wheelspeed_detect_implausible_rates_200hz___();
+  misfire_detect_per_cylinder_200hz(misfire_last_sampled_cyl);
+  misfire_rough_road_detect_200hz();
   return;
 }
 
 
 
-void wheelspeed_detect_implausible_rates_200hz___(void)
+void misfire_rough_road_detect_200hz(void)
 
 {
   uint uVar1;
   longlong lVar2;
   
-  uVar1 = (0x100 - (uint)CAL_wheel_speed_smoothing) * DAT_40001ef8;
-  DAT_40001ef8 = ((int)uVar1 >> 8) + (uint)((int)uVar1 < 0 && (uVar1 & 0xff) != 0) +
-                 (uint)CAL_wheel_speed_smoothing * (uint)wheel_speeds.LF;
-  DAT_40001f08 = ((int)DAT_40001ef8 >> 8) +
-                 (uint)((int)DAT_40001ef8 < 0 && (DAT_40001ef8 & 0xff) != 0);
+  uVar1 = (0x100 - (uint)CAL_wheel_speed_smoothing) * misfire_wheel_speed_filt_x256;
+  misfire_wheel_speed_filt_x256 =
+       ((int)uVar1 >> 8) + (uint)((int)uVar1 < 0 && (uVar1 & 0xff) != 0) +
+       (uint)CAL_wheel_speed_smoothing * (uint)wheel_speeds.LF;
+  misfire_wheel_speed_filt =
+       ((int)misfire_wheel_speed_filt_x256 >> 8) +
+       (uint)((int)misfire_wheel_speed_filt_x256 < 0 && (misfire_wheel_speed_filt_x256 & 0xff) != 0)
+  ;
   uVar1 = (0x100 - (uint)CAL_wheel_speed_smoothing) * DAT_40001efc;
   DAT_40001efc = ((int)uVar1 >> 8) + (uint)((int)uVar1 < 0 && (uVar1 & 0xff) != 0) +
                  (uint)CAL_wheel_speed_smoothing * (uint)wheel_speeds.RF;
@@ -31277,11 +31285,11 @@ void wheelspeed_detect_implausible_rates_200hz___(void)
                  (uint)CAL_wheel_speed_smoothing * (uint)wheel_speeds.RR;
   DAT_40001f14 = ((int)DAT_40001f04 >> 8) +
                  (uint)((int)DAT_40001f04 < 0 && (DAT_40001f04 & 0xff) != 0);
-  DAT_40001ee8 = (uint)wheel_speeds.LF - DAT_40001f08;
+  misfire_wheel_speed_deviation = (uint)wheel_speeds.LF - misfire_wheel_speed_filt;
   DAT_40001eec = (uint)wheel_speeds.RF - DAT_40001f0c;
   DAT_40001ef0 = (uint)wheel_speeds.LR - DAT_40001f10;
   DAT_40001ef4 = (uint)wheel_speeds.RR - DAT_40001f14;
-  lVar2 = libc_abs((ulonglong)DAT_40001ee8);
+  lVar2 = libc_abs((ulonglong)misfire_wheel_speed_deviation);
   if ((((((int)(short)CAL_wheel_speed_rate_min < (int)lVar2) &&
         (CAL_wheel_speed_min < wheel_speeds.LF)) ||
        ((lVar2 = libc_abs((ulonglong)DAT_40001eec),
@@ -32422,13 +32430,13 @@ void obd_ii_mode22_processing(void)
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = struct_top_rpm_event_ARRAY_40003f24[0].rpm;
+    obd_ii_response._5_2_ = LEA_perf_stat_gear1_hi[0].rpm;
     break;
   case 799:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = struct_top_rpm_event_ARRAY_40003f24[1].rpm;
+    obd_ii_response._5_2_ = LEA_perf_stat_gear1_hi[1].rpm;
     break;
   case 800:
     obd_ii_response[3] = obd_ii_mode22_supported_pids_120_40;
@@ -32440,79 +32448,79 @@ void obd_ii_mode22_processing(void)
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = struct_top_rpm_event_ARRAY_40003f24[2].rpm;
+    obd_ii_response._5_2_ = LEA_perf_stat_gear1_hi[2].rpm;
     break;
   case 0x322:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = struct_top_rpm_event_ARRAY_40003f24[3].rpm;
+    obd_ii_response._5_2_ = LEA_perf_stat_gear1_hi[3].rpm;
     break;
   case 0x323:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = struct_top_rpm_event_ARRAY_40003f24[4].rpm;
+    obd_ii_response._5_2_ = LEA_perf_stat_gear1_hi[4].rpm;
     break;
   case 0x324:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = ZEXT12(struct_top_rpm_event_ARRAY_40003f24[0].coolant_temp);
+    obd_ii_response._5_2_ = ZEXT12(LEA_perf_stat_gear1_hi[0].coolant_temp);
     break;
   case 0x325:
-    obd_ii_response[3] = (byte)(struct_top_rpm_event_ARRAY_40003f24[0].runtime >> 0x18);
-    obd_ii_response[4] = (byte)(struct_top_rpm_event_ARRAY_40003f24[0].runtime >> 0x10);
+    obd_ii_response[3] = (byte)(LEA_perf_stat_gear1_hi[0].runtime >> 0x18);
+    obd_ii_response[4] = (byte)(LEA_perf_stat_gear1_hi[0].runtime >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)struct_top_rpm_event_ARRAY_40003f24[0].runtime;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_stat_gear1_hi[0].runtime;
     break;
   case 0x326:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = ZEXT12(struct_top_rpm_event_ARRAY_40003f24[1].coolant_temp);
+    obd_ii_response._5_2_ = ZEXT12(LEA_perf_stat_gear1_hi[1].coolant_temp);
     break;
   case 0x327:
-    obd_ii_response[3] = (byte)(struct_top_rpm_event_ARRAY_40003f24[1].runtime >> 0x18);
-    obd_ii_response[4] = (byte)(struct_top_rpm_event_ARRAY_40003f24[1].runtime >> 0x10);
+    obd_ii_response[3] = (byte)(LEA_perf_stat_gear1_hi[1].runtime >> 0x18);
+    obd_ii_response[4] = (byte)(LEA_perf_stat_gear1_hi[1].runtime >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)struct_top_rpm_event_ARRAY_40003f24[1].runtime;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_stat_gear1_hi[1].runtime;
     break;
   case 0x328:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = ZEXT12(struct_top_rpm_event_ARRAY_40003f24[2].coolant_temp);
+    obd_ii_response._5_2_ = ZEXT12(LEA_perf_stat_gear1_hi[2].coolant_temp);
     break;
   case 0x329:
-    obd_ii_response[3] = (byte)(struct_top_rpm_event_ARRAY_40003f24[2].runtime >> 0x18);
-    obd_ii_response[4] = (byte)(struct_top_rpm_event_ARRAY_40003f24[2].runtime >> 0x10);
+    obd_ii_response[3] = (byte)(LEA_perf_stat_gear1_hi[2].runtime >> 0x18);
+    obd_ii_response[4] = (byte)(LEA_perf_stat_gear1_hi[2].runtime >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)struct_top_rpm_event_ARRAY_40003f24[2].runtime;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_stat_gear1_hi[2].runtime;
     break;
   case 0x32a:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = ZEXT12(struct_top_rpm_event_ARRAY_40003f24[3].coolant_temp);
+    obd_ii_response._5_2_ = ZEXT12(LEA_perf_stat_gear1_hi[3].coolant_temp);
     break;
   case 0x32b:
-    obd_ii_response[3] = (byte)(struct_top_rpm_event_ARRAY_40003f24[3].runtime >> 0x18);
-    obd_ii_response[4] = (byte)(struct_top_rpm_event_ARRAY_40003f24[3].runtime >> 0x10);
+    obd_ii_response[3] = (byte)(LEA_perf_stat_gear1_hi[3].runtime >> 0x18);
+    obd_ii_response[4] = (byte)(LEA_perf_stat_gear1_hi[3].runtime >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)struct_top_rpm_event_ARRAY_40003f24[3].runtime;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_stat_gear1_hi[3].runtime;
     break;
   case 0x32c:
     obd_ii_response[3] = 0;
     obd_ii_response[4] = 0;
     uVar5 = 7;
-    obd_ii_response._5_2_ = ZEXT12(struct_top_rpm_event_ARRAY_40003f24[4].coolant_temp);
+    obd_ii_response._5_2_ = ZEXT12(LEA_perf_stat_gear1_hi[4].coolant_temp);
     break;
   case 0x32e:
-    obd_ii_response[3] = (byte)(struct_top_rpm_event_ARRAY_40003f24[4].runtime >> 0x18);
-    obd_ii_response[4] = (byte)(struct_top_rpm_event_ARRAY_40003f24[4].runtime >> 0x10);
+    obd_ii_response[3] = (byte)(LEA_perf_stat_gear1_hi[4].runtime >> 0x18);
+    obd_ii_response[4] = (byte)(LEA_perf_stat_gear1_hi[4].runtime >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)struct_top_rpm_event_ARRAY_40003f24[4].runtime;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_stat_gear1_hi[4].runtime;
     break;
   case 0x32f:
     obd_ii_response[3] = (byte)(obd_ii_max_vehicle_speed[0] >> 8);
@@ -32541,19 +32549,19 @@ void obd_ii_mode22_processing(void)
     break;
   case 0x334:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40003f14;
+    obd_ii_response[3] = LEA_perf_stat_sentinel_max1;
     break;
   case 0x335:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40003f15;
+    obd_ii_response[3] = LEA_perf_stat_sentinel_max2;
     break;
   case 0x336:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40003f16;
+    obd_ii_response[3] = LEA_obd_ii_last_standing_start_0_100kmh;
     break;
   case 0x337:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40003f17;
+    obd_ii_response[3] = LEA_obd_ii_last_standing_start_0_160kmh;
     break;
   case 0x338:
     obd_ii_response[3] = (byte)(engine_run_timer_total >> 0x18);
@@ -32562,8 +32570,8 @@ void obd_ii_mode22_processing(void)
     obd_ii_response._5_2_ = (undefined2)engine_run_timer_total;
     break;
   case 0x339:
-    obd_ii_response[3] = (byte)((ushort)DAT_40003f18 >> 8);
-    obd_ii_response[4] = (byte)DAT_40003f18;
+    obd_ii_response[3] = (byte)((ushort)LEA_number_standing_starts >> 8);
+    obd_ii_response[4] = (byte)LEA_number_standing_starts;
     uVar5 = 5;
     break;
   case 0x33a:
@@ -32619,51 +32627,51 @@ void obd_ii_mode22_processing(void)
     break;
   case 0x342:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40004084;
+    obd_ii_response[3] = LEA_perf_struct_A_byte0;
     break;
   case 0x343:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40004085;
+    obd_ii_response[3] = LEA_perf_struct_A_byte1;
     break;
   case 0x344:
-    obd_ii_response[3] = (byte)((ushort)DAT_40004086 >> 8);
-    obd_ii_response[4] = (byte)DAT_40004086;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_A_word0 >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_A_word0;
     uVar5 = 5;
     break;
   case 0x345:
-    obd_ii_response[3] = (byte)((ushort)DAT_40004088 >> 8);
-    obd_ii_response[4] = (byte)DAT_40004088;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_A_word1 >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_A_word1;
     uVar5 = 5;
     break;
   case 0x346:
-    obd_ii_response[3] = (byte)((uint)DAT_4000408c >> 0x18);
-    obd_ii_response[4] = (byte)((uint)DAT_4000408c >> 0x10);
+    obd_ii_response[3] = (byte)((uint)LEA_perf_struct_A_dword >> 0x18);
+    obd_ii_response[4] = (byte)((uint)LEA_perf_struct_A_dword >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)DAT_4000408c;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_struct_A_dword;
     break;
   case 0x347:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40004090._0_1_;
+    obd_ii_response[3] = LEA_perf_struct_B_byte0._0_1_;
     break;
   case 0x348:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_40004090._1_1_;
+    obd_ii_response[3] = LEA_perf_struct_B_byte0._1_1_;
     break;
   case 0x349:
-    obd_ii_response[3] = (byte)((ushort)DAT_40004090._2_2_ >> 8);
-    obd_ii_response[4] = (byte)DAT_40004090._2_2_;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_B_byte0._2_2_ >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_B_byte0._2_2_;
     uVar5 = 5;
     break;
   case 0x34a:
-    obd_ii_response[3] = (byte)((ushort)DAT_40004094._0_2_ >> 8);
-    obd_ii_response[4] = (byte)DAT_40004094._0_2_;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_B_word1._0_2_ >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_B_word1._0_2_;
     uVar5 = 5;
     break;
   case 0x34b:
-    obd_ii_response[3] = (byte)((uint)DAT_40004098 >> 0x18);
-    obd_ii_response[4] = (byte)((uint)DAT_40004098 >> 0x10);
+    obd_ii_response[3] = (byte)((uint)LEA_perf_struct_B_dword >> 0x18);
+    obd_ii_response[4] = (byte)((uint)LEA_perf_struct_B_dword >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)DAT_40004098;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_struct_B_dword;
     break;
   case 0x34c:
     uVar5 = 4;
@@ -32691,51 +32699,51 @@ void obd_ii_mode22_processing(void)
     break;
   case 0x351:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_400040a8;
+    obd_ii_response[3] = LEA_perf_struct_A_b_byte0;
     break;
   case 0x352:
     uVar5 = 4;
-    obd_ii_response[3] = u8_speed_kph_400040a9;
+    obd_ii_response[3] = LEA_perf_struct_A_b_byte1;
     break;
   case 0x353:
-    obd_ii_response[3] = (byte)(u16_rspeed_rpm_400040aa >> 8);
-    obd_ii_response[4] = (byte)u16_rspeed_rpm_400040aa;
+    obd_ii_response[3] = (byte)(LEA_perf_struct_A_b_word0 >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_A_b_word0;
     uVar5 = 5;
     break;
   case 0x354:
-    obd_ii_response[3] = (byte)((ushort)DAT_400040ac >> 8);
-    obd_ii_response[4] = (byte)DAT_400040ac;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_A_b_word1 >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_A_b_word1;
     uVar5 = 5;
     break;
   case 0x355:
-    obd_ii_response[3] = (byte)((uint)DAT_400040b0 >> 0x18);
-    obd_ii_response[4] = (byte)((uint)DAT_400040b0 >> 0x10);
+    obd_ii_response[3] = (byte)((uint)LEA_perf_struct_A_b_dword >> 0x18);
+    obd_ii_response[4] = (byte)((uint)LEA_perf_struct_A_b_dword >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)DAT_400040b0;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_struct_A_b_dword;
     break;
   case 0x356:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_400040b4._0_1_;
+    obd_ii_response[3] = LEA_perf_struct_B_b_byte0._0_1_;
     break;
   case 0x357:
     uVar5 = 4;
-    obd_ii_response[3] = DAT_400040b4._1_1_;
+    obd_ii_response[3] = LEA_perf_struct_B_b_byte0._1_1_;
     break;
   case 0x358:
-    obd_ii_response[3] = (byte)((ushort)DAT_400040b4._2_2_ >> 8);
-    obd_ii_response[4] = (byte)DAT_400040b4._2_2_;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_B_b_byte0._2_2_ >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_B_b_byte0._2_2_;
     uVar5 = 5;
     break;
   case 0x359:
-    obd_ii_response[3] = (byte)((ushort)DAT_400040b8._0_2_ >> 8);
-    obd_ii_response[4] = (byte)DAT_400040b8._0_2_;
+    obd_ii_response[3] = (byte)((ushort)LEA_perf_struct_B_b_word1._0_2_ >> 8);
+    obd_ii_response[4] = (byte)LEA_perf_struct_B_b_word1._0_2_;
     uVar5 = 5;
     break;
   case 0x35a:
-    obd_ii_response[3] = (byte)((uint)DAT_400040bc >> 0x18);
-    obd_ii_response[4] = (byte)((uint)DAT_400040bc >> 0x10);
+    obd_ii_response[3] = (byte)((uint)LEA_perf_struct_B_b_dword >> 0x18);
+    obd_ii_response[4] = (byte)((uint)LEA_perf_struct_B_b_dword >> 0x10);
     uVar5 = 7;
-    obd_ii_response._5_2_ = (undefined2)DAT_400040bc;
+    obd_ii_response._5_2_ = (undefined2)LEA_perf_struct_B_b_dword;
     break;
   case 0x35b:
     uVar5 = 4;
@@ -32806,12 +32814,12 @@ void obd_clear_DTC_and_stored(void)
   byte bVar1;
   
   clear_obd_dtc_and_ff();
-  DAT_40001e6c = DAT_40001e6c & 0xfffefeff;
+  evap_system_state_flags = evap_system_state_flags & 0xfffefeff;
   obd_ii_init_fuel_evap_diagnostics();
-  DAT_40001c68 = 0;
+  obd_similar_cond_met_mask = 0;
   obd_ii_montior_passes_bitfield = 0;
   obd_DTC_pending_count = 0;
-  DAT_40001f98 = 0;
+  obd_DTC_confirmed_count = 0;
   obd_DTC_count = 0;
   for (bVar1 = 0; bVar1 < 0x80; bVar1 = bVar1 + 1) {
     obd_ii_dtc_pending[bVar1] = 0;
@@ -32899,7 +32907,7 @@ void obd_ii_mode06_processing(void)
       }
       else {
         sVar4 = evap_p0441_test_result_pressure * 10;
-        sVar10 = DAT_4000cafa * -10;
+        sVar10 = CAL_evap_system_state_flags_param * -10;
         uVar8 = 0x7fff;
       }
       obd_ii_response[bVar6] = obd_ii_request[i & 0xff];
@@ -32948,9 +32956,9 @@ void obd_ii_mode06_processing(void)
             sVar3 = CAL_sensor_o2_rich_voltage_threshold * 0x28;
             sVar7 = CAL_sensor_o2_lean_voltage_threshold * 0x28;
             sVar4 = DAT_40004990 * 5;
-            sVar10 = DAT_4000ca2c * 5;
+            sVar10 = CAL_obd_ii_mode06_o2_switch_time_max * 5;
             sVar12 = DAT_4000498e * 5;
-            sVar14 = uint16_t_4000ca2a * 5;
+            sVar14 = CAL_obd_ii_mode06_o2_switch_time_min * 5;
           }
           if ((DAT_40004984 == 0) || (DAT_40004986 == 0)) {
             sVar17 = 0;
@@ -32960,9 +32968,9 @@ void obd_ii_mode06_processing(void)
           }
           else {
             sVar15 = DAT_40004986 * 5;
-            sVar16 = DAT_4000c9d0 * 5;
+            sVar16 = CAL_obd_ii_o2_rich_period_excess_max * 5;
             sVar18 = DAT_40004984 * 5;
-            sVar17 = DAT_4000c9ce * 5;
+            sVar17 = CAL_obd_ii_o2_lean_period_excess_max * 5;
           }
           obd_ii_response[bVar6] = obd_ii_request[i & 0xff];
           obd_ii_response[(byte)(bVar6 + 1)] = 3;
@@ -33039,9 +33047,9 @@ void obd_ii_mode06_processing(void)
               sVar3 = CAL_sensor_o2_rich_voltage_threshold * 0x28;
               sVar7 = CAL_sensor_o2_lean_voltage_threshold * 0x28;
               sVar4 = DAT_4000497c * 5;
-              sVar10 = DAT_4000ca2c * 5;
+              sVar10 = CAL_obd_ii_mode06_o2_switch_time_max * 5;
               sVar12 = DAT_4000497a * 5;
-              sVar14 = uint16_t_4000ca2a * 5;
+              sVar14 = CAL_obd_ii_mode06_o2_switch_time_min * 5;
             }
             if ((DAT_40004982 == 0) || (DAT_40004980 == 0)) {
               sVar17 = 0;
@@ -33051,9 +33059,9 @@ void obd_ii_mode06_processing(void)
             }
             else {
               sVar15 = DAT_40004982 * 5;
-              sVar16 = DAT_4000c9d0 * 5;
+              sVar16 = CAL_obd_ii_o2_rich_period_excess_max * 5;
               sVar18 = DAT_40004980 * 5;
-              sVar17 = DAT_4000c9ce * 5;
+              sVar17 = CAL_obd_ii_o2_lean_period_excess_max * 5;
             }
             obd_ii_response[bVar6] = obd_ii_request[i & 0xff];
             obd_ii_response[(byte)(bVar6 + 1)] = 3;
@@ -33138,11 +33146,13 @@ void obd_ii_mode06_processing(void)
               sVar12 = CAL_sensor_o2_lean_voltage_threshold * 0x28;
               sVar14 = CAL_sensor_o2_rich_voltage_threshold * 0x28;
               uVar8 = (undefined2)
-                      (((uint)DAT_4000499c * 4 + (uint)DAT_4000499c) / (uint)DAT_4000ca5f);
-              sVar4 = DAT_4000ca64 * 5;
+                      (((uint)DAT_4000499c * 4 + (uint)DAT_4000499c) /
+                      (uint)CAL_obd_ii_o2_slow_response_sample_count);
+              sVar4 = CAL_obd_ii_o2_slow_response_limit_rich_to_lean * 5;
               uVar13 = (undefined2)
-                       (((uint)DAT_4000499a * 4 + (uint)DAT_4000499a) / (uint)DAT_4000ca5f);
-              sVar10 = DAT_4000ca62 * 5;
+                       (((uint)DAT_4000499a * 4 + (uint)DAT_4000499a) /
+                       (uint)CAL_obd_ii_o2_slow_response_sample_count);
+              sVar10 = CAL_obd_ii_o2_slow_response_limit_lean_to_rich * 5;
             }
             obd_ii_response[bVar6] = obd_ii_request[i & 0xff];
             obd_ii_response[(byte)(bVar6 + 1)] = 3;
@@ -33202,11 +33212,13 @@ void obd_ii_mode06_processing(void)
               sVar12 = CAL_sensor_o2_lean_voltage_threshold * 0x28;
               sVar14 = CAL_sensor_o2_rich_voltage_threshold * 0x28;
               uVar8 = (undefined2)
-                      (((uint)DAT_400049a0 * 4 + (uint)DAT_400049a0) / (uint)DAT_4000ca5f);
-              sVar4 = DAT_4000ca64 * 5;
+                      (((uint)DAT_400049a0 * 4 + (uint)DAT_400049a0) /
+                      (uint)CAL_obd_ii_o2_slow_response_sample_count);
+              sVar4 = CAL_obd_ii_o2_slow_response_limit_rich_to_lean * 5;
               uVar13 = (undefined2)
-                       (((uint)DAT_4000499e * 4 + (uint)DAT_4000499e) / (uint)DAT_4000ca5f);
-              sVar10 = DAT_4000ca62 * 5;
+                       (((uint)DAT_4000499e * 4 + (uint)DAT_4000499e) /
+                       (uint)CAL_obd_ii_o2_slow_response_sample_count);
+              sVar10 = CAL_obd_ii_o2_slow_response_limit_lean_to_rich * 5;
             }
             obd_ii_response[bVar6] = obd_ii_request[i & 0xff];
             obd_ii_response[(byte)(bVar6 + 1)] = 3;
@@ -33283,7 +33295,7 @@ void obd_ii_mode06_processing(void)
       else if (obd_ii_mode6_pid < 0x39) {
         if (obd_ii_mode6_pid == 0x35) {
           if ((DAT_400049bc == 0xff) ||
-             (bVar5 = DAT_400049bc, bVar9 = DAT_400049bd, bVar11 = DAT_4000ca49,
+             (bVar5 = DAT_400049bc, bVar9 = DAT_400049bd, bVar11 = CAL_obd_ii_vvt_error_fail_count,
              DAT_400049bd == 0xff)) {
             bVar5 = 0;
             bVar9 = 0;
@@ -33333,7 +33345,7 @@ void obd_ii_mode06_processing(void)
         }
         else if (obd_ii_mode6_pid < 0x37) {
           if ((DAT_400049be == 0xff) ||
-             (bVar5 = DAT_400049be, bVar9 = DAT_400049bf, bVar11 = DAT_4000ca49,
+             (bVar5 = DAT_400049be, bVar9 = DAT_400049bf, bVar11 = CAL_obd_ii_vvt_error_fail_count,
              DAT_400049bf == 0xff)) {
             bVar5 = 0;
             bVar9 = 0;
@@ -33462,11 +33474,11 @@ void obd_ii_mode06_processing(void)
         else {
           uVar2 = (char)(LEA_fuel_learn_zone_2_bank2 ^ 0x80) * 500;
           sVar4 = ((short)((int)uVar2 >> 7) + (ushort)((int)uVar2 < 0 && (uVar2 & 0x7f) != 0)) * 10;
-          sVar10 = DAT_4000ca24 * -10;
-          sVar12 = DAT_4000ca22 * 10;
+          sVar10 = CAL_obd_P0172_ltft_limit * -10;
+          sVar12 = CAL_obd_P0171_ltft_limit * 10;
         }
         sVar14 = DAT_400049f2;
-        uVar8 = DAT_4000cbea;
+        uVar8 = CAL_obd_ii_o2_imbalance_threshold;
         if (DAT_400049f2 == 0) {
           sVar14 = 0;
           uVar8 = 0;
@@ -33501,11 +33513,11 @@ void obd_ii_mode06_processing(void)
         else {
           uVar2 = (char)(LEA_fuel_learn_zone_2_bank1 ^ 0x80) * 500;
           sVar4 = ((short)((int)uVar2 >> 7) + (ushort)((int)uVar2 < 0 && (uVar2 & 0x7f) != 0)) * 10;
-          sVar10 = DAT_4000ca24 * -10;
-          sVar12 = DAT_4000ca22 * 10;
+          sVar10 = CAL_obd_P0172_ltft_limit * -10;
+          sVar12 = CAL_obd_P0171_ltft_limit * 10;
         }
         sVar14 = DAT_400049f0;
-        uVar8 = DAT_4000cbea;
+        uVar8 = CAL_obd_ii_o2_imbalance_threshold;
         if (DAT_400049f0 == 0) {
           sVar14 = 0;
           uVar8 = 0;
@@ -33848,7 +33860,7 @@ void obd_ii_mode08_processing(void)
       obd_ii_response[bVar1] = obd_ii_mode08_supported_pids_0_20[3];
     }
     else if (obd_ii_request[uVar3 & 0xff] == 1) {
-      if ((obd_ii_engine_speed == 0) && (DAT_4000ca98 != 0)) {
+      if ((obd_ii_engine_speed == 0) && (CAL_obd_ii_mode08_evap_test_duration != 0)) {
         obd_ii_response[bVar2] = obd_ii_request[uVar3 & 0xff];
         obd_ii_response[(byte)(bVar2 + 1)] = 0;
         obd_ii_response[(byte)(bVar2 + 2)] = 0;
@@ -33857,8 +33869,8 @@ void obd_ii_mode08_processing(void)
         obd_ii_response[(byte)(bVar2 + 4)] = 0;
         bVar2 = bVar2 + 6;
         obd_ii_response[bVar1] = 0;
-        DAT_40001f90 = 0;
-        DAT_40001f96 = DAT_4000ca98;
+        obd_ii_mode08_active_test_mask = 0;
+        DAT_40001f96 = CAL_obd_ii_mode08_evap_test_duration;
         obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x4000000;
       }
       else {
@@ -33868,7 +33880,7 @@ void obd_ii_mode08_processing(void)
         obd_ii_response_length = 3;
         flexcan_a_obd_send_messages();
         obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state & 0xfbffffff;
-        DAT_40001f90 = 0;
+        obd_ii_mode08_active_test_mask = 0;
       }
     }
   }
@@ -33894,15 +33906,15 @@ void evap_canister_200hz(void)
     sVar1 = 0;
   }
   DAT_40001f96 = sVar1;
-  if (DAT_40001f90 != 0) {
-    if (((ulonglong)DAT_40001f90 - 0x4000000 & 0xffffffff) == 0) {
+  if (obd_ii_mode08_active_test_mask != 0) {
+    if (((ulonglong)obd_ii_mode08_active_test_mask - 0x4000000 & 0xffffffff) == 0) {
       if (sVar1 == 0) {
-        DAT_40001f90 = 0;
+        obd_ii_mode08_active_test_mask = 0;
         obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state & 0xfbffffff;
       }
     }
     else {
-      DAT_40001f90 = 0;
+      obd_ii_mode08_active_test_mask = 0;
     }
   }
   return;
@@ -33945,7 +33957,7 @@ void obd_ii_mode13_200hz(void)
         j = j + 1;
       }
       k = 0;
-      for (; (k < DAT_40001f98 && (i < 0x80)); i = i + 2) {
+      for (; (k < obd_DTC_confirmed_count && (i < 0x80)); i = i + 2) {
         obd_ii_response[i] = (byte)(obd_DTC_confirmed[k] >> 8);
         obd_ii_response[(byte)(i + 1)] = (byte)obd_DTC_confirmed[k];
         k = k + 1;
@@ -33960,12 +33972,16 @@ void obd_ii_mode13_200hz(void)
 
 
 
-void obd_ii_add_mode08_test_dtc(uint16_t param_1)
+// Append a DTC to obd_DTC_confirmed[] (max 127). Called from obd_ii_set_active_code_and_FF when the
+// code's cal enable byte has bit 0x10 clear; with 0x10 set it goes to obd_ii_DTC_add_to_active_set
+// instead.
+
+void obd_ii_DTC_add_to_confirmed_list(uint16_t param_1)
 
 {
-  if (DAT_40001f98 < 0x7f) {
-    obd_DTC_confirmed[DAT_40001f98] = param_1;
-    DAT_40001f98 = DAT_40001f98 + 1;
+  if (obd_DTC_confirmed_count < 0x7f) {
+    obd_DTC_confirmed[obd_DTC_confirmed_count] = param_1;
+    obd_DTC_confirmed_count = obd_DTC_confirmed_count + 1;
   }
   return;
 }
@@ -34017,7 +34033,7 @@ void obd_ii_mode09_processing(void)
       obd_ii_response[bVar1] = obd_ii_request[idx & 0xff];
       obd_ii_response[(byte)(bVar1 + 1)] = 1;
       bVar1 = bVar1 + 2;
-      for (i = 0; i < 0x10; i = i + 1) {
+      for (i = 0; i < 16; i = i + 1) {
         obd_ii_response[bVar1] = CAL_misc_calid[i];
         bVar1 = bVar1 + 1;
       }
@@ -34181,7 +34197,7 @@ void obd_ii_o2_no_activity_monitor(void)
        (CAL_sensor_o2_rich_voltage_threshold < obd_ii_o2_sensor1_voltage)) {
       o2_sensor_range_check_unknown
                 (obd_ii_o2_sensor1_voltage,obd_ii_o2_sensor2_voltage,&DAT_40001fb4,&DAT_40001fb6,
-                 &DAT_40001fbc,&DAT_40001fca,DAT_4000c9fd);
+                 &DAT_40001fbc,&DAT_40001fca,CAL_obd_ii_o2_activity_rate_inband);
     }
     else if (((cl_status_bank1 & 2) == 0) ||
             ((((engine_operating_state_flags & 8) == 0 || (car_speed_u8 != '\0')) ||
@@ -34191,13 +34207,13 @@ void obd_ii_o2_no_activity_monitor(void)
     else {
       o2_sensor_range_check_unknown
                 (obd_ii_o2_sensor1_voltage,obd_ii_o2_sensor2_voltage,&DAT_40001fb4,&DAT_40001fb6,
-                 &DAT_40001fbc,&DAT_40001fca,DAT_4000ca3e);
+                 &DAT_40001fbc,&DAT_40001fca,CAL_obd_ii_o2_activity_rate_outband);
     }
     if ((obd_ii_o2_sensor5_voltage < CAL_sensor_o2_lean_voltage_threshold) &&
        (CAL_sensor_o2_rich_voltage_threshold < obd_ii_o2_sensor5_voltage)) {
       o2_sensor_range_check_unknown
                 (obd_ii_o2_sensor5_voltage,obd_ii_o2_sensor6_voltage,&DAT_40001fb8,&DAT_40001fba,
-                 &DAT_40001fbd,&DAT_40001fcb,DAT_4000c9fd);
+                 &DAT_40001fbd,&DAT_40001fcb,CAL_obd_ii_o2_activity_rate_inband);
     }
     else if ((((cl_status_bank2 & 2) == 0) ||
              (((engine_operating_state_flags & 8) == 0 || (car_speed_u8 != '\0')))) ||
@@ -34207,7 +34223,7 @@ void obd_ii_o2_no_activity_monitor(void)
     else {
       o2_sensor_range_check_unknown
                 (obd_ii_o2_sensor5_voltage,obd_ii_o2_sensor6_voltage,&DAT_40001fb8,&DAT_40001fba,
-                 &DAT_40001fbd,&DAT_40001fcb,DAT_4000ca3e);
+                 &DAT_40001fbd,&DAT_40001fcb,CAL_obd_ii_o2_activity_rate_outband);
     }
     if (((DAT_40001fca & 8) == 0) && ((DAT_40001fcb & 8) == 0)) {
       if ((uint)closedloop_activate_time + (uint)CAL_closedloop_activate_timer_o2_check <
@@ -34226,8 +34242,8 @@ void obd_ii_o2_no_activity_monitor(void)
         DAT_40001fcb = DAT_40001fcb & 0xfb;
       }
     }
-    if (((DAT_40001faa < DAT_4000cac4) && ((DAT_40001fca & 0x10) == 0)) && ((DAT_40001fca & 4) == 0)
-       ) {
+    if (((DAT_40001faa < CAL_obd_ii_o2_precat_activity_window) && ((DAT_40001fca & 0x10) == 0)) &&
+       ((DAT_40001fca & 4) == 0)) {
       if (CAL_obd_ii_cat_monitor_min_engine_runtime < runtime_since_start) {
         if (obd_ii_o2_sensor1_voltage < CAL_sensor_o2_rich_voltage_threshold) {
           DAT_40001fca = DAT_40001fca | 2;
@@ -34264,8 +34280,8 @@ void obd_ii_o2_no_activity_monitor(void)
         }
       }
     }
-    if (((DAT_40001fac < DAT_4000cac4) && ((DAT_40001fcb & 0x10) == 0)) && ((DAT_40001fcb & 4) == 0)
-       ) {
+    if (((DAT_40001fac < CAL_obd_ii_o2_precat_activity_window) && ((DAT_40001fcb & 0x10) == 0)) &&
+       ((DAT_40001fcb & 4) == 0)) {
       if (CAL_obd_ii_cat_monitor_min_engine_runtime < runtime_since_start) {
         if (obd_ii_o2_sensor5_voltage < CAL_sensor_o2_rich_voltage_threshold) {
           DAT_40001fcb = DAT_40001fcb | 2;
@@ -34302,7 +34318,7 @@ void obd_ii_o2_no_activity_monitor(void)
         }
       }
     }
-    if (DAT_40001fae < DAT_4000cac6) {
+    if (DAT_40001fae < CAL_obd_ii_o2_postcat_activity_min) {
       if ((cl_state_flags_bank1 & 4) != 0) {
         cl_state_flags_bank1 = cl_state_flags_bank1 | 8;
       }
@@ -34326,7 +34342,7 @@ void obd_ii_o2_no_activity_monitor(void)
         }
       }
     }
-    if (DAT_40001fb0 < DAT_4000cac6) {
+    if (DAT_40001fb0 < CAL_obd_ii_o2_postcat_activity_min) {
       if ((cl_state_flags_bank2 & 4) != 0) {
         cl_state_flags_bank2 = cl_state_flags_bank2 | 8;
       }
@@ -34376,45 +34392,48 @@ void obd_ii_o2_slow_response_monitor(void)
      ((((LEA_obd_ii_P0132_dtc_state & 4) == 0 && ((LEA_obd_ii_P0134_dtc_state & 4) == 0)) &&
       ((LEA_obd_ii_P0135_dtc_state & 4) == 0)))) {
     LEA_obd_ii_P0133_dtc_state = LEA_obd_ii_P0133_dtc_state & 0xbf;
-    if (((((car_speed_u8 < DAT_4000ca26) || (DAT_4000ca27 <= car_speed_u8)) ||
-         (((int)load_mass_per_stroke_raw <= (int)(uint)DAT_4000ca72 ||
-          (((int)(uint)DAT_4000ca74 <= (int)load_mass_per_stroke_raw ||
-           (engine_speed_8bit <= DAT_4000ca76)))))) || (DAT_4000ca77 <= engine_speed_8bit)) ||
-       (((((runtime_since_start <= DAT_4000cac8 || (coolant_temp <= DAT_4000ca69)) ||
-          (DAT_40001fb2 != '\0')) ||
-         (((int)(uint)DAT_400087ca <= (int)u32_load_mg_stroke_40001ff4 ||
-          ((cl_status_bank1 & 2) == 0)))) || ((cl_state_flags_bank1 & 1) == 0)))) {
+    if (((((car_speed_u8 < CAL_obd_ii_o2_response_car_speed_min) ||
+          (CAL_obd_ii_o2_response_car_speed_max <= car_speed_u8)) ||
+         (((int)load_mass_per_stroke_raw <= (int)(uint)CAL_load_mass_per_stroke_raw_limit_1 ||
+          (((int)(uint)CAL_load_mass_per_stroke_raw_limit_2 <= (int)load_mass_per_stroke_raw ||
+           (engine_speed_8bit <= CAL_engine_speed_3_threshold_2)))))) ||
+        (CAL_engine_speed_3_threshold_3 <= engine_speed_8bit)) ||
+       (((((runtime_since_start <= CAL_obd_ii_o2_slow_response_runtime_limit_unknown ||
+           (coolant_temp <= CAL_obd_ii_P0133_min_coolant_temp)) || (DAT_40001fb2 != '\0')) ||
+         (((int)(uint)CAL_obd_ii_o2_response_load_stability_max <= (int)u32_load_mg_stroke_40001ff4
+          || ((cl_status_bank1 & 2) == 0)))) || ((cl_state_flags_bank1 & 1) == 0)))) {
       obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 & 0xfffe;
     }
     else {
       obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 | 1;
     }
-    if ((((int)(uint)DAT_4000ca72 < (int)load_mass_per_stroke_raw) &&
-        (DAT_4000ca76 < engine_speed_8bit)) &&
-       ((engine_speed_8bit < DAT_4000ca77 &&
-        ((((((DAT_4000cac8 < runtime_since_start && (DAT_4000ca69 < coolant_temp)) &&
-            (DAT_40001fb2 == '\0')) && ((DAT_40001fec == 0 && (DAT_4000cbba < obd_ii_maf_flow)))) &&
-          (obd_ii_maf_flow < DAT_4000cbc8)) &&
+    if ((((int)(uint)CAL_load_mass_per_stroke_raw_limit_1 < (int)load_mass_per_stroke_raw) &&
+        (CAL_engine_speed_3_threshold_2 < engine_speed_8bit)) &&
+       ((engine_speed_8bit < CAL_engine_speed_3_threshold_3 &&
+        ((((((CAL_obd_ii_o2_slow_response_runtime_limit_unknown < runtime_since_start &&
+             (CAL_obd_ii_P0133_min_coolant_temp < coolant_temp)) && (DAT_40001fb2 == '\0')) &&
+           ((DAT_40001fec == 0 && (CAL_obd_ii_o2_slow_response_maf_limit_unknown2 < obd_ii_maf_flow)
+            ))) && (obd_ii_maf_flow < CAL_obd_ii_o2_slow_response_maf_limit_unknown)) &&
          (((cl_status_bank1 & 2) != 0 && ((cl_state_flags_bank1 & 1) != 0)))))))) {
       obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 | 0x10;
     }
     else {
       obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 & 0xffef;
-      DAT_40001fee = DAT_4000cbca;
+      DAT_40001fee = CAL_obd_o2_precat_diag_reset_counter;
     }
     if ((obd_ii_o2_response_test_flags_bank1 & 2) != 0) {
       uVar3 = obd_ii_o2_response_test_flags_bank1 & 0xfffd | 4;
       if ((obd_ii_o2_response_test_flags_bank1 & 0x1000) == 0) {
         DAT_4000497a = (ushort)(DAT_40002038 / DAT_40002015);
         obd_ii_o2_response_test_flags_bank1 = uVar3;
-        if (DAT_400047d4 < DAT_4000497a) {
-          DAT_400047d4 = DAT_4000497a;
-          sort_array10(&DAT_400047d4);
+        if (LEA_obd_monitor_05 < DAT_4000497a) {
+          LEA_obd_monitor_05 = DAT_4000497a;
+          sort_array10(&LEA_obd_monitor_05);
         }
         DAT_4000497c = (ushort)(DAT_40002040 / DAT_40002013);
-        if (DAT_400047e8 < DAT_4000497c) {
-          DAT_400047e8 = DAT_4000497c;
-          sort_array10(&DAT_400047e8);
+        if (LEA_obd_monitor_06 < DAT_4000497c) {
+          LEA_obd_monitor_06 = DAT_4000497c;
+          sort_array10(&LEA_obd_monitor_06);
         }
         if ((DAT_4000497c == 0) || (DAT_4000497a == 0)) {
           DAT_4000497e = 0;
@@ -34427,9 +34446,9 @@ void obd_ii_o2_slow_response_monitor(void)
           else {
             DAT_4000497e = 0xff;
           }
-          if (DAT_400047fc < DAT_4000497e) {
-            DAT_400047fc = DAT_4000497e;
-            sort_array10(&DAT_400047fc);
+          if (LEA_obd_monitor_07 < DAT_4000497e) {
+            LEA_obd_monitor_07 = DAT_4000497e;
+            sort_array10(&LEA_obd_monitor_07);
           }
         }
       }
@@ -34439,9 +34458,12 @@ void obd_ii_o2_slow_response_monitor(void)
         DAT_4000497e = 0xff;
         obd_ii_o2_response_test_flags_bank1 = uVar3;
       }
-      if ((((DAT_4000ca2c < DAT_4000497c) && (uint16_t_4000ca2a < DAT_4000497a)) ||
-          ((DAT_4000ca60 < DAT_4000497c && (DAT_4000ca78 < DAT_4000497e)))) ||
-         (((DAT_4000ca61 < DAT_4000497a && (DAT_4000497e < DAT_4000ca79)) ||
+      if ((((CAL_obd_ii_mode06_o2_switch_time_max < DAT_4000497c) &&
+           (CAL_obd_ii_mode06_o2_switch_time_min < DAT_4000497a)) ||
+          ((CAL_obd_ii_o2_r2l_time_max_asym < DAT_4000497c &&
+           (CAL_obd_ii_o2_switch_time_threshold < DAT_4000497e)))) ||
+         (((CAL_obd_ii_o2_l2r_time_max_asym < DAT_4000497a &&
+           (DAT_4000497e < CAL_obd_ii_o2_switch_time_min)) ||
           ((obd_ii_o2_response_test_flags_bank1 & 0x1000) != 0)))) {
         obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 | 8;
       }
@@ -34456,7 +34478,8 @@ void obd_ii_o2_slow_response_monitor(void)
         DAT_40004982 = 0xffff;
         DAT_40004980 = 0xffff;
       }
-      if (((DAT_4000c9ce < DAT_40004980) || (DAT_4000c9d0 < DAT_40004982)) ||
+      if (((CAL_obd_ii_o2_lean_period_excess_max < DAT_40004980) ||
+          (CAL_obd_ii_o2_rich_period_excess_max < DAT_40004982)) ||
          (uVar2 = obd_ii_o2_response_test_flags_bank1 & 0x2000,
          obd_ii_o2_response_test_flags_bank1 = uVar3 | 0x40, uVar2 != 0)) {
         obd_ii_o2_response_test_flags_bank1 = uVar3 | 0xc0;
@@ -34494,44 +34517,49 @@ void obd_ii_o2_slow_response_monitor(void)
        (((LEA_obd_ii_P0152_dtc_state & 4) == 0 && ((LEA_obd_ii_P0154_dtc_state & 4) == 0)))) &&
       ((LEA_obd_ii_P0155_dtc_state & 4) == 0)))) {
     LEA_obd_ii_P0153_dtc_state = LEA_obd_ii_P0153_dtc_state & 0xbf;
-    if ((((car_speed_u8 < DAT_4000ca26) || (DAT_4000ca27 <= car_speed_u8)) ||
-        ((((int)load_mass_per_stroke_raw <= (int)(uint)DAT_4000ca72 ||
-          ((((int)(uint)DAT_4000ca74 <= (int)load_mass_per_stroke_raw ||
-            (engine_speed_8bit <= DAT_4000ca76)) || (DAT_4000ca77 <= engine_speed_8bit)))) ||
-         (((runtime_since_start <= DAT_4000cac8 || (coolant_temp <= DAT_4000ca69)) ||
-          (DAT_40001fb2 != '\0')))))) ||
-       ((((int)(uint)DAT_400087ca <= (int)u32_load_mg_stroke_40001ff4 ||
-         ((cl_status_bank2 & 2) == 0)) || ((cl_state_flags_bank2 & 1) == 0)))) {
+    if ((((car_speed_u8 < CAL_obd_ii_o2_response_car_speed_min) ||
+         (CAL_obd_ii_o2_response_car_speed_max <= car_speed_u8)) ||
+        ((((int)load_mass_per_stroke_raw <= (int)(uint)CAL_load_mass_per_stroke_raw_limit_1 ||
+          ((((int)(uint)CAL_load_mass_per_stroke_raw_limit_2 <= (int)load_mass_per_stroke_raw ||
+            (engine_speed_8bit <= CAL_engine_speed_3_threshold_2)) ||
+           (CAL_engine_speed_3_threshold_3 <= engine_speed_8bit)))) ||
+         (((runtime_since_start <= CAL_obd_ii_o2_slow_response_runtime_limit_unknown ||
+           (coolant_temp <= CAL_obd_ii_P0133_min_coolant_temp)) || (DAT_40001fb2 != '\0')))))) ||
+       ((((int)(uint)CAL_obd_ii_o2_response_load_stability_max <= (int)u32_load_mg_stroke_40001ff4
+         || ((cl_status_bank2 & 2) == 0)) || ((cl_state_flags_bank2 & 1) == 0)))) {
       obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 & 0xfffe;
     }
     else {
       obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 | 1;
     }
-    if ((((((int)(uint)DAT_4000ca72 < (int)load_mass_per_stroke_raw) &&
-          (DAT_4000ca76 < engine_speed_8bit)) && (engine_speed_8bit < DAT_4000ca77)) &&
-        ((DAT_4000cac8 < runtime_since_start && (DAT_4000ca69 < coolant_temp)))) &&
-       (((DAT_40001fb2 == '\0' && ((DAT_40001fec == 0 && (DAT_4000cbba < obd_ii_maf_flow)))) &&
-        ((obd_ii_maf_flow < DAT_4000cbc8 &&
-         (((cl_status_bank2 & 2) != 0 && ((cl_state_flags_bank2 & 1) != 0)))))))) {
+    if ((((((int)(uint)CAL_load_mass_per_stroke_raw_limit_1 < (int)load_mass_per_stroke_raw) &&
+          (CAL_engine_speed_3_threshold_2 < engine_speed_8bit)) &&
+         (engine_speed_8bit < CAL_engine_speed_3_threshold_3)) &&
+        ((CAL_obd_ii_o2_slow_response_runtime_limit_unknown < runtime_since_start &&
+         (CAL_obd_ii_P0133_min_coolant_temp < coolant_temp)))) &&
+       (((DAT_40001fb2 == '\0' &&
+         ((DAT_40001fec == 0 && (CAL_obd_ii_o2_slow_response_maf_limit_unknown2 < obd_ii_maf_flow)))
+         ) && ((obd_ii_maf_flow < CAL_obd_ii_o2_slow_response_maf_limit_unknown &&
+               (((cl_status_bank2 & 2) != 0 && ((cl_state_flags_bank2 & 1) != 0)))))))) {
       obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 | 0x10;
     }
     else {
       obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 & 0xffef;
-      DAT_40001ff0 = DAT_4000cbca;
+      DAT_40001ff0 = CAL_obd_o2_precat_diag_reset_counter;
     }
     if ((obd_ii_o2_response_test_flags_bank2 & 2) != 0) {
       uVar3 = obd_ii_o2_response_test_flags_bank2 & 0xfffd | 4;
       if ((obd_ii_o2_response_test_flags_bank2 & 0x1000) == 0) {
         DAT_4000498e = (ushort)(DAT_40002034 / DAT_40002014);
         obd_ii_o2_response_test_flags_bank2 = uVar3;
-        if (DAT_40004810 < DAT_4000498e) {
-          DAT_40004810 = DAT_4000498e;
-          sort_array10(&DAT_40004810);
+        if (LEA_obd_monitor_08 < DAT_4000498e) {
+          LEA_obd_monitor_08 = DAT_4000498e;
+          sort_array10(&LEA_obd_monitor_08);
         }
         DAT_40004990 = (ushort)(DAT_4000203c / DAT_40002012);
-        if (DAT_40004824 < DAT_40004990) {
-          DAT_40004824 = DAT_40004990;
-          sort_array10(&DAT_40004824);
+        if (LEA_obd_monitor_09 < DAT_40004990) {
+          LEA_obd_monitor_09 = DAT_40004990;
+          sort_array10(&LEA_obd_monitor_09);
         }
         if ((DAT_40004990 == 0) || (DAT_4000498e == 0)) {
           DAT_40004992 = 0;
@@ -34544,9 +34572,9 @@ void obd_ii_o2_slow_response_monitor(void)
           else {
             DAT_40004992 = 0xff;
           }
-          if (DAT_40004838 < DAT_40004992) {
-            DAT_40004838 = DAT_40004992;
-            sort_array10(&DAT_40004838);
+          if (LEA_obd_monitor_10 < DAT_40004992) {
+            LEA_obd_monitor_10 = DAT_40004992;
+            sort_array10(&LEA_obd_monitor_10);
           }
         }
       }
@@ -34556,9 +34584,12 @@ void obd_ii_o2_slow_response_monitor(void)
         DAT_40004992 = 0xff;
         obd_ii_o2_response_test_flags_bank2 = uVar3;
       }
-      if ((((DAT_4000ca2c < DAT_40004990) && (uint16_t_4000ca2a < DAT_4000498e)) ||
-          ((DAT_4000ca60 < DAT_40004990 && (DAT_4000ca78 < DAT_40004992)))) ||
-         (((DAT_4000ca61 < DAT_4000498e && (DAT_40004992 < DAT_4000ca79)) ||
+      if ((((CAL_obd_ii_mode06_o2_switch_time_max < DAT_40004990) &&
+           (CAL_obd_ii_mode06_o2_switch_time_min < DAT_4000498e)) ||
+          ((CAL_obd_ii_o2_r2l_time_max_asym < DAT_40004990 &&
+           (CAL_obd_ii_o2_switch_time_threshold < DAT_40004992)))) ||
+         (((CAL_obd_ii_o2_l2r_time_max_asym < DAT_4000498e &&
+           (DAT_40004992 < CAL_obd_ii_o2_switch_time_min)) ||
           ((obd_ii_o2_response_test_flags_bank2 & 0x1000) != 0)))) {
         obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 | 8;
       }
@@ -34573,7 +34604,8 @@ void obd_ii_o2_slow_response_monitor(void)
         DAT_40004986 = 0xffff;
         DAT_40004984 = 0xffff;
       }
-      if (((DAT_4000c9ce < DAT_40004984) || (DAT_4000c9d0 < DAT_40004986)) ||
+      if (((CAL_obd_ii_o2_lean_period_excess_max < DAT_40004984) ||
+          (CAL_obd_ii_o2_rich_period_excess_max < DAT_40004986)) ||
          (uVar2 = obd_ii_o2_response_test_flags_bank2 & 0x2000,
          obd_ii_o2_response_test_flags_bank2 = uVar3 | 0x40, uVar2 != 0)) {
         obd_ii_o2_response_test_flags_bank2 = uVar3 | 0xc0;
@@ -34629,7 +34661,7 @@ void obd_ii_o2_slow_response_monitor(void)
   if (((LEA_obd_ii_P0133_dtc_state & 8) != 0) && ((CAL_obd_ii_P0133 & 8) != 0)) {
     LEA_obd_ii_P0133_dtc_state = LEA_obd_ii_P0133_dtc_state & 0xf7;
     obd_ii_o2_precat_diag_timer_bank1 = CAL_obd_ii_o2_precat_diag_timer;
-    DAT_4000200c = DAT_4000cbbc;
+    DAT_4000200c = CAL_obd_o2_precat_diag_init_counter;
     obd_ii_o2_response_test_flags_bank1 = obd_ii_o2_response_test_flags_bank1 & 0xf33 | 0x300;
     DAT_40001fe0 = 0;
     DAT_40001fe1 = 0;
@@ -34643,7 +34675,7 @@ void obd_ii_o2_slow_response_monitor(void)
   if (((LEA_obd_ii_P0153_dtc_state & 8) != 0) && ((CAL_obd_ii_P0153 & 8) != 0)) {
     LEA_obd_ii_P0153_dtc_state = LEA_obd_ii_P0153_dtc_state & 0xf7;
     obd_ii_o2_precat_diag_timer_bank2 = CAL_obd_ii_o2_precat_diag_timer;
-    DAT_4000200a = DAT_4000cbbc;
+    DAT_4000200a = CAL_obd_o2_precat_diag_init_counter;
     obd_ii_o2_response_test_flags_bank2 = obd_ii_o2_response_test_flags_bank2 & 0xf33 | 0x300;
     DAT_40001fe2 = 0;
     DAT_40001fe3 = 0;
@@ -34670,8 +34702,8 @@ void obd_ii_o2_slow_response_monitor(void)
        ((LEA_obd_ii_P0277_dtc_state & 4) == 0)))))) {
     if (((LEA_obd_ii_P0140_dtc_state & 4) == 0) && ((LEA_obd_ii_P0141_dtc_state & 4) == 0)) {
       bVar4 = LEA_obd_ii_P0139_dtc_state & 0xbf;
-      if (((DAT_4000cac8 < runtime_since_start) && ((CAL_obd_ii_P0139 & 7) != 0)) &&
-         ((LEA_obd_ii_P0139_dtc_state & 8) == 0)) {
+      if (((CAL_obd_ii_o2_slow_response_runtime_limit_unknown < runtime_since_start) &&
+          ((CAL_obd_ii_P0139 & 7) != 0)) && ((LEA_obd_ii_P0139_dtc_state & 8) == 0)) {
         uVar3 = DAT_4000202c | 1;
         if (((((DAT_4000202c & 4) == 0) && ((DAT_4000202c & 8) == 0)) &&
             ((DAT_4000202c & 0x10) == 0)) && ((DAT_4000202c & 0x20) == 0)) {
@@ -34680,10 +34712,10 @@ void obd_ii_o2_slow_response_monitor(void)
              (((DAT_4000202c & 0x40) != 0 && ((DAT_4000202c & 0x80) != 0)))) {
             DAT_4000202c = uVar3;
             obd_ii_monitor_pass(&CAL_obd_ii_P0139,&LEA_obd_ii_P0139_dtc_state);
-            if (DAT_40002047 < DAT_4000d3bc) {
+            if (DAT_40002047 < CAL_obd_monitor_sentinel_init) {
               DAT_40002047 = DAT_40002047 + 1;
             }
-            DAT_40002004 = DAT_4000caf4;
+            DAT_40002004 = CAL_cat_check_unknown4;
             DAT_40002008 = DAT_4000cad6;
             uVar3 = DAT_4000202c;
           }
@@ -34698,38 +34730,38 @@ void obd_ii_o2_slow_response_monitor(void)
                         (&CAL_obd_ii_P0139,&LEA_obd_ii_P0139_dtc_state,
                          &LEA_obd_ii_P0139_fail_counter,&LEA_obd_ii_P0139_pass_counter,0x139,0);
             }
-            if (DAT_40002047 < DAT_4000489c) {
-              DAT_4000489c = DAT_40002047;
+            if (DAT_40002047 < LEA_obd_monitor_sentinel) {
+              LEA_obd_monitor_sentinel = DAT_40002047;
             }
           }
-          DAT_40002004 = DAT_4000caf4;
+          DAT_40002004 = CAL_cat_check_unknown4;
           DAT_40002008 = DAT_4000cad6;
           uVar3 = DAT_4000202c & 0xffc3;
         }
       }
       else {
-        DAT_40002004 = DAT_4000caf4;
+        DAT_40002004 = CAL_cat_check_unknown4;
         DAT_40002008 = DAT_4000cad6;
-        DAT_40001ffa = DAT_4000ca0a;
+        DAT_40001ffa = CAL_obd_ii_o2_slow_response_arm_dwell;
         uVar3 = DAT_4000202c & 0xfffe;
         LEA_obd_ii_P0139_dtc_state = bVar4;
       }
     }
     else {
       LEA_obd_ii_P0139_dtc_state = LEA_obd_ii_P0139_dtc_state | 0x40;
-      DAT_40002004 = DAT_4000caf4;
+      DAT_40002004 = CAL_cat_check_unknown4;
       DAT_40002008 = DAT_4000cad6;
-      DAT_40001ffa = DAT_4000ca0a;
+      DAT_40001ffa = CAL_obd_ii_o2_slow_response_arm_dwell;
       uVar3 = DAT_4000202c & 0xfffe;
     }
     DAT_4000202c = uVar3;
     if (((LEA_obd_ii_P0160_dtc_state & 4) == 0) && ((LEA_obd_ii_P0161_dtc_state & 4) == 0)) {
       bVar4 = LEA_obd_ii_P0159_dtc_state & 0xbf;
       if ((((CAL_obd_ii_P0159 & 7) == 0) || ((LEA_obd_ii_P0159_dtc_state & 8) != 0)) ||
-         (runtime_since_start <= DAT_4000cac8)) {
-        DAT_40002002 = DAT_4000caf4;
+         (runtime_since_start <= CAL_obd_ii_o2_slow_response_runtime_limit_unknown)) {
+        DAT_40002002 = CAL_cat_check_unknown4;
         DAT_40002006 = DAT_4000cad6;
-        DAT_40001ff8 = DAT_4000ca0a;
+        DAT_40001ff8 = CAL_obd_ii_o2_slow_response_arm_dwell;
         uVar3 = DAT_4000202a & 0xfffe;
         LEA_obd_ii_P0159_dtc_state = bVar4;
       }
@@ -34745,7 +34777,7 @@ void obd_ii_o2_slow_response_monitor(void)
             if (DAT_40002044 < DAT_4000d42a) {
               DAT_40002044 = DAT_40002044 + 1;
             }
-            DAT_40002002 = DAT_4000caf4;
+            DAT_40002002 = CAL_cat_check_unknown4;
             DAT_40002006 = DAT_4000cad6;
             uVar3 = DAT_4000202a;
           }
@@ -34760,11 +34792,11 @@ void obd_ii_o2_slow_response_monitor(void)
                         (&CAL_obd_ii_P0159,&LEA_obd_ii_P0159_dtc_state,
                          &LEA_obd_ii_P0159_fail_counter,&LEA_obd_ii_P0159_pass_counter,0x159,0);
             }
-            if (DAT_40002044 < DAT_4000489c) {
-              DAT_4000489c = DAT_40002044;
+            if (DAT_40002044 < LEA_obd_monitor_sentinel) {
+              LEA_obd_monitor_sentinel = DAT_40002044;
             }
           }
-          DAT_40002002 = DAT_4000caf4;
+          DAT_40002002 = CAL_cat_check_unknown4;
           DAT_40002006 = DAT_4000cad6;
           uVar3 = DAT_4000202a & 0xffc3;
         }
@@ -34772,9 +34804,9 @@ void obd_ii_o2_slow_response_monitor(void)
     }
     else {
       LEA_obd_ii_P0159_dtc_state = LEA_obd_ii_P0159_dtc_state | 0x40;
-      DAT_40002002 = DAT_4000caf4;
+      DAT_40002002 = CAL_cat_check_unknown4;
       DAT_40002006 = DAT_4000cad6;
-      DAT_40001ff8 = DAT_4000ca0a;
+      DAT_40001ff8 = CAL_obd_ii_o2_slow_response_arm_dwell;
       uVar3 = DAT_4000202a & 0xfffe;
     }
   }
@@ -34782,16 +34814,16 @@ void obd_ii_o2_slow_response_monitor(void)
     LEA_obd_ii_P0139_dtc_state = LEA_obd_ii_P0139_dtc_state | 0x40;
     LEA_obd_ii_P0159_dtc_state = LEA_obd_ii_P0159_dtc_state | 0x40;
     DAT_4000202c = DAT_4000202c & 0xfffe;
-    DAT_40002002 = DAT_4000caf4;
-    DAT_40002004 = DAT_4000caf4;
+    DAT_40002002 = CAL_cat_check_unknown4;
+    DAT_40002004 = CAL_cat_check_unknown4;
     DAT_40002006 = DAT_4000cad6;
     DAT_40002008 = DAT_4000cad6;
-    DAT_40001ff8 = DAT_4000ca0a;
-    DAT_40001ffa = DAT_4000ca0a;
+    DAT_40001ff8 = CAL_obd_ii_o2_slow_response_arm_dwell;
+    DAT_40001ffa = CAL_obd_ii_o2_slow_response_arm_dwell;
     uVar3 = DAT_4000202a & 0xfffe;
   }
   DAT_4000202a = uVar3;
-  if (runtime_since_start < DAT_4000cac8) {
+  if (runtime_since_start < CAL_obd_ii_o2_slow_response_runtime_limit_unknown) {
     if ((cl_state_flags_bank1 & 4) != 0) {
       if (CAL_sensor_o2_rich_voltage_threshold < obd_ii_o2_sensor2_voltage) {
         DAT_4000202c = DAT_4000202c | 0x80;
@@ -34830,11 +34862,11 @@ void obd_ii_catalyst_monitor_200hz(void)
   longlong _tps_rate_abs;
   byte bVar3;
   
-  o2_leanrich_detect(obd_ii_o2_sensor1_voltage,&DAT_40001fcc);
+  o2_leanrich_detect(obd_ii_o2_sensor1_voltage,&o2_sensor_1_leanrich);
   o2_leanrich_detect(obd_ii_o2_sensor5_voltage,&DAT_40001fcd);
   obd_ii_o2_switching_counter
             (&obd_ii_o2_response_test_flags_bank1,&DAT_4000200c,&DAT_40001fd0,&DAT_40001fd4,
-             &DAT_40001fe0,&DAT_40001fe1,&DAT_40001fcc,(ushort *)&DAT_40001fe6,
+             &DAT_40001fe0,&DAT_40001fe1,&o2_sensor_1_leanrich,(ushort *)&DAT_40001fe6,
              (ushort *)&DAT_40001fe4,&DAT_40001518,&DAT_4000151a,&DAT_40001fee);
   obd_ii_o2_switching_counter
             (&obd_ii_o2_response_test_flags_bank2,&DAT_4000200a,&DAT_40001fd8,&DAT_40001fdc,
@@ -34843,7 +34875,8 @@ void obd_ii_catalyst_monitor_200hz(void)
   obd_ii_o2_transition_activity_counter
             (obd_ii_o2_sensor1_voltage,&obd_ii_o2_response_test_flags_bank1,
              &obd_ii_o2_precat_diag_timer_bank1,&DAT_40004988,&DAT_4000498a,&DAT_40002040,
-             &DAT_40002038,&DAT_40002013,&DAT_40002015,&DAT_40001fcc,&DAT_40001fc4,&DAT_40001fc2);
+             &DAT_40002038,&DAT_40002013,&DAT_40002015,&o2_sensor_1_leanrich,&DAT_40001fc4,
+             &DAT_40001fc2);
   obd_ii_o2_transition_activity_counter
             (obd_ii_o2_sensor5_voltage,&obd_ii_o2_response_test_flags_bank2,
              (short *)&obd_ii_o2_precat_diag_timer_bank2,&DAT_40004994,&DAT_40004996,&DAT_4000203c,
@@ -34889,13 +34922,13 @@ void obd_ii_catalyst_monitor_200hz(void)
     if ((cl_status_bank1 & 2) == 0) {
       DAT_40001faa = 0;
     }
-    else if (DAT_40001faa < DAT_4000cac4) {
+    else if (DAT_40001faa < CAL_obd_ii_o2_precat_activity_window) {
       DAT_40001faa = DAT_40001faa + 1;
     }
     if ((cl_status_bank2 & 2) == 0) {
       DAT_40001fac = 0;
     }
-    else if (DAT_40001fac < DAT_4000cac4) {
+    else if (DAT_40001fac < CAL_obd_ii_o2_precat_activity_window) {
       DAT_40001fac = DAT_40001fac + 1;
     }
     if (runtime_since_start < closedloop_activate_time) {
@@ -34903,10 +34936,10 @@ void obd_ii_catalyst_monitor_200hz(void)
       DAT_40001fae = 0;
     }
     else {
-      if (DAT_40001fae < DAT_4000cac6) {
+      if (DAT_40001fae < CAL_obd_ii_o2_postcat_activity_min) {
         DAT_40001fae = DAT_40001fae + 1;
       }
-      if (DAT_40001fb0 < DAT_4000cac6) {
+      if (DAT_40001fb0 < CAL_obd_ii_o2_postcat_activity_min) {
         DAT_40001fb0 = DAT_40001fb0 + 1;
       }
     }
@@ -34914,10 +34947,10 @@ void obd_ii_catalyst_monitor_200hz(void)
   if ((DAT_4000202c & 1) != 0) {
     if ((DAT_4000202c & 0xa0) == 0) {
       if ((CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor1_voltage) &&
-         ((ushort)((ushort)DAT_4000c9c9 * 0x32) < obd_ii_maf_flow)) {
+         ((ushort)((ushort)CAL_obd_ii_cat_monitor_maf_min * 0x32) < obd_ii_maf_flow)) {
         if (DAT_40002004 == 0) {
           DAT_4000202c = DAT_4000202c | 0x20;
-          DAT_40002004 = DAT_4000caf4;
+          DAT_40002004 = CAL_cat_check_unknown4;
         }
         else {
           DAT_40002004 = DAT_40002004 + -1;
@@ -34927,7 +34960,7 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
       }
       else {
-        DAT_40002004 = DAT_4000caf4;
+        DAT_40002004 = CAL_cat_check_unknown4;
       }
     }
     if ((DAT_4000202c & 0x50) == 0) {
@@ -34952,7 +34985,7 @@ void obd_ii_catalyst_monitor_200hz(void)
       if (DAT_40001fff == '\0') {
         if (((obd_ii_o2_sensor2_voltage <= CAL_sensor_o2_lean_voltage_threshold) &&
             (CAL_sensor_o2_lean_voltage_threshold <= obd_ii_o2_sensor1_voltage)) &&
-           ((ushort)((ushort)DAT_4000c9c9 * 0x32) < obd_ii_maf_flow)) {
+           ((ushort)((ushort)CAL_obd_ii_cat_monitor_maf_min * 0x32) < obd_ii_maf_flow)) {
           DAT_40001fff = '\x01';
           DAT_40002028 = 0;
           DAT_40001fc6 = 0;
@@ -34960,13 +34993,13 @@ void obd_ii_catalyst_monitor_200hz(void)
       }
       else if (DAT_40001fff == '\x01') {
         if ((obd_ii_o2_sensor1_voltage < CAL_sensor_o2_lean_voltage_threshold) ||
-           (obd_ii_maf_flow < (ushort)((ushort)DAT_4000c9c9 * 0x32))) {
+           (obd_ii_maf_flow < (ushort)((ushort)CAL_obd_ii_cat_monitor_maf_min * 0x32))) {
           DAT_40001fff = '\0';
         }
         if (CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor2_voltage) {
           if ((CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor2_voltage) &&
              (obd_ii_o2_sensor2_voltage < CAL_sensor_o2_rich_voltage_threshold)) {
-            if (DAT_40002028 < DAT_4000ca62) {
+            if (DAT_40002028 < CAL_obd_ii_o2_slow_response_limit_lean_to_rich) {
               DAT_40002028 = DAT_40002028 + 1;
               DAT_40001fc6 = DAT_40001fc6 + 1;
             }
@@ -35001,16 +35034,18 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
         DAT_40002019 = DAT_40002019 + 1;
         DAT_40002020 = DAT_40002020 + DAT_40002028;
-        if (DAT_4000ca5f <= DAT_40002019) {
+        if (CAL_obd_ii_o2_slow_response_sample_count <= DAT_40002019) {
           DAT_40002019 = 0;
           uVar2 = DAT_4000202c | 0x200;
           DAT_4000202c = DAT_4000202c | 8;
-          if ((uint)DAT_40002020 < (uint)DAT_4000ca62 * (uint)DAT_4000ca5f) {
+          if ((uint)DAT_40002020 <
+              (uint)CAL_obd_ii_o2_slow_response_limit_lean_to_rich *
+              (uint)CAL_obd_ii_o2_slow_response_sample_count) {
             DAT_4000202c = uVar2;
           }
-          if (DAT_40004788 < DAT_40002020) {
-            DAT_40004788 = DAT_40002020;
-            sort_array10(&DAT_40004788);
+          if (LEA_obd_monitor_02 < DAT_40002020) {
+            LEA_obd_monitor_02 = DAT_40002020;
+            sort_array10(&LEA_obd_monitor_02);
           }
           DAT_4000499a = DAT_40002020;
         }
@@ -35022,13 +35057,13 @@ void obd_ii_catalyst_monitor_200hz(void)
       if (DAT_40001ffd == '\0') {
         if (DAT_40001ffa == 0) {
           DAT_40001ffd = '\x01';
-          DAT_40001ffa = DAT_4000ca0a;
+          DAT_40001ffa = CAL_obd_ii_o2_slow_response_arm_dwell;
         }
         else if (CAL_sensor_o2_rich_voltage_threshold < obd_ii_o2_sensor2_voltage) {
           DAT_40001ffa = DAT_40001ffa + -1;
         }
         else {
-          DAT_40001ffa = DAT_4000ca0a;
+          DAT_40001ffa = CAL_obd_ii_o2_slow_response_arm_dwell;
         }
       }
       else if (DAT_40001ffd == '\x01') {
@@ -35049,7 +35084,7 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
         else if ((CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor2_voltage) &&
                 (obd_ii_o2_sensor2_voltage < CAL_sensor_o2_rich_voltage_threshold)) {
-          if (DAT_40002024 < DAT_4000ca64) {
+          if (DAT_40002024 < CAL_obd_ii_o2_slow_response_limit_rich_to_lean) {
             DAT_40002024 = DAT_40002024 + 1;
           }
           else {
@@ -35066,16 +35101,18 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
         DAT_40002017 = DAT_40002017 + 1;
         DAT_4000201c = DAT_4000201c + DAT_40002024;
-        if (DAT_4000ca5f <= DAT_40002017) {
+        if (CAL_obd_ii_o2_slow_response_sample_count <= DAT_40002017) {
           DAT_40002017 = 0;
           uVar2 = DAT_4000202c | 0x100;
           DAT_4000202c = DAT_4000202c | 4;
-          if ((uint)DAT_4000201c < (uint)DAT_4000ca64 * (uint)DAT_4000ca5f) {
+          if ((uint)DAT_4000201c <
+              (uint)CAL_obd_ii_o2_slow_response_limit_rich_to_lean *
+              (uint)CAL_obd_ii_o2_slow_response_sample_count) {
             DAT_4000202c = uVar2;
           }
-          if (DAT_40004774 < DAT_4000201c) {
-            DAT_40004774 = DAT_4000201c;
-            sort_array10(&DAT_40004774);
+          if (LEA_obd_monitor_01 < DAT_4000201c) {
+            LEA_obd_monitor_01 = DAT_4000201c;
+            sort_array10(&LEA_obd_monitor_01);
           }
           DAT_4000499c = DAT_4000201c;
         }
@@ -35087,10 +35124,10 @@ void obd_ii_catalyst_monitor_200hz(void)
   if ((DAT_4000202a & 1) != 0) {
     if ((DAT_4000202a & 0xa0) == 0) {
       if ((CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor5_voltage) &&
-         ((ushort)((ushort)DAT_4000c9c9 * 0x32) < obd_ii_maf_flow)) {
+         ((ushort)((ushort)CAL_obd_ii_cat_monitor_maf_min * 0x32) < obd_ii_maf_flow)) {
         if (DAT_40002002 == 0) {
           DAT_4000202a = DAT_4000202a | 0x20;
-          DAT_40002002 = DAT_4000caf4;
+          DAT_40002002 = CAL_cat_check_unknown4;
         }
         else {
           DAT_40002002 = DAT_40002002 + -1;
@@ -35100,7 +35137,7 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
       }
       else {
-        DAT_40002002 = DAT_4000caf4;
+        DAT_40002002 = CAL_cat_check_unknown4;
       }
     }
     if ((DAT_4000202a & 0x50) == 0) {
@@ -35125,7 +35162,7 @@ void obd_ii_catalyst_monitor_200hz(void)
       if (DAT_40001ffe == '\0') {
         if (((obd_ii_o2_sensor6_voltage <= CAL_sensor_o2_lean_voltage_threshold) &&
             (CAL_sensor_o2_lean_voltage_threshold <= obd_ii_o2_sensor5_voltage)) &&
-           ((ushort)((ushort)DAT_4000c9c9 * 0x32) < obd_ii_maf_flow)) {
+           ((ushort)((ushort)CAL_obd_ii_cat_monitor_maf_min * 0x32) < obd_ii_maf_flow)) {
           DAT_40001ffe = '\x01';
           DAT_40002026 = 0;
           DAT_40001fc8 = 0;
@@ -35133,13 +35170,13 @@ void obd_ii_catalyst_monitor_200hz(void)
       }
       else if (DAT_40001ffe == '\x01') {
         if ((obd_ii_o2_sensor5_voltage < CAL_sensor_o2_lean_voltage_threshold) ||
-           (obd_ii_maf_flow < (ushort)((ushort)DAT_4000c9c9 * 0x32))) {
+           (obd_ii_maf_flow < (ushort)((ushort)CAL_obd_ii_cat_monitor_maf_min * 0x32))) {
           DAT_40001ffe = '\0';
         }
         if (CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor6_voltage) {
           if ((CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor6_voltage) &&
              (obd_ii_o2_sensor6_voltage < CAL_sensor_o2_rich_voltage_threshold)) {
-            if (DAT_40002026 < DAT_4000ca62) {
+            if (DAT_40002026 < CAL_obd_ii_o2_slow_response_limit_lean_to_rich) {
               DAT_40002026 = DAT_40002026 + 1;
               DAT_40001fc8 = DAT_40001fc8 + 1;
             }
@@ -35174,16 +35211,18 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
         DAT_40002018 = DAT_40002018 + 1;
         DAT_4000201e = DAT_4000201e + DAT_40002026;
-        if (DAT_4000ca5f <= DAT_40002018) {
+        if (CAL_obd_ii_o2_slow_response_sample_count <= DAT_40002018) {
           DAT_40002018 = 0;
           uVar2 = DAT_4000202a | 0x200;
           DAT_4000202a = DAT_4000202a | 8;
-          if ((uint)DAT_4000201e < (uint)DAT_4000ca62 * (uint)DAT_4000ca5f) {
+          if ((uint)DAT_4000201e <
+              (uint)CAL_obd_ii_o2_slow_response_limit_lean_to_rich *
+              (uint)CAL_obd_ii_o2_slow_response_sample_count) {
             DAT_4000202a = uVar2;
           }
-          if (DAT_400047b0 < DAT_4000201e) {
-            DAT_400047b0 = DAT_4000201e;
-            sort_array10(&DAT_400047b0);
+          if (LEA_obd_monitor_04 < DAT_4000201e) {
+            LEA_obd_monitor_04 = DAT_4000201e;
+            sort_array10(&LEA_obd_monitor_04);
           }
           DAT_4000499e = DAT_4000201e;
         }
@@ -35195,13 +35234,13 @@ void obd_ii_catalyst_monitor_200hz(void)
       if (DAT_40001ffc == '\0') {
         if (DAT_40001ff8 == 0) {
           DAT_40001ffc = '\x01';
-          DAT_40001ff8 = DAT_4000ca0a;
+          DAT_40001ff8 = CAL_obd_ii_o2_slow_response_arm_dwell;
         }
         else if (CAL_sensor_o2_rich_voltage_threshold < obd_ii_o2_sensor6_voltage) {
           DAT_40001ff8 = DAT_40001ff8 + -1;
         }
         else {
-          DAT_40001ff8 = DAT_4000ca0a;
+          DAT_40001ff8 = CAL_obd_ii_o2_slow_response_arm_dwell;
         }
       }
       else if (DAT_40001ffc == '\x01') {
@@ -35222,7 +35261,7 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
         else if ((CAL_sensor_o2_lean_voltage_threshold < obd_ii_o2_sensor6_voltage) &&
                 (obd_ii_o2_sensor6_voltage < CAL_sensor_o2_rich_voltage_threshold)) {
-          if (DAT_40002022 < DAT_4000ca64) {
+          if (DAT_40002022 < CAL_obd_ii_o2_slow_response_limit_rich_to_lean) {
             DAT_40002022 = DAT_40002022 + 1;
           }
           else {
@@ -35239,16 +35278,18 @@ void obd_ii_catalyst_monitor_200hz(void)
         }
         DAT_40002016 = DAT_40002016 + 1;
         DAT_4000201a = DAT_4000201a + DAT_40002022;
-        if (DAT_4000ca5f <= DAT_40002016) {
+        if (CAL_obd_ii_o2_slow_response_sample_count <= DAT_40002016) {
           DAT_40002016 = 0;
           uVar2 = DAT_4000202a | 0x100;
           DAT_4000202a = DAT_4000202a | 4;
-          if ((uint)DAT_4000201a < (uint)DAT_4000ca64 * (uint)DAT_4000ca5f) {
+          if ((uint)DAT_4000201a <
+              (uint)CAL_obd_ii_o2_slow_response_limit_rich_to_lean *
+              (uint)CAL_obd_ii_o2_slow_response_sample_count) {
             DAT_4000202a = uVar2;
           }
-          if (uint16_t_ARRAY_4000479c[0] < DAT_4000201a) {
-            uint16_t_ARRAY_4000479c[0] = DAT_4000201a;
-            sort_array10(uint16_t_ARRAY_4000479c);
+          if (LEA_obd_monitor_03[0] < DAT_4000201a) {
+            LEA_obd_monitor_03[0] = DAT_4000201a;
+            sort_array10(LEA_obd_monitor_03);
           }
           DAT_400049a0 = DAT_4000201a;
         }
@@ -35354,8 +35395,8 @@ void obd_ii_o2_switching_counter
         *o2_monitor_state_flags = *o2_monitor_state_flags & 0xfeff;
         if ((*o2_monitor_state_flags & 0x200) == 0) {
           lVar1 = libc_abs((ulonglong)*rich_duration_current - (ulonglong)*lean_duration_previous);
-          if ((((int)lVar1 < (int)(uint)DAT_4000cbb8) && (*lean_duration_previous != 0xffff)) &&
-             (*rich_transition_count != 0xff)) {
+          if ((((int)lVar1 < (int)(uint)CAL_obd_ii_o2_period_consistency_tol) &&
+              (*lean_duration_previous != 0xffff)) && (*rich_transition_count != 0xff)) {
             *rich_transition_count = *rich_transition_count + 1;
             bVar2 = lookup_2D_uint8_interpolated
                               ('\b',(uint8_t)(obd_ii_maf_flow / 100),&DAT_4000e160,&DAT_4000e158);
@@ -35365,8 +35406,9 @@ void obd_ii_o2_switching_counter
             else {
               uVar3 = 0;
             }
-            if (DAT_4000cbbe < uVar3) {
-              *rich_duration_accumulator = *rich_duration_accumulator + (uint)DAT_4000cbbe;
+            if (CAL_obd_ii_o2_period_excess_max < uVar3) {
+              *rich_duration_accumulator =
+                   *rich_duration_accumulator + (uint)CAL_obd_ii_o2_period_excess_max;
             }
             else {
               *rich_duration_accumulator = *rich_duration_accumulator + uVar3;
@@ -35381,8 +35423,8 @@ void obd_ii_o2_switching_counter
         *o2_monitor_state_flags = *o2_monitor_state_flags & 0xfdff;
         if ((*o2_monitor_state_flags & 0x100) == 0) {
           lVar1 = libc_abs((ulonglong)*lean_duration_current - (ulonglong)*rich_duration_previous);
-          if ((((int)lVar1 < (int)(uint)DAT_4000cbb8) && (*rich_duration_previous != 0xffff)) &&
-             (*lean_transition_count != 0xff)) {
+          if ((((int)lVar1 < (int)(uint)CAL_obd_ii_o2_period_consistency_tol) &&
+              (*rich_duration_previous != 0xffff)) && (*lean_transition_count != 0xff)) {
             *lean_transition_count = *lean_transition_count + 1;
             bVar2 = lookup_2D_uint8_interpolated
                               ('\b',(uint8_t)(obd_ii_maf_flow / 100),&DAT_4000e150,&DAT_4000e148);
@@ -35392,8 +35434,9 @@ void obd_ii_o2_switching_counter
             else {
               uVar3 = 0;
             }
-            if (DAT_4000cbbf < uVar3) {
-              *lean_duration_accumulator = *lean_duration_accumulator + (uint)DAT_4000cbbf;
+            if (CAL_obd_ii_o2_imbalance_accum_cap < uVar3) {
+              *lean_duration_accumulator =
+                   *lean_duration_accumulator + (uint)CAL_obd_ii_o2_imbalance_accum_cap;
             }
             else {
               *lean_duration_accumulator = *lean_duration_accumulator + uVar3;
@@ -35487,8 +35530,8 @@ void obd_ii_o2_transition_activity_counter
         }
         *o2_lean_duration_counter = 0;
       }
-      if ((DAT_4000ca28 <= *o2_lean_transition_count) && (DAT_4000ca28 <= *o2_rich_transition_count)
-         ) {
+      if ((CAL_obd_ii_o2_transition_count <= *o2_lean_transition_count) &&
+         (CAL_obd_ii_o2_transition_count <= *o2_rich_transition_count)) {
         *o2_activity_state_flags = *o2_activity_state_flags | 2;
       }
     }
@@ -35503,7 +35546,7 @@ void obd_ii_init_o2_sensor_diagnostics(void)
 {
   DAT_40002049 = DAT_4000d3fc;
   DAT_40002048 = DAT_4000d3fd;
-  DAT_40002047 = DAT_4000d3bc;
+  DAT_40002047 = CAL_obd_monitor_sentinel_init;
   DAT_40001fa8 = DAT_4000d400;
   DAT_40002046 = DAT_4000d432;
   DAT_40002045 = DAT_4000d433;
@@ -35529,10 +35572,10 @@ void obd_ii_init_o2_sensor_diagnostics(void)
   DAT_40002014 = 0;
   obd_ii_o2_precat_diag_timer_bank2 = CAL_obd_ii_o2_precat_diag_timer;
   obd_ii_o2_precat_diag_timer_bank1 = CAL_obd_ii_o2_precat_diag_timer;
-  DAT_4000200a = DAT_4000cbbc;
-  DAT_4000200c = DAT_4000cbbc;
-  DAT_40001ff0 = DAT_4000cbca;
-  DAT_40001fee = DAT_4000cbca;
+  DAT_4000200a = CAL_obd_o2_precat_diag_init_counter;
+  DAT_4000200c = CAL_obd_o2_precat_diag_init_counter;
+  DAT_40001ff0 = CAL_obd_o2_precat_diag_reset_counter;
+  DAT_40001fee = CAL_obd_o2_precat_diag_reset_counter;
   DAT_40001fdc = 0;
   DAT_40001fd8 = 0;
   DAT_40001fd4 = 0;
@@ -35563,8 +35606,8 @@ void obd_ii_init_o2_sensor_diagnostics(void)
   DAT_40001fc0 = 0;
   DAT_4000202a = 0;
   DAT_4000202c = 0;
-  DAT_40002004 = DAT_4000caf4;
-  DAT_40002002 = DAT_4000caf4;
+  DAT_40002004 = CAL_cat_check_unknown4;
+  DAT_40002002 = CAL_cat_check_unknown4;
   DAT_40002008 = DAT_4000cad6;
   DAT_40002006 = DAT_4000cad6;
   DAT_40001ffd = 0;
@@ -35590,7 +35633,9 @@ void obd_ii_init_o2_sensor_diagnostics(void)
 
 
 
-void obd_ii_init_o2_sensor_diagnostics(void)
+// Mode 01 DTC status update: O2 sensor response (P0133/4, P0139/40, P0153/4, P0159/60).
+
+void obd_ii_dtc_update_o2_response(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -35658,7 +35703,7 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
     else {
       DAT_40002082 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0076,&LEA_obd_ii_P0076_dtc_state);
-      if (DAT_40002060 < DAT_4000d3bf) {
+      if (DAT_40002060 < CAL_obd_ii_P0076_debounce_count) {
         DAT_40002060 = DAT_40002060 + 1;
       }
     }
@@ -35677,7 +35722,7 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
     else {
       DAT_40002084 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0077,&LEA_obd_ii_P0077_dtc_state);
-      if (DAT_40002061 < DAT_4000d3c0) {
+      if (DAT_40002061 < CAL_obd_ii_P0077_debounce_count) {
         DAT_40002061 = DAT_40002061 + 1;
       }
     }
@@ -36336,7 +36381,7 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
     if ((DAT_40002058 & 3) == 0) {
       DAT_400020cc = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_U0141,&LEA_obd_ii_U0141_dtc_state);
-      if (DAT_400020ca < DAT_4000d450) {
+      if (DAT_400020ca < CAL_obd_ii_P0141_debounce_count) {
         DAT_400020ca = DAT_400020ca + 1;
       }
     }
@@ -37079,11 +37124,11 @@ void cac_diag_reset(void)
 
 
 
-void obd_ii_init_runtime_variables_from_cal(void)
+void obd_set_actuator_circuit_dtc(void)
 
 {
-  DAT_40002060 = DAT_4000d3bf;
-  DAT_40002061 = DAT_4000d3c0;
+  DAT_40002060 = CAL_obd_ii_P0076_debounce_count;
+  DAT_40002061 = CAL_obd_ii_P0077_debounce_count;
   DAT_40002062 = DAT_4000d3d2;
   DAT_40002063 = DAT_4000d3e0;
   DAT_40002064 = DAT_4000d3e1;
@@ -37112,7 +37157,7 @@ void obd_ii_init_runtime_variables_from_cal(void)
   DAT_4000207d = DAT_4000d434;
   DAT_4000207e = DAT_4000d401;
   DAT_4000207f = DAT_4000d436;
-  DAT_400020ca = DAT_4000d450;
+  DAT_400020ca = CAL_obd_ii_P0141_debounce_count;
   DAT_40002068 = DAT_4000d3e5;
   DAT_40002069 = DAT_4000d3df;
   DAT_400020ce = DAT_4000d3e7;
@@ -37197,7 +37242,11 @@ void obd_ii_init_runtime_variables_from_cal(void)
 
 
 
-void obd_ii_init_injector_fan_diagnostics(void)
+// Mode 01 DTC status update: output/actuator circuit group (injectors P0261-P0277, coils P0351-6,
+// VVT solenoids P0076-86, O2 heaters P0135/41/55/61, purge/vent P0444-8, fans P0480/2, A/C relay
+// P0646/7, starter P0616/7, P025C/D, P023B/C, P123B/C, P2754/5, P2602/3, P2612/3, P2170/1).
+
+void obd_ii_dtc_update_actuator_circuits(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -37634,50 +37683,49 @@ void accel_pedal_200hz(void)
     dca_active_timer = 0;
   }
   else if (dca_mode == DCA_READY) {
-    if (u16_factor_1_1023_4000213c == 0) {
-      u16_factor_1_1023_4000213c = 0;
+    if (dca_tps_idle_delta == 0) {
+      dca_tps_idle_delta = 0;
       if (idle_tps_requested < tps_16bit) {
-        u16_factor_1_1023_4000213c =
-             (ushort)((int)((uint)tps_16bit - (uint)idle_tps_requested) >> 2);
+        dca_tps_idle_delta = (ushort)((int)((uint)tps_16bit - (uint)idle_tps_requested) >> 2);
       }
-      if ((ulonglong)u16_factor_1_1023_4000213c + (ulonglong)u8_factor_1_1023_40008919 < 0x3ff) {
-        u16_factor_1_1023_4000213e = u16_factor_1_1023_4000213c + u8_factor_1_1023_40008919;
+      if ((ulonglong)dca_tps_idle_delta + (ulonglong)u8_factor_1_1023_40008919 < 0x3ff) {
+        dca_tps_target_limit = dca_tps_idle_delta + u8_factor_1_1023_40008919;
       }
       else {
-        u16_factor_1_1023_4000213e = 0x3ff;
+        dca_tps_target_limit = 0x3ff;
       }
-      u16_factor_1_1023_40002140 = _accel_pedal_pos;
+      dca_accel_pedal_raw = _accel_pedal_pos;
       if ((ulonglong)_accel_pedal_pos + (ulonglong)CAL_dca_enable_tps_margin < 0x3ff) {
-        u16_factor_1_1023_40002142 = _accel_pedal_pos + CAL_dca_enable_tps_margin;
+        dca_accel_pedal = _accel_pedal_pos + CAL_dca_enable_tps_margin;
       }
       else {
-        u16_factor_1_1023_40002142 = 0x3ff;
+        dca_accel_pedal = 0x3ff;
       }
     }
-    if (u16_factor_1_1023_4000213e < _tps_target_scaled_by_limit) {
-      _tps_target_scaled_by_limit = (ulonglong)u16_factor_1_1023_4000213e;
+    if (dca_tps_target_limit < _tps_target_scaled_by_limit) {
+      _tps_target_scaled_by_limit = (ulonglong)dca_tps_target_limit;
     }
-    if (u16_factor_1_1023_40002142 < _accel_pedal_pos) {
-      DAT_4000213a = DAT_4000213a + 1;
-      if (CAL_dca_activate_timer < DAT_4000213a) {
+    if (dca_accel_pedal < _accel_pedal_pos) {
+      dca_activate_timer = dca_activate_timer + 1;
+      if (CAL_dca_activate_timer < dca_activate_timer) {
         dca_mode = DCA_INACTIVE;
-        DAT_4000213a = 0;
-        u16_factor_1_1023_40002142 = 0;
-        u16_factor_1_1023_4000213e = 0;
-        u16_factor_1_1023_40002140 = 0;
-        u16_factor_1_1023_4000213c = 0;
+        dca_activate_timer = 0;
+        dca_accel_pedal = 0;
+        dca_tps_target_limit = 0;
+        dca_accel_pedal_raw = 0;
+        dca_tps_idle_delta = 0;
       }
     }
     else {
-      DAT_4000213a = 0;
+      dca_activate_timer = 0;
     }
     if (CAL_dca_activate_tps_threshold < _accel_pedal_pos) {
       dca_mode = DCA_ACTIVE_HOLD;
-      DAT_4000213a = 0;
-      u16_factor_1_1023_40002142 = 0;
-      u16_factor_1_1023_4000213e = 0;
-      u16_factor_1_1023_40002140 = 0;
-      u16_factor_1_1023_4000213c = 0;
+      dca_activate_timer = 0;
+      dca_accel_pedal = 0;
+      dca_tps_target_limit = 0;
+      dca_accel_pedal_raw = 0;
+      dca_tps_idle_delta = 0;
     }
     if ((((ushort)((ushort)CAL_dca_enable_carspeed[1] * 100) < car_speed_x100) ||
         (car_speed_x100 < (ushort)((ushort)CAL_dca_enable_carspeed[0] * 100))) ||
@@ -37687,46 +37735,46 @@ void accel_pedal_200hz(void)
            ((steering_angle_sensor_status & 1) == 0)) || ((abs_esp_flags & 8) != 0)) ||
          (((abs_esp_flags & 0x10) != 0 || (dca_config_enabled == false)))))))) {
       dca_mode = DCA_INACTIVE;
-      DAT_4000213a = 0;
-      u16_factor_1_1023_40002142 = 0;
-      u16_factor_1_1023_4000213e = 0;
-      u16_factor_1_1023_40002140 = 0;
-      u16_factor_1_1023_4000213c = 0;
+      dca_activate_timer = 0;
+      dca_accel_pedal = 0;
+      dca_tps_target_limit = 0;
+      dca_accel_pedal_raw = 0;
+      dca_tps_idle_delta = 0;
     }
   }
   else if (dca_mode == DCA_ACTIVE_HOLD) {
-    if (u16_factor_1_1023_4000213c == 0) {
-      u16_factor_1_1023_4000213c = 0;
+    if (dca_tps_idle_delta == 0) {
+      dca_tps_idle_delta = 0;
       if (idle_tps_requested < tps_16bit) {
-        u16_factor_1_1023_4000213c =
+        dca_tps_idle_delta =
              (u16_factor_1_1023)((int)((uint)tps_16bit - (uint)idle_tps_requested) >> 2);
       }
     }
     if ((COD_base.COD[0] >> 0xd & 7) == 0) {
       bVar6 = lookup_2D_uint8_interpolated
-                        ('\b',(uint8_t)(DAT_40002148 >> 2),CAL_dca_tps_limit_manual,
+                        ('\b',(uint8_t)(dca_tps_ramp_index >> 2),CAL_dca_tps_limit_manual,
                          CAL_dca_tps_limit_manual_X_time);
     }
     else if ((COD_base.COD[0] >> 2 & 1) == 0) {
       bVar6 = lookup_2D_uint8_interpolated
-                        ('\b',(uint8_t)(DAT_40002148 >> 2),CAL_dca_unknown_ips_nolc,
+                        ('\b',(uint8_t)(dca_tps_ramp_index >> 2),CAL_dca_unknown_ips_nolc,
                          CAL_dca_unknown_ips_nolc_X_time);
     }
     else {
       bVar6 = lookup_2D_uint8_interpolated
-                        ('\b',(uint8_t)(DAT_40002148 >> 2),CAL_dca_tps_limit_ips,
+                        ('\b',(uint8_t)(dca_tps_ramp_index >> 2),CAL_dca_tps_limit_ips,
                          CAL_dca_tps_limit_ips_x_time);
     }
-    DAT_40002144 = (ushort)bVar6;
-    DAT_40002146 = 0x3ff;
-    if ((ulonglong)u16_factor_1_1023_4000213c + (ulonglong)DAT_40002144 * 4 < 0x3ff) {
-      DAT_40002146 = u16_factor_1_1023_4000213c + DAT_40002144 * 4;
+    dca_tps_ramp_step = (ushort)bVar6;
+    dca_tps_ramp_target = 0x3ff;
+    if ((ulonglong)dca_tps_idle_delta + (ulonglong)dca_tps_ramp_step * 4 < 0x3ff) {
+      dca_tps_ramp_target = dca_tps_idle_delta + dca_tps_ramp_step * 4;
     }
-    if (DAT_40002148 < 0x3ff) {
-      DAT_40002148 = DAT_40002148 + 1;
+    if (dca_tps_ramp_index < 0x3ff) {
+      dca_tps_ramp_index = dca_tps_ramp_index + 1;
     }
-    if (DAT_40002146 < _tps_target_scaled_by_limit) {
-      _tps_target_scaled_by_limit = (ulonglong)DAT_40002146;
+    if (dca_tps_ramp_target < _tps_target_scaled_by_limit) {
+      _tps_target_scaled_by_limit = (ulonglong)dca_tps_ramp_target;
     }
     if ((((clutch_pos_sensor != 1) && ((COD_base.COD[1] >> 0x15 & 3) != 0)) ||
         ((car_current_gear != GEAR_2 &&
@@ -37734,11 +37782,11 @@ void accel_pedal_200hz(void)
        ((uVar4 = libc_abs((longlong)(short)steering_angle),
         (ulonglong)CAL_dca_enable_steering_max << 1 < (uVar4 & 0xffffffff) ||
         (((steering_angle_sensor_status & 1) == 0 ||
-         ((uint)CAL_dca_ramp_timer_unknown <= (uint)((int)(uint)DAT_40002148 >> 2))))))) {
+         ((uint)CAL_dca_ramp_timer_unknown <= (uint)((int)(uint)dca_tps_ramp_index >> 2))))))) {
       dca_mode = DCA_INACTIVE;
-      DAT_40002146 = 0;
-      DAT_40002148 = 0;
-      u16_factor_1_1023_4000213c = 0;
+      dca_tps_ramp_target = 0;
+      dca_tps_ramp_index = 0;
+      dca_tps_idle_delta = 0;
     }
   }
   else if (dca_mode == DCA_FREEREV) {
@@ -37778,16 +37826,16 @@ LAB_000964ac:
         unaff_r26 = unaff_r26 & 0xfffffbff;
       }
     }
-    if ((DAT_40001528 == 0) && (unaff_r25 < unaff_r24)) {
+    if ((cruise_timer_unknown == 0) && (unaff_r25 < unaff_r24)) {
       unaff_r26 = unaff_r26 & 0xfffffbff;
     }
     if ((unaff_r26 & 0x400) == 0) {
-      DAT_40001528 = 500;
+      cruise_timer_unknown = 500;
     }
     else {
       _cruise_tps_increment = _tps_target_scaled_by_limit;
-      if (DAT_40001528 != 0) {
-        DAT_40001528 = DAT_40001528 + -1;
+      if (cruise_timer_unknown != 0) {
+        cruise_timer_unknown = cruise_timer_unknown + -1;
       }
     }
     _tps_target_scaled_by_limit = _cruise_tps_increment;
@@ -37853,7 +37901,7 @@ uint pedalD_scale_to_10bit(uint _accel_pedal_pos_d_voltage)
   uint uVar1;
   
   uVar1 = (uint)DAT_40008713 *
-          ((_accel_pedal_pos_d_voltage & 0xffff) - (int)(short)u16_factor_1_1023_40001522);
+          ((_accel_pedal_pos_d_voltage & 0xffff) - (int)(short)accel_pedal_d_zero_voltage);
   uVar1 = ((int)uVar1 >> 6) + (uint)((int)uVar1 < 0 && (uVar1 & 0x3f) != 0);
   if ((int)uVar1 < 0) {
     uVar1 = 0;
@@ -37871,7 +37919,7 @@ uint accel_pedal_e_scale_voltage(uint param_1)
 {
   uint uVar1;
   
-  uVar1 = (uint)DAT_40008714 * ((param_1 & 0xffff) - (int)DAT_40001524);
+  uVar1 = (uint)DAT_40008714 * ((param_1 & 0xffff) - (int)accel_pedal_e_zero_voltage);
   uVar1 = ((int)uVar1 >> 5) + (uint)((int)uVar1 < 0 && (uVar1 & 0x1f) != 0);
   if ((int)uVar1 < 0) {
     uVar1 = 0;
@@ -37889,13 +37937,14 @@ void update_pedalD_min_offset(ushort param_1)
 {
   uint uVar1;
   
-  if ((param_1 < u16_factor_1_1023_40001522) && (0xa9 < param_1)) {
-    uVar1 = (uint)DAT_40008712 * ((int)(short)u16_factor_1_1023_40001522 - (uint)param_1);
-    u16_factor_1_1023_40001522 =
-         u16_factor_1_1023_40001522 -
+  if ((param_1 < accel_pedal_d_zero_voltage) && (0xa9 < param_1)) {
+    uVar1 = (uint)CAL_sensor_pps_unknown1 * ((int)(short)accel_pedal_d_zero_voltage - (uint)param_1)
+    ;
+    accel_pedal_d_zero_voltage =
+         accel_pedal_d_zero_voltage -
          ((short)(uVar1 >> 8) + (ushort)((int)uVar1 < 0 && (uVar1 & 0xff) != 0));
-    if ((short)u16_factor_1_1023_40001522 < 0xaa) {
-      u16_factor_1_1023_40001522 = 0xaa;
+    if ((short)accel_pedal_d_zero_voltage < 0xaa) {
+      accel_pedal_d_zero_voltage = 0xaa;
     }
   }
   return;
@@ -37908,12 +37957,14 @@ void update_pedalE_min_offset(ushort param_1)
 {
   uint uVar1;
   
-  if ((param_1 < DAT_40001524) && (0x45 < param_1)) {
-    uVar1 = (uint)DAT_40008712 * ((int)(short)DAT_40001524 - (uint)param_1);
-    DAT_40001524 = DAT_40001524 -
-                   ((short)(uVar1 >> 8) + (ushort)((int)uVar1 < 0 && (uVar1 & 0xff) != 0));
-    if ((short)DAT_40001524 < 0x46) {
-      DAT_40001524 = 0x46;
+  if ((param_1 < accel_pedal_e_zero_voltage) && (0x45 < param_1)) {
+    uVar1 = (uint)CAL_sensor_pps_unknown1 * ((int)(short)accel_pedal_e_zero_voltage - (uint)param_1)
+    ;
+    accel_pedal_e_zero_voltage =
+         accel_pedal_e_zero_voltage -
+         ((short)(uVar1 >> 8) + (ushort)((int)uVar1 < 0 && (uVar1 & 0xff) != 0));
+    if ((short)accel_pedal_e_zero_voltage < 0x46) {
+      accel_pedal_e_zero_voltage = 0x46;
     }
   }
   return;
@@ -38026,7 +38077,9 @@ void obd_ii_init_pedal_throttle_diagnostics(void)
 
 
 
-void obd_ii_init_pedal_and_throttle_dtc_monitoring(void)
+// Mode 01 DTC status update: accelerator pedal sensors (P2122/3, P2127/8, P2138).
+
+void obd_ii_dtc_update_accel_pedal(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -38091,49 +38144,49 @@ void evap_state_control(void)
   undefined2 uVar3;
   byte bVar4;
   
-  if (((((((DAT_4000216a & 0x100) == 0) || ((DAT_40001e6c & 0x1000) != 0)) ||
-        ((DAT_40001e6c & 0x8000) != 0)) &&
-       ((((DAT_40001e6c & 4) == 0 || ((DAT_4000216a & 1) == 0)) && ((DAT_40001e6c & 1) == 0)))) ||
-      (DAT_400086f6 == '\x01')) &&
+  if (((((((evap_purge_flags & 0x100) == 0) || ((evap_system_state_flags & 0x1000) != 0)) ||
+        ((evap_system_state_flags & 0x8000) != 0)) &&
+       ((((evap_system_state_flags & 4) == 0 || ((evap_purge_flags & 1) == 0)) &&
+        ((evap_system_state_flags & 1) == 0)))) || (DAT_400086f6 == '\x01')) &&
      (((DAT_400086f6 != '\x02' && (DAT_400021ca == 0)) &&
       ((((misfire_condition_flags & 0x1000) == 0 &&
         ((((((misfire_condition_flags & 0x2000) == 0 && ((cl_status_bank1 & 2) != 0)) &&
            ((cl_status_bank2 & 2) != 0)) &&
-          (((DAT_40001e6c & 0x400) == 0 && ((LEA_obd_ii_P0441_dtc_state & 4) == 0)))) &&
+          (((evap_system_state_flags & 0x400) == 0 && ((LEA_obd_ii_P0441_dtc_state & 4) == 0)))) &&
          ((LEA_obd_ii_P0444_dtc_state & 4) == 0)))) && ((LEA_obd_ii_P0445_dtc_state & 4) == 0))))))
   {
-    DAT_4000216a = DAT_4000216a | 2;
+    evap_purge_flags = evap_purge_flags | 2;
   }
   else if (((cl_status_bank1 & 2) == 0) || ((cl_status_bank2 & 2) == 0)) {
     if (((cl_status_bank1 & 0x404) == 0) || ((cl_status_bank2 & 0x404) == 0)) {
-      DAT_4000216a = DAT_4000216a & 0xfffd;
+      evap_purge_flags = evap_purge_flags & 0xfffd;
     }
   }
   else {
-    DAT_4000216a = DAT_4000216a & 0xfffd;
+    evap_purge_flags = evap_purge_flags & 0xfffd;
   }
-  uVar1 = DAT_4000216a | 0x80;
+  uVar1 = evap_purge_flags | 0x80;
   if (DAT_40001534 == '\0') {
-    uVar1 = DAT_4000216a & 0xff7f;
+    uVar1 = evap_purge_flags & 0xff7f;
   }
   if (((inj_flags & 2) == 0) && ((uVar1 & 0x4000) == 0)) {
-    DAT_4000216a = uVar1 & 0xffdf;
+    evap_purge_flags = uVar1 & 0xffdf;
   }
   else {
-    DAT_4000216a = uVar1 | 0x20;
+    evap_purge_flags = uVar1 | 0x20;
   }
-  if ((((DAT_400021ca == 0) && ((DAT_40001e6c & 0x400) == 0)) &&
-      (((DAT_4000216a & 0x20) == 0 || ((DAT_4000216a & 0x80) == 0)))) &&
+  if ((((DAT_400021ca == 0) && ((evap_system_state_flags & 0x400) == 0)) &&
+      (((evap_purge_flags & 0x20) == 0 || ((evap_purge_flags & 0x80) == 0)))) &&
      (((((COD_base.COD[0] >> 0xd & 7) != 1 &&
         (((COD_base.COD[1] >> 0x15 & 3) != 2 || ((clutch_pos_sensor & 2) != 0)))) ||
        ((int)-(uint)DAT_4000895e <= (int)obd_ii_idle_speed_error)) &&
       (((int)-(uint)DAT_40008961 <= (int)obd_ii_idle_speed_error && (DAT_400021d7 != '\0')))))) {
     if (0 < obd_ii_idle_speed_error) {
-      DAT_4000216a = DAT_4000216a & 0xffbf;
+      evap_purge_flags = evap_purge_flags & 0xffbf;
     }
   }
   else {
-    DAT_4000216a = DAT_4000216a | 0x40;
+    evap_purge_flags = evap_purge_flags | 0x40;
     if ((DAT_4000216c != 0) && (DAT_40002180 != '\x04')) {
       if ((DAT_40008960 < mass_ratio_b1_prev) || (stft_bank1 < 0)) {
         stft_bank1 = 0;
@@ -38153,57 +38206,57 @@ void evap_state_control(void)
   if ((fuel_control_mode_flags & 1) == 0) {
     DAT_400021d0 = DAT_4000870e;
     if (DAT_400021d1 == '\0') {
-      DAT_4000216a = DAT_4000216a & 0xbfff;
+      evap_purge_flags = evap_purge_flags & 0xbfff;
     }
   }
   else {
     if (DAT_400021d0 == '\0') {
-      DAT_4000216a = DAT_4000216a | 0x4000;
+      evap_purge_flags = evap_purge_flags | 0x4000;
     }
     DAT_400021d1 = DAT_40008828;
   }
   if (((cl_state_flags_bank1 & 0x10) == 0) || ((cl_state_flags_bank2 & 0x10) == 0)) {
-    DAT_4000216a = DAT_4000216a & 0xfeff;
+    evap_purge_flags = evap_purge_flags & 0xfeff;
   }
-  else if (((DAT_4000216a & 0x800) == 0) || (fuel_learn_timer != 0)) {
-    DAT_4000216a = DAT_4000216a | 0x100;
+  else if (((evap_purge_flags & 0x800) == 0) || (fuel_learn_timer != 0)) {
+    evap_purge_flags = evap_purge_flags | 0x100;
   }
   if (DAT_40002180 == '\0') {
     DAT_4000216c = 0;
     DAT_400021c0 = 0;
-    DAT_400021ac = 0;
+    evap_purge_duty_ramped = 0;
     DAT_400021a4 = 0;
     DAT_400021a0 = 0;
-    DAT_40001534 = DAT_400086f8;
-    DAT_400021d6 = DAT_40008800;
-    if (((DAT_4000216a & 0x100) != 0) && (fuel_learn_timer == 0)) {
-      if ((DAT_4000216a & 0x800) == 0) {
-        if ((DAT_4000216a & 0x1000) == 0) {
+    DAT_40001534 = CAL_evap_purge_conditioning_timer_100ms;
+    evap_purge_open_kick_timer = DAT_40008800;
+    if (((evap_purge_flags & 0x100) != 0) && (fuel_learn_timer == 0)) {
+      if ((evap_purge_flags & 0x800) == 0) {
+        if ((evap_purge_flags & 0x1000) == 0) {
           fuel_learn_timer = (u16_time_100ms)((int)(uint)DAT_40008852 >> 3);
         }
         else {
-          DAT_4000216a = DAT_4000216a & 0xfeff | 0x800;
+          evap_purge_flags = evap_purge_flags & 0xfeff | 0x800;
         }
       }
       else {
-        DAT_4000216a = DAT_4000216a & 0xfeff;
+        evap_purge_flags = evap_purge_flags & 0xfeff;
       }
     }
-    if ((DAT_4000216a & 2) == 0) {
-      if (((DAT_40001e6c & 4) != 0) && ((DAT_4000216a & 1) != 0)) {
-        DAT_40001e6c = DAT_40001e6c | 8;
+    if ((evap_purge_flags & 2) == 0) {
+      if (((evap_system_state_flags & 4) != 0) && ((evap_purge_flags & 1) != 0)) {
+        evap_system_state_flags = evap_system_state_flags | 8;
         DAT_40002180 = '\x04';
-        DAT_4000216a = DAT_4000216a & 0xfbff;
+        evap_purge_flags = evap_purge_flags & 0xfbff;
       }
     }
-    else if (((DAT_4000216a & 0x20) == 0) && ((DAT_4000216a & 0x40) == 0)) {
+    else if (((evap_purge_flags & 0x20) == 0) && ((evap_purge_flags & 0x40) == 0)) {
       DAT_40002180 = '\x01';
     }
   }
   else if (DAT_40002180 == '\x01') {
-    if ((DAT_4000216a & 0x40) == 0) {
-      if ((DAT_4000216a & 0x20) == 0) {
-        if ((DAT_4000216a & 2) == 0) {
+    if ((evap_purge_flags & 0x40) == 0) {
+      if ((evap_purge_flags & 0x20) == 0) {
+        if ((evap_purge_flags & 2) == 0) {
           DAT_40002180 = '\x02';
         }
         else {
@@ -38211,7 +38264,7 @@ void evap_state_control(void)
                (obd_ii_vapor_concentration < DAT_400087f6)) && ((cl_state_flags_bank1 & 0x10) != 0))
              && ((cl_state_flags_bank2 & 0x10) != 0)) {
             if (DAT_400021d3 == '\0') {
-              DAT_4000216a = DAT_4000216a | 0x900;
+              evap_purge_flags = evap_purge_flags | 0x900;
               fuel_learn_timer = DAT_40008852;
             }
           }
@@ -38219,12 +38272,12 @@ void evap_state_control(void)
             DAT_400021d3 = DAT_40008710;
           }
           if (DAT_4000881e < obd_ii_vapor_concentration) {
-            if ((DAT_40001e6c & 4) != 0) {
-              DAT_4000216a = DAT_4000216a & 0xfffe | 0x200;
+            if ((evap_system_state_flags & 4) != 0) {
+              evap_purge_flags = evap_purge_flags & 0xfffe | 0x200;
             }
           }
           else if ((short)CAL_evap_commanded_purge_unknown < _obd_ii_commanded_evap_purge) {
-            DAT_4000216a = DAT_4000216a | 1;
+            evap_purge_flags = evap_purge_flags | 1;
           }
         }
       }
@@ -38232,14 +38285,14 @@ void evap_state_control(void)
         DAT_4000216c = 0;
         uVar3 = 0;
         if (DAT_400021d4 == 0) {
-          uVar3 = DAT_400021ac;
+          uVar3 = evap_purge_duty_ramped;
         }
-        DAT_40001535 = DAT_40008829;
+        DAT_40001535 = CAL_evap_purge_power_enrich_suspend_timeout;
         if ((inj_flags & 2) != 0) {
           DAT_40001535 = DAT_400086fd;
         }
         DAT_40002180 = '\x03';
-        DAT_400021ac = uVar3;
+        evap_purge_duty_ramped = uVar3;
       }
     }
     else {
@@ -38247,10 +38300,11 @@ void evap_state_control(void)
     }
   }
   else if (DAT_40002180 == '\x02') {
-    if ((((DAT_4000216a & 0x40) == 0) && ((DAT_4000216a & 0x20) == 0)) && (DAT_4000216c != 0)) {
-      if ((DAT_4000216a & 2) != 0) {
+    if ((((evap_purge_flags & 0x40) == 0) && ((evap_purge_flags & 0x20) == 0)) &&
+       (DAT_4000216c != 0)) {
+      if ((evap_purge_flags & 2) != 0) {
         DAT_40002180 = '\x01';
-        DAT_40001530 = (ushort)DAT_400086fb;
+        evap_purge_ramp_up_step = (ushort)CAL_evap_purge_duty_ramp_up_min;
       }
     }
     else {
@@ -38258,30 +38312,32 @@ void evap_state_control(void)
     }
   }
   else if (DAT_40002180 == '\x03') {
-    if ((DAT_40001535 == 0) || ((DAT_4000216a & 0x40) != 0)) {
+    if ((DAT_40001535 == 0) || ((evap_purge_flags & 0x40) != 0)) {
       DAT_40002180 = '\0';
     }
     else {
       cVar2 = DAT_40002180;
-      if (((DAT_4000216a & 0x20) == 0) && (cVar2 = '\x01', (DAT_4000216a & 2) == 0)) {
+      if (((evap_purge_flags & 0x20) == 0) && (cVar2 = '\x01', (evap_purge_flags & 2) == 0)) {
         cVar2 = DAT_40002180;
       }
       DAT_40002180 = cVar2;
-      if ((DAT_40008829 < DAT_40001535) && ((DAT_4000216a & 0x4000) != 0)) {
-        DAT_40001535 = DAT_40008829;
+      if ((CAL_evap_purge_power_enrich_suspend_timeout < DAT_40001535) &&
+         ((evap_purge_flags & 0x4000) != 0)) {
+        DAT_40001535 = CAL_evap_purge_power_enrich_suspend_timeout;
       }
     }
   }
   else if (DAT_40002180 == '\x04') {
-    if ((((DAT_40001e6c & 4) == 0) || ((DAT_4000216a & 2) != 0)) || ((DAT_4000216a & 1) == 0)) {
-      DAT_40001e6c = DAT_40001e6c & 0xfffffff7;
+    if ((((evap_system_state_flags & 4) == 0) || ((evap_purge_flags & 2) != 0)) ||
+       ((evap_purge_flags & 1) == 0)) {
+      evap_system_state_flags = evap_system_state_flags & 0xfffffff7;
       DAT_40002180 = '\0';
     }
     if (obd_ii_system_leak_status < 3) {
-      DAT_40001534 = DAT_400086f8;
+      DAT_40001534 = CAL_evap_purge_conditioning_timer_100ms;
     }
     if ((DAT_400087f8 < obd_ii_vapor_concentration) && (DAT_4000cab1 < DAT_4000216c)) {
-      DAT_4000216a = DAT_4000216a & 0xfffe | 0x600;
+      evap_purge_flags = evap_purge_flags & 0xfffe | 0x600;
     }
   }
   else {
@@ -38292,7 +38348,7 @@ void evap_state_control(void)
 
 
 
-void FUN_00097af0(ulonglong param_1)
+void fuel_trim_update_integral(ulonglong param_1)
 
 {
   int iVar1;
@@ -38300,19 +38356,21 @@ void FUN_00097af0(ulonglong param_1)
   if (*(int *)(&DAT_400021b8 + (int)((param_1 & 0xff) << 2)) < 1) {
 LAB_00097b64:
     if (-1 < *(int *)(&DAT_400021b8 + (int)((param_1 & 0xff) << 2))) goto LAB_00097c74;
-    if ((*(short *)((int)&DAT_40001d14 + (int)((param_1 & 0xff) << 1)) <=
+    if ((*(short *)((int)&stft_filtered_bank1 + (int)((param_1 & 0xff) << 1)) <=
          *(short *)(&DAT_40002194 + (int)((param_1 & 0xff) << 1))) &&
-       ((int)*(short *)((int)&DAT_40001d14 + (int)((param_1 & 0xff) << 1)) <
+       ((int)*(short *)((int)&stft_filtered_bank1 + (int)((param_1 & 0xff) << 1)) <
         CAL_inj_stft_limit + -0x28)) goto LAB_00097c74;
   }
   else if ((*(short *)(&DAT_40002194 + (int)((param_1 & 0xff) << 1)) <=
-            *(short *)((int)&DAT_40001d14 + (int)((param_1 & 0xff) << 1))) &&
+            *(short *)((int)&stft_filtered_bank1 + (int)((param_1 & 0xff) << 1))) &&
           (-(CAL_inj_stft_limit + -0x28) <
-           (int)*(short *)((int)&DAT_40001d14 + (int)((param_1 & 0xff) << 1)))) goto LAB_00097b64;
+           (int)*(short *)((int)&stft_filtered_bank1 + (int)((param_1 & 0xff) << 1))))
+  goto LAB_00097b64;
   iVar1 = *(int *)((int)&DAT_400021a0 + (int)((param_1 & 0xff) << 2)) +
           (int)DAT_4000881c * *(int *)(&DAT_400021b8 + (int)((param_1 & 0xff) << 2));
-  if ((int)((uint)DAT_400086ba << 8) < iVar1) {
-    *(uint *)((int)&DAT_400021a0 + (int)((param_1 & 0xff) << 2)) = (uint)DAT_400086ba << 8;
+  if ((int)((uint)CAL_fuel_trim_integral_max << 8) < iVar1) {
+    *(uint *)((int)&DAT_400021a0 + (int)((param_1 & 0xff) << 2)) =
+         (uint)CAL_fuel_trim_integral_max << 8;
   }
   else if (iVar1 < 0) {
     *(undefined4 *)((int)&DAT_400021a0 + (int)((param_1 & 0xff) << 2)) = 0;
@@ -38322,13 +38380,13 @@ LAB_00097b64:
   }
 LAB_00097c74:
   *(undefined2 *)(&DAT_40002194 + (int)((param_1 & 0xff) << 1)) =
-       *(undefined2 *)((int)&DAT_40001d14 + (int)((param_1 & 0xff) << 1));
+       *(undefined2 *)((int)&stft_filtered_bank1 + (int)((param_1 & 0xff) << 1));
   return;
 }
 
 
 
-void evap_vapor_concentration___(uint8_t measurement_point)
+void fuel_trim_update_proportional(uint8_t measurement_point)
 
 {
   uint uVar1;
@@ -38337,7 +38395,7 @@ void evap_vapor_concentration___(uint8_t measurement_point)
   
   if ((fuel_control_mode_flags & 1) == 0) {
     *(undefined2 *)(&DAT_400021cc + (uint)measurement_point * 2) =
-         -(&DAT_40001d14)[measurement_point];
+         -(&stft_filtered_bank1)[measurement_point];
   }
   else {
     *(undefined2 *)(&DAT_400021cc + (uint)measurement_point * 2) = 0;
@@ -38398,7 +38456,7 @@ void evap_vapor_concentration___(uint8_t measurement_point)
 
 
 
-void idle_air_and_evap(void)
+void evap(void)
 
 {
   ulonglong uVar1;
@@ -38406,83 +38464,92 @@ void idle_air_and_evap(void)
   uint uVar2;
   byte bVar4;
   
-  if ((((ushort)(DAT_40001d14 + 199U) < 399) && (-200 < DAT_40001d16)) && (DAT_40001d16 < 200)) {
-    DAT_4000216a = DAT_4000216a | 0x10;
+  if ((((ushort)(stft_filtered_bank1 + 199U) < 399) && (-200 < stft_filtered_bank2)) &&
+     (stft_filtered_bank2 < 200)) {
+    evap_purge_flags = evap_purge_flags | 0x10;
   }
   else {
-    DAT_4000216a = DAT_4000216a & 0xffef;
+    evap_purge_flags = evap_purge_flags & 0xffef;
   }
-  if ((((ushort)(DAT_40001d14 + 99U) < 199) && (-100 < DAT_40001d16)) &&
-     ((DAT_40001d16 < 100 && (((DAT_4000216a & 0x100) != 0 && (DAT_4000216c == 0)))))) {
-    if (DAT_40002190 == '\0') {
-      DAT_4000216a = DAT_4000216a | 0x1000;
+  if ((((ushort)(stft_filtered_bank1 + 99U) < 199) && (-100 < stft_filtered_bank2)) &&
+     ((stft_filtered_bank2 < 100 && (((evap_purge_flags & 0x100) != 0 && (DAT_4000216c == 0)))))) {
+    if (evap_stft_settle_timer == '\0') {
+      evap_purge_flags = evap_purge_flags | 0x1000;
     }
   }
   else {
-    DAT_4000216a = DAT_4000216a & 0xefff;
-    DAT_40002190 = DAT_400087fe;
+    evap_purge_flags = evap_purge_flags & 0xefff;
+    evap_stft_settle_timer = DAT_400087fe;
   }
   if ((obd_ii_system_leak_status < 3) || (DAT_40002180 != '\x04')) {
-    if (((DAT_4000216a & 2) == 0) &&
-       ((((DAT_40001e6c & 4) != 0 && ((DAT_4000216a & 1) != 0)) || ((DAT_40001e6c & 1) != 0)))) {
-      DAT_40001530 = (ushort)DAT_400086fb;
-      DAT_40001532 = (ushort)DAT_4000caa4 << 3;
+    if (((evap_purge_flags & 2) == 0) &&
+       ((((evap_system_state_flags & 4) != 0 && ((evap_purge_flags & 1) != 0)) ||
+        ((evap_system_state_flags & 1) != 0)))) {
+      evap_purge_ramp_up_step = (ushort)CAL_evap_purge_duty_ramp_up_min;
+      evap_purge_ramp_down_step = (ushort)DAT_4000caa4 << 3;
     }
     else if (DAT_40001534 == '\0') {
-      DAT_40001530 = (ushort)(((ulonglong)obd_ii_maf_flow * 0xe1) /
-                             ((ulonglong)obd_ii_vapor_concentration * 2 + 0x2ee));
-      if (DAT_40001530 < DAT_400086fb) {
-        DAT_40001530 = (ushort)DAT_400086fb;
+      evap_purge_ramp_up_step =
+           (ushort)(((ulonglong)obd_ii_maf_flow * 0xe1) /
+                   ((ulonglong)obd_ii_vapor_concentration * 2 + 0x2ee));
+      if (evap_purge_ramp_up_step < CAL_evap_purge_duty_ramp_up_min) {
+        evap_purge_ramp_up_step = (ushort)CAL_evap_purge_duty_ramp_up_min;
       }
-      DAT_40001532 = (ushort)DAT_4000870d << 1;
+      evap_purge_ramp_down_step = (ushort)DAT_4000870d << 1;
     }
     else {
-      DAT_40001530 = (ushort)DAT_400086fb;
-      DAT_40001532 = (ushort)DAT_400086fc;
+      evap_purge_ramp_up_step = (ushort)CAL_evap_purge_duty_ramp_up_min;
+      evap_purge_ramp_down_step = (ushort)DAT_400086fc;
     }
   }
   else {
-    DAT_40001530 = (ushort)DAT_40008701 << 1;
-    DAT_40001532 = (ushort)DAT_40008702 << 3;
+    evap_purge_ramp_up_step = (ushort)DAT_40008701 << 1;
+    evap_purge_ramp_down_step = (ushort)DAT_40008702 << 3;
   }
   if (((((obd_ii_idle_air_output < (ushort)((ushort)DAT_40008700 * 10)) ||
-        ((int)obd_ii_injector_pulse_time_bank1_us < (int)((uint)DAT_400086fa << 3))) ||
-       ((int)obd_ii_injector_pulse_time_bank2_us < (int)((uint)DAT_400086fa << 3))) ||
-      ((DAT_40002180 == '\x02' && (((DAT_4000216a & 0x10) != 0 || (DAT_400086f6 == '\x02')))))) ||
-     ((DAT_40002180 == '\x04' && ((DAT_40001e6c & 0x20) == 0)))) {
-    DAT_4000216a = DAT_4000216a & 0xfffb | 8;
+        ((int)obd_ii_injector_pulse_time_bank1_us <
+         (int)((uint)CAL_evap_purge_min_inj_pulse_exit << 3))) ||
+       ((int)obd_ii_injector_pulse_time_bank2_us <
+        (int)((uint)CAL_evap_purge_min_inj_pulse_exit << 3))) ||
+      ((DAT_40002180 == '\x02' && (((evap_purge_flags & 0x10) != 0 || (DAT_400086f6 == '\x02'))))))
+     || ((DAT_40002180 == '\x04' && ((evap_system_state_flags & 0x20) == 0)))) {
+    evap_purge_flags = evap_purge_flags & 0xfffb | 8;
   }
   else if ((((((ushort)((ushort)DAT_400086ff * 10) < obd_ii_idle_air_output) &&
-             ((int)((uint)DAT_400086f9 << 3) < (int)obd_ii_injector_pulse_time_bank1_us)) &&
-            ((int)((uint)DAT_400086f9 << 3) < (int)obd_ii_injector_pulse_time_bank2_us)) &&
-           ((DAT_4000216a & 0x10) != 0)) &&
+             ((int)((uint)CAL_evap_purge_min_inj_pulse_enter << 3) <
+              (int)obd_ii_injector_pulse_time_bank1_us)) &&
+            ((int)((uint)CAL_evap_purge_min_inj_pulse_enter << 3) <
+             (int)obd_ii_injector_pulse_time_bank2_us)) && ((evap_purge_flags & 0x10) != 0)) &&
           (((DAT_40002180 == '\x01' &&
-            ((((DAT_40001e6c & 0x8000) == 0 && ((DAT_40001e6c & 0x1000) == 0)) ||
-             ((short)_obd_ii_commanded_evap_purge < DAT_4000caf6)))) ||
-           ((DAT_40002180 == '\x04' && ((DAT_40001e6c & 0x20) != 0)))))) {
-    DAT_4000216a = DAT_4000216a & 0xfff7 | 4;
+            ((((evap_system_state_flags & 0x8000) == 0 && ((evap_system_state_flags & 0x1000) == 0))
+             || ((short)_obd_ii_commanded_evap_purge < CAL_obd_ii_commanded_evap_purge_threshold))))
+           || ((DAT_40002180 == '\x04' && ((evap_system_state_flags & 0x20) != 0)))))) {
+    evap_purge_flags = evap_purge_flags & 0xfff7 | 4;
   }
   else {
-    DAT_4000216a = DAT_4000216a & 0xfff3;
+    evap_purge_flags = evap_purge_flags & 0xfff3;
   }
   if (vacuum_mbar == 0) {
-    DAT_400021af = 0;
+    evap_purge_duty_max_flow = 0;
   }
   else {
-    DAT_400021af = lookup_2D_uint8_interpolated
-                             (8,(uint8_t)(DAT_40002182 >> 2),&DAT_4000b2aa,&DAT_4000b2a2);
+    evap_purge_duty_max_flow =
+         lookup_2D_uint8_interpolated
+                   (8,(uint8_t)(evap_purge_vacuum_filtered >> 2),&DAT_4000b2aa,&DAT_4000b2a2);
   }
   if ((DAT_4000217c < 2) && (DAT_4000217e < 2)) {
-    DAT_400021b0 = 0xff;
+    evap_purge_duty_max_fuel = 0xff;
   }
   else {
     uVar2 = 0;
-    if (DAT_400021c8 < inj_fuel_mass_required) {
-      uVar2 = (uint)inj_fuel_mass_required - (uint)DAT_400021c8 & 0xffff;
+    if (evap_purge_inj_fuel_mass_min < inj_fuel_mass_required) {
+      uVar2 = (uint)inj_fuel_mass_required - (uint)evap_purge_inj_fuel_mass_min & 0xffff;
     }
-    DAT_400021c8 = (ushort)(((longlong)(int)(uint)inj_flow_rate_scaled *
-                             (longlong)(int)((uint)DAT_400086f9 * 8 - (uint)inj_deadtime_us) &
-                            0xffffffffU) / 10000);
+    evap_purge_inj_fuel_mass_min =
+         (ushort)(((longlong)(int)(uint)inj_flow_rate_scaled *
+                   (longlong)
+                   (int)((uint)CAL_evap_purge_min_inj_pulse_enter * 8 - (uint)inj_deadtime_us) &
+                  0xffffffffU) / 10000);
     if (DAT_4000217e < DAT_4000217c) {
       uVar1 = (((longlong)(int)uVar2 * 0x4bffc & 0xffffffffU) /
               (ulonglong)(uint)((int)(uint)DAT_4000217c >> 1)) /
@@ -38493,31 +38560,32 @@ void idle_air_and_evap(void)
               (ulonglong)(uint)((int)(uint)DAT_4000217e >> 1)) /
               (ulonglong)(uint)((int)(uint)engine_speed_period_adj >> 4);
     }
-    DAT_400021b0 = (byte)(uVar1 & 0xffff);
+    evap_purge_duty_max_fuel = (byte)(uVar1 & 0xffff);
     if (0xff < (uVar1 & 0xffff)) {
-      DAT_400021b0 = 0xff;
+      evap_purge_duty_max_fuel = 0xff;
     }
   }
-  DAT_400021ae = DAT_400021af;
-  if (DAT_400021b0 < DAT_400021af) {
-    DAT_400021ae = DAT_400021b0;
+  evap_purge_duty_max = evap_purge_duty_max_flow;
+  if (evap_purge_duty_max_fuel < evap_purge_duty_max_flow) {
+    evap_purge_duty_max = evap_purge_duty_max_fuel;
   }
-  if ((DAT_400086de < DAT_400021ae) && ((engine_operating_state_flags & 8) != 0)) {
-    DAT_400021ae = DAT_400086de;
+  if ((CAL_evap_purge_idle_duty_max < evap_purge_duty_max) &&
+     ((engine_operating_state_flags & 8) != 0)) {
+    evap_purge_duty_max = CAL_evap_purge_idle_duty_max;
   }
-  if ((DAT_40001e7c < DAT_400021ae) && (DAT_40002180 == '\x04')) {
-    DAT_400021ae = DAT_40001e7c;
+  if ((DAT_40001e7c < evap_purge_duty_max) && (DAT_40002180 == '\x04')) {
+    evap_purge_duty_max = DAT_40001e7c;
   }
   bVar4 = lookup_3D_uint8_interpolated
-                    ('\x10','\x10',(ushort)DAT_4000216c,DAT_40002182 >> 2 & 0xff,
+                    ('\x10','\x10',(ushort)DAT_4000216c,evap_purge_vacuum_filtered >> 2 & 0xff,
                      CAL_evap_purge_flow_coefficient,CAL_evap_purge_flow_coefficient_X_dutycycle,
                      CAL_evap_purge_flow_coefficient_Y_vacuum);
-  DAT_40002188 = (ushort)bVar4;
+  evap_purge_solenoid_duty_table = (ushort)bVar4;
   uVar1 = (ulonglong)((longlong)(int)(uint)DAT_4000216c * 0x60c5121d5d4d0) >> 0x20;
   idle_bypass_airflow =
        (ushort)((((longlong)(int)(uint)DAT_4000216c * 0x9a9250 - uVar1 & 0xffffffff) >> 1) + uVar1
                >> 0x14);
-  if (DAT_40001ce8 == '\0') {
+  if (evap_vent_valve_closed == '\0') {
     if (idle_bypass_airflow < 0x29cd) {
       DAT_40002184 = (undefined1)(idle_bypass_airflow / DAT_4000870c);
     }
@@ -38528,25 +38596,28 @@ void idle_air_and_evap(void)
   else {
     DAT_40002184 = 0;
   }
-  evap_vapor_concentration___('\0');
-  evap_vapor_concentration___('\x01');
+  fuel_trim_update_proportional('\0');
+  fuel_trim_update_proportional('\x01');
   obd_ii_vapor_concentration = 0;
   if (((obd_ii_mode2f_flags_enabled & 0x10000) == 0) || ((obd_ii_mode2f_flags_state & 0x10000) == 0)
      ) {
-    if (DAT_400021ac == 0) {
+    if (evap_purge_duty_ramped == 0) {
       _obd_ii_commanded_evap_purge = 0;
       uVar3 = 0;
     }
     else {
-      _obd_ii_commanded_evap_purge = DAT_40008803 + DAT_40002188;
-      if ((short)(ushort)DAT_40008802 < (short)_obd_ii_commanded_evap_purge) {
-        _obd_ii_commanded_evap_purge = (ushort)DAT_40008802;
+      _obd_ii_commanded_evap_purge =
+           CAL_obd_ii_commanded_evap_purge_min + evap_purge_solenoid_duty_table;
+      if ((short)(ushort)CAL_obd_ii_commanded_evap_purge_max < (short)_obd_ii_commanded_evap_purge)
+      {
+        _obd_ii_commanded_evap_purge = (ushort)CAL_obd_ii_commanded_evap_purge_max;
       }
-      else if ((short)_obd_ii_commanded_evap_purge < (short)(ushort)DAT_40008803) {
-        _obd_ii_commanded_evap_purge = (ushort)DAT_40008803;
+      else if ((short)_obd_ii_commanded_evap_purge <
+               (short)(ushort)CAL_obd_ii_commanded_evap_purge_min) {
+        _obd_ii_commanded_evap_purge = (ushort)CAL_obd_ii_commanded_evap_purge_min;
       }
       uVar3 = _obd_ii_commanded_evap_purge;
-      if (DAT_400021d6 != '\0') {
+      if (evap_purge_open_kick_timer != '\0') {
         uVar3 = (ushort)DAT_40008801;
       }
     }
@@ -38573,7 +38644,7 @@ void evap_canister_100ms(void)
   uint uVar5;
   
   cVar3 = DAT_40001534;
-  if ((DAT_40001534 != '\0') && (cVar3 = DAT_40001534 + -1, (DAT_4000216a & 0x10) == 0)) {
+  if ((DAT_40001534 != '\0') && (cVar3 = DAT_40001534 + -1, (evap_purge_flags & 0x10) == 0)) {
     cVar3 = DAT_40001534;
   }
   DAT_40001534 = cVar3;
@@ -38592,10 +38663,10 @@ void evap_canister_100ms(void)
   if (bVar1) {
     DAT_400021d0 = '\0';
   }
-  bVar1 = DAT_40002190 == '\0';
-  DAT_40002190 = DAT_40002190 + -1;
+  bVar1 = evap_stft_settle_timer == '\0';
+  evap_stft_settle_timer = evap_stft_settle_timer + -1;
   if (bVar1) {
-    DAT_40002190 = '\0';
+    evap_stft_settle_timer = '\0';
   }
   bVar1 = DAT_400021d4 == 0;
   DAT_400021d4 = DAT_400021d4 + -1;
@@ -38607,10 +38678,10 @@ void evap_canister_100ms(void)
   if (bVar1) {
     DAT_400021d3 = '\0';
   }
-  bVar1 = DAT_400021d6 == '\0';
-  DAT_400021d6 = DAT_400021d6 + -1;
+  bVar1 = evap_purge_open_kick_timer == '\0';
+  evap_purge_open_kick_timer = evap_purge_open_kick_timer + -1;
   if (bVar1) {
-    DAT_400021d6 = '\0';
+    evap_purge_open_kick_timer = '\0';
   }
   if ((fuel_learn_timer != 0) &&
      (((cl_state_flags_bank1 & 0x400) != 0 || ((cl_state_flags_bank2 & 0x400) != 0)))) {
@@ -38621,7 +38692,7 @@ void evap_canister_100ms(void)
   if (bVar1) {
     DAT_400021d1 = '\0';
   }
-  if (DAT_40001ce8 == '\0') {
+  if (evap_vent_valve_closed == '\0') {
     if (((((int)(uint)DAT_4000895c < (int)stft_bank1) || ((int)(uint)DAT_4000895c < (int)stft_bank2)
          ) || ((int)stft_bank1 < (int)-(uint)DAT_4000895c)) ||
        ((int)stft_bank2 < (int)-(uint)DAT_4000895c)) {
@@ -38643,49 +38714,51 @@ void evap_canister_100ms(void)
   else {
     DAT_400021d7 = DAT_4000895f;
   }
-  uVar5 = DAT_400021c4 * (0x100 - (uint)DAT_400086fe);
+  uVar5 = DAT_400021c4 * (0x100 - (uint)CAL_evap_purge_filter_alpha);
   DAT_400021c4 = ((int)uVar5 >> 8) + (uint)((int)uVar5 < 0 && (uVar5 & 0xff) != 0) +
-                 (uint)vacuum_mbar * (uint)DAT_400086fe;
-  DAT_40002182 = (short)(DAT_400021c4 >> 8) +
-                 (ushort)((int)DAT_400021c4 < 0 && (DAT_400021c4 & 0xff) != 0);
+                 (uint)vacuum_mbar * (uint)CAL_evap_purge_filter_alpha;
+  evap_purge_vacuum_filtered =
+       (short)(DAT_400021c4 >> 8) + (ushort)((int)DAT_400021c4 < 0 && (DAT_400021c4 & 0xff) != 0);
   if (DAT_4000216c != 0) {
-    FUN_00097af0(0);
-    FUN_00097af0(1);
+    fuel_trim_update_integral(0);
+    fuel_trim_update_integral(1);
   }
-  if ((DAT_4000216a & 0x20) == 0) {
+  if ((evap_purge_flags & 0x20) == 0) {
     if (DAT_400021d2 < 10) {
       DAT_400021d2 = DAT_400021d2 + 1;
-      if ((ushort)((ushort)DAT_400021ae << 8) < DAT_400021c0) {
-        DAT_400021ac = (ushort)DAT_400021ae << 8;
+      if ((ushort)((ushort)evap_purge_duty_max << 8) < DAT_400021c0) {
+        evap_purge_duty_ramped = (ushort)evap_purge_duty_max << 8;
       }
       else {
-        DAT_400021ac = DAT_400021c0;
+        evap_purge_duty_ramped = DAT_400021c0;
       }
     }
-    else if ((ushort)((ushort)DAT_400021ae << 8) < DAT_400021ac) {
-      DAT_400021ac = (ushort)DAT_400021ae << 8;
+    else if ((ushort)((ushort)evap_purge_duty_max << 8) < evap_purge_duty_ramped) {
+      evap_purge_duty_ramped = (ushort)evap_purge_duty_max << 8;
     }
-    else if ((DAT_4000216a & 4) == 0) {
-      if ((DAT_4000216a & 8) != 0) {
-        bVar1 = DAT_40001532 < DAT_400021ac;
-        uVar2 = DAT_400021ac - DAT_40001532;
-        DAT_400021ac = 0;
+    else if ((evap_purge_flags & 4) == 0) {
+      if ((evap_purge_flags & 8) != 0) {
+        bVar1 = evap_purge_ramp_down_step < evap_purge_duty_ramped;
+        uVar2 = evap_purge_duty_ramped - evap_purge_ramp_down_step;
+        evap_purge_duty_ramped = 0;
         if (bVar1) {
-          DAT_400021ac = uVar2;
+          evap_purge_duty_ramped = uVar2;
         }
       }
     }
-    else if ((ulonglong)DAT_40001530 + (ulonglong)DAT_400021ac < (ulonglong)DAT_400021ae << 8) {
-      DAT_400021ac = (ushort)((ulonglong)DAT_40001530 + (ulonglong)DAT_400021ac);
+    else if ((ulonglong)evap_purge_ramp_up_step + (ulonglong)evap_purge_duty_ramped <
+             (ulonglong)evap_purge_duty_max << 8) {
+      evap_purge_duty_ramped =
+           (ushort)((ulonglong)evap_purge_ramp_up_step + (ulonglong)evap_purge_duty_ramped);
     }
     else {
-      DAT_400021ac = (ushort)DAT_400021ae << 8;
+      evap_purge_duty_ramped = (ushort)evap_purge_duty_max << 8;
     }
-    DAT_4000216c = (byte)(DAT_400021ac >> 8);
+    DAT_4000216c = (byte)(evap_purge_duty_ramped >> 8);
   }
   else {
     DAT_400021d2 = 0;
-    DAT_400021c0 = DAT_400021ac;
+    DAT_400021c0 = evap_purge_duty_ramped;
   }
   DAT_4000218c = DAT_4000218c + (uint)DAT_4000216c;
   DAT_400021b4 = DAT_400021b4 + (uint)idle_bypass_airflow;
@@ -38761,7 +38834,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x101:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000ca96 != 0 && ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
+       ((CAL_obd_ii_mode2f_injector_test_duration != 0 &&
+        ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffffe;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 1;
       if (obd_ii_request[4] == 0) {
@@ -38777,9 +38851,9 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[0] = DAT_4000ca96;
+        obd_ii_mode2f_test_timers[0] = CAL_obd_ii_mode2f_injector_test_duration;
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 1;
-        obd_mode2f_init_actuator_test(4,DAT_4000ca94 * 10);
+        obd_mode2f_init_actuator_test(4,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
         DAT_400021e8 = DAT_400021e8 | 1;
       }
       if ((obd_ii_mode2f_flags_enabled & 1) == 0) {
@@ -38798,7 +38872,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x102:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000ca96 != 0 && ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
+       ((CAL_obd_ii_mode2f_injector_test_duration != 0 &&
+        ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffffd;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 2;
       if (obd_ii_request[4] == 0) {
@@ -38814,9 +38889,9 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[1] = DAT_4000ca96;
+        obd_ii_mode2f_test_timers[1] = CAL_obd_ii_mode2f_injector_test_duration;
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 2;
-        obd_mode2f_init_actuator_test(5,DAT_4000ca94 * 10);
+        obd_mode2f_init_actuator_test(5,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
         DAT_400021e8 = DAT_400021e8 | 2;
       }
       if ((obd_ii_mode2f_flags_enabled & 2) == 0) {
@@ -38834,7 +38909,8 @@ void obd_ii_mode2F_processing(void)
     obd_ii_mode2f_timeout = CAL_obd_ii_mode2f_timeout;
     break;
   case 0x103:
-    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) && (DAT_4000ca96 != 0)) &&
+    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
+        (CAL_obd_ii_mode2f_injector_test_duration != 0)) &&
        ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffffb;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 4;
@@ -38851,9 +38927,9 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[2] = DAT_4000ca96;
+        obd_ii_mode2f_test_timers[2] = CAL_obd_ii_mode2f_injector_test_duration;
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 4;
-        obd_mode2f_init_actuator_test(6,DAT_4000ca94 * 10);
+        obd_mode2f_init_actuator_test(6,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
         DAT_400021e8 = DAT_400021e8 | 4;
       }
       if ((obd_ii_mode2f_flags_enabled & 4) == 0) {
@@ -38872,7 +38948,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x104:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000ca96 != 0 && ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
+       ((CAL_obd_ii_mode2f_injector_test_duration != 0 &&
+        ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffff7;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 8;
       if (obd_ii_request[4] == 0) {
@@ -38888,9 +38965,9 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[3] = DAT_4000ca96;
+        obd_ii_mode2f_test_timers[3] = CAL_obd_ii_mode2f_injector_test_duration;
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 8;
-        obd_mode2f_init_actuator_test(7,DAT_4000ca94 * 10);
+        obd_mode2f_init_actuator_test(7,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
         DAT_400021e8 = DAT_400021e8 | 8;
       }
       if ((obd_ii_mode2f_flags_enabled & 8) == 0) {
@@ -38909,7 +38986,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x105:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000ca96 != 0 && ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
+       ((CAL_obd_ii_mode2f_injector_test_duration != 0 &&
+        ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xffffffef;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x10;
       if (obd_ii_request[4] == 0) {
@@ -38925,9 +39003,9 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[4] = DAT_4000ca96;
+        obd_ii_mode2f_test_timers[4] = CAL_obd_ii_mode2f_injector_test_duration;
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x10;
-        obd_mode2f_init_actuator_test(8,DAT_4000ca94 * 10);
+        obd_mode2f_init_actuator_test(8,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
         DAT_400021e8 = DAT_400021e8 | 0x10;
       }
       if ((obd_ii_mode2f_flags_enabled & 0x10) == 0) {
@@ -38945,7 +39023,8 @@ void obd_ii_mode2F_processing(void)
     obd_ii_mode2f_timeout = CAL_obd_ii_mode2f_timeout;
     break;
   case 0x106:
-    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) && (DAT_4000ca96 != 0)) &&
+    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
+        (CAL_obd_ii_mode2f_injector_test_duration != 0)) &&
        ((obd_ii_mode2f_flags_enabled & 0xfc0) == 0)) {
       uVar3 = obd_ii_mode2f_flags_state & 0xffffffdf;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x20;
@@ -38962,9 +39041,9 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[5] = DAT_4000ca96;
+        obd_ii_mode2f_test_timers[5] = CAL_obd_ii_mode2f_injector_test_duration;
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x20;
-        obd_mode2f_init_actuator_test(9,DAT_4000ca94 * 10);
+        obd_mode2f_init_actuator_test(9,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
         DAT_400021e8 = DAT_400021e8 | 0x20;
       }
       if ((obd_ii_mode2f_flags_enabled & 0x20) == 0) {
@@ -39342,7 +39421,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x161:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000caae != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)))) {
+       ((CAL_obd_ii_mode2f_coil_test_pulse_count != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)
+        ))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xffffffbf;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x40;
       if (obd_ii_request[4] == 0) {
@@ -39358,7 +39438,7 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[0] = DAT_4000caae;
+        obd_ii_mode2f_test_timers[0] = CAL_obd_ii_mode2f_coil_test_pulse_count;
         obd_mode2f_init_actuator_test(0x12,ign_dwell_time * 10);
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x40;
         DAT_400021e8 = DAT_400021e8 | 0x40;
@@ -39379,7 +39459,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x162:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000caae != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)))) {
+       ((CAL_obd_ii_mode2f_coil_test_pulse_count != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)
+        ))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xffffff7f;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x80;
       if (obd_ii_request[4] == 0) {
@@ -39395,7 +39476,7 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[1] = DAT_4000caae;
+        obd_ii_mode2f_test_timers[1] = CAL_obd_ii_mode2f_coil_test_pulse_count;
         obd_mode2f_init_actuator_test(0x13,ign_dwell_time * 10);
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x80;
         DAT_400021e8 = DAT_400021e8 | 0x80;
@@ -39415,7 +39496,8 @@ void obd_ii_mode2F_processing(void)
     obd_ii_mode2f_timeout = CAL_obd_ii_mode2f_timeout;
     break;
   case 0x163:
-    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) && (DAT_4000caae != 0)) &&
+    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
+        (CAL_obd_ii_mode2f_coil_test_pulse_count != 0)) &&
        ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffeff;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x100;
@@ -39432,7 +39514,7 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[2] = DAT_4000caae;
+        obd_ii_mode2f_test_timers[2] = CAL_obd_ii_mode2f_coil_test_pulse_count;
         obd_mode2f_init_actuator_test(0x14,ign_dwell_time * 10);
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x100;
         DAT_400021e8 = DAT_400021e8 | 0x100;
@@ -39453,7 +39535,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x164:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000caae != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)))) {
+       ((CAL_obd_ii_mode2f_coil_test_pulse_count != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)
+        ))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffdff;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x200;
       if (obd_ii_request[4] == 0) {
@@ -39469,7 +39552,7 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[3] = DAT_4000caae;
+        obd_ii_mode2f_test_timers[3] = CAL_obd_ii_mode2f_coil_test_pulse_count;
         obd_mode2f_init_actuator_test(0x15,ign_dwell_time * 10);
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x200;
         DAT_400021e8 = DAT_400021e8 | 0x200;
@@ -39490,7 +39573,8 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x165:
     if (((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
-       ((DAT_4000caae != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)))) {
+       ((CAL_obd_ii_mode2f_coil_test_pulse_count != 0 && ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)
+        ))) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffffbff;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x400;
       if (obd_ii_request[4] == 0) {
@@ -39506,7 +39590,7 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[4] = DAT_4000caae;
+        obd_ii_mode2f_test_timers[4] = CAL_obd_ii_mode2f_coil_test_pulse_count;
         obd_mode2f_init_actuator_test(0x16,ign_dwell_time * 10);
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x400;
         DAT_400021e8 = DAT_400021e8 | 0x400;
@@ -39526,7 +39610,8 @@ void obd_ii_mode2F_processing(void)
     obd_ii_mode2f_timeout = CAL_obd_ii_mode2f_timeout;
     break;
   case 0x166:
-    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) && (DAT_4000caae != 0)) &&
+    if ((((timer_engine_off_unknown1 == 0) && (obd_ii_engine_speed == 0)) &&
+        (CAL_obd_ii_mode2f_coil_test_pulse_count != 0)) &&
        ((obd_ii_mode2f_flags_enabled & 0x3f) == 0)) {
       uVar3 = obd_ii_mode2f_flags_state & 0xfffff7ff;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state | 0x800;
@@ -39543,7 +39628,7 @@ void obd_ii_mode2F_processing(void)
         }
       }
       else {
-        obd_ii_mode2f_test_timers[5] = DAT_4000caae;
+        obd_ii_mode2f_test_timers[5] = CAL_obd_ii_mode2f_coil_test_pulse_count;
         obd_mode2f_init_actuator_test(0x17,ign_dwell_time * 10);
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled | 0x800;
         DAT_400021e8 = DAT_400021e8 | 0x800;
@@ -39742,61 +39827,61 @@ void obd_ii_mode2f_200hz(void)
     if (((obd_ii_mode2f_flags_enabled & 1) != 0) && (obd_ii_mode2f_test_timers2[0] == '\0')) {
       if (obd_ii_mode2f_test_timers[0] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffffe;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
-        eTPU_command_single_shot_pulse(4,DAT_4000ca94 * 10);
+        eTPU_command_single_shot_pulse(4,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
       }
     }
     if (((obd_ii_mode2f_flags_enabled & 2) != 0) && (obd_ii_mode2f_test_timers2[0] == '\0')) {
       if (obd_ii_mode2f_test_timers[1] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffffd;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
-        eTPU_command_single_shot_pulse(5,DAT_4000ca94 * 10);
+        eTPU_command_single_shot_pulse(5,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
       }
     }
     if (((obd_ii_mode2f_flags_enabled & 4) != 0) && (obd_ii_mode2f_test_timers2[0] == '\0')) {
       if (obd_ii_mode2f_test_timers[2] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffffb;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
-        eTPU_command_single_shot_pulse(6,DAT_4000ca94 * 10);
+        eTPU_command_single_shot_pulse(6,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
       }
     }
     if (((obd_ii_mode2f_flags_enabled & 8) != 0) && (obd_ii_mode2f_test_timers2[0] == '\0')) {
       if (obd_ii_mode2f_test_timers[3] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffff7;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
-        eTPU_command_single_shot_pulse(7,DAT_4000ca94 * 10);
+        eTPU_command_single_shot_pulse(7,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
       }
     }
     if (((obd_ii_mode2f_flags_enabled & 0x10) != 0) && (obd_ii_mode2f_test_timers2[0] == '\0')) {
       if (obd_ii_mode2f_test_timers[4] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xffffffef;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
-        eTPU_command_single_shot_pulse(8,DAT_4000ca94 * 10);
+        eTPU_command_single_shot_pulse(8,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
       }
     }
     if (((obd_ii_mode2f_flags_enabled & 0x20) != 0) && (obd_ii_mode2f_test_timers2[0] == '\0')) {
       if (obd_ii_mode2f_test_timers[5] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xffffffdf;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
-        eTPU_command_single_shot_pulse(9,DAT_4000ca94 * 10);
+        eTPU_command_single_shot_pulse(9,CAL_obd_ii_mode2f_injector_test_pulse_10us * 10);
       }
     }
     if (((obd_ii_mode2f_flags_enabled & 0x40) != 0) && (obd_ii_mode2f_test_timers2[1] == '\0')) {
       if (obd_ii_mode2f_test_timers[0] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xffffffbf;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
         eTPU_command_single_shot_pulse(0x12,ign_dwell_time * 10);
@@ -39805,7 +39890,7 @@ void obd_ii_mode2f_200hz(void)
     if (((obd_ii_mode2f_flags_enabled & 0x80) != 0) && (obd_ii_mode2f_test_timers2[1] == '\0')) {
       if (obd_ii_mode2f_test_timers[1] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xffffff7f;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
         eTPU_command_single_shot_pulse(0x13,ign_dwell_time * 10);
@@ -39814,7 +39899,7 @@ void obd_ii_mode2f_200hz(void)
     if (((obd_ii_mode2f_flags_enabled & 0x100) != 0) && (obd_ii_mode2f_test_timers2[1] == '\0')) {
       if (obd_ii_mode2f_test_timers[2] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffeff;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
         eTPU_command_single_shot_pulse(0x14,ign_dwell_time * 10);
@@ -39823,7 +39908,7 @@ void obd_ii_mode2f_200hz(void)
     if (((obd_ii_mode2f_flags_enabled & 0x200) != 0) && (obd_ii_mode2f_test_timers2[1] == '\0')) {
       if (obd_ii_mode2f_test_timers[3] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffdff;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
         eTPU_command_single_shot_pulse(0x15,ign_dwell_time * 10);
@@ -39832,7 +39917,7 @@ void obd_ii_mode2f_200hz(void)
     if (((obd_ii_mode2f_flags_enabled & 0x400) != 0) && (obd_ii_mode2f_test_timers2[1] == '\0')) {
       if (obd_ii_mode2f_test_timers[4] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffffbff;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
         eTPU_command_single_shot_pulse(0x16,ign_dwell_time * 10);
@@ -39841,7 +39926,7 @@ void obd_ii_mode2f_200hz(void)
     if (((obd_ii_mode2f_flags_enabled & 0x800) != 0) && (obd_ii_mode2f_test_timers2[1] == '\0')) {
       if (obd_ii_mode2f_test_timers[5] == 0) {
         obd_ii_mode2f_flags_enabled = obd_ii_mode2f_flags_enabled & 0xfffff7ff;
-        coil_driver_state_machine();
+        engine_sync_reset_etpu_init();
       }
       else {
         eTPU_command_single_shot_pulse(0x17,ign_dwell_time * 10);
@@ -39880,7 +39965,7 @@ void obd_ii_readiness_monitor_init(void)
     bVar2 = DAT_40002220;
   }
   DAT_40002220 = bVar2;
-  DAT_40002224 = DAT_4000cb3a;
+  DAT_40002224 = CAL_obd_ii_cat_monitor_stable_time;
   DAT_40002226 = DAT_4000cb34;
   DAT_40002228 = DAT_4000cb36;
   DAT_4000222a = DAT_4000cb38;
@@ -39892,15 +39977,15 @@ void obd_ii_readiness_monitor_init(void)
   do {
     if (0x12 < bVar2) {
       for (bVar2 = 0; bVar2 < 0x13; bVar2 = bVar2 + 1) {
-        obd_ii_monitor_cat_efficiency_ratio((ulonglong)bVar2);
+        obd_iumpr_compute_ratio((ulonglong)bVar2);
       }
       obd_ii_monitor_status_this_drive_cycle =
            CONCAT11(obd_ii_common_test_available,obd_ii_common_test_available);
       return;
     }
-    (&DAT_40006010)[(uint)bVar2 * 8] = (&DAT_40004724)[bVar2];
+    (&DAT_40006010)[(uint)bVar2 * 8] = (&LEA_obd_iumpr_denominator)[bVar2];
     (&DAT_40006012)[(uint)bVar2 * 0x10] = 0;
-    (&DAT_40006014)[(uint)bVar2 * 8] = (&DAT_4000474a)[bVar2];
+    (&DAT_40006014)[(uint)bVar2 * 8] = (&LEA_obd_iumpr_numerator)[bVar2];
     (&DAT_40006016)[(uint)bVar2 * 0x10] = 0;
     (&DAT_4000601a)[(uint)bVar2 * 0x10] = 0;
     (&DAT_4000601b)[(uint)bVar2 * 0x10] = 0;
@@ -39936,7 +40021,7 @@ void obd_ii_catalyst_o2_monitors_main(void)
     }
     DAT_40002220 = DAT_40002220 | 1;
   }
-  if (((engine_is_running) && (DAT_4000cb2c < obd_ii_atmospheric_baro)) &&
+  if (((engine_is_running) && (CAL_obd_ii_cat_unknown3 < obd_ii_atmospheric_baro)) &&
      (DAT_4000cb2e < temp_engine_air)) {
     sVar2 = DAT_40002226 + -1;
     if (DAT_40002226 == 0) {
@@ -39953,9 +40038,9 @@ void obd_ii_catalyst_o2_monitors_main(void)
     }
     DAT_40002226 = sVar2;
     if (((DAT_40002224 == 0) || ((engine_operating_state_flags & 1) == 0)) ||
-       ((DAT_4000cb32 < car_speed_u8 && (DAT_4000cbae <= uVar4)))) {
+       ((DAT_4000cb32 < car_speed_u8 && (CAL_obd_ii_monitor_rpm_delta_max <= uVar4)))) {
       if (DAT_40002224 != 0) {
-        DAT_40002224 = DAT_4000cb3a;
+        DAT_40002224 = CAL_obd_ii_cat_monitor_stable_time;
       }
     }
     else {
@@ -39963,9 +40048,10 @@ void obd_ii_catalyst_o2_monitors_main(void)
     }
   }
   else if (DAT_40002224 != 0) {
-    DAT_40002224 = DAT_4000cb3a;
+    DAT_40002224 = CAL_obd_ii_cat_monitor_stable_time;
   }
-  if ((((engine_is_running) && (DAT_40002228 != 0)) && (DAT_4000cb2c < obd_ii_atmospheric_baro)) &&
+  if ((((engine_is_running) && (DAT_40002228 != 0)) &&
+      (CAL_obd_ii_cat_unknown3 < obd_ii_atmospheric_baro)) &&
      ((DAT_4000cb28 < temp_engine_air && (temp_engine_air < DAT_4000cb29)))) {
     DAT_40002228 = DAT_40002228 + -1;
   }
@@ -40013,7 +40099,7 @@ LAB_0009c524:
       if (((&DAT_4000601b)[(uint)bVar3 * 0x10] != '\0') &&
          ((((&DAT_40006016)[(uint)bVar3 * 0x10] == '\0' &&
            ((&DAT_4000601a)[(uint)bVar3 * 0x10] == '\0')) && ((DAT_40002220 & 4) == 0)))) {
-        obd_ii_monitor_increment_cat_fail_counter((ulonglong)bVar3);
+        obd_iumpr_increment_numerator((ulonglong)bVar3);
       }
     }
     else if ((&DAT_4000601c)[(uint)bVar3 * 8] == 0x99) {
@@ -40024,19 +40110,19 @@ LAB_0009c4f4:
     else if ((((&DAT_4000601b)[(uint)bVar3 * 0x10] != '\0') &&
              ((&DAT_40006016)[(uint)bVar3 * 0x10] == '\0')) &&
             (((&DAT_4000601a)[(uint)bVar3 * 0x10] == '\0' && ((DAT_40002220 & 4) == 0)))) {
-      obd_ii_monitor_increment_cat_fail_counter((ulonglong)bVar3);
+      obd_iumpr_increment_numerator((ulonglong)bVar3);
     }
     if ((&DAT_4000601e)[(uint)bVar3 * 0x10] == '\x05') {
       if ((((((DAT_40002220 & 2) != 0) && ((&DAT_40006012)[(uint)bVar3 * 0x10] == '\0')) &&
            ((&DAT_4000601a)[(uint)bVar3 * 0x10] == '\0')) &&
           ((DAT_40002228 == 0 && ((CAL_obd_ii_P0456 & 7) != 0)))) &&
          (((DAT_40002220 & 8) != 0 && ((DAT_40002220 & 4) == 0)))) {
-        obd_ii_monitor_increment_cat_pass_counter((ulonglong)bVar3);
+        obd_iumpr_increment_denominator((ulonglong)bVar3);
       }
     }
     else if ((((DAT_40002220 & 2) != 0) && ((&DAT_40006012)[(uint)bVar3 * 0x10] == '\0')) &&
             (((&DAT_4000601a)[(uint)bVar3 * 0x10] == '\0' && ((DAT_40002220 & 4) == 0)))) {
-      obd_ii_monitor_increment_cat_pass_counter((ulonglong)bVar3);
+      obd_iumpr_increment_denominator((ulonglong)bVar3);
     }
     bVar3 = bVar3 + 1;
   } while( true );
@@ -40044,7 +40130,7 @@ LAB_0009c4f4:
 
 
 
-void obd_ii_monitor_increment_cat_fail_counter(ulonglong param_1)
+void obd_iumpr_increment_numerator(ulonglong param_1)
 
 {
   uint uVar1;
@@ -40061,18 +40147,18 @@ void obd_ii_monitor_increment_cat_fail_counter(ulonglong param_1)
     uVar1 = (uint)param_1 & 0xff;
     (&DAT_40006014)[uVar1 * 8] = (&DAT_40006014)[uVar1 * 8] + 1;
   }
-  *(undefined2 *)((int)&DAT_4000474a + (int)((param_1 & 0xff) << 1)) =
+  *(undefined2 *)((int)&LEA_obd_iumpr_numerator + (int)((param_1 & 0xff) << 1)) =
        *(undefined2 *)((int)&DAT_40006014 + (int)((param_1 & 0xff) << 4));
-  *(undefined2 *)((int)&DAT_40004724 + (int)((param_1 & 0xff) << 1)) =
+  *(undefined2 *)((int)&LEA_obd_iumpr_denominator + (int)((param_1 & 0xff) << 1)) =
        *(undefined2 *)((int)&DAT_40006010 + (int)((param_1 & 0xff) << 4));
   (&DAT_40006016)[(int)((param_1 & 0xff) << 4)] = 1;
-  obd_ii_monitor_cat_efficiency_ratio(param_1 & 0xff);
+  obd_iumpr_compute_ratio(param_1 & 0xff);
   return;
 }
 
 
 
-void obd_ii_monitor_increment_cat_pass_counter(ulonglong param_1)
+void obd_iumpr_increment_denominator(ulonglong param_1)
 
 {
   int iVar1;
@@ -40089,18 +40175,18 @@ void obd_ii_monitor_increment_cat_pass_counter(ulonglong param_1)
     iVar1 = (int)((param_1 & 0xff) << 4);
     *(short *)((int)&DAT_40006010 + iVar1) = *(short *)((int)&DAT_40006010 + iVar1) + 1;
   }
-  *(undefined2 *)((int)&DAT_4000474a + (int)((param_1 & 0xff) << 1)) =
+  *(undefined2 *)((int)&LEA_obd_iumpr_numerator + (int)((param_1 & 0xff) << 1)) =
        *(undefined2 *)((int)&DAT_40006014 + (int)((param_1 & 0xff) << 4));
-  *(undefined2 *)((int)&DAT_40004724 + (int)((param_1 & 0xff) << 1)) =
+  *(undefined2 *)((int)&LEA_obd_iumpr_denominator + (int)((param_1 & 0xff) << 1)) =
        *(undefined2 *)((int)&DAT_40006010 + (int)((param_1 & 0xff) << 4));
   (&DAT_40006012)[(int)((param_1 & 0xff) << 4)] = 1;
-  obd_ii_monitor_cat_efficiency_ratio(param_1 & 0xff);
+  obd_iumpr_compute_ratio(param_1 & 0xff);
   return;
 }
 
 
 
-void obd_ii_monitor_cat_efficiency_ratio(ulonglong param_1)
+void obd_iumpr_compute_ratio(ulonglong param_1)
 
 {
   ulonglong uVar1;
@@ -40122,7 +40208,7 @@ void obd_ii_monitor_cat_efficiency_ratio(ulonglong param_1)
       *(undefined2 *)((int)&DAT_40006018 + (int)((param_1 & 0xff) << 4)) = 0xffff;
     }
   }
-  obd_ii_update_worst_case_monitor_per_category(param_1 & 0xff);
+  obd_iumpr_aggregate_group_min(param_1 & 0xff);
   return;
 }
 
@@ -40133,7 +40219,7 @@ void obd_ii_monitor_cat_efficiency_ratio(ulonglong param_1)
 // the per-category worst-case summary used
 //    for Mode 09 PID 08 reporting
 
-void obd_ii_update_worst_case_monitor_per_category(ulonglong param_1)
+void obd_iumpr_aggregate_group_min(ulonglong param_1)
 
 {
   byte bVar1;
@@ -40205,7 +40291,8 @@ void obd_ii_monitor_completion_update(void)
                    (uint)DAT_4000ca35 * (int)(short)(load_maf_diag - (short)load_alphaN_expected);
     load_residual_maf_vs_alphaN_expected =
          (short)(DAT_40002364 >> 8) + (ushort)((int)DAT_40002364 < 0 && (DAT_40002364 & 0xff) != 0);
-    if (((((DAT_4000cbf4 == '\0') || ((engine_state_failure_flags & 0x200000) != 0)) ||
+    if (((((CAL_obd_ii_P0101_plausibility_enable == '\0') ||
+          ((engine_state_failure_flags & 0x200000) != 0)) ||
          (((engine_state_failure_flags & 0x20) != 0 ||
           ((((engine_state_failure_flags & 0x40) != 0 || ((engine_state_failure_flags & 0x80) != 0))
            || ((engine_state_failure_flags & 0x100) != 0)))))) ||
@@ -40272,8 +40359,9 @@ void obd_ii_monitor_completion_update(void)
                 (&obd_p101_config,&LEA_obd_ii_P0101_dtc_state,&LEA_obd_ii_P0101_fail_counter,
                  &LEA_obd_ii_P0101_pass_counter,0x101,0);
     }
-    else if ((((DAT_4000cbf4 != '\0') && ((DAT_40002349 & 8) != 0)) && ((DAT_40002349 & 0x80) != 0))
-            || ((DAT_4000cbf4 == '\0' && ((DAT_40002349 & 0x80) != 0)))) {
+    else if ((((CAL_obd_ii_P0101_plausibility_enable != '\0') && ((DAT_40002349 & 8) != 0)) &&
+             ((DAT_40002349 & 0x80) != 0)) ||
+            ((CAL_obd_ii_P0101_plausibility_enable == '\0' && ((DAT_40002349 & 0x80) != 0)))) {
       obd_ii_monitor_pass(&obd_p101_config,&LEA_obd_ii_P0101_dtc_state);
     }
   }
@@ -40318,7 +40406,7 @@ void obd_ii_monitor_completion_update(void)
         (DAT_40002264 != 0)) && ((DAT_40002265 != 0 && (DAT_40002231 != 0)))) &&
       (((DAT_40002232 != 0 && ((latch_counter_p0122 != '\0' && (latch_counter_p0123 != '\0')))) &&
        (latch_counter_p0222 != '\0')))) &&
-     ((((latch_counter_p0223 != '\0' && (DAT_40001cbf != '\0')) &&
+     ((((latch_counter_p0223 != '\0' && (obd_P2135_not_failed != '\0')) &&
        ((engine_state_failure_flags & 1) == 0)) &&
       (((DAT_40002244 != 0 && (DAT_40002245 != 0)) && ((LEA_obd_ii_P1109_dtc_state & 4) == 0)))))) {
     u8_pressure_mbar_4000235d =
@@ -40362,28 +40450,31 @@ void obd_ii_monitor_completion_update(void)
       DAT_4000233c = 0;
       DAT_4000233a = 0;
     }
-    else if (((((u8_rspeed_125_4_500rpm_4000caa6 < engine_speed_8bit) &&
+    else if (((((CAL_obd_ii_P0106_partload_rpm_window < engine_speed_8bit) &&
                (engine_speed_8bit < u8_rspeed_125_4_500rpm_4000caa7)) &&
               (s___4000caa8[0] < tps_8bit)) &&
              ((tps_8bit < s___4000caa8[1] &&
               (lVar4 = libc_abs((longlong)tps_delta_rate), (int)lVar4 < (int)(uint)DAT_4000caaa))))
             && ((load_source_is_alphaN == false && ((DAT_40002342 & 0xc) == 0)))) {
       u16_pressure_mbar_4000233e = 0;
-      DAT_4000237e = lookup_3D_uint8_interpolated
-                               (8,'\b',(ushort)tps_8bit,(ushort)load_mass_per_stroke,
-                                s_<__<__H*_X7__bA*_4000e068,s____04__4000e058,s__0_EOZd_4000e060);
-      DAT_4000237d = lookup_3D_uint8_interpolated
-                               ('\b','\b',(ushort)tps_8bit,(ushort)load_mass_per_stroke,
-                                s__L_8777_tXF_433_aN8____iR____s_>_4000e0b8,s____04__4000e0a8,
-                                s__0_EOZd_4000e0b0);
-      DAT_4000237c = (byte)((int)((uint)DAT_4000237e *
-                                  ((uint)u8_rspeed_125_4_500rpm_4000caa7 - (uint)engine_speed_8bit)
-                                 + (uint)DAT_4000237d *
-                                   ((uint)engine_speed_8bit - (uint)u8_rspeed_125_4_500rpm_4000caa6)
-                                 ) / (int)((uint)u8_rspeed_125_4_500rpm_4000caa7 -
-                                          (uint)u8_rspeed_125_4_500rpm_4000caa6));
+      obd_p0106_throttle_vacuum_rpm_lo =
+           lookup_3D_uint8_interpolated
+                     (8,'\b',(ushort)tps_8bit,(ushort)load_mass_per_stroke,
+                      s_<__<__H*_X7__bA*_4000e068,s____04__4000e058,s__0_EOZd_4000e060);
+      obd_p0106_throttle_vacuum_rpm_hi =
+           lookup_3D_uint8_interpolated
+                     ('\b','\b',(ushort)tps_8bit,(ushort)load_mass_per_stroke,
+                      s__L_8777_tXF_433_aN8____iR____s_>_4000e0b8,s____04__4000e0a8,
+                      s__0_EOZd_4000e0b0);
+      obd_p0106_throttle_vacuum_model =
+           (byte)((int)((uint)obd_p0106_throttle_vacuum_rpm_lo *
+                        ((uint)u8_rspeed_125_4_500rpm_4000caa7 - (uint)engine_speed_8bit) +
+                       (uint)obd_p0106_throttle_vacuum_rpm_hi *
+                       ((uint)engine_speed_8bit - (uint)CAL_obd_ii_P0106_partload_rpm_window)) /
+                 (int)((uint)u8_rspeed_125_4_500rpm_4000caa7 -
+                      (uint)CAL_obd_ii_P0106_partload_rpm_window));
       u16_pressure_mbar_40002386 =
-           (ushort)u8_pressure_mbar_4000235d + (ushort)DAT_4000237c * 4 + map;
+           (ushort)u8_pressure_mbar_4000235d + (ushort)obd_p0106_throttle_vacuum_model * 4 + map;
       u16_pressure_mbar_40002380 = obd_ii_atmospheric_baro - u16_pressure_mbar_40002386;
       if (((short)u16_pressure_mbar_4000cabc < (short)u16_pressure_mbar_40002380) ||
          ((int)(short)u16_pressure_mbar_40002380 < -(int)(short)u16_pressure_mbar_4000cabe)) {
@@ -40480,7 +40571,7 @@ void obd_ii_monitor_completion_update(void)
   }
   if ((((CAL_obd_ii_P0131 & 7) != 0) && (engine_is_running != false)) &&
      ((LEA_obd_ii_P2105_dtc_state & 4) == 0)) {
-    if (obd_ii_o2_sensor1_voltage < DAT_4000c9e6) {
+    if (obd_ii_o2_sensor1_voltage < CAL_obd_ii_o2_sensor1_voltage_threshold) {
       if ((((inj_flags & 2) == 0) && ((misfire_condition_flags & 0x20) == 0)) &&
          ((DAT_40002282 = DAT_40002282 + 1, (short)DAT_40002246 <= DAT_40002282 &&
           ((DAT_40002282 = 0, DAT_4000223a != 0 &&
@@ -40493,13 +40584,13 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_40002282 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0131,&LEA_obd_ii_P0131_dtc_state);
-      if (DAT_4000223a < DAT_4000d3b6) {
+      if (DAT_4000223a < CAL_unknown15) {
         DAT_4000223a = DAT_4000223a + 1;
       }
     }
   }
   if (((CAL_obd_ii_P0132 & 7) != 0) && (engine_is_running != false)) {
-    if (DAT_4000c9e8 < obd_ii_o2_sensor1_voltage) {
+    if (CAL_obd_ii_o2_sensor1_voltage_limit < obd_ii_o2_sensor1_voltage) {
       DAT_40002284 = DAT_40002284 + 1;
       if ((((short)DAT_40002246 <= DAT_40002284) && (DAT_40002284 = 0, DAT_4000223b != 0)) &&
          (DAT_4000223b = DAT_4000223b - 1, DAT_4000223b == 0)) {
@@ -40511,14 +40602,14 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_40002284 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0132,&LEA_obd_ii_P0132_dtc_state);
-      if (DAT_4000223b < DAT_4000d3b7) {
+      if (DAT_4000223b < CAL_obd_ii_P0132_fail_count) {
         DAT_4000223b = DAT_4000223b + 1;
       }
     }
   }
   if ((((CAL_obd_ii_P0151 & 7) != 0) && (engine_is_running != false)) &&
      ((LEA_obd_ii_P2105_dtc_state & 4) == 0)) {
-    if (obd_ii_o2_sensor5_voltage < DAT_4000c9e6) {
+    if (obd_ii_o2_sensor5_voltage < CAL_obd_ii_o2_sensor1_voltage_threshold) {
       if ((((inj_flags & 2) == 0) && ((misfire_condition_flags & 0x40) == 0)) &&
          ((DAT_4000228a = DAT_4000228a + 1, (short)DAT_40002246 <= DAT_4000228a &&
           ((DAT_4000228a = 0, DAT_4000223c != 0 &&
@@ -40531,13 +40622,13 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_4000228a = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0151,&LEA_obd_ii_P0151_dtc_state);
-      if (DAT_4000223c < DAT_4000d426) {
+      if (DAT_4000223c < CAL_obd_ii_P0151_fail_count) {
         DAT_4000223c = DAT_4000223c + 1;
       }
     }
   }
   if (((CAL_obd_ii_P0152 & 7) != 0) && (engine_is_running != false)) {
-    if (DAT_4000c9e8 < obd_ii_o2_sensor5_voltage) {
+    if (CAL_obd_ii_o2_sensor1_voltage_limit < obd_ii_o2_sensor5_voltage) {
       DAT_4000228c = DAT_4000228c + 1;
       if ((((short)DAT_40002246 <= DAT_4000228c) && (DAT_4000228c = 0, DAT_4000223d != 0)) &&
          (DAT_4000223d = DAT_4000223d - 1, DAT_4000223d == 0)) {
@@ -40549,13 +40640,13 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_4000228c = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0152,&LEA_obd_ii_P0152_dtc_state);
-      if (DAT_4000223d < DAT_4000d427) {
+      if (DAT_4000223d < CAL_obd_ii_P0152_fail_count) {
         DAT_4000223d = DAT_4000223d + 1;
       }
     }
   }
   if (((CAL_obd_ii_P0137 & 7) != 0) && (engine_is_running != false)) {
-    if ((obd_ii_o2_sensor2_voltage < DAT_4000c9ea) &&
+    if ((obd_ii_o2_sensor2_voltage < CAL_obd_ii_o2_sensor2_voltage_threshold) &&
        (((inj_flags & 2) == 0 && ((misfire_condition_flags & 0x20) == 0)))) {
       DAT_40002288 = DAT_40002288 + 1;
       if ((((short)DAT_40002246 <= DAT_40002288) && (DAT_40002288 = 0, DAT_40002286 != 0)) &&
@@ -40568,13 +40659,13 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_40002288 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0137,&LEA_obd_ii_P0137_dtc_state);
-      if (DAT_40002286 < DAT_4000d3b8) {
+      if (DAT_40002286 < CAL_obd_ii_P0137_fail_count) {
         DAT_40002286 = DAT_40002286 + 1;
       }
     }
   }
   if (((CAL_obd_ii_P0138 & 7) != 0) && (engine_is_running != false)) {
-    if (DAT_4000c9ec < obd_ii_o2_sensor2_voltage) {
+    if (CAL_obd_ii_o2_sensor2_voltage_limit < obd_ii_o2_sensor2_voltage) {
       DAT_400022a4 = DAT_400022a4 + 1;
       if ((((short)DAT_40002246 <= DAT_400022a4) && (DAT_400022a4 = 0, DAT_400022a2 != 0)) &&
          (DAT_400022a2 = DAT_400022a2 - 1, DAT_400022a2 == 0)) {
@@ -40586,13 +40677,13 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_400022a4 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0138,&LEA_obd_ii_P0138_dtc_state);
-      if (DAT_400022a2 < DAT_4000d3b9) {
+      if (DAT_400022a2 < CAL_obd_ii_P0138_fail_count) {
         DAT_400022a2 = DAT_400022a2 + 1;
       }
     }
   }
   if (((CAL_obd_ii_P0157 & 7) != 0) && (engine_is_running != false)) {
-    if ((obd_ii_o2_sensor6_voltage < DAT_4000c9ea) &&
+    if ((obd_ii_o2_sensor6_voltage < CAL_obd_ii_o2_sensor2_voltage_threshold) &&
        (((inj_flags & 2) == 0 && ((misfire_condition_flags & 0x40) == 0)))) {
       DAT_40002290 = DAT_40002290 + 1;
       if ((((short)DAT_40002246 <= DAT_40002290) && (DAT_40002290 = 0, DAT_4000228e != 0)) &&
@@ -40605,13 +40696,13 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_40002290 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0157,&LEA_obd_ii_P0157_dtc_state);
-      if (DAT_4000228e < DAT_4000d428) {
+      if (DAT_4000228e < CAL_obd_ii_P0157_fail_count) {
         DAT_4000228e = DAT_4000228e + 1;
       }
     }
   }
   if (((CAL_obd_ii_P0158 & 7) != 0) && (engine_is_running != false)) {
-    if (DAT_4000c9ec < obd_ii_o2_sensor6_voltage) {
+    if (CAL_obd_ii_o2_sensor2_voltage_limit < obd_ii_o2_sensor6_voltage) {
       DAT_400022a8 = DAT_400022a8 + 1;
       if ((((short)DAT_40002246 <= DAT_400022a8) && (DAT_400022a8 = 0, DAT_400022a6 != 0)) &&
          (DAT_400022a6 = DAT_400022a6 - 1, DAT_400022a6 == 0)) {
@@ -40623,7 +40714,7 @@ void obd_ii_monitor_completion_update(void)
     else {
       DAT_400022a8 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0158,&LEA_obd_ii_P0158_dtc_state);
-      if (DAT_400022a6 < DAT_4000d429) {
+      if (DAT_400022a6 < CAL_obd_ii_P0158_fail_count) {
         DAT_400022a6 = DAT_400022a6 + 1;
       }
     }
@@ -40648,7 +40739,7 @@ void obd_ii_monitor_completion_update(void)
       }
       if ((int)(uint)DAT_4000cb9f < (int)((uint)DAT_400022e2 - (uint)DAT_40001542)) {
         DAT_400022e8 = DAT_400022e8 & 0xfe | 2;
-        DAT_400022e4 = 0;
+        obd_ii_P0111_stage = 0;
       }
     }
     if ((engine_is_running != false) && ((DAT_40002250 & 0x30000) == 0)) {
@@ -41606,8 +41697,8 @@ void obd_ii_monitor_completion_update(void)
       DAT_4000223f = DAT_4000223f + 1;
     }
   }
-  if (((((CAL_obd_ii_P0523 & 7) == 0) || (obd_ii_engine_speed != 0)) || (DAT_40001c75 == '\0')) ||
-     (CAL_oil_pressure_warning_light_mode != SWITCH)) {
+  if (((((CAL_obd_ii_P0523 & 7) == 0) || (obd_ii_engine_speed != 0)) || (obd_warmup_ready == '\0'))
+     || (CAL_oil_pressure_warning_light_mode != SWITCH)) {
     DAT_400022c8 = 0;
   }
   else if (oil_pressure_sensor_voltage_raw < 0x321) {
@@ -41823,7 +41914,7 @@ void obd_ii_monitor_completion_update(void)
       if (clutch_pos_voltage < DAT_4000154a) {
         DAT_4000154a = clutch_pos_voltage;
       }
-      if ((DAT_40002330 < DAT_4000cb64) && (DAT_4000cb62 < DAT_4000154a)) {
+      if ((DAT_40002330 < DAT_4000cb64) && (CAL_clutch_pos_voltage_threshold < DAT_4000154a)) {
         DAT_40002332 = DAT_40002330 - DAT_4000154a;
       }
       else {
@@ -41856,7 +41947,7 @@ void obd_ii_monitor_completion_update(void)
     }
   }
   if (((COD_base.COD[1] >> 0x15 & 3) == 2) && ((CAL_obd_ii_P0807 & 7) != 0)) {
-    if (clutch_pos_voltage < DAT_4000cb62) {
+    if (clutch_pos_voltage < CAL_clutch_pos_voltage_threshold) {
       DAT_4000232c = DAT_4000232c + 1;
       if ((short)DAT_40002246 <= DAT_4000232c) {
         DAT_4000232c = 0;
@@ -41937,7 +42028,7 @@ void obd_ii_monitor_completion_update(void)
           DAT_400022d8 = DAT_400022d8 + 1;
         }
         DAT_40002344 = 0;
-        DAT_40002346 = (ushort)DAT_4000ca6e * 10;
+        DAT_40002346 = (ushort)CAL_obd_ii_switch_voltage_debounce * 10;
         DAT_40002348 = 0;
       }
     }
@@ -42095,22 +42186,22 @@ void obd_ii_iat_check(void)
      ((((ulonglong)DAT_4000ca2e * 0x32 < (ulonglong)obd_ii_accumulated_mass_air / 1000 &&
        ((LEA_obd_ii_P0101_dtc_state & 4) == 0)) &&
       (((LEA_obd_ii_P0102_dtc_state & 4) == 0 && ((LEA_obd_ii_P0103_dtc_state & 4) == 0)))))) {
-    if (DAT_400022e4 == '\0') {
-      DAT_400022e6 = (ushort)DAT_4000cb9e * 0x14;
+    if (obd_ii_P0111_stage == '\0') {
+      DAT_400022e6 = (ushort)CAL_obd_ii_P0111_maf_debounce_time * 0x14;
       DAT_400022ec = (ushort)DAT_4000cba1 * 200;
       DAT_400022ea = (ushort)DAT_4000cba0 * 0x14;
-      if ((uint)DAT_4000cb9d < obd_ii_maf_flow / 0x14) {
-        DAT_400022e4 = '\x01';
+      if ((uint)CAL_maf_flow_1_limit_0 < obd_ii_maf_flow / 0x14) {
+        obd_ii_P0111_stage = '\x01';
       }
     }
-    else if (DAT_400022e4 == '\x01') {
-      if ((uint)DAT_4000cb9d < obd_ii_maf_flow / 0x14) {
+    else if (obd_ii_P0111_stage == '\x01') {
+      if ((uint)CAL_maf_flow_1_limit_0 < obd_ii_maf_flow / 0x14) {
         sVar2 = DAT_400022ec + -1;
         bVar1 = DAT_400022ec == 0;
         DAT_400022ec = sVar2;
         if (bVar1) {
-          DAT_400022e4 = '\x02';
-          DAT_400022e6 = (ushort)DAT_4000cb9e * 0x14;
+          obd_ii_P0111_stage = '\x02';
+          DAT_400022e6 = (ushort)CAL_obd_ii_P0111_maf_debounce_time * 0x14;
         }
       }
       else {
@@ -42118,34 +42209,34 @@ void obd_ii_iat_check(void)
         bVar1 = DAT_400022e6 == 0;
         DAT_400022e6 = sVar2;
         if (bVar1) {
-          DAT_400022e4 = '\0';
+          obd_ii_P0111_stage = '\0';
         }
       }
     }
-    else if (DAT_400022e4 == '\x02') {
-      if (obd_ii_maf_flow / 0x14 <= (uint)DAT_4000cb9d) {
-        if (obd_ii_maf_flow / 0x14 < (uint)DAT_4000cb9c) {
-          DAT_400022e4 = '\x03';
+    else if (obd_ii_P0111_stage == '\x02') {
+      if (obd_ii_maf_flow / 0x14 <= (uint)CAL_maf_flow_1_limit_0) {
+        if (obd_ii_maf_flow / 0x14 < (uint)CAL_obd_ii_P0111_maf_low_band) {
+          obd_ii_P0111_stage = '\x03';
         }
         else {
           sVar2 = DAT_400022e6 + -1;
           bVar1 = DAT_400022e6 == 0;
           DAT_400022e6 = sVar2;
           if (bVar1) {
-            DAT_400022e4 = '\0';
+            obd_ii_P0111_stage = '\0';
           }
         }
       }
     }
-    else if (DAT_400022e4 == '\x03') {
+    else if (obd_ii_P0111_stage == '\x03') {
       sVar2 = DAT_400022ea + -1;
       if (DAT_400022ea == 0) {
         DAT_400022e8 = DAT_400022e8 | 3;
-        DAT_400022e4 = '\0';
+        obd_ii_P0111_stage = '\0';
       }
       DAT_400022ea = sVar2;
-      if ((uint)DAT_4000cb9c + (uint)DAT_4000cb20 < obd_ii_maf_flow / 0x14) {
-        DAT_400022e4 = '\0';
+      if ((uint)CAL_obd_ii_P0111_maf_low_band + (uint)DAT_4000cb20 < obd_ii_maf_flow / 0x14) {
+        obd_ii_P0111_stage = '\0';
       }
     }
   }
@@ -42219,7 +42310,7 @@ char obd_ii_coolant_temp_rationality_check(void)
                              ('\x03',coolant_temp_sensor_voltage,
                               CAL_sensor_coolant_temp_sensor_engine_off_scaling);
     DAT_4000154c = '\x03';
-    DAT_4000236c = DAT_4000cb97;
+    DAT_4000236c = CAL_closedloop_tipout_holdoff_ticks;
     DAT_4000236a = DAT_40002368;
   }
   else if (DAT_4000154c == '\x03') {
@@ -42235,8 +42326,8 @@ char obd_ii_coolant_temp_rationality_check(void)
     lVar3 = libc_abs((ulonglong)DAT_40002368 - (ulonglong)DAT_4000236a);
     if ((int)lVar3 < (int)(uint)DAT_4000cb94) {
       if (DAT_4000154d == '\x01') {
-        DAT_4000236c = DAT_4000cb97;
-        if (engine_speed_16bit < u16_rspeed_rpm_4000cb98) {
+        DAT_4000236c = CAL_closedloop_tipout_holdoff_ticks;
+        if (engine_speed_16bit < CAL_closedloop_tipout_rpm_threshold) {
           DAT_4000236d = 0;
         }
         else {
@@ -42249,7 +42340,8 @@ char obd_ii_coolant_temp_rationality_check(void)
       }
       else {
         if (((DAT_4000236c != '\0') && (DAT_4000236d == 0)) &&
-           ((DAT_4000236c != DAT_4000cb97 || (engine_speed_16bit < u16_rspeed_rpm_4000cb98)))) {
+           ((DAT_4000236c != CAL_closedloop_tipout_holdoff_ticks ||
+            (engine_speed_16bit < CAL_closedloop_tipout_rpm_threshold)))) {
           DAT_4000236c = DAT_4000236c + -1;
         }
         if (DAT_4000236c == '\0') {
@@ -42423,7 +42515,7 @@ void obd_ii_thermostat_monitor_logic(void)
   }
   if ((((DAT_40002250 & 8) != 0) || ((DAT_40002250 & 0x10) != 0)) &&
      (((DAT_40002250 & 0x20) == 0 && ((DAT_40002250 & 0x40) == 0)))) {
-    if ((DAT_4000cc86 < DAT_40004a12) || ((!engine_is_running && (DAT_40001c74 != '\0')))) {
+    if ((DAT_4000cc86 < DAT_40004a12) || ((!engine_is_running && (engine_has_run != '\0')))) {
       DAT_40002250 = DAT_40002250 | 0x40;
     }
     else if ((int)(uint)DAT_4000cc8b < (int)((uint)DAT_40002378 - (uint)temp_engine_air)) {
@@ -42461,7 +42553,7 @@ void obd_ii_thermostat_monitor_logic(void)
   }
   if (((((((CAL_ecu_system_voltage_threshold[1] < sensor_adc_ecu_voltage) &&
           ((driver_input_flags[1] & 1) == 0)) && ((ignition_on_flags & 1) != 0)) &&
-        ((!engine_is_running && (DAT_40001c74 == '\0')))) && ((DAT_40001611 & 2) != 0)) &&
+        ((!engine_is_running && (engine_has_run == '\0')))) && ((DAT_40001611 & 2) != 0)) &&
       ((((DAT_40001611 & 0x20) != 0 && (DAT_40004a12 < DAT_4000cc86)) &&
        (((DAT_40002250 & 0x30000) == 0 &&
         ((((DAT_40002250 & 0xc0000) == 0 && ((DAT_40002250 & 0x300000) == 0)) &&
@@ -42678,7 +42770,7 @@ void obd_ii_init_sensor_state(void)
   clutch_pos_voltage = 0;
   DAT_40002330 = 0;
   DAT_40002336 = 0;
-  DAT_40002626 = (ushort)DAT_4000cbd1 * 0x14;
+  DAT_40002626 = (ushort)CAL_obd_ii_P0579_stuck_timeout * 0x14;
   clutch_sensor_confidence = CAL_clutch_sensor_confidence_max;
   oil_pressure_low_detected = false;
   DAT_40002349 = 0;
@@ -42704,7 +42796,7 @@ void obd_ii_init_sensor_state(void)
   DAT_400022e8 = 0;
   DAT_40001542 = 0x3ff;
   DAT_400022e2 = 0;
-  DAT_400022e4 = 0;
+  obd_ii_P0111_stage = 0;
   DAT_40001548 = 0x3ff;
   DAT_40002314 = 0;
   DAT_40002316 = 0;
@@ -42745,14 +42837,14 @@ void obd_ii_init_sensor_state(void)
   DAT_40002237 = DAT_4000d3af;
   DAT_40002238 = DAT_4000d3b0;
   DAT_40002239 = DAT_4000d3b1;
-  DAT_4000223a = DAT_4000d3b6;
-  DAT_4000223b = DAT_4000d3b7;
-  DAT_40002286 = DAT_4000d3b8;
-  DAT_400022a2 = DAT_4000d3b9;
-  DAT_4000223c = DAT_4000d426;
-  DAT_4000223d = DAT_4000d427;
-  DAT_4000228e = DAT_4000d428;
-  DAT_400022a6 = DAT_4000d429;
+  DAT_4000223a = CAL_unknown15;
+  DAT_4000223b = CAL_obd_ii_P0132_fail_count;
+  DAT_40002286 = CAL_obd_ii_P0137_fail_count;
+  DAT_400022a2 = CAL_obd_ii_P0138_fail_count;
+  DAT_4000223c = CAL_obd_ii_P0151_fail_count;
+  DAT_4000223d = CAL_obd_ii_P0152_fail_count;
+  DAT_4000228e = CAL_obd_ii_P0157_fail_count;
+  DAT_400022a6 = CAL_obd_ii_P0158_fail_count;
   DAT_400022aa = DAT_4000d46c;
   DAT_400022ae = DAT_4000d46d;
   DAT_40002244 = DAT_4000d469;
@@ -42845,7 +42937,12 @@ void obd_ii_init_sensor_state(void)
 
 
 
-void obd_ii_init_sensor_voltage_diagnostics(void)
+// Mode 01 DTC status update: sensor circuit/range group (MAF P010x, ECT/IAT P011x, ambient P0071-3,
+// charge air temp P0096-8, O2 circuit P013x/P015x, fuel pressure P0191-3, knock sensors P032x, MAP
+// P0106-8, P1107-9, system voltage P056x, cruise switch P0578/9, oil pressure P0522-4, evap
+// pressure P0452/3, fuel level P046x, brake/clutch P0571/P08xx, main relay P0685).
+
+void obd_ii_dtc_update_sensor_circuits(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -43045,34 +43142,37 @@ void obd_ii_thermostat_check(void)
   }
   cVar2 = '\x01';
   if (DAT_4000ca13 < temp_engine_air) {
-    cVar2 = DAT_40002398;
+    cVar2 = obd_ii_P0128_iat_too_cold_latch;
   }
-  DAT_40002398 = cVar2;
+  obd_ii_P0128_iat_too_cold_latch = cVar2;
   if ((((((CAL_obd_ii_P0128 & 7) != 0) && ((engine_state_failure_flags & 2) == 0)) &&
        (DAT_4000cb23 < coolant_temp_engine_stopped)) &&
       ((coolant_temp_engine_stopped < DAT_4000cb21 && ((LEA_obd_ii_P0128_dtc_state & 8) == 0)))) &&
      (cVar2 == '\0')) {
-    uVar1 = DAT_40002394;
-    if ((car_speed_u8 < DAT_4000cadd) && (uVar1 = DAT_40002394 + 1, engine_speed_16bit == 0)) {
-      uVar1 = DAT_40002394;
+    uVar1 = obd_ii_P0128_lowspeed_seconds;
+    if ((car_speed_u8 < DAT_4000cadd) &&
+       (uVar1 = obd_ii_P0128_lowspeed_seconds + 1, engine_speed_16bit == 0)) {
+      uVar1 = obd_ii_P0128_lowspeed_seconds;
     }
-    DAT_40002394 = uVar1;
+    obd_ii_P0128_lowspeed_seconds = uVar1;
     if (((uint)thermostat_diag_maf_threshold_ips < DAT_4000238c >> 0x10) &&
        (coolant_temp < CAL_cooling_thermostat_open)) {
-      if (DAT_40002394 != 0) {
-        if ((ulonglong)(runtime_since_start >> 1) / (ulonglong)DAT_40002394 < 0x100) {
-          unaff_r31 = (ulonglong)(runtime_since_start >> 1) / (ulonglong)DAT_40002394 & 0xff;
+      if (obd_ii_P0128_lowspeed_seconds != 0) {
+        if ((ulonglong)(runtime_since_start >> 1) / (ulonglong)obd_ii_P0128_lowspeed_seconds < 0x100
+           ) {
+          unaff_r31 = (ulonglong)(runtime_since_start >> 1) /
+                      (ulonglong)obd_ii_P0128_lowspeed_seconds & 0xff;
         }
         else {
           unaff_r31 = 0xff;
         }
       }
       if ((ulonglong)DAT_4000cadc < (unaff_r31 & 0xff)) {
-        bVar3 = DAT_40002391 - 1;
-        if (DAT_40002391 == 0) {
-          bVar3 = DAT_40002391;
+        bVar3 = obd_ii_P0128_fail_countdown - 1;
+        if (obd_ii_P0128_fail_countdown == 0) {
+          bVar3 = obd_ii_P0128_fail_countdown;
         }
-        DAT_40002391 = bVar3;
+        obd_ii_P0128_fail_countdown = bVar3;
         if (bVar3 == 0) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0128,&LEA_obd_ii_P0128_dtc_state,&LEA_obd_ii_P0128_fail_counter,
@@ -43082,8 +43182,8 @@ void obd_ii_thermostat_check(void)
     }
     else if (CAL_cooling_thermostat_open <= coolant_temp) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0128,&LEA_obd_ii_P0128_dtc_state);
-      if (DAT_40002391 < DAT_4000d3be) {
-        DAT_40002391 = DAT_40002391 + 1;
+      if (obd_ii_P0128_fail_countdown < CAL_obd_ii_P0128_fail_count) {
+        obd_ii_P0128_fail_countdown = obd_ii_P0128_fail_countdown + 1;
       }
     }
   }
@@ -43095,14 +43195,16 @@ void obd_ii_thermostat_check(void)
 void obd_ii_init_thermostat_diagnostics(void)
 
 {
-  DAT_40002391 = DAT_4000d3be;
+  obd_ii_P0128_fail_countdown = CAL_obd_ii_P0128_fail_count;
   obdii_update_dtc_state(&CAL_obd_ii_P0128,&LEA_obd_ii_P0128_dtc_state,0x128,0);
   return;
 }
 
 
 
-void obd_ii_init_thermostat_monitor(void)
+// Mode 01 DTC status update: thermostat (P0128).
+
+void obd_ii_dtc_update_thermostat(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -43113,7 +43215,7 @@ void obd_ii_init_thermostat_monitor(void)
 
 
 
-void obd_ii_evap_montior(void)
+void obd_ii_evap_monitor(void)
 
 {
   short sVar1;
@@ -43188,7 +43290,7 @@ void obd_ii_evap_montior(void)
     }
   }
   else {
-    DAT_400023a4 = DAT_4000cb3d;
+    DAT_400023a4 = CAL_obd_evap_entry_settle_delay;
   }
   if (((DAT_400023a2 & 1) == 0) && (CAL_sensor_temp_diagnostic_startup_delay < runtime_since_start))
   {
@@ -43242,8 +43344,9 @@ void obd_ii_evap_montior(void)
       (((LEA_obd_ii_P0462_dtc_state & 4) == 0 && ((LEA_obd_ii_P0463_dtc_state & 4) == 0)))) &&
      (((LEA_obd_ii_P0441_dtc_state & 4) == 0 &&
       (((LEA_obd_ii_P0444_dtc_state & 4) == 0 && ((LEA_obd_ii_P0445_dtc_state & 4) == 0)))))) {
-    if (fuel_level_raw < DAT_4000cb07) {
-      if ((DAT_4000cb00 < DAT_40002182) && (DAT_4000caf6 < _obd_ii_commanded_evap_purge)) {
+    if (fuel_level_raw < CAL_evap_leak_test_fuel_level_max) {
+      if ((CAL_evap_purge_vacuum_min < evap_purge_vacuum_filtered) &&
+         (CAL_obd_ii_commanded_evap_purge_threshold < _obd_ii_commanded_evap_purge)) {
         if (DAT_400023bf != '\0') {
           DAT_400023bf = DAT_400023bf + -1;
         }
@@ -43251,9 +43354,9 @@ void obd_ii_evap_montior(void)
       else if (DAT_400023bf != '\0') {
         DAT_400023bf = DAT_4000cbb2;
       }
-      if ((short)(ushort)DAT_40008803 < _obd_ii_commanded_evap_purge) {
+      if ((short)(ushort)CAL_obd_ii_commanded_evap_purge_min < _obd_ii_commanded_evap_purge) {
         if (DAT_400023be != '\0') {
-          DAT_400023be = DAT_4000cbb3;
+          DAT_400023be = CAL_obd_ii_evap_purge_settle_debounce;
         }
       }
       else if (DAT_400023be != '\0') {
@@ -43261,7 +43364,7 @@ void obd_ii_evap_montior(void)
       }
     }
     else {
-      DAT_400023be = DAT_4000cbb3;
+      DAT_400023be = CAL_obd_ii_evap_purge_settle_debounce;
       DAT_400023bf = DAT_4000cbb2;
     }
     if (DAT_400023b8 < DAT_400023ae) {
@@ -43284,13 +43387,14 @@ void obd_ii_evap_montior(void)
   if ((((LEA_obd_ii_P0335_dtc_state & 4) == 0) && ((LEA_obd_ii_P0446_dtc_state & 4) == 0)) &&
      (((LEA_obd_ii_P0461_dtc_state & 4) == 0 &&
       (((LEA_obd_ii_P0462_dtc_state & 4) == 0 && ((LEA_obd_ii_P0463_dtc_state & 4) == 0)))))) {
-    if ((fuel_level_raw < DAT_4000cb07) &&
+    if ((fuel_level_raw < CAL_evap_leak_test_fuel_level_max) &&
        ((CAL_ecu_system_voltage_threshold[1] < sensor_adc_ecu_voltage && (car_speed_u8 == '\0')))) {
-      if (((engine_speed_16bit == 0) && (DAT_40001ce8 == '\0')) && ((DAT_400023a2 & 0x100) == 0)) {
-        DAT_400023bb = DAT_4000cbb5;
-        DAT_400023ba = DAT_4000cbb5;
-        if ((((short)(ushort)DAT_4000cbb4 < DAT_400023b8) ||
-            ((int)DAT_400023b8 < (int)-(uint)DAT_4000cbb4)) &&
+      if (((engine_speed_16bit == 0) && (evap_vent_valve_closed == '\0')) &&
+         ((DAT_400023a2 & 0x100) == 0)) {
+        DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
+        DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
+        if ((((short)(ushort)CAL_evap_pressure_deviation_max < DAT_400023b8) ||
+            ((int)DAT_400023b8 < (int)-(uint)CAL_evap_pressure_deviation_max)) &&
            ((DAT_4000cae6 < evap_purge_pressure_voltage &&
             (evap_purge_pressure_voltage < DAT_4000cae4)))) {
           cVar3 = DAT_400023bc + -1;
@@ -43300,13 +43404,13 @@ void obd_ii_evap_montior(void)
           if (cVar3 == '\0') {
             DAT_400023a2 = DAT_400023a2 | 0x300;
           }
-          DAT_400023bd = DAT_4000cbb5;
+          DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
           DAT_400023bc = cVar3;
         }
-        else if (((short)(ushort)DAT_4000cbb4 < DAT_400023b8) ||
-                ((int)DAT_400023b8 < (int)-(uint)DAT_4000cbb4)) {
-          DAT_400023bd = DAT_4000cbb5;
-          DAT_400023bc = DAT_4000cbb5;
+        else if (((short)(ushort)CAL_evap_pressure_deviation_max < DAT_400023b8) ||
+                ((int)DAT_400023b8 < (int)-(uint)CAL_evap_pressure_deviation_max)) {
+          DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
+          DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
         }
         else {
           cVar3 = DAT_400023bd + -1;
@@ -43316,19 +43420,19 @@ void obd_ii_evap_montior(void)
           if (cVar3 == '\0') {
             DAT_400023a2 = DAT_400023a2 | 0x100;
           }
-          DAT_400023bc = DAT_4000cbb5;
+          DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
           DAT_400023bd = cVar3;
         }
       }
-      else if (((((_obd_ii_commanded_evap_purge == 0) && (DAT_40001ce8 == '\0')) &&
+      else if (((((_obd_ii_commanded_evap_purge == 0) && (evap_vent_valve_closed == '\0')) &&
                 ((engine_speed_16bit != 0 &&
                  (((DAT_400023a2 & 0x400) == 0 && ((LEA_obd_ii_P0441_dtc_state & 4) == 0)))))) &&
                ((LEA_obd_ii_P0444_dtc_state & 4) == 0)) && ((LEA_obd_ii_P0445_dtc_state & 4) == 0))
       {
-        DAT_400023bd = DAT_4000cbb5;
-        DAT_400023bc = DAT_4000cbb5;
-        if (((((short)(ushort)DAT_4000cbb4 < DAT_400023b8) ||
-             ((int)DAT_400023b8 < (int)-(uint)DAT_4000cbb4)) &&
+        DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
+        DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
+        if (((((short)(ushort)CAL_evap_pressure_deviation_max < DAT_400023b8) ||
+             ((int)DAT_400023b8 < (int)-(uint)CAL_evap_pressure_deviation_max)) &&
             (DAT_4000cae6 < evap_purge_pressure_voltage)) &&
            (evap_purge_pressure_voltage < DAT_4000cae4)) {
           cVar3 = DAT_400023ba + -1;
@@ -43338,13 +43442,13 @@ void obd_ii_evap_montior(void)
           if (cVar3 == '\0') {
             DAT_400023a2 = DAT_400023a2 | 0xc00;
           }
-          DAT_400023bb = DAT_4000cbb5;
+          DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
           DAT_400023ba = cVar3;
         }
-        else if (((short)(ushort)DAT_4000cbb4 < DAT_400023b8) ||
-                ((int)DAT_400023b8 < (int)-(uint)DAT_4000cbb4)) {
-          DAT_400023bb = DAT_4000cbb5;
-          DAT_400023ba = DAT_4000cbb5;
+        else if (((short)(ushort)CAL_evap_pressure_deviation_max < DAT_400023b8) ||
+                ((int)DAT_400023b8 < (int)-(uint)CAL_evap_pressure_deviation_max)) {
+          DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
+          DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
         }
         else {
           cVar3 = DAT_400023bb + -1;
@@ -43354,22 +43458,22 @@ void obd_ii_evap_montior(void)
           if (cVar3 == '\0') {
             DAT_400023a2 = DAT_400023a2 | 0x400;
           }
-          DAT_400023ba = DAT_4000cbb5;
+          DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
           DAT_400023bb = cVar3;
         }
       }
       else {
-        DAT_400023bb = DAT_4000cbb5;
-        DAT_400023ba = DAT_4000cbb5;
-        DAT_400023bd = DAT_4000cbb5;
-        DAT_400023bc = DAT_4000cbb5;
+        DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
+        DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
+        DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
+        DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
       }
     }
     else {
-      DAT_400023bb = DAT_4000cbb5;
-      DAT_400023ba = DAT_4000cbb5;
-      DAT_400023bd = DAT_4000cbb5;
-      DAT_400023bc = DAT_4000cbb5;
+      DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
+      DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
+      DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
+      DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
     }
   }
   if ((((CAL_obd_ii_P0461 & 7) != 0) && ((LEA_obd_ii_P0462_dtc_state & 4) == 0)) &&
@@ -43430,19 +43534,19 @@ void obd_ii_evap_montior(void)
   if (((DAT_400023a2 & 0x80) != 0) && ((CAL_obd_ii_P0451 & 8) != 0)) {
     DAT_400023a2 = DAT_400023a2 & 0xff3f;
     DAT_400023bf = DAT_4000cbb2;
-    DAT_400023be = DAT_4000cbb3;
+    DAT_400023be = CAL_obd_ii_evap_purge_settle_debounce;
     DAT_400023b0 = obd_ii_evap_purge_pressure;
     DAT_400023ae = obd_ii_evap_purge_pressure;
   }
   if (((DAT_400023a2 & 0x100) != 0) && ((CAL_obd_ii_P0451 & 8) != 0)) {
     DAT_400023a2 = DAT_400023a2 & 0xfcff;
-    DAT_400023bc = DAT_4000cbb5;
-    DAT_400023bd = DAT_4000cbb5;
+    DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
+    DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
   }
   if (((DAT_400023a2 & 0x400) != 0) && ((CAL_obd_ii_P0451 & 8) != 0)) {
     DAT_400023a2 = DAT_400023a2 & 0xf3ff;
-    DAT_400023ba = DAT_4000cbb5;
-    DAT_400023bb = DAT_4000cbb5;
+    DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
+    DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
   }
   return;
 }
@@ -43461,17 +43565,17 @@ void obd_ii_init_fuel_evap_diagnostics(void)
   obdii_update_dtc_state(&CAL_obd_ii_P0461,&LEA_obd_ii_P0461_dtc_state,0x461,0);
   obdii_update_dtc_state(&CAL_obd_ii_P0451,&LEA_obd_ii_P0451_dtc_state,0x451,0);
   DAT_400023bf = DAT_4000cbb2;
-  DAT_400023be = DAT_4000cbb3;
+  DAT_400023be = CAL_obd_ii_evap_purge_settle_debounce;
   DAT_400023b0 = obd_ii_evap_purge_pressure;
   DAT_400023ae = obd_ii_evap_purge_pressure;
-  DAT_400023bd = DAT_4000cbb5;
-  DAT_400023bc = DAT_4000cbb5;
-  DAT_400023bb = DAT_4000cbb5;
-  DAT_400023ba = DAT_4000cbb5;
+  DAT_400023bd = CAL_obd_ii_P0451_debounce_count;
+  DAT_400023bc = CAL_obd_ii_P0451_debounce_count;
+  DAT_400023bb = CAL_obd_ii_P0451_debounce_count;
+  DAT_400023ba = CAL_obd_ii_P0451_debounce_count;
   DAT_400023a6 = 0;
   DAT_400023a5 = 0;
   DAT_400023ac = 0;
-  DAT_400023a4 = DAT_4000cb3d;
+  DAT_400023a4 = CAL_obd_evap_entry_settle_delay;
   DAT_400023aa = 0;
   DAT_400023a9 = 0;
   return;
@@ -43479,7 +43583,9 @@ void obd_ii_init_fuel_evap_diagnostics(void)
 
 
 
-void obd_ii_init_fuel_evap_sensor_diagnostics(void)
+// Mode 01 DTC status update: fuel level / evap pressure sensor rationality (P0461, P0451).
+
+void obd_ii_dtc_update_fuel_level_evap_sensor(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -43506,8 +43612,8 @@ void init_vvt_hardware_and_timers(void)
   siu_pcr[0xc4] = 0xecc;
   init_eMIOS(0x12,CAL_vvt_pwm_driver_divisor,0,0);
   siu_pcr[0xc5] = 0xecc;
-  vvt_inlet_b1_zero_timer = CAL_vvt_zero_target_timeout;
-  vvt_inlet_b2_zero_timer = CAL_vvt_zero_target_timeout;
+  vvt_intake_target_zero_timer = CAL_vvt_zero_target_timeout;
+  vvt_exhaust_target_zero_timer = CAL_vvt_zero_target_timeout;
   return;
 }
 
@@ -43666,19 +43772,20 @@ void vvt(void)
         vvt_intake_net = 0;
       }
     }
-    if (((DAT_4000243b == '\x01') && (DAT_40002437 == '\0')) &&
+    if (((cam_park_check_done_inlet_b1 == '\x01') && (cam_park_offset_fault_inlet_b1 == '\0')) &&
        (vvt_start_time < runtime_since_start)) {
       obd_ii_vvt_inlet_angle_error_bank1 = vvt_inlet_target_bank1 - obd_ii_vvt_inlet_position_bank1;
       uVar2 = (int)(short)obd_ii_vvt_inlet_angle_error_bank1 *
               (int)(short)CAL_vvt_error_gain_startup;
-      DAT_400023c6 = (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0);
-      DAT_400023cc = (int)DAT_400023c6 + (DAT_400023c8 >> 8);
-      if (vvt_inlet_b1_zero_timer == '\0') {
-        DAT_40002418 = DAT_40002418 | 1;
+      vvt_pi_p_term_inlet_b1 = (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0)
+      ;
+      DAT_400023cc = (int)vvt_pi_p_term_inlet_b1 + (DAT_400023c8 >> 8);
+      if (vvt_intake_target_zero_timer == '\0') {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags | 1;
         DAT_400023cc = -400;
       }
-      if ((vvt_inlet_target_bank1 != 0) && ((DAT_40002418 & 1) != 0)) {
-        DAT_40002418 = DAT_40002418 & 0xfe;
+      if ((vvt_inlet_target_bank1 != 0) && ((vvt_park_integral_reset_flags & 1) != 0)) {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags & 0xfe;
         DAT_400023c8 = 0;
       }
       if (DAT_400023cc < 0x191) {
@@ -43689,40 +43796,42 @@ void vvt(void)
       else {
         DAT_400023cc = 400;
       }
-      DAT_40001560 = (short)(DAT_400023cc >> 1) + 400;
+      vvt_duty_inlet_b1 = (short)(DAT_400023cc >> 1) + 400;
     }
     else {
-      if (DAT_4000243b == '\0') {
+      if (cam_park_check_done_inlet_b1 == '\0') {
         if (runtime_since_start < vvt_start_time) {
-          if (DAT_40002422 != '\0') {
-            DAT_40002422 = '\0';
-            if ((short)u16_angle_1_4deg_40001550 < (short)obd_ii_vvt_inlet_position_bank1) {
-              u16_angle_1_4deg_40001550 = obd_ii_vvt_inlet_position_bank1;
+          if (cam_edge_watchdog != '\0') {
+            cam_edge_watchdog = '\0';
+            if ((short)cam_park_position_max_inlet_b1 < (short)obd_ii_vvt_inlet_position_bank1) {
+              cam_park_position_max_inlet_b1 = obd_ii_vvt_inlet_position_bank1;
             }
             else if ((short)obd_ii_vvt_inlet_position_bank1 < (short)u16_angle_1_4deg_40001558) {
               u16_angle_1_4deg_40001558 = obd_ii_vvt_inlet_position_bank1;
             }
-            _u16_angle_1_4deg_400023f8 =
-                 _u16_angle_1_4deg_400023f8 + (short)obd_ii_vvt_inlet_position_bank1;
-            DAT_40002408 = DAT_40002408 + 1;
+            _cam_park_position_sum_inlet_b1 =
+                 _cam_park_position_sum_inlet_b1 + (short)obd_ii_vvt_inlet_position_bank1;
+            cam_park_sample_count_inlet_b1 = cam_park_sample_count_inlet_b1 + 1;
           }
         }
         else {
-          if (DAT_40002408 == 0) {
-            DAT_40002430 = 0;
+          if (cam_park_sample_count_inlet_b1 == 0) {
+            cam_park_position_mean_inlet_b1 = 0;
           }
           else {
-            DAT_40002430 = _u16_angle_1_4deg_400023f8 / DAT_40002408;
+            cam_park_position_mean_inlet_b1 =
+                 _cam_park_position_sum_inlet_b1 / cam_park_sample_count_inlet_b1;
           }
-          uVar3 = libc_abs((ulonglong)DAT_40002430);
-          DAT_40002437 = (char)(((longlong)((int)(uVar3 ^ DAT_4000cb58) >> 1) -
-                                 ((uVar3 ^ DAT_4000cb58) & uVar3) & 0xffffffff) >> 0x1f);
-          DAT_4000243b = '\x01';
-          DAT_40002422 = DAT_4000ca3d;
+          uVar3 = libc_abs((ulonglong)cam_park_position_mean_inlet_b1);
+          cam_park_offset_fault_inlet_b1 =
+               (char)(((longlong)((int)(uVar3 ^ CAL_vvt_cam_park_offset_max) >> 1) -
+                       ((uVar3 ^ CAL_vvt_cam_park_offset_max) & uVar3) & 0xffffffff) >> 0x1f);
+          cam_park_check_done_inlet_b1 = '\x01';
+          cam_edge_watchdog = CAL_obd_ii_crank_cam_error_count_max;
         }
       }
-      DAT_40001560 = 1;
-      DAT_400023c6 = 0;
+      vvt_duty_inlet_b1 = 1;
+      vvt_pi_p_term_inlet_b1 = 0;
       DAT_400023c8 = 0;
       DAT_400023cc = 0;
       vvt_inlet_target_bank1 = obd_ii_vvt_inlet_position_bank1;
@@ -43732,14 +43841,15 @@ void vvt(void)
       obd_ii_vvt_inlet_angle_error_bank2 = vvt_inlet_target_bank1 - obd_ii_vvt_inlet_angle_bank2;
       uVar2 = (int)(short)obd_ii_vvt_inlet_angle_error_bank2 *
               (int)(short)CAL_vvt_error_gain_startup;
-      DAT_400023d0 = (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0);
-      DAT_400023d8 = (int)DAT_400023d0 + (DAT_400023d4 >> 8);
-      if (vvt_inlet_b1_zero_timer == '\0') {
-        DAT_40002418 = DAT_40002418 | 2;
+      vvt_pi_p_term_inlet_b2 = (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0)
+      ;
+      DAT_400023d8 = (int)vvt_pi_p_term_inlet_b2 + (DAT_400023d4 >> 8);
+      if (vvt_intake_target_zero_timer == '\0') {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags | 2;
         DAT_400023d8 = -400;
       }
-      if ((vvt_inlet_target_bank1 != 0) && ((DAT_40002418 & 2) != 0)) {
-        DAT_40002418 = DAT_40002418 & 0xfd;
+      if ((vvt_inlet_target_bank1 != 0) && ((vvt_park_integral_reset_flags & 2) != 0)) {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags & 0xfd;
         DAT_400023d4 = 0;
       }
       if (DAT_400023d8 < 0x191) {
@@ -43750,49 +43860,52 @@ void vvt(void)
       else {
         DAT_400023d8 = 400;
       }
-      DAT_40001562 = (short)(DAT_400023d8 >> 1) + 400;
+      vvt_duty_inlet_b2 = (short)(DAT_400023d8 >> 1) + 400;
     }
     else {
       if (DAT_4000243a == '\0') {
         if (runtime_since_start < vvt_start_time) {
-          if (DAT_40002421 != '\0') {
-            DAT_40002421 = '\0';
-            if ((short)u16_angle_1_4deg_40001552 < (short)obd_ii_vvt_inlet_angle_bank2) {
-              u16_angle_1_4deg_40001552 = obd_ii_vvt_inlet_angle_bank2;
+          if (cam_edge_watchdog_inlet_b2 != '\0') {
+            cam_edge_watchdog_inlet_b2 = '\0';
+            if ((short)cam_park_position_max_inlet_b2 < (short)obd_ii_vvt_inlet_angle_bank2) {
+              cam_park_position_max_inlet_b2 = obd_ii_vvt_inlet_angle_bank2;
             }
             else if ((short)obd_ii_vvt_inlet_angle_bank2 < (short)u16_angle_1_4deg_4000155a) {
               u16_angle_1_4deg_4000155a = obd_ii_vvt_inlet_angle_bank2;
             }
-            uint32_t_400023fc = uint32_t_400023fc + (int)(short)obd_ii_vvt_inlet_angle_bank2;
-            DAT_4000240c = DAT_4000240c + 1;
+            cam_park_position_sum_inlet_b2 =
+                 cam_park_position_sum_inlet_b2 + (int)(short)obd_ii_vvt_inlet_angle_bank2;
+            cam_park_sample_count_inlet_b2 = cam_park_sample_count_inlet_b2 + 1;
           }
         }
         else {
-          if (DAT_4000240c == 0) {
-            DAT_4000242c = 0;
+          if (cam_park_sample_count_inlet_b2 == 0) {
+            cam_park_position_mean_inlet_b2 = 0;
           }
           else {
-            DAT_4000242c = (int)uint32_t_400023fc / DAT_4000240c;
+            cam_park_position_mean_inlet_b2 =
+                 (int)cam_park_position_sum_inlet_b2 / cam_park_sample_count_inlet_b2;
           }
-          uVar3 = libc_abs((ulonglong)DAT_4000242c);
-          DAT_40002436 = (char)(((longlong)((int)(uVar3 ^ DAT_4000cb58) >> 1) -
-                                 ((uVar3 ^ DAT_4000cb58) & uVar3) & 0xffffffff) >> 0x1f);
+          uVar3 = libc_abs((ulonglong)cam_park_position_mean_inlet_b2);
+          DAT_40002436 = (char)(((longlong)((int)(uVar3 ^ CAL_vvt_cam_park_offset_max) >> 1) -
+                                 ((uVar3 ^ CAL_vvt_cam_park_offset_max) & uVar3) & 0xffffffff) >>
+                               0x1f);
           DAT_4000243a = '\x01';
-          DAT_40002421 = DAT_4000ca3d;
+          cam_edge_watchdog_inlet_b2 = CAL_obd_ii_crank_cam_error_count_max;
         }
       }
-      DAT_40001562 = 1;
-      DAT_400023d0 = 0;
+      vvt_duty_inlet_b2 = 1;
+      vvt_pi_p_term_inlet_b2 = 0;
       DAT_400023d4 = 0;
       DAT_400023d8 = 0;
       vvt_inlet_target_bank1 = obd_ii_vvt_inlet_position_bank1;
     }
   }
   else {
-    DAT_40001562 = 1;
-    DAT_40001560 = 1;
-    DAT_400023d0 = 0;
-    DAT_400023c6 = 0;
+    vvt_duty_inlet_b2 = 1;
+    vvt_duty_inlet_b1 = 1;
+    vvt_pi_p_term_inlet_b2 = 0;
+    vvt_pi_p_term_inlet_b1 = 0;
     DAT_400023d4 = 0;
     DAT_400023c8 = 0;
     DAT_400023cc = 0;
@@ -43843,19 +43956,20 @@ void vvt(void)
         vvt_error_scale = 0xff;
       }
     }
-    if (((DAT_40002439 == '\x01') && (DAT_40002435 == '\0')) &&
-       (vvt_start_time < runtime_since_start)) {
+    if (((cam_park_check_done_exhaust_b1 == '\x01') && (cam_park_offset_fault_exhaust_b1 == '\0'))
+       && (vvt_start_time < runtime_since_start)) {
       obd_ii_vvt_exhaust_error_bank1 =
            obd_ii_vvt_exhaust_target_bank1 + obd_ii_vvt_exhaust_position_bank1;
       uVar2 = (int)(short)obd_ii_vvt_exhaust_error_bank1 * (int)(short)CAL_vvt_error_gain_startup;
-      DAT_400023dc = (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0);
-      DAT_400023e4 = (int)DAT_400023dc + (DAT_400023e0 >> 8);
-      if (vvt_inlet_b2_zero_timer == '\0') {
-        DAT_40002418 = DAT_40002418 | 4;
+      vvt_pi_p_term_exhaust_b1 =
+           (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0);
+      DAT_400023e4 = (int)vvt_pi_p_term_exhaust_b1 + (DAT_400023e0 >> 8);
+      if (vvt_exhaust_target_zero_timer == '\0') {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags | 4;
         DAT_400023e4 = -400;
       }
-      if ((obd_ii_vvt_exhaust_target_bank1 != 0) && ((DAT_40002418 & 4) != 0)) {
-        DAT_40002418 = DAT_40002418 & 0xfb;
+      if ((obd_ii_vvt_exhaust_target_bank1 != 0) && ((vvt_park_integral_reset_flags & 4) != 0)) {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags & 0xfb;
         DAT_400023e0 = 0;
       }
       if (DAT_400023e4 < 0x191) {
@@ -43866,56 +43980,61 @@ void vvt(void)
       else {
         DAT_400023e4 = 400;
       }
-      DAT_40001564 = (short)(DAT_400023e4 >> 1) + 400;
+      vvt_duty_exh_b1 = (short)(DAT_400023e4 >> 1) + 400;
     }
     else {
-      if (DAT_40002439 == '\0') {
+      if (cam_park_check_done_exhaust_b1 == '\0') {
         if (runtime_since_start < vvt_start_time) {
-          if (DAT_40002420 != '\0') {
-            DAT_40002420 = '\0';
-            if ((short)DAT_40001554 < (short)obd_ii_vvt_exhaust_position_bank1) {
-              DAT_40001554 = obd_ii_vvt_exhaust_position_bank1;
+          if (cam_edge_watchdog_exhaust_b1 != '\0') {
+            cam_edge_watchdog_exhaust_b1 = '\0';
+            if ((short)cam_park_position_max_exhaust_b1 < (short)obd_ii_vvt_exhaust_position_bank1)
+            {
+              cam_park_position_max_exhaust_b1 = obd_ii_vvt_exhaust_position_bank1;
             }
             else if ((short)obd_ii_vvt_exhaust_position_bank1 < (short)DAT_4000155c) {
               DAT_4000155c = obd_ii_vvt_exhaust_position_bank1;
             }
-            DAT_40002400 = DAT_40002400 + (short)obd_ii_vvt_exhaust_position_bank1;
-            DAT_40002410 = DAT_40002410 + 1;
+            cam_park_position_sum_exhaust_b1 =
+                 cam_park_position_sum_exhaust_b1 + (short)obd_ii_vvt_exhaust_position_bank1;
+            cam_park_sample_count_exhaust_b1 = cam_park_sample_count_exhaust_b1 + 1;
           }
         }
         else {
-          if (DAT_40002410 == 0) {
-            DAT_40002428 = 0;
+          if (cam_park_sample_count_exhaust_b1 == 0) {
+            cam_park_position_mean_exhaust_b1 = 0;
           }
           else {
-            DAT_40002428 = DAT_40002400 / DAT_40002410;
+            cam_park_position_mean_exhaust_b1 =
+                 cam_park_position_sum_exhaust_b1 / cam_park_sample_count_exhaust_b1;
           }
-          uVar3 = libc_abs((ulonglong)DAT_40002428);
-          DAT_40002435 = (char)(((longlong)((int)(uVar3 ^ DAT_4000cb58) >> 1) -
-                                 ((uVar3 ^ DAT_4000cb58) & uVar3) & 0xffffffff) >> 0x1f);
-          DAT_40002439 = '\x01';
-          DAT_40002420 = DAT_4000ca3d;
+          uVar3 = libc_abs((ulonglong)cam_park_position_mean_exhaust_b1);
+          cam_park_offset_fault_exhaust_b1 =
+               (char)(((longlong)((int)(uVar3 ^ CAL_vvt_cam_park_offset_max) >> 1) -
+                       ((uVar3 ^ CAL_vvt_cam_park_offset_max) & uVar3) & 0xffffffff) >> 0x1f);
+          cam_park_check_done_exhaust_b1 = '\x01';
+          cam_edge_watchdog_exhaust_b1 = CAL_obd_ii_crank_cam_error_count_max;
         }
       }
-      DAT_40001564 = 1;
-      DAT_400023dc = 0;
+      vvt_duty_exh_b1 = 1;
+      vvt_pi_p_term_exhaust_b1 = 0;
       DAT_400023e0 = 0;
       DAT_400023e4 = 0;
       obd_ii_vvt_exhaust_target_bank1 = obd_ii_vvt_exhaust_position_bank1;
     }
-    if (((DAT_40002438 == '\x01') && (DAT_40002434 == '\0')) &&
-       (vvt_start_time < runtime_since_start)) {
+    if (((cam_park_check_done_exhaust_b2 == '\x01') && (cam_park_offset_fault_exhaust_b2 == '\0'))
+       && (vvt_start_time < runtime_since_start)) {
       obd_ii_vvt_exhaust_error_bank2 =
            obd_ii_vvt_exhaust_target_bank1 + obd_ii_vvt_exhaust_position_bank2;
       uVar2 = (int)(short)obd_ii_vvt_exhaust_error_bank2 * (int)(short)CAL_vvt_error_gain_startup;
-      DAT_400023e8 = (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0);
-      DAT_400023f0 = (int)DAT_400023e8 + (DAT_400023ec >> 8);
-      if (vvt_inlet_b2_zero_timer == '\0') {
-        DAT_40002418 = DAT_40002418 | 8;
+      vvt_pi_p_term_exhaust_b2 =
+           (short)(uVar2 >> 8) + (ushort)((int)uVar2 < 0 && (uVar2 & 0xff) != 0);
+      DAT_400023f0 = (int)vvt_pi_p_term_exhaust_b2 + (DAT_400023ec >> 8);
+      if (vvt_exhaust_target_zero_timer == '\0') {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags | 8;
         DAT_400023f0 = -400;
       }
-      if ((obd_ii_vvt_exhaust_target_bank1 != 0) && ((DAT_40002418 & 8) != 0)) {
-        DAT_40002418 = DAT_40002418 & 0xf7;
+      if ((obd_ii_vvt_exhaust_target_bank1 != 0) && ((vvt_park_integral_reset_flags & 8) != 0)) {
+        vvt_park_integral_reset_flags = vvt_park_integral_reset_flags & 0xf7;
         DAT_400023ec = 0;
       }
       if (DAT_400023f0 < 0x191) {
@@ -43926,49 +44045,53 @@ void vvt(void)
       else {
         DAT_400023f0 = 400;
       }
-      DAT_40001566 = (short)(DAT_400023f0 >> 1) + 400;
+      vvt_duty_exh_b2 = (short)(DAT_400023f0 >> 1) + 400;
     }
     else {
-      if (DAT_40002438 == '\0') {
+      if (cam_park_check_done_exhaust_b2 == '\0') {
         if (runtime_since_start < vvt_start_time) {
-          if (DAT_4000241f != '\0') {
-            DAT_4000241f = '\0';
-            if ((short)DAT_40001556 < (short)obd_ii_vvt_exhaust_position_bank2) {
-              DAT_40001556 = obd_ii_vvt_exhaust_position_bank2;
+          if (cam_edge_watchdog_exhaust_b2 != '\0') {
+            cam_edge_watchdog_exhaust_b2 = '\0';
+            if ((short)cam_park_position_max_exhaust_b2 < (short)obd_ii_vvt_exhaust_position_bank2)
+            {
+              cam_park_position_max_exhaust_b2 = obd_ii_vvt_exhaust_position_bank2;
             }
             else if ((short)obd_ii_vvt_exhaust_position_bank2 < (short)DAT_4000155e) {
               DAT_4000155e = obd_ii_vvt_exhaust_position_bank2;
             }
-            DAT_40002404 = DAT_40002404 + (short)obd_ii_vvt_exhaust_position_bank2;
-            DAT_40002414 = DAT_40002414 + 1;
+            cam_park_position_sum_exhaust_b2 =
+                 cam_park_position_sum_exhaust_b2 + (short)obd_ii_vvt_exhaust_position_bank2;
+            cam_park_sample_count_exhaust_b2 = cam_park_sample_count_exhaust_b2 + 1;
           }
         }
         else {
-          if (DAT_40002414 == 0) {
-            DAT_40002424 = 0;
+          if (cam_park_sample_count_exhaust_b2 == 0) {
+            cam_park_position_mean_exhaust_b2 = 0;
           }
           else {
-            DAT_40002424 = DAT_40002404 / DAT_40002414;
+            cam_park_position_mean_exhaust_b2 =
+                 cam_park_position_sum_exhaust_b2 / cam_park_sample_count_exhaust_b2;
           }
-          uVar3 = libc_abs((ulonglong)DAT_40002424);
-          DAT_40002434 = (char)(((longlong)((int)(uVar3 ^ DAT_4000cb58) >> 1) -
-                                 ((uVar3 ^ DAT_4000cb58) & uVar3) & 0xffffffff) >> 0x1f);
-          DAT_40002438 = '\x01';
-          DAT_4000241f = DAT_4000ca3d;
+          uVar3 = libc_abs((ulonglong)cam_park_position_mean_exhaust_b2);
+          cam_park_offset_fault_exhaust_b2 =
+               (char)(((longlong)((int)(uVar3 ^ CAL_vvt_cam_park_offset_max) >> 1) -
+                       ((uVar3 ^ CAL_vvt_cam_park_offset_max) & uVar3) & 0xffffffff) >> 0x1f);
+          cam_park_check_done_exhaust_b2 = '\x01';
+          cam_edge_watchdog_exhaust_b2 = CAL_obd_ii_crank_cam_error_count_max;
         }
       }
-      DAT_40001566 = 1;
-      DAT_400023e8 = 0;
+      vvt_duty_exh_b2 = 1;
+      vvt_pi_p_term_exhaust_b2 = 0;
       DAT_400023ec = 0;
       DAT_400023f0 = 0;
       obd_ii_vvt_exhaust_target_bank1 = obd_ii_vvt_exhaust_position_bank1;
     }
   }
   else {
-    DAT_40001566 = 1;
-    DAT_40001564 = 1;
-    DAT_400023e8 = 0;
-    DAT_400023dc = 0;
+    vvt_duty_exh_b2 = 1;
+    vvt_duty_exh_b1 = 1;
+    vvt_pi_p_term_exhaust_b2 = 0;
+    vvt_pi_p_term_exhaust_b1 = 0;
     DAT_400023ec = 0;
     DAT_400023e0 = 0;
     DAT_400023f0 = 0;
@@ -43978,14 +44101,14 @@ void vvt(void)
   }
   if (((obd_ii_mode2f_flags_enabled & 0x1000) == 0) || ((obd_ii_mode2f_flags_state & 0x1000) == 0))
   {
-    uVar2 = (uint)DAT_40001560 * 10 & 0xffff;
-    uVar6 = (uint)DAT_40001564 * 10 & 0xffff;
+    uVar2 = (uint)vvt_duty_inlet_b1 * 10 & 0xffff;
+    uVar6 = (uint)vvt_duty_exh_b1 * 10 & 0xffff;
     uVar3 = (ulonglong)
-            ((longlong)(int)(uint)CAL_vvt_pwm_driver_divisor * (longlong)(int)(uint)DAT_40001562) >>
-            10 & 0xffff;
+            ((longlong)(int)(uint)CAL_vvt_pwm_driver_divisor *
+            (longlong)(int)(uint)vvt_duty_inlet_b2) >> 10 & 0xffff;
     uVar5 = (ulonglong)
-            ((longlong)(int)(uint)CAL_vvt_pwm_driver_divisor * (longlong)(int)(uint)DAT_40001566) >>
-            10 & 0xffff;
+            ((longlong)(int)(uint)CAL_vvt_pwm_driver_divisor * (longlong)(int)(uint)vvt_duty_exh_b2)
+            >> 10 & 0xffff;
   }
   else {
     uVar2 = (int)((uint)obd_ii_mode2f_vvti_output_val * 10000) >> 8;
@@ -44016,7 +44139,7 @@ void vvt_200hz(void)
                     // case, they are set to the calc target immediately.
   if ((vvt_start_time < runtime_since_start) &&
      (((engine_state_failure_flags & 0x20) == 0 || ((engine_state_failure_flags & 0x40) == 0)))) {
-    DAT_400023c0 = DAT_400023c0 + '\x01';
+    vvt_task_rate_divider = vvt_task_rate_divider + '\x01';
     uVar3 = vvt_inlet_taget_calc_bank1;
     if (!vvt_intake_transition_complete) {
       uVar3 = vvt_inlet_target_bank1;
@@ -44027,8 +44150,8 @@ void vvt_200hz(void)
     }
     obd_ii_vvt_exhaust_target_bank1 = uVar4;
     vvt_inlet_target_bank1 = uVar3;
-    if (DAT_400023c0 == '\n') {
-      DAT_400023c0 = '\0';
+    if (vvt_task_rate_divider == '\n') {
+      vvt_task_rate_divider = '\0';
       if ((engine_state_failure_flags & 0x20) == 0) {
         if ((uVar3 != vvt_inlet_taget_calc_bank1) && (!vvt_intake_transition_complete)) {
           if ((short)uVar3 < (short)vvt_inlet_taget_calc_bank1) {
@@ -44132,20 +44255,20 @@ void vvt_update_inlet_zero_timers_100ms(void)
 
 {
   if (vvt_inlet_target_bank1 == 0) {
-    if (vvt_inlet_b1_zero_timer != '\0') {
-      vvt_inlet_b1_zero_timer = vvt_inlet_b1_zero_timer + 0xff;
+    if (vvt_intake_target_zero_timer != '\0') {
+      vvt_intake_target_zero_timer = vvt_intake_target_zero_timer + 0xff;
     }
   }
   else {
-    vvt_inlet_b1_zero_timer = CAL_vvt_zero_target_timeout;
+    vvt_intake_target_zero_timer = CAL_vvt_zero_target_timeout;
   }
   if (obd_ii_vvt_exhaust_target_bank1 == 0) {
-    if (vvt_inlet_b2_zero_timer != '\0') {
-      vvt_inlet_b2_zero_timer = vvt_inlet_b2_zero_timer + 0xff;
+    if (vvt_exhaust_target_zero_timer != '\0') {
+      vvt_exhaust_target_zero_timer = vvt_exhaust_target_zero_timer + 0xff;
     }
   }
   else {
-    vvt_inlet_b2_zero_timer = CAL_vvt_zero_target_timeout;
+    vvt_exhaust_target_zero_timer = CAL_vvt_zero_target_timeout;
   }
   return;
 }
@@ -44288,7 +44411,7 @@ void init_electronic_throttle_hardware(void)
   siu_pcr[0xb9] = 0xecc;
   siu_pcr[0xcc] = 0x2cc;
   siu_pcr[0xbb] = 0x2cc;
-  tps_max_during_warmup = u16_factor_1_1023_400087e0;
+  tps_max_during_warmup = CAL_tps_warmup_max;
   init_tps_biquad_filters();
   return;
 }
@@ -44320,9 +44443,9 @@ void tps_limit_update_warmup(void)
       || (engine_speed_8bit <= u8_rspeed_125_4_500rpm_40008704)))) {
     uVar1 = tps_max_during_warmup;
     if ((coolant_temp < u8_temp_5_8_40c_40008870) &&
-       (uVar1 = u16_factor_1_1023_400087e0,
+       (uVar1 = CAL_tps_warmup_max,
        (int)((int)(short)tps_max_during_warmup + (uint)CAL_tps_limit_warmup_stepsize) <
-       (int)(short)u16_factor_1_1023_400087e0)) {
+       (int)(short)CAL_tps_warmup_max)) {
       uVar1 = tps_max_during_warmup + CAL_tps_limit_warmup_stepsize;
     }
   }
@@ -44436,35 +44559,35 @@ uint8_t tps_calibrate_range(ushort tps_min,ushort tps_max)
   int iVar2;
   
   bVar1 = 0x6b < (ushort)(tps_min - 0x1ff);
-  DAT_4000489e = tps_min;
+  LEA_tps_track_a_closed_count = tps_min;
   if ((bool)bVar1) {
-    DAT_4000489e = 0x23c;
+    LEA_tps_track_a_closed_count = 0x23c;
   }
   DAT_400048a0 = tps_max;
   if (0xc5 < (ushort)(tps_max - 0x6d0)) {
     DAT_400048a0 = 0x725;
     bVar1 = bVar1 | 2;
   }
-  iVar2 = (uint)DAT_4000489e * 0xfff +
-          (uint)DAT_40008752 * ((uint)DAT_4000873e - (uint)DAT_4000489e);
+  iVar2 = (uint)LEA_tps_track_a_closed_count * 0xfff +
+          (uint)DAT_40008752 * ((uint)CAL_etb_tps1_max_count - (uint)LEA_tps_track_a_closed_count);
   DAT_40002482 = ((short)(iVar2 / 0xfff) + (short)(iVar2 >> 0x1f)) -
                  (short)((longlong)iVar2 * 0x80080081 >> 0x3f);
-  iVar2 = (uint)DAT_4000489e * 0xfff +
-          (uint)DAT_40008754 * ((uint)DAT_4000873e - (uint)DAT_4000489e);
+  iVar2 = (uint)LEA_tps_track_a_closed_count * 0xfff +
+          (uint)DAT_40008754 * ((uint)CAL_etb_tps1_max_count - (uint)LEA_tps_track_a_closed_count);
   DAT_40002486 = ((short)(iVar2 / 0xfff) + (short)(iVar2 >> 0x1f)) -
                  (short)((longlong)iVar2 * 0x80080081 >> 0x3f);
   iVar2 = (uint)DAT_400048a0 * 0xfff +
-          (uint)DAT_40008756 * ((uint)DAT_40008742 - (uint)DAT_400048a0);
+          (uint)DAT_40008756 * ((uint)CAL_etb_tps2_max_count - (uint)DAT_400048a0);
   DAT_40002484 = ((short)(iVar2 / 0xfff) + (short)(iVar2 >> 0x1f)) -
                  (short)((longlong)iVar2 * 0x80080081 >> 0x3f);
   iVar2 = (uint)DAT_400048a0 * 0xfff +
-          (uint)DAT_40008758 * ((uint)DAT_40008742 - (uint)DAT_400048a0);
+          (uint)DAT_40008758 * ((uint)CAL_etb_tps2_max_count - (uint)DAT_400048a0);
   DAT_40002488 = ((short)(iVar2 / 0xfff) + (short)(iVar2 >> 0x1f)) -
                  (short)((longlong)iVar2 * 0x80080081 >> 0x3f);
   DAT_4000248a = (short)(0x3ffff / (int)((uint)DAT_40002486 - (uint)DAT_40002482));
   DAT_4000248c = (short)(0x3ffff / (int)((uint)DAT_40002488 - (uint)DAT_40002484));
-  DAT_4000248e = (short)(0x3ffff / (int)(DAT_4000873e - 0x235));
-  DAT_40002490 = (short)(0x3ffff / (int)(DAT_40008742 - 0x732));
+  DAT_4000248e = (short)(0x3ffff / (int)(CAL_etb_tps1_max_count - 0x235));
+  DAT_40002490 = (short)(0x3ffff / (int)(CAL_etb_tps2_max_count - 0x732));
   return bVar1;
 }
 
@@ -44556,7 +44679,7 @@ void throttle_and_torque_control(void)
   _tps_sensor_track_d_preferred = get_tps_sensor_track_d_preferred();
   if (((((!_tps_sensor_track_d_preferred) || (accel_pedal_diag_state == '\x01')) ||
        (accel_pedal_diag_state == '\x02')) ||
-      (((DAT_400027da != '\0' || (tps_system_state == '\x01')) ||
+      (((ips_throttle_restrict != '\0' || (tps_system_state == '\x01')) ||
        ((engine_state_failure_flags & 0x2000000) != 0)))) &&
      ((short)CAL_tps_idle_request_max < (short)_tps_limited)) {
     _tps_limited = CAL_tps_idle_request_max;
@@ -45053,18 +45176,18 @@ void tps_control_1000hz(void)
   tps_track_a_smoothed = adc_smooth_lowpass(&tps_smooth_filter_state,tps_absolute_);
   tps_abs_b_smoothed = adc_smooth_lowpass(&tps_unknown_history,sample);
   if (((((lfb_state_flags & 8) == 0) && ((engine_state_failure_flags & 0x10000) == 0)) &&
-      (DAT_40001cc9 == '\0')) && (throttle_actuator_state < TSL_FAULT)) {
+      (etb_module_fault_latched == '\0')) && (throttle_actuator_state < TSL_FAULT)) {
     if (((int)(short)etb_initialization_state - 2U < 3) &&
        (sensor_adc_ecu_voltage < u16_voltage_18_1023v_4000894a)) {
-      if (DAT_40001572 == '\0') {
+      if (etb_low_voltage_debounce_counter == '\0') {
         etb_initialization_state = ETB_CALIBRATE_DEFAULT;
       }
       else {
-        DAT_40001572 = DAT_40001572 + -1;
+        etb_low_voltage_debounce_counter = etb_low_voltage_debounce_counter + -1;
       }
     }
     else {
-      DAT_40001572 = '\x05';
+      etb_low_voltage_debounce_counter = '\x05';
     }
   }
   else {
@@ -45073,15 +45196,15 @@ void tps_control_1000hz(void)
   switch(etb_initialization_state) {
   case ETB_INIT:
     throttle_disable();
-    DAT_400024e4 = 1000;
+    etb_init_delay_timer = 1000;
     if (DAT_400024a8 == '\0') {
-      DAT_400024e4 = 100;
+      etb_init_delay_timer = 100;
     }
     etb_initialization_state = ETB_INIT_DELAY;
     break;
   case ETB_INIT_DELAY:
-    DAT_400024e4 = DAT_400024e4 + -1;
-    if (DAT_400024e4 < 1) {
+    etb_init_delay_timer = etb_init_delay_timer + -1;
+    if (etb_init_delay_timer < 1) {
       etb_initialization_state = ETB_CALIBRATE_START;
       DAT_400024a8 = DAT_400024a8 + '\x01';
     }
@@ -45101,9 +45224,9 @@ void tps_control_1000hz(void)
     else if (tps_init_and_stability_state == '\x02') {
       tps_capture_fault_data(true,tps_track_a_smoothed,tps_abs_b_smoothed);
       if ((tps_error_flags & 0xbf) != 0) {
-        tps_error_flags_snapshot = tps_error_flags;
-        struct_tps_shaping_flags_40007fe8.state = TS_CONFIRMED_FAULT;
-        struct_tps_shaping_flags_40007fe8.accum_timer = 0xffff;
+        etb_driver_diag_latched = tps_error_flags;
+        etb_driver_fault_debounce.state = TS_CONFIRMED_FAULT;
+        etb_driver_fault_debounce.accum_timer = 0xffff;
       }
       obd_ii_throttle_body_range_perf = 1;
       throttle_actuator_activity = false;
@@ -45123,9 +45246,9 @@ void tps_control_1000hz(void)
     }
     else {
       if ((tps_error_flags & 0xbf) != 0) {
-        tps_error_flags_snapshot = tps_error_flags;
-        struct_tps_shaping_flags_40007fe8.state = TS_CONFIRMED_FAULT;
-        struct_tps_shaping_flags_40007fe8.accum_timer = 0xffff;
+        etb_driver_diag_latched = tps_error_flags;
+        etb_driver_fault_debounce.state = TS_CONFIRMED_FAULT;
+        etb_driver_fault_debounce.accum_timer = 0xffff;
       }
       obd_ii_throttle_body_range_perf = 1;
       etb_initialization_state = ETB_FAULT;
@@ -45393,9 +45516,9 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
   bool bVar6;
   
   bVar1 = false;
-  if (DAT_40001573 != '\0') {
-    DAT_40001573 = '\0';
-    DAT_400024f4 = (ushort)CAL_lfb_timer_entry << 5;
+  if (lfb_requires_init != '\0') {
+    lfb_requires_init = '\0';
+    lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
     DAT_400024f2 = (ushort)CAL_lfb_timer_hold << 5;
   }
   bVar6 = false;
@@ -45408,7 +45531,7 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
       lfb_tps_max = 0xfff;
       if (((((COD_base.COD[1] >> 0x15 & 3) == 2) && ((clutch_pos_sensor & 8) == 0)) &&
           ((clutch_pos_sensor & 0x10) == 0)) && (CAL_lfb_clutch_threshold < clutch_pos_voltage)) {
-        DAT_400024f4 = (ushort)CAL_lfb_timer_entry << 5;
+        lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
         lfb_state_flags = 0;
       }
       else {
@@ -45423,18 +45546,18 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
         if (((lfb_state_flags & 0x20) == 0) ||
            (((engine_state_failure_flags & 0x400) == 0 &&
             (car_speed_u8 <= CAL_lfb_detect_carspeed_min)))) {
-          DAT_400024f4 = (ushort)CAL_lfb_timer_entry << 5;
+          lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
         }
         else if (bVar6) {
-          if (DAT_400024f4 == 0) {
+          if (lbf_entry_countdown_timer == 0) {
             lfb_state_flags = 0x80;
           }
           else {
-            DAT_400024f4 = DAT_400024f4 + -1;
+            lbf_entry_countdown_timer = lbf_entry_countdown_timer + -1;
           }
         }
         else {
-          DAT_400024f4 = (ushort)CAL_lfb_timer_entry << 5;
+          lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
         }
         if ((lfb_state_flags & 0x80) != 0) {
           bVar5 = lfb_state_flags | 0x40;
@@ -45442,12 +45565,12 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
           if (!CAL_lfb_pulse_enable) {
             lfb_state_flags = bVar5;
           }
-          lfb_pulse_toggle_timer = (u16_time_100ms)DAT_40008937;
+          lfb_pulse_toggle_timer = (u16_time_100ms)CAL_lfb_pulse_toggle_period;
           DAT_400024f2 = (ushort)CAL_lfb_timer_hold << 5;
-          DAT_400024f6 = DAT_4000894c;
+          lfb_brake_off_hold_ticks = CAL_lfb_brake_off_hold_ticks;
           DAT_400024f0 = idle_tps_requested;
           DAT_400024ee = tps_16bit << 2;
-          DAT_400024f8 = DAT_40008933;
+          DAT_400024f8 = CAL_lfb_pedal_override_rate;
         }
       }
     }
@@ -45470,21 +45593,21 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
       else {
         if (bVar6) {
           bVar1 = (bVar5 & 0x40) == 0;
-          DAT_400024f6 = DAT_4000894c;
+          lfb_brake_off_hold_ticks = CAL_lfb_brake_off_hold_ticks;
           lfb_state_flags = bVar5 | 0x40;
         }
         else {
           lfb_state_flags = bVar5;
           if (DAT_4000250e < (ushort)((ushort)DAT_40008935 << 2)) {
-            if (DAT_400024f6 == 0) {
+            if (lfb_brake_off_hold_ticks == 0) {
               lfb_state_flags = bVar5 & 0xbf;
             }
             else {
-              DAT_400024f6 = DAT_400024f6 + -1;
+              lfb_brake_off_hold_ticks = lfb_brake_off_hold_ticks + -1;
             }
           }
           else {
-            DAT_400024f6 = DAT_4000894c;
+            lfb_brake_off_hold_ticks = CAL_lfb_brake_off_hold_ticks;
           }
         }
         bVar5 = lfb_state_flags & 0xfb;
@@ -45500,7 +45623,7 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
           DAT_400024f0 = 0x3ffc;
         }
         else {
-          DAT_400024f8 = DAT_40008933;
+          DAT_400024f8 = CAL_lfb_pedal_override_rate;
           if ((bVar1) && ((short)tps_16bit < (short)DAT_400024ee >> 2)) {
             DAT_400024ee = tps_16bit << 2;
           }
@@ -45532,7 +45655,7 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
         lfb_tps_max = (short)DAT_400024ee >> 2;
         if (((lfb_state_flags & 0x40) == 0) && (0xffe < lfb_tps_max)) {
           lfb_state_flags = 0;
-          DAT_400024f4 = (ushort)CAL_lfb_timer_entry << 5;
+          lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
           lfb_tps_max = 0xfff;
         }
       }
@@ -45550,7 +45673,7 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
     lfb_state_flags = lfb_state_flags & 0xfd;
   }
   else if (lfb_pulse_toggle_timer == 0) {
-    lfb_pulse_toggle_timer = (u16_time_100ms)DAT_40008937;
+    lfb_pulse_toggle_timer = (u16_time_100ms)CAL_lfb_pulse_toggle_period;
     lfb_state_flags = lfb_state_flags ^ 2;
   }
   return (ulonglong)((lfb_state_flags & 0x80) == 0x80);
@@ -45575,10 +45698,10 @@ u16_factor_1_1023 get_accel_pedal_lfb_brake_override(u16_factor_1_1023 param_1)
       uVar1 = (uint)DAT_400024fa;
       if ((lfb_state_flags & 4) == 0) {
         if ((uint)DAT_400024fa < (uint)param_1 << 4) {
-          uVar1 = uVar1 + (uint)DAT_40008933 * 5;
+          uVar1 = uVar1 + (uint)CAL_lfb_pedal_override_rate * 5;
         }
         else if ((uint)param_1 << 4 < (uint)DAT_400024fa) {
-          uVar1 = uVar1 + (uint)DAT_40008933 * -5;
+          uVar1 = uVar1 + (uint)CAL_lfb_pedal_override_rate * -5;
         }
         if ((int)((uint)DAT_40008936 << 6) < (int)uVar1) {
           uVar1 = (uint)DAT_40008936 << 6;
@@ -45588,7 +45711,7 @@ u16_factor_1_1023 get_accel_pedal_lfb_brake_override(u16_factor_1_1023 param_1)
         }
       }
       else {
-        uVar1 = uVar1 + (uint)DAT_40008933 * -5;
+        uVar1 = uVar1 + (uint)CAL_lfb_pedal_override_rate * -5;
         if ((int)uVar1 < 1) {
           uVar1 = 0;
         }
@@ -45612,25 +45735,25 @@ void tps_capture_fault_data(bool param_1,u16_voltage_5_1023v param_2,u16_voltage
   if (LEA_tps_fault_bank2_data[0x1f] == 0xabcd) {
     lea_tps_fault_history_reset();
   }
-  if (DAT_4000405c != -1) {
-    DAT_4000405c = DAT_4000405c + 1;
+  if (LEA_tps_fault_event_count != -1) {
+    LEA_tps_fault_event_count = LEA_tps_fault_event_count + 1;
   }
-  if (((param_2 == 4999) && (param_3 == 4999)) && (DAT_400040cc != -1)) {
-    DAT_400040cc = DAT_400040cc + 1;
+  if (((param_2 == 4999) && (param_3 == 4999)) && (LEA_tps_both_sensors_invalid_count != -1)) {
+    LEA_tps_both_sensors_invalid_count = LEA_tps_both_sensors_invalid_count + 1;
   }
   if (param_1) {
-    DAT_40003f4c = runtime_since_start;
-    DAT_40004054 = ecu_run_timer;
-    DAT_40003f50 = siu_rsr;
-    DAT_40004056 = sensor_adc_ecu_voltage;
+    LEA_tps_fault_ff_engine_runtime = runtime_since_start;
+    LEA_tps_fault_ff_ecu_runtime = ecu_run_timer;
+    LEA_perf_stat_extra2 = siu_rsr;
+    LEA_tps_fault_ff_ecu_voltage = sensor_adc_ecu_voltage;
     DAT_40004058 = adc_sample_buffer_primary[3];
-    DAT_40004066 = etb_pwm_duty_percent;
-    DAT_4000489e = 0x23c;
+    LEA_learned_flags_0E4E = etb_pwm_duty_percent;
+    LEA_tps_track_a_closed_count = 0x23c;
     DAT_400048a0 = 0x725;
-    DAT_4000405e = 0;
+    LEA_tps_fault_recovery_count = 0;
     if (DAT_40004060 != 0xffff) {
       if (DAT_40004060 < 0x20) {
-        (&LEA_tps_fault_trim_data)[DAT_40004060] = DAT_4000405c;
+        (&LEA_tps_fault_trim_data)[DAT_40004060] = LEA_tps_fault_event_count;
       }
       DAT_40004060 = DAT_40004060 + 1;
     }
@@ -45649,12 +45772,12 @@ void tps_capture_fault_data(bool param_1,u16_voltage_5_1023v param_2,u16_voltage
     }
   }
   else {
-    if ((DAT_40004060 != 0) && (DAT_4000405e != -1)) {
-      DAT_4000405e = DAT_4000405e + 1;
+    if ((DAT_40004060 != 0) && (LEA_tps_fault_recovery_count != -1)) {
+      LEA_tps_fault_recovery_count = LEA_tps_fault_recovery_count + 1;
     }
     if (DAT_400024a8 == 1) {
-      if (DAT_40004062 != -1) {
-        DAT_40004062 = DAT_40004062 + 1;
+      if (LEA_tps_calib_pass_first_attempt != -1) {
+        LEA_tps_calib_pass_first_attempt = LEA_tps_calib_pass_first_attempt + 1;
       }
     }
     else if (DAT_40004064 != -1) {
@@ -45665,10 +45788,10 @@ void tps_capture_fault_data(bool param_1,u16_voltage_5_1023v param_2,u16_voltage
     DAT_400048a7 = etb_pwm_duty_percent;
   }
   if (LEA_tps_fault_bank2_data[0x1f] != 0x1bad) {
-    if (DAT_40004067 < 0x1f) {
-      LEA_tps_fault_bank2_data[DAT_40004067] = param_2;
-      LEA_tps_fault_sensor_data[DAT_40004067] = param_3;
-      DAT_40004067 = DAT_40004067 + 1;
+    if (LEA_learned_flags_0E4F < 0x1f) {
+      LEA_tps_fault_bank2_data[LEA_learned_flags_0E4F] = param_2;
+      LEA_tps_fault_sensor_data[LEA_learned_flags_0E4F] = param_3;
+      LEA_learned_flags_0E4F = LEA_learned_flags_0E4F + 1;
     }
     else {
       for (bVar1 = 0; LEA_tps_fault_bank2_data[0x1e] = param_2,
@@ -45682,8 +45805,8 @@ void tps_capture_fault_data(bool param_1,u16_voltage_5_1023v param_2,u16_voltage
       LEA_tps_fault_sensor_data[0x1f] = 0x1bad;
     }
   }
-  if ((1 < DAT_400024a8) && (DAT_4000405a != -1)) {
-    DAT_4000405a = DAT_4000405a + 1;
+  if ((1 < DAT_400024a8) && (LEA_tps_calib_retry_count != -1)) {
+    LEA_tps_calib_retry_count = LEA_tps_calib_retry_count + 1;
   }
   return;
 }
@@ -45693,7 +45816,7 @@ void tps_capture_fault_data(bool param_1,u16_voltage_5_1023v param_2,u16_voltage
 void init_globals(void)
 
 {
-  FUN_0006a9d8();
+  obd_reset_sensor_rationality_monitors();
   init_tps_shaping();
   tps_fault_flags = 0;
   DAT_40002514 = 0;
@@ -45707,15 +45830,15 @@ void init_globals(void)
 
 
 
-void FUN_000adb38(void)
+void etpu_ch31_knock_window_isr(void)
 
 {
   etpu_mcr_addr[0x17d] = etpu_mcr_addr[0x17d] & 0x7fffffff | 0x80000000;
-  if (DAT_4000157b != '\0') {
+  if (knock_window_irq_phase != '\0') {
     knock_sampling_active = true;
   }
-  DAT_4000157b = DAT_4000157b == '\0';
-  DAT_400017ec = DAT_400017ec + '\x01';
+  knock_window_irq_phase = knock_window_irq_phase == '\0';
+  knock_window_irq_count = knock_window_irq_count + '\x01';
   return;
 }
 
@@ -45779,7 +45902,7 @@ void knock_interrupt_adc_process(void)
     }
     else {
       knock_sampling_active = false;
-      knock_buffer_count = knock_buffer_index;
+      knock_buffer_last_index = knock_buffer_index;
       knock_buffer_index = '\0';
       not_last_cylinder = knock_curr_cylinder < 5;
       next_cylinder = knock_curr_cylinder + 1;
@@ -45835,7 +45958,7 @@ void knock_dsp_setup_bins_and_reset_state(void)
   byte bVar1;
   
   for (bVar1 = 0; bVar1 < knock_freq_bin_count; bVar1 = bVar1 + 1) {
-    (&DAT_40006620)[bVar1] =
+    (&knock_freq_bin_index)[bVar1] =
          (char)(((uint)(ushort)SHORT_ARRAY_40006900[bVar1] << 6) /
                ((uint)CAL_knock_agc_scaling_threshold << 1));
   }
@@ -45920,8 +46043,9 @@ void knock_dsp_mode1_goertzel_64sample(void)
   if ((CAL_knock_mode == goertzel_64sample) && (knock_sensor_new_data_available)) {
     for (bVar11 = 0; bVar11 < knock_freq_bin_count; bVar11 = bVar11 + 1) {
       lVar2 = ((longlong)
-               *(short *)(&DAT_000d1140 + ((byte)(&DAT_40006620)[bVar11] + 0x10 & 0x3f) * 2) &
-              0x7fffffffU) * 2;
+               *(short *)(&knock_sine_table_q15 +
+                         ((byte)(&knock_freq_bin_index)[bVar11] + 0x10 & 0x3f) * 2) & 0x7fffffffU) *
+              2;
       bVar4 = 0;
       lVar1 = 0;
       lVar9 = 0;
@@ -45954,8 +46078,8 @@ void knock_dsp_mode1_goertzel_64sample(void)
                  0x1a) | (uint)((int)uVar13 - (int)uVar5) >> 6;
       lVar1 = 0;
       lVar9 = 0;
-      for (bVar4 = knock_buffer_count - 0x3f; lVar6 = lVar1, iVar7 = (int)lVar6,
-          bVar4 < (byte)(knock_buffer_count + 1U); bVar4 = bVar4 + 1) {
+      for (bVar4 = knock_buffer_last_index - 0x3f; lVar6 = lVar1, iVar7 = (int)lVar6,
+          bVar4 < (byte)(knock_buffer_last_index + 1U); bVar4 = bVar4 + 1) {
         uVar12 = (uint)bVar4;
         lVar1 = ((((ulonglong)((longlong)iVar3 * (longlong)iVar7) >> 0x20 & 0x7fff) << 0x11 |
                  ((longlong)iVar3 * (longlong)iVar7 & 0xffffffffU) >> 0xf) - lVar9) +
@@ -45985,8 +46109,8 @@ void knock_dsp_mode1_goertzel_64sample(void)
       if ((int)local_44[bVar11] < (int)local_70[bVar11]) {
         local_44[bVar11] = local_70[bVar11];
       }
-      (&DAT_40006874)[bVar11] = local_44[bVar11];
-      DAT_40006848 = DAT_40006848 + (&DAT_40006874)[bVar11];
+      (&knock_bin_energy)[bVar11] = local_44[bVar11];
+      DAT_40006848 = DAT_40006848 + (&knock_bin_energy)[bVar11];
       DAT_4000684c = DAT_4000684c + (&DAT_40006748)[bVar11];
     }
     knock_sensor_new_data_available = false;
@@ -46021,9 +46145,9 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
   uint local_4c [19];
   
   if ((CAL_knock_mode == goertzel_32sample_x3) && (knock_sensor_new_data_available)) {
-    if (knock_buffer_count < 0x5f) {
-      j = knock_buffer_count - 0x1f;
-      window_end_idx = knock_buffer_count + 1;
+    if (knock_buffer_last_index < 0x5f) {
+      j = knock_buffer_last_index - 0x1f;
+      window_end_idx = knock_buffer_last_index + 1;
     }
     else {
       j = 0x40;
@@ -46032,7 +46156,8 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
     for (i = 0; i < knock_freq_bin_count; i = i + 1) {
       goertzel_coeff =
            ((longlong)
-            *(short *)(&DAT_000d1140 + (((byte)(&DAT_40006620)[i] & 0x7f) * 2 + 0x10 & 0x3f) * 2) &
+            *(short *)(&knock_sine_table_q15 +
+                      (((byte)(&knock_freq_bin_index)[i] & 0x7f) * 2 + 0x10 & 0x3f) * 2) &
            0x7fffffffU) * 2;
       bVar5 = 0;
       lVar2 = 0;
@@ -46116,8 +46241,8 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
                            0xffffffff) << 0x1a) | (uint)((int)uVar12 - (int)uVar3) >> 6;
       lVar2 = 0;
       lVar9 = 0;
-      for (bVar5 = knock_buffer_count - 0x1f; lVar6 = lVar2, iVar7 = (int)lVar6,
-          bVar5 < (byte)(knock_buffer_count + 1); bVar5 = bVar5 + 1) {
+      for (bVar5 = knock_buffer_last_index - 0x1f; lVar6 = lVar2, iVar7 = (int)lVar6,
+          bVar5 < (byte)(knock_buffer_last_index + 1); bVar5 = bVar5 + 1) {
         uVar11 = (uint)bVar5;
         lVar2 = ((((ulonglong)((longlong)iVar4 * (longlong)iVar7) >> 0x20 & 0x7fff) << 0x11 |
                  ((longlong)iVar4 * (longlong)iVar7 & 0xffffffffU) >> 0xf) - lVar9) +
@@ -46155,10 +46280,10 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
       if ((int)local_4c[bVar5] < (int)local_78[bVar5]) {
         local_4c[bVar5] = local_78[bVar5];
       }
-      (&DAT_40006874)[bVar5] = local_4c[bVar5];
+      (&knock_bin_energy)[bVar5] = local_4c[bVar5];
       iVar4 = (int)(uVar3 << 2);
       *(int *)((int)&DAT_40006848 + iVar4) =
-           *(int *)((int)&DAT_40006848 + iVar4) + (&DAT_40006874)[bVar5];
+           *(int *)((int)&DAT_40006848 + iVar4) + (&knock_bin_energy)[bVar5];
     }
     knock_detect_and_update_baseline
               ((uint8_t)uVar3,*(uint32_t *)((int)&DAT_40006848 + (int)(uVar3 << 2)));
@@ -46191,44 +46316,49 @@ void knock_dsp_mode2_goertzel_dual_window_64(void)
   iVar4 = 0;
   if ((CAL_knock_mode == goertzel_2window) && (knock_sensor_new_data_available)) {
     for (bVar7 = 0; bVar7 < knock_freq_bin_count; bVar7 = bVar7 + 1) {
-      uVar6 = (ulonglong)knock_buffer_count - 0x3f & 0xff;
+      uVar6 = (ulonglong)knock_buffer_last_index - 0x3f & 0xff;
       for (bVar5 = 0; bVar5 < 0x40; bVar5 = bVar5 + 1) {
         if (DAT_40002519 == '\0') {
           uVar9 = knock_level_scaled[bVar5];
         }
         else {
-          iVar8 = (int)(short)knock_level_scaled[bVar5] * (int)(short)(&DAT_000d11c0)[bVar5];
+          iVar8 = (int)(short)knock_level_scaled[bVar5] *
+                  (int)(short)(&knock_hann_window_q15)[bVar5];
           uVar9 = ((short)(iVar8 / 0x7fff) + (short)(iVar8 >> 0x1f)) -
                   (short)((longlong)iVar8 * 0x80010003 >> 0x3f);
         }
         iVar1 = iVar1 + (int)(short)uVar9 *
-                        (int)*(short *)(&DAT_000d1140 +
+                        (int)*(short *)(&knock_sine_table_q15 +
                                        (int)(((((longlong)(int)(uint)bVar5 *
-                                                (longlong)(int)(uint)(byte)(&DAT_40006620)[bVar7] +
+                                                (longlong)
+                                                (int)(uint)(byte)(&knock_freq_bin_index)[bVar7] +
                                                0x10) * 0x4000000 & 0xfc000000U) >> 0x1a) << 1));
         iVar2 = iVar2 + (int)(short)uVar9 *
-                        (int)*(short *)(&DAT_000d1140 +
+                        (int)*(short *)(&knock_sine_table_q15 +
                                        (int)((((longlong)(int)(uint)bVar5 *
-                                               (longlong)(int)(uint)(byte)(&DAT_40006620)[bVar7] *
+                                               (longlong)
+                                               (int)(uint)(byte)(&knock_freq_bin_index)[bVar7] *
                                                0x4000000 & 0xfc000000U) >> 0x1a) << 1));
         if (DAT_40002519 == '\0') {
           sVar10 = *(short *)((int)knock_level_scaled + (int)((uVar6 & 0xff) << 1));
         }
         else {
           iVar8 = (int)*(short *)((int)knock_level_scaled + (int)((uVar6 & 0xff) << 1)) *
-                  (int)*(short *)((int)&DAT_000d11c0 + (int)((uVar6 & 0xff) << 1));
+                  (int)*(short *)((int)&knock_hann_window_q15 + (int)((uVar6 & 0xff) << 1));
           sVar10 = ((short)(iVar8 / 0x7fff) + (short)(iVar8 >> 0x1f)) -
                    (short)((longlong)iVar8 * 0x80010003 >> 0x3f);
         }
         iVar3 = iVar3 + (int)sVar10 *
-                        (int)*(short *)(&DAT_000d1140 +
+                        (int)*(short *)(&knock_sine_table_q15 +
                                        (int)(((((longlong)(int)(uint)bVar5 *
-                                                (longlong)(int)(uint)(byte)(&DAT_40006620)[bVar7] +
+                                                (longlong)
+                                                (int)(uint)(byte)(&knock_freq_bin_index)[bVar7] +
                                                0x10) * 0x4000000 & 0xfc000000U) >> 0x1a) << 1));
         iVar4 = iVar4 + (int)sVar10 *
-                        (int)*(short *)(&DAT_000d1140 +
+                        (int)*(short *)(&knock_sine_table_q15 +
                                        (int)((((longlong)(int)(uint)bVar5 *
-                                               (longlong)(int)(uint)(byte)(&DAT_40006620)[bVar7] *
+                                               (longlong)
+                                               (int)(uint)(byte)(&knock_freq_bin_index)[bVar7] *
                                                0x4000000 & 0xfc000000U) >> 0x1a) << 1));
         uVar6 = uVar6 + 1;
       }
@@ -46243,8 +46373,8 @@ void knock_dsp_mode2_goertzel_dual_window_64(void)
       if (local_44[bVar7] < local_70[bVar7]) {
         local_44[bVar7] = local_70[bVar7];
       }
-      if ((int)(&DAT_40006874)[bVar7] < local_44[bVar7]) {
-        (&DAT_40006874)[bVar7] = local_44[bVar7];
+      if ((int)(&knock_bin_energy)[bVar7] < local_44[bVar7]) {
+        (&knock_bin_energy)[bVar7] = local_44[bVar7];
       }
     }
     knock_sensor_new_data_available = false;
@@ -46549,7 +46679,7 @@ void diag_stream_read(uint param_1,char param_2,undefined1 *param_3)
 
 
 
-undefined8 FUN_000af660(byte param_1)
+undefined8 chlog_group_init(byte param_1)
 
 {
   undefined8 uVar1;
@@ -46572,7 +46702,7 @@ undefined8 FUN_000af660(byte param_1)
 
 
 
-undefined8 FUN_000af6e4(byte param_1,undefined1 param_2,undefined1 param_3,short param_4)
+undefined8 chlog_group_set_timing(byte param_1,undefined1 param_2,undefined1 param_3,short param_4)
 
 {
   undefined8 uVar1;
@@ -46596,7 +46726,7 @@ undefined8 FUN_000af6e4(byte param_1,undefined1 param_2,undefined1 param_3,short
 
 
 
-bool FUN_000af790(byte param_1)
+bool chlog_group_arm(byte param_1)
 
 {
   if (param_1 < 10) {
@@ -46608,7 +46738,7 @@ bool FUN_000af790(byte param_1)
 
 
 
-void FUN_000af7e0(void)
+void chlog_start_all(void)
 
 {
   byte i;
@@ -46624,7 +46754,7 @@ void FUN_000af7e0(void)
 
 
 
-void FUN_000af850(byte param_1)
+void chlog_group_stop(byte param_1)
 
 {
   byte bVar1;
@@ -46643,7 +46773,7 @@ void FUN_000af850(byte param_1)
 
 
 
-void FUN_000af8d0(void)
+void chlog_stop_all(void)
 
 {
   byte i;
@@ -46782,7 +46912,7 @@ undefined8 diagnostic_tx_unknown(void)
 
 
 
-void diag_comm_queue_mgmt_unknown(byte *data)
+void chlog_command_dispatch(byte *data)
 
 {
   uint _addr1;
@@ -46800,7 +46930,7 @@ void diag_comm_queue_mgmt_unknown(byte *data)
     if (*data == 1) {
       if (((flexcan_tx_queue_state_flags & 0x20) == 0) &&
          ((flexcan_tx_queue_state_flags & 0x10) == 0)) {
-        FUN_000af8d0();
+        chlog_stop_all();
         DAT_400068a9 = 0;
       }
       flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xef | 0x20;
@@ -46848,14 +46978,14 @@ void diag_comm_queue_mgmt_unknown(byte *data)
         DAT_400068a1 = 0x22;
       }
       else if (data[2] == 0) {
-        FUN_000af850(data[3]);
+        chlog_group_stop(data[3]);
       }
       else if (data[2] == 1) {
-        FUN_000af6e4(data[3],data[4],data[5],*(undefined2 *)(data + 6));
-        FUN_000af790(data[3]);
+        chlog_group_set_timing(data[3],data[4],data[5],*(undefined2 *)(data + 6));
+        chlog_group_arm(data[3]);
       }
       else if (data[2] == 2) {
-        FUN_000af6e4(data[3],data[4],data[5],*(undefined2 *)(data + 6));
+        chlog_group_set_timing(data[3],data[4],data[5],*(undefined2 *)(data + 6));
       }
       else {
         DAT_400068a1 = 0x31;
@@ -46867,7 +46997,7 @@ void diag_comm_queue_mgmt_unknown(byte *data)
         flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 0x10;
       }
       else {
-        FUN_000af8d0();
+        chlog_stop_all();
       }
       break;
     case 8:
@@ -46875,10 +47005,10 @@ void diag_comm_queue_mgmt_unknown(byte *data)
         DAT_400068a1 = 0x22;
       }
       else if (data[2] == 0) {
-        FUN_000af8d0();
+        chlog_stop_all();
       }
       else if (data[2] == 1) {
-        FUN_000af7e0();
+        chlog_start_all();
       }
       else {
         DAT_400068a1 = 0x31;
@@ -46901,11 +47031,11 @@ void diag_comm_queue_mgmt_unknown(byte *data)
       diag_stream_read(1,data[2],&DAT_400068a3);
       break;
     case 0x11:
-      FUN_000b066c(DAT_400068ac);
+      diag_set_base_ptr(DAT_400068ac);
       break;
     case 0x14:
-      FUN_000af850(data[2]);
-      DAT_400068a3 = FUN_000af660(data[2]);
+      chlog_group_stop(data[2]);
+      DAT_400068a3 = chlog_group_init(data[2]);
       DAT_400068a4 = CONCAT13(data[2] * '\f',DAT_400068a4._1_3_);
       break;
     case 0x15:
@@ -46992,7 +47122,7 @@ void flexcan_tx_from_queue_0x351(void)
 
 
 
-void FUN_000b066c(undefined4 param_1)
+void diag_set_base_ptr(undefined4 param_1)
 
 {
   DAT_40001810 = param_1;
@@ -47495,12 +47625,12 @@ void flexcan_a_rx_B7(void)
             *(byte *)((int)&local_20 + (uVar4 & 0xff)) = fca_buffer[0].data[uVar4 & 0xff];
           }
           if (buflen == 7) {
-            flexcan_mesg_0xb7_is_7byte = true;
+            tc_torque_limit_use_slow_path = true;
             cVar1 = local_1c._2_1_;
             _checksum = checksum_xor_8(&local_20,6);
           }
           else {
-            flexcan_mesg_0xb7_is_7byte = false;
+            tc_torque_limit_use_slow_path = false;
             cVar1 = local_1c._0_1_;
             _checksum = checksum_xor_8(&local_20,4);
           }
@@ -47912,14 +48042,14 @@ void flexcan_a_rx_250(void)
           engine_state_failure_flags = engine_state_failure_flags | 0x800;
         }
         DAT_400027d9 = !bVar2;
-        DAT_400027da = (undefined1)((-((ulonglong)local_10[0] & 4) & 0xffffffff) >> 0x1f);
+        ips_throttle_restrict = (undefined1)((-((ulonglong)local_10[0] & 4) & 0xffffffff) >> 0x1f);
         DAT_40001c6c = local_10[2];
         uVar1 = main_diagnostic_flags & 0xffdf;
         main_diagnostic_flags = main_diagnostic_flags | 0x20;
         if ((local_10._0_4_ & 0x400) == 0) {
           main_diagnostic_flags = uVar1;
         }
-        DAT_40001b3a = local_10[3];
+        ips_shift_light_flags = local_10[3];
         ips_cal_version_received = local_10[4];
         DAT_4000281f = 1;
         obd_ii_oil_temp_ips = local_10[5];
@@ -47935,10 +48065,10 @@ void flexcan_a_rx_250(void)
         DAT_40001608 = 0xff;
         DAT_400027d9 = 0;
         engine_state_failure_flags = engine_state_failure_flags & 0xfffff7ff;
-        DAT_400027da = 0;
+        ips_throttle_restrict = 0;
         DAT_40001c6c = 0;
         main_diagnostic_flags = main_diagnostic_flags & 0xffdf;
-        DAT_40001b3a = 0;
+        ips_shift_light_flags = 0;
         ips_cal_version_received = 0;
         DAT_400015ce = 0x80;
       }
@@ -48265,7 +48395,7 @@ void flexcan_a_rx_350(void)
         fca_buffer[0xc].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
         uVar1 = DAT_fffc0008;
         can_rx_msg_timestamp = (undefined2)uVar1;
-        diag_comm_queue_mgmt_unknown(message_350a_buf);
+        chlog_command_dispatch(message_350a_buf);
       }
       else {
         uVar2 = fca_buffer[0xc].code_and_timestamp;
@@ -48589,7 +48719,7 @@ void flexcan_a_rx_50_51_52_53(void)
        (((uVar5 = fca_buffer[0xf].data._0_4_, 0x3fffffff < uVar5 &&
          (uVar5 = fca_buffer[0xf].data._0_4_, uVar5 < 0x4000fffd)) ||
         (uVar5 = fca_buffer[0xf].data._0_4_, uVar5 < 0xffffd)))) {
-      DAT_40002558 = (byte *)fca_buffer[0xf].data._0_4_;
+      dm_data_buffer = (byte *)fca_buffer[0xf].data._0_4_;
       uVar5 = fca_buffer[0xf].code_and_timestamp;
       fca_buffer[0xf].code_and_timestamp = uVar5 & 0xf0ffffff | 0x4000000;
       uVar2 = DAT_fffc0008;
@@ -48599,7 +48729,7 @@ void flexcan_a_rx_50_51_52_53(void)
       fca_buffer[0x10].code_and_timestamp = uVar5 & 0xf0ffffff | 0x8000000;
       uVar3 = fca_buffer[0x10].arb_id;
       fca_buffer[0x10].arb_id = uVar3 & 0xe003ffff | 0x1e800000;
-      fca_buffer[0x10].data._0_4_ = *(undefined4 *)DAT_40002558;
+      fca_buffer[0x10].data._0_4_ = *(undefined4 *)dm_data_buffer;
       uVar5 = fca_buffer[0x10].code_and_timestamp;
       fca_buffer[0x10].code_and_timestamp = uVar5 & 0xfff0ffff | 0x40000;
       uVar5 = fca_buffer[0x10].code_and_timestamp;
@@ -48620,7 +48750,7 @@ void flexcan_a_rx_50_51_52_53(void)
        (((uVar5 = fca_buffer[0xf].data._0_4_, 0x3fffffff < uVar5 &&
          (uVar5 = fca_buffer[0xf].data._0_4_, uVar5 < 0x4000ffff)) ||
         (uVar5 = fca_buffer[0xf].data._0_4_, uVar5 < 0xfffff)))) {
-      DAT_40002558 = (byte *)fca_buffer[0xf].data._0_4_;
+      dm_data_buffer = (byte *)fca_buffer[0xf].data._0_4_;
       uVar5 = fca_buffer[0xf].code_and_timestamp;
       fca_buffer[0xf].code_and_timestamp = uVar5 & 0xf0ffffff | 0x4000000;
       uVar2 = DAT_fffc0008;
@@ -48630,7 +48760,7 @@ void flexcan_a_rx_50_51_52_53(void)
       fca_buffer[0x10].code_and_timestamp = uVar5 & 0xf0ffffff | 0x8000000;
       uVar3 = fca_buffer[0x10].arb_id;
       fca_buffer[0x10].arb_id = uVar3 & 0xe003ffff | 0x1e800000;
-      fca_buffer[0x10].data._0_2_ = *(undefined2 *)DAT_40002558;
+      fca_buffer[0x10].data._0_2_ = *(undefined2 *)dm_data_buffer;
       uVar5 = fca_buffer[0x10].code_and_timestamp;
       fca_buffer[0x10].code_and_timestamp = uVar5 & 0xfff0ffff | 0x20000;
       uVar5 = fca_buffer[0x10].code_and_timestamp;
@@ -48651,7 +48781,7 @@ void flexcan_a_rx_50_51_52_53(void)
        (((uVar5 = fca_buffer[0xf].data._0_4_, 0x3fffffff < uVar5 &&
          (uVar5 = fca_buffer[0xf].data._0_4_, uVar5 < 0x40010000)) ||
         (uVar5 = fca_buffer[0xf].data._0_4_, uVar5 < 0x100000)))) {
-      DAT_40002558 = (byte *)fca_buffer[0xf].data._0_4_;
+      dm_data_buffer = (byte *)fca_buffer[0xf].data._0_4_;
       uVar5 = fca_buffer[0xf].code_and_timestamp;
       fca_buffer[0xf].code_and_timestamp = uVar5 & 0xf0ffffff | 0x4000000;
       uVar2 = DAT_fffc0008;
@@ -48661,7 +48791,7 @@ void flexcan_a_rx_50_51_52_53(void)
       fca_buffer[0x10].code_and_timestamp = uVar5 & 0xf0ffffff | 0x8000000;
       uVar3 = fca_buffer[0x10].arb_id;
       fca_buffer[0x10].arb_id = uVar3 & 0xe003ffff | 0x1e800000;
-      fca_buffer[0x10].data[0] = *DAT_40002558;
+      fca_buffer[0x10].data[0] = *dm_data_buffer;
       uVar5 = fca_buffer[0x10].code_and_timestamp;
       fca_buffer[0x10].code_and_timestamp = uVar5 & 0xfff0ffff | 0x10000;
       uVar5 = fca_buffer[0x10].code_and_timestamp;
@@ -48812,7 +48942,7 @@ LAB_000b3fa4:
     }
     DAT_40002560 = 0;
     DAT_40002584 = fca_buffer[0xf].data + 4;
-    DAT_40002558 = (byte *)fca_buffer[0xf].data._0_4_;
+    dm_data_buffer = (byte *)fca_buffer[0xf].data._0_4_;
     bVar1 = fca_buffer[0xf].data[4];
     DAT_40002562 = (ushort)bVar1;
     uVar5 = fca_buffer[0xf].code_and_timestamp;
@@ -48827,8 +48957,8 @@ LAB_000b3fa4:
     uVar7 = DAT_40002562;
     if (DAT_40002562 < 9) {
       for (; uVar7 != 0; uVar7 = uVar7 - 1) {
-        bVar1 = *DAT_40002558;
-        DAT_40002558 = DAT_40002558 + 1;
+        bVar1 = *dm_data_buffer;
+        dm_data_buffer = dm_data_buffer + 1;
         *DAT_40002580 = bVar1;
         DAT_40002580 = DAT_40002580 + 1;
       }
@@ -48840,8 +48970,8 @@ LAB_000b3fa4:
     }
     else {
       for (sVar6 = 8; sVar6 != 0; sVar6 = sVar6 + -1) {
-        bVar1 = *DAT_40002558;
-        DAT_40002558 = DAT_40002558 + 1;
+        bVar1 = *dm_data_buffer;
+        dm_data_buffer = dm_data_buffer + 1;
         *DAT_40002580 = bVar1;
         DAT_40002580 = DAT_40002580 + 1;
       }
@@ -48870,7 +49000,7 @@ LAB_000b4174:
     }
     DAT_40002560 = 0;
     DAT_40002584 = fca_buffer[0xf].data + 4;
-    DAT_40002558 = (byte *)fca_buffer[0xf].data._0_4_;
+    dm_data_buffer = (byte *)fca_buffer[0xf].data._0_4_;
     DAT_40002562 = fca_buffer[0xf].data._4_2_;
     uVar5 = fca_buffer[0xf].code_and_timestamp;
     fca_buffer[0xf].code_and_timestamp = uVar5 & 0xf0ffffff | 0x4000000;
@@ -48884,8 +49014,8 @@ LAB_000b4174:
     uVar7 = DAT_40002562;
     if (DAT_40002562 < 9) {
       for (; uVar7 != 0; uVar7 = uVar7 - 1) {
-        bVar1 = *DAT_40002558;
-        DAT_40002558 = DAT_40002558 + 1;
+        bVar1 = *dm_data_buffer;
+        dm_data_buffer = dm_data_buffer + 1;
         *DAT_40002580 = bVar1;
         DAT_40002580 = DAT_40002580 + 1;
       }
@@ -48897,8 +49027,8 @@ LAB_000b4174:
     }
     else {
       for (sVar6 = 8; sVar6 != 0; sVar6 = sVar6 + -1) {
-        bVar1 = *DAT_40002558;
-        DAT_40002558 = DAT_40002558 + 1;
+        bVar1 = *dm_data_buffer;
+        dm_data_buffer = dm_data_buffer + 1;
         *DAT_40002580 = bVar1;
         DAT_40002580 = DAT_40002580 + 1;
       }
@@ -48913,7 +49043,7 @@ LAB_000b4174:
 LAB_000b4300:
     uVar5 = fca_buffer[0xf].code_and_timestamp;
     if ((uVar5 >> 0x10 & 0xf) == 4) {
-      DAT_40002558 = (byte *)fca_buffer[0xf].data._0_4_;
+      dm_data_buffer = (byte *)fca_buffer[0xf].data._0_4_;
       uVar5 = fca_buffer[0xf].code_and_timestamp;
       fca_buffer[0xf].code_and_timestamp = uVar5 & 0xf0ffffff | 0x4000000;
       uVar2 = DAT_fffc0008;
@@ -49014,8 +49144,8 @@ void flexcan_a_tx_7a0(void)
     uVar5 = DAT_40002562;
     if (DAT_40002562 < 9) {
       for (; uVar5 != 0; uVar5 = uVar5 - 1) {
-        bVar1 = *DAT_40002558;
-        DAT_40002558 = DAT_40002558 + 1;
+        bVar1 = *dm_data_buffer;
+        dm_data_buffer = dm_data_buffer + 1;
         *DAT_40002580 = bVar1;
         DAT_40002580 = DAT_40002580 + 1;
       }
@@ -49027,8 +49157,8 @@ void flexcan_a_tx_7a0(void)
     }
     else {
       for (sVar4 = 8; sVar4 != 0; sVar4 = sVar4 + -1) {
-        bVar1 = *DAT_40002558;
-        DAT_40002558 = DAT_40002558 + 1;
+        bVar1 = *dm_data_buffer;
+        dm_data_buffer = dm_data_buffer + 1;
         *DAT_40002580 = bVar1;
         DAT_40002580 = DAT_40002580 + 1;
       }
@@ -49539,7 +49669,7 @@ bool can_a4_has_extended_data(void)
 
 
 
-enum_t6e_gear get_determination_auto(void)
+enum_t6e_gear ips_gear_index_to_car_gear(void)
 
 {
   enum_t6e_gear c;
@@ -49805,7 +49935,7 @@ void flexcan_c_rx_350(void)
         fcc_buffer[0xc].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
         uVar1 = DAT_fffc8008;
         DAT_400025b8 = (undefined2)uVar1;
-        diag_comm_queue_mgmt_unknown(&DAT_400025c0);
+        chlog_command_dispatch(&DAT_400025c0);
       }
       else {
         uVar2 = fcc_buffer[0xc].code_and_timestamp;
@@ -50394,7 +50524,7 @@ void obd_ii_mode02_processing(void)
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)DAT_400048f2;
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)obd_FF_fuel_system_status;
         bVar3 = bVar3 + 4;
         obd_ii_response[bVar2] = 0;
         break;
@@ -50458,53 +50588,53 @@ void obd_ii_mode02_processing(void)
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)DAT_400048fc >> 8);
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)obd_FF_engine_speed >> 8);
         bVar3 = bVar3 + 4;
-        obd_ii_response[bVar2] = (byte)DAT_400048fc;
+        obd_ii_response[bVar2] = (byte)obd_FF_engine_speed;
         break;
       case 0xd:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_400048fe;
+        obd_ii_response[bVar2] = obd_FF_car_speed;
         break;
       case 0xe:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_400048ff;
+        obd_ii_response[bVar2] = obd_FF_ign_advance;
         break;
       case 0xf:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_40004900;
+        obd_ii_response[bVar2] = obd_FF_iat;
         break;
       case 0x10:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)DAT_40004902 >> 8);
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)obd_FF_maf_flow_1 >> 8);
         bVar3 = bVar3 + 4;
-        obd_ii_response[bVar2] = (byte)DAT_40004902;
+        obd_ii_response[bVar2] = (byte)obd_FF_maf_flow_1;
         break;
       case 0x11:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_40004904;
+        obd_ii_response[bVar2] = obd_FF_tps_x4;
         break;
       case 0x1f:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)DAT_40004906 >> 8);
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)obd_FF_runtime_since_start >> 8);
         bVar3 = bVar3 + 4;
-        obd_ii_response[bVar2] = (byte)DAT_40004906;
+        obd_ii_response[bVar2] = (byte)obd_FF_runtime_since_start;
         break;
       case 0x20:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
@@ -50521,21 +50651,21 @@ void obd_ii_mode02_processing(void)
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_40004908;
+        obd_ii_response[bVar2] = obd_ff_commanded_evap_purge;
         break;
       case 0x2f:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_40004909;
+        obd_ii_response[bVar2] = obd_FF_fuel_level;
         break;
       case 0x33:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         bVar2 = bVar3 + 2;
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar3 = bVar3 + 3;
-        obd_ii_response[bVar2] = DAT_4000490a;
+        obd_ii_response[bVar2] = obd_FF_atmo_pressure;
         break;
       case 0x40:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
@@ -50551,25 +50681,25 @@ void obd_ii_mode02_processing(void)
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)DAT_4000490c >> 8);
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)obd_FF_ecu_voltage >> 8);
         bVar3 = bVar3 + 4;
-        obd_ii_response[bVar2] = (byte)DAT_4000490c;
+        obd_ii_response[bVar2] = (byte)obd_FF_ecu_voltage;
         break;
       case 0x43:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)DAT_4000490e >> 8);
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)obd_FF_load_abs_percentage >> 8);
         bVar3 = bVar3 + 4;
-        obd_ii_response[bVar2] = (byte)DAT_4000490e;
+        obd_ii_response[bVar2] = (byte)obd_FF_load_abs_percentage;
         break;
       case 0x44:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
         obd_ii_response[(byte)(bVar3 + 1)] = obd_ii_request[uVar1 + 1];
         bVar2 = bVar3 + 3;
-        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)DAT_40004910 >> 8);
+        obd_ii_response[(byte)(bVar3 + 2)] = (byte)((ushort)obd_FF_afr_commanded >> 8);
         bVar3 = bVar3 + 4;
-        obd_ii_response[bVar2] = (byte)DAT_40004910;
+        obd_ii_response[bVar2] = (byte)obd_FF_afr_commanded;
         break;
       case 0x45:
         obd_ii_response[bVar3] = obd_ii_request[uVar1];
@@ -50745,7 +50875,7 @@ void obd_ii_mode3B_processing(void)
 
 
 
-ulonglong extract_sign_bit_from_27c5(void)
+ulonglong esci_a_rx_available(void)
 
 {
   return (-(ulonglong)DAT_400025f5 & 0xffffffff) >> 0x1f;
@@ -50753,7 +50883,7 @@ ulonglong extract_sign_bit_from_27c5(void)
 
 
 
-void FUN_000b8d74(void)
+void init_esci_a(void)
 
 {
   uint32_t uVar1;
@@ -50799,7 +50929,7 @@ undefined1 esci_circular_buffer_dequeue(void)
 
 
 
-void FUN_000b8ea0(void)
+void esci_a_isr_rx(void)
 
 {
   undefined1 uVar1;
@@ -50821,7 +50951,7 @@ void FUN_000b8ea0(void)
 
 
 
-void esci_tx_unknown(byte *data,uint8_t len)
+void esci_a_send(byte *data,uint8_t len)
 
 {
   uint32_t uVar1;
@@ -50846,7 +50976,7 @@ void esci_tx_unknown(byte *data,uint8_t len)
 
 
 
-void FUN_000b8fd0(void)
+void esci_a_isr_tx(void)
 
 {
   uint32_t uVar1;
@@ -50867,11 +50997,11 @@ void FUN_000b8fd0(void)
 
 
 
-void FUN_000b9060(void)
+void esci_a_isr(void)
 
 {
-  FUN_000b8ea0();
-  FUN_000b8fd0();
+  esci_a_isr_rx();
+  esci_a_isr_tx();
   return;
 }
 
@@ -50931,7 +51061,7 @@ undefined8 esci_message_receive_validate(byte param_1)
 
 
 
-void esci_a_tx(byte *data,uint8_t len)
+void hc08_send_message(byte *data,uint8_t len)
 
 {
   byte bVar1;
@@ -50951,7 +51081,7 @@ void esci_a_tx(byte *data,uint8_t len)
     *pbVar2 = *pbVar2 + bVar1;
   }
   *pbVar2 = ~*pbVar2;
-  esci_tx_unknown(data,len + '\x03');
+  esci_a_send(data,len + '\x03');
   return;
 }
 
@@ -50973,7 +51103,7 @@ void HC08_send_status(void)
   abStack_10[1] = 0x81;
   local_d = throttle_control_flags;
   local_c = tps_commanded_hc08;
-  esci_a_tx(abStack_10,'\x04');
+  hc08_send_message(abStack_10,'\x04');
   return;
 }
 
@@ -50987,7 +51117,7 @@ void HC08_recv(void)
   int iVar1;
   int crc_valid;
   
-  while (i = extract_sign_bit_from_27c5(), (int)i != 0) {
+  while (i = esci_a_rx_available(), (int)i != 0) {
     uVar2 = esci_circular_buffer_dequeue();
     iVar1 = esci_message_receive_validate(uVar2);
     if (iVar1 != 0) {
@@ -51070,7 +51200,7 @@ void cruise_control(void)
     cruise_control_state_reset();
     obd_ii_cruise_status = 0;
   }
-  if (cluster_run_state == '\x01') {
+  if (cluster_lamp_test_state == '\x01') {
     driver_input_flags[1] = driver_input_flags[1] & 0xfb | 8;
   }
   else if ((obd_ii_cruise_status & 0x8000) == 0) {
@@ -51226,16 +51356,16 @@ void cruise_control(void)
         DAT_40002624 = DAT_40002624 + 1;
       }
     }
-    DAT_40002638 = 0;
-    DAT_4000263a = (ushort)DAT_4000ca6e * 10;
+    cruise_switch_unknown_voltage2 = 0;
+    DAT_4000263a = (ushort)CAL_obd_ii_switch_voltage_debounce * 10;
   }
-  else if (DAT_40002638 == 0) {
-    DAT_40002638 = cruise_switch_unknown_voltage;
-    DAT_4000263a = (ushort)DAT_4000ca6e * 10;
+  else if (cruise_switch_unknown_voltage2 == 0) {
+    cruise_switch_unknown_voltage2 = cruise_switch_unknown_voltage;
+    DAT_4000263a = (ushort)CAL_obd_ii_switch_voltage_debounce * 10;
   }
-  else if (((int)(DAT_40002638 - 10) < (int)(uint)cruise_switch_unknown_voltage) &&
-          ((uint)cruise_switch_unknown_voltage < DAT_40002638 + 10)) {
-    if (((DAT_4000263a == 0) && (DAT_40002638 = 0, DAT_40002624 != 0)) &&
+  else if (((int)(cruise_switch_unknown_voltage2 - 10) < (int)(uint)cruise_switch_unknown_voltage)
+          && ((uint)cruise_switch_unknown_voltage < cruise_switch_unknown_voltage2 + 10)) {
+    if (((DAT_4000263a == 0) && (cruise_switch_unknown_voltage2 = 0, DAT_40002624 != 0)) &&
        (DAT_40002624 = DAT_40002624 - 1, DAT_40002624 == 0)) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0578,&LEA_obd_ii_P0578_dtc_state,&LEA_obd_ii_P0578_fail_counter,
@@ -51243,7 +51373,7 @@ void cruise_control(void)
     }
   }
   else {
-    DAT_40002638 = 0;
+    cruise_switch_unknown_voltage2 = 0;
   }
   if (DAT_40002626 == 0) {
     if (((CAL_obd_ii_P0579 & 7) != 0) && (engine_is_running != false)) {
@@ -51260,7 +51390,7 @@ void cruise_control(void)
       }
     }
     DAT_40002648 = 0;
-    DAT_40002626 = (ushort)DAT_4000cbd1 * 20;
+    DAT_40002626 = (ushort)CAL_obd_ii_P0579_stuck_timeout * 20;
   }
   if ((engine_is_running != false) &&
      (((DAT_40002624 == 0 || (DAT_4000223e == '\0')) || (DAT_40002625 == 0)))) {
@@ -51342,10 +51472,10 @@ void cruise2_200hz(void)
     cruise_flags_unknown = uVar6;
     cruise_control_state_reset();
   }
-  bVar1 = DAT_40002640 == 0;
-  DAT_40002640 = DAT_40002640 + -1;
+  bVar1 = cruise_transition_lockout_timer == 0;
+  cruise_transition_lockout_timer = cruise_transition_lockout_timer + -1;
   if (bVar1) {
-    DAT_40002640 = 0;
+    cruise_transition_lockout_timer = 0;
   }
   if (DAT_40002644 == 0) {
     obd_ii_cruise_status = obd_ii_cruise_status & 0xfffdffff;
@@ -51391,15 +51521,15 @@ void cruise2_200hz(void)
     cruise_speed_target = 0;
   }
   if ((ushort)(cruise_switch_unknown_voltage - 0x3b7) < 0x17) {
-    if (DAT_4000264b == '\0') {
+    if (cruise_stalk_idle_debounce_timer == '\0') {
       obd_ii_cruise_status = obd_ii_cruise_status & 0xfeffffff;
     }
     else {
-      DAT_4000264b = DAT_4000264b + -1;
+      cruise_stalk_idle_debounce_timer = cruise_stalk_idle_debounce_timer + -1;
     }
   }
   else {
-    DAT_4000264b = 'd';
+    cruise_stalk_idle_debounce_timer = 'd';
   }
   if ((brake_switch & 0x11) != 0) {
     uVar6 = cruise_flags_unknown | 2;
@@ -51407,7 +51537,7 @@ void cruise2_200hz(void)
       uVar6 = cruise_flags_unknown;
     }
     obd_ii_cruise_status = obd_ii_cruise_status | 0x1000000;
-    DAT_4000264b = 'd';
+    cruise_stalk_idle_debounce_timer = 'd';
     cruise_flags_unknown = uVar6;
     cruise_control_state_reset();
     cruise_cancel_request_flags = cruise_cancel_request_flags & 0xfffe;
@@ -51419,12 +51549,12 @@ void cruise2_200hz(void)
       uVar6 = cruise_flags_unknown;
     }
     obd_ii_cruise_status = obd_ii_cruise_status | 0x1000000;
-    DAT_4000264b = 'd';
+    cruise_stalk_idle_debounce_timer = 'd';
     cruise_flags_unknown = uVar6;
     cruise_control_state_reset();
     cruise_cancel_request_flags = cruise_cancel_request_flags & 0xfffe;
   }
-  if (car_current_gear < enum_t6e_gear_400015aa) {
+  if (car_current_gear < cruise_min_engage_gear) {
     uVar6 = cruise_flags_unknown | 0x400;
     if ((obd_ii_cruise_status & 2) == 0) {
       uVar6 = cruise_flags_unknown;
@@ -51483,17 +51613,17 @@ void cruise2_200hz(void)
       && ((obd_ii_cruise_status & 0x8000) == 0)) &&
      ((((obd_ii_cruise_status & 0x40) == 0 && ((obd_ii_cruise_status & 0x80000) == 0)) &&
       ((obd_ii_cruise_status & 0x800000) == 0)))) {
-    if (DAT_40002628 != 0xff) {
-      DAT_40002628 = DAT_40002628 + 1;
+    if (cruise_cancel_button_hold_count != 0xff) {
+      cruise_cancel_button_hold_count = cruise_cancel_button_hold_count + 1;
     }
-    if (3 < DAT_40002628) {
-      DAT_40002629 = 0;
-      DAT_4000262a = 0;
+    if (3 < cruise_cancel_button_hold_count) {
+      cruise_resume_button_hold_count = 0;
+      cruise_set_button_hold_count = 0;
       if ((obd_ii_cruise_status & 2) == 0) {
         if ((obd_ii_cruise_status & 1) != 0) {
           cruise_speed_target = 0;
           obd_ii_cruise_status = obd_ii_cruise_status & 0xfffffffe | 0x40;
-          DAT_40002628 = 0;
+          cruise_cancel_button_hold_count = 0;
         }
       }
       else {
@@ -51501,22 +51631,22 @@ void cruise2_200hz(void)
         cruise_flags_unknown = cruise_flags_unknown | 1;
         DAT_40002644 = (ushort)CAL_cruise_resume_timer << 1;
         obd_ii_cruise_status = obd_ii_cruise_status | 0x40;
-        DAT_40002628 = 0;
+        cruise_cancel_button_hold_count = 0;
       }
     }
   }
   else if (((((obd_ii_cruise_status & 0x1000000) == 0) && ((obd_ii_cruise_status & 1) != 0)) &&
            (((ushort)(cruise_switch_unknown_voltage - 0x6b) < 0xf &&
-            ((((cruise_speed_target != 0 && (enum_t6e_gear_400015aa <= car_current_gear)) &&
+            ((((cruise_speed_target != 0 && (cruise_min_engage_gear <= car_current_gear)) &&
               (CAL_cruise_speed_limit[1] < car_speed_u8)) &&
              ((uVar16 < uVar15 * 200 && (uVar14 * 200 < uVar16)))))))) &&
           ((obd_ii_cruise_status & 0x40) == 0)) {
-    if (DAT_40002629 != 0xff) {
-      DAT_40002629 = DAT_40002629 + 1;
+    if (cruise_resume_button_hold_count != 0xff) {
+      cruise_resume_button_hold_count = cruise_resume_button_hold_count + 1;
     }
-    if (3 < DAT_40002629) {
-      DAT_40002628 = 0;
-      DAT_4000262a = 0;
+    if (3 < cruise_resume_button_hold_count) {
+      cruise_cancel_button_hold_count = 0;
+      cruise_set_button_hold_count = 0;
     }
   }
   else if ((((obd_ii_cruise_status & 1) == 0) ||
@@ -51526,7 +51656,7 @@ void cruise2_200hz(void)
          (0x1d < (ushort)(cruise_switch_unknown_voltage - 0x176))) ||
         ((obd_ii_cruise_status & 2) == 0)) || ((obd_ii_cruise_status & 0x40) != 0)) {
       if ((ushort)(cruise_switch_unknown_voltage - 0x3b7) < 0x17) {
-        if ((byte)(DAT_40002628 - 4) < 0xec) {
+        if ((byte)(cruise_cancel_button_hold_count - 4) < 0xec) {
           if ((obd_ii_cruise_status & 2) == 0) {
             obd_ii_cruise_status = obd_ii_cruise_status ^ 1;
             if ((obd_ii_cruise_status & 1) == 0) {
@@ -51539,29 +51669,30 @@ void cruise2_200hz(void)
             DAT_40002644 = (ushort)CAL_cruise_resume_timer << 1;
           }
         }
-        DAT_40002628 = 0;
-        if ((byte)(DAT_40002629 - 4) < 0xec) {
+        cruise_cancel_button_hold_count = 0;
+        if ((byte)(cruise_resume_button_hold_count - 4) < 0xec) {
           uVar10 = obd_ii_cruise_status | 0x2010002;
           obd_ii_cruise_status = obd_ii_cruise_status | 0x10002;
           if (u16_factor_1_1023_4000893c < accel_pedal_pos_16bit) {
             obd_ii_cruise_status = uVar10;
           }
         }
-        DAT_40002629 = 0;
-        if (((((byte)(DAT_4000262a - 4) < 0xec) && (uVar14 * 200 < (ulonglong)obd_ii_engine_speed))
-            && (((ulonglong)obd_ii_engine_speed < uVar15 * 200 &&
-                ((enum_t6e_gear_400015aa <= car_current_gear &&
-                 (CAL_cruise_speed_limit[1] < car_speed_u8)))))) &&
+        cruise_resume_button_hold_count = 0;
+        if (((((byte)(cruise_set_button_hold_count - 4) < 0xec) &&
+             (uVar14 * 200 < (ulonglong)obd_ii_engine_speed)) &&
+            (((ulonglong)obd_ii_engine_speed < uVar15 * 200 &&
+             ((cruise_min_engage_gear <= car_current_gear &&
+              (CAL_cruise_speed_limit[1] < car_speed_u8)))))) &&
            (car_speed_u8 < CAL_cruise_speed_limit[0])) {
           uVar3 = obd_ii_cruise_status | 2;
           cruise_speed_target = car_speed_x100;
           uVar10 = obd_ii_cruise_status & 0x10000;
           obd_ii_cruise_status = uVar3;
           if (uVar10 != 0) {
-            DAT_40002640 = (ushort)DAT_4000880d * 4 + (ushort)DAT_4000880d;
+            cruise_transition_lockout_timer = (ushort)DAT_4000880d * 4 + (ushort)DAT_4000880d;
           }
         }
-        DAT_4000262a = 0;
+        cruise_set_button_hold_count = 0;
         DAT_400015a0 = '\x03';
         DAT_400015a3 = DAT_400015a2;
         obd_ii_cruise_status = obd_ii_cruise_status & 0xffffbf83;
@@ -51572,9 +51703,9 @@ void cruise2_200hz(void)
         obd_ii_cruise_status = obd_ii_cruise_status & 0xffffffc3;
         if (DAT_400015a0 == '\0') {
           obd_ii_cruise_status = obd_ii_cruise_status | 0x40;
-          DAT_40002628 = 0;
-          DAT_40002629 = 0;
-          DAT_4000262a = 0;
+          cruise_cancel_button_hold_count = 0;
+          cruise_resume_button_hold_count = 0;
+          cruise_set_button_hold_count = 0;
         }
         else {
           DAT_400015a0 = DAT_400015a0 + -1;
@@ -51583,9 +51714,9 @@ void cruise2_200hz(void)
       else {
         obd_ii_cruise_status = obd_ii_cruise_status | 0x4000;
         if (DAT_400015a1 == '\0') {
-          DAT_40002628 = 0;
-          DAT_40002629 = 0;
-          DAT_4000262a = 0;
+          cruise_cancel_button_hold_count = 0;
+          cruise_resume_button_hold_count = 0;
+          cruise_set_button_hold_count = 0;
         }
       }
     }
@@ -51599,14 +51730,14 @@ void cruise2_200hz(void)
       }
       if (DAT_400015a3 == '\0') {
         obd_ii_cruise_status = obd_ii_cruise_status | 8;
-        DAT_40002640 = (ushort)DAT_4000880d * 4 + (ushort)DAT_4000880d;
+        cruise_transition_lockout_timer = (ushort)DAT_4000880d * 4 + (ushort)DAT_4000880d;
       }
       else {
         DAT_400015a3 = DAT_400015a3 + -1;
       }
-      DAT_40002628 = 0;
-      DAT_40002629 = 0;
-      DAT_4000262a = 0;
+      cruise_cancel_button_hold_count = 0;
+      cruise_resume_button_hold_count = 0;
+      cruise_set_button_hold_count = 0;
     }
     else {
       DAT_400015a0 = DAT_400015a0 + -1;
@@ -51615,12 +51746,12 @@ void cruise2_200hz(void)
   else if (((((obd_ii_cruise_status & 2) == 0) || ((obd_ii_cruise_status & 0x400) != 0)) ||
            (((obd_ii_cruise_status & 0x10000) != 0 || ((obd_ii_cruise_status & 0x2000000) != 0))))
           && ((obd_ii_cruise_status & 4) == 0)) {
-    if (DAT_4000262a != 0xff) {
-      DAT_4000262a = DAT_4000262a + 1;
+    if (cruise_set_button_hold_count != 0xff) {
+      cruise_set_button_hold_count = cruise_set_button_hold_count + 1;
     }
-    if (3 < DAT_4000262a) {
-      DAT_40002628 = 0;
-      DAT_40002629 = 0;
+    if (3 < cruise_set_button_hold_count) {
+      cruise_cancel_button_hold_count = 0;
+      cruise_resume_button_hold_count = 0;
     }
   }
   else {
@@ -51634,7 +51765,7 @@ void cruise2_200hz(void)
       }
       if (DAT_400015a3 == '\0') {
         obd_ii_cruise_status = obd_ii_cruise_status | 4;
-        DAT_40002640 = (ushort)DAT_4000880d * 4 + (ushort)DAT_4000880d;
+        cruise_transition_lockout_timer = (ushort)DAT_4000880d * 4 + (ushort)DAT_4000880d;
       }
       else {
         DAT_400015a3 = DAT_400015a3 + -1;
@@ -51643,9 +51774,9 @@ void cruise2_200hz(void)
     else {
       DAT_400015a0 = DAT_400015a0 + -1;
     }
-    DAT_4000262a = 0;
-    DAT_40002628 = 0;
-    DAT_40002629 = 0;
+    cruise_set_button_hold_count = 0;
+    cruise_cancel_button_hold_count = 0;
+    cruise_resume_button_hold_count = 0;
   }
   DAT_400015a1 = 3;
   bVar1 = DAT_400015a6 == '\0';
@@ -51700,11 +51831,12 @@ void cruise2_200hz(void)
             if ((int)uVar10 < 0) {
               uVar10 = 0;
             }
-            DAT_4000264d = (byte)uVar10;
-            if ((DAT_4000893e != 0) && (DAT_4000264d < DAT_4000893e)) {
+            cruise_speed_error_normalized = (byte)uVar10;
+            if ((CAL_cruise_feedforward_blend_threshold != 0) &&
+               (cruise_speed_error_normalized < CAL_cruise_feedforward_blend_threshold)) {
               uVar10 = uVar4 + (int)((uVar10 & 0xff) *
                                     ((uint)PTR_DAT_400015b0._0_2_ + (uint)bVar11 * -100)) /
-                               (int)(uint)DAT_4000893e;
+                               (int)(uint)CAL_cruise_feedforward_blend_threshold;
               if ((int)uVar10 < (int)uVar4) {
                 uVar10 = uVar4;
               }
@@ -51715,7 +51847,7 @@ void cruise2_200hz(void)
             if (uVar4 < DAT_400015a8) {
               DAT_400015a8 = (ushort)uVar4;
             }
-            DAT_4000264d = 0;
+            cruise_speed_error_normalized = 0;
           }
         }
         else {
@@ -51734,20 +51866,21 @@ void cruise2_200hz(void)
         }
       }
       lVar9 = libc_abs(uVar17 - DAT_40002618);
-      if ((((int)(uint)DAT_4000886d < (int)lVar9) && (DAT_40002640 == 0)) &&
-         ((obd_ii_cruise_status & 0x2000000) == 0)) {
+      if ((((int)(uint)CAL_cruise_airflow_slew_step < (int)lVar9) &&
+          (cruise_transition_lockout_timer == 0)) && ((obd_ii_cruise_status & 0x2000000) == 0)) {
         if ((ulonglong)DAT_40002618 < (uVar17 & 0xffffffff)) {
-          DAT_40002618 = DAT_40002618 + DAT_4000886d;
+          DAT_40002618 = DAT_40002618 + CAL_cruise_airflow_slew_step;
           obd_ii_cruise_status = obd_ii_cruise_status & 0xffffefff | 0x800;
         }
         else {
-          DAT_40002618 = DAT_40002618 - DAT_4000886d;
+          DAT_40002618 = DAT_40002618 - CAL_cruise_airflow_slew_step;
           obd_ii_cruise_status = obd_ii_cruise_status & 0xfffff7ff | 0x1000;
         }
       }
       else if (((ulonglong)DAT_40002618 < (uVar17 & 0xffffffff)) &&
-              ((ulonglong)DAT_4000886d << 1 < (uVar17 - DAT_40002618 & 0xffffffff))) {
-        DAT_40002618 = DAT_40002618 + (ushort)DAT_4000886d * 2;
+              ((ulonglong)CAL_cruise_airflow_slew_step << 1 < (uVar17 - DAT_40002618 & 0xffffffff)))
+      {
+        DAT_40002618 = DAT_40002618 + (ushort)CAL_cruise_airflow_slew_step * 2;
         obd_ii_cruise_status = obd_ii_cruise_status & 0xffffefff | 0x800;
       }
       else {
@@ -51820,12 +51953,12 @@ void cruise2_200hz(void)
         else if ((accel_front_wheels <= (short)(ushort)CAL_cruise_integral_freeze_accel) ||
                 (cruise_speed_error == 0)) {
           if ((int)cruise_integral_accum + (int)(short)cruise_speed_error / 10 <
-              (int)((uint)DAT_400087ea * -0xfa)) {
-            cruise_integral_accum = (ushort)DAT_400087ea * -0xfa;
+              (int)((uint)CAL_cruise_integrator_clamp * -0xfa)) {
+            cruise_integral_accum = (ushort)CAL_cruise_integrator_clamp * -0xfa;
           }
-          else if ((int)((uint)DAT_400087ea * 0xfa) <
+          else if ((int)((uint)CAL_cruise_integrator_clamp * 0xfa) <
                    (int)cruise_integral_accum + (int)(short)cruise_speed_error / 10) {
-            cruise_integral_accum = (ushort)DAT_400087ea * 0xfa;
+            cruise_integral_accum = (ushort)CAL_cruise_integrator_clamp * 0xfa;
           }
           else if (((((short)cruise_speed_error < 0) && (cruise_virtual_pps_request != 0)) &&
                    ((obd_ii_cruise_status & 0x1000) == 0)) ||
@@ -51852,12 +51985,12 @@ void cruise2_200hz(void)
         if (((DAT_4000263e == cruise_speed_target) && ((obd_ii_cruise_status & 0x400) == 0)) &&
            ((obd_ii_cruise_status & 0x2000) != 0)) {
           if (((int)(short)cruise_speed_error - (int)(short)DAT_4000262c) / 10 <
-              (int)((uint)DAT_400087eb * -0x19)) {
-            DAT_40002630 = (ushort)DAT_400087eb * -0x19;
+              (int)((uint)CAL_cruise_derivative_clamp * -0x19)) {
+            DAT_40002630 = (ushort)CAL_cruise_derivative_clamp * -0x19;
           }
-          else if ((int)((uint)DAT_400087eb * 0x19) <
+          else if ((int)((uint)CAL_cruise_derivative_clamp * 0x19) <
                    ((int)(short)cruise_speed_error - (int)(short)DAT_4000262c) / 10) {
-            DAT_40002630 = (ushort)DAT_400087eb * 0x19;
+            DAT_40002630 = (ushort)CAL_cruise_derivative_clamp * 0x19;
           }
           else {
             iVar5 = (int)(short)cruise_speed_error - (int)(short)DAT_4000262c;
@@ -51932,15 +52065,15 @@ void cruise2_200hz(void)
     }
     if (((obd_ii_cruise_status & 0x400) == 0) ||
        (0x1d < (ushort)(cruise_switch_unknown_voltage - 0x176))) {
-      DAT_40002634 = CAL_cruise_unknown2;
+      cruise_coast_switch_override_timer = CAL_cruise_unknown2;
     }
     else {
-      bVar1 = DAT_40002634 == '\0';
-      DAT_40002634 = DAT_40002634 + -1;
+      bVar1 = cruise_coast_switch_override_timer == '\0';
+      cruise_coast_switch_override_timer = cruise_coast_switch_override_timer + -1;
       if (bVar1) {
-        DAT_40002634 = '\0';
+        cruise_coast_switch_override_timer = '\0';
       }
-      if (DAT_40002634 == '\0') {
+      if (cruise_coast_switch_override_timer == '\0') {
         uVar6 = cruise_flags_unknown | 0x2000;
         if ((obd_ii_cruise_status & 2) == 0) {
           uVar6 = cruise_flags_unknown;
@@ -52224,9 +52357,10 @@ void torque_model(void)
          (u16_angle_1_4deg)
          ((ulonglong)
           (longlong)
-          (int)((uint)ign_retard_knock[4] + (uint)ign_retard_knock[2] + (uint)ign_retard_knock[0] +
-               (uint)ign_retard_knock[5] + (uint)ign_retard_knock[3] + (uint)ign_retard_knock[1]) /
-         6);
+          (int)((uint)ign_knock_retard_octane[4] +
+                (uint)ign_knock_retard_octane[2] + (uint)ign_knock_retard_octane[0] +
+               (uint)ign_knock_retard_octane[5] +
+               (uint)ign_knock_retard_octane[3] + (uint)ign_knock_retard_octane[1]) / 6);
   }
   else {
     ign_retard_knock_avg = 0;
@@ -52239,7 +52373,7 @@ void torque_model(void)
         knock_retard_cyl0 = 0;
       }
       else {
-        knock_retard_cyl0 = (ushort)ign_retard_knock[0];
+        knock_retard_cyl0 = (ushort)ign_knock_retard_octane[0];
       }
       bVar112 = false;
       if (((coilpack_failure_flags & 2) != 0) || ((misfire_condition_flags & 0x40) != 0)) {
@@ -52249,7 +52383,7 @@ void torque_model(void)
         knock_retard_cyl1 = 0;
       }
       else {
-        knock_retard_cyl1 = (ushort)ign_retard_knock[1];
+        knock_retard_cyl1 = (ushort)ign_knock_retard_octane[1];
       }
       bVar123 = false;
       if (((coilpack_failure_flags & 4) != 0) || ((misfire_condition_flags & 0x20) != 0)) {
@@ -52259,7 +52393,7 @@ void torque_model(void)
         knock_retard_cyl2 = 0;
       }
       else {
-        knock_retard_cyl2 = (ushort)ign_retard_knock[2];
+        knock_retard_cyl2 = (ushort)ign_knock_retard_octane[2];
       }
       bVar31 = false;
       if (((coilpack_failure_flags & 8) != 0) || ((misfire_condition_flags & 0x40) != 0)) {
@@ -52269,7 +52403,7 @@ void torque_model(void)
         knock_retard_cyl3 = 0;
       }
       else {
-        knock_retard_cyl3 = (ushort)ign_retard_knock[3];
+        knock_retard_cyl3 = (ushort)ign_knock_retard_octane[3];
       }
       bVar211 = false;
       if (((coilpack_failure_flags & 0x10) != 0) || ((misfire_condition_flags & 0x20) != 0)) {
@@ -52279,7 +52413,7 @@ void torque_model(void)
         knock_retard_cyl4 = 0;
       }
       else {
-        knock_retard_cyl4 = (ushort)ign_retard_knock[4];
+        knock_retard_cyl4 = (ushort)ign_knock_retard_octane[4];
       }
       bVar3 = false;
       if (((coilpack_failure_flags & 0x20) != 0) || ((misfire_condition_flags & 0x40) != 0)) {
@@ -52289,7 +52423,7 @@ void torque_model(void)
         knock_retard_cyl5 = 0;
       }
       else {
-        knock_retard_cyl5 = (ushort)ign_retard_knock[5];
+        knock_retard_cyl5 = (ushort)ign_knock_retard_octane[5];
       }
       ign_retard_knock_avg =
            (u16_angle_1_4deg)
@@ -52323,34 +52457,34 @@ void torque_model(void)
   ign_adv_sum_firing_cyl = 0;
   if ((ignition_on_flags & 1) != 0) {
     if ((misfire_condition_flags & 0x20) == 0) {
-      if (((o2_sensor_ready_per_cyl[0] != 0) && ((coilpack_failure_flags & 1) == 0)) &&
+      if (((ign_cyl_enabled[0] != 0) && ((coilpack_failure_flags & 1) == 0)) &&
          ((cyl_fuelcut_sparking_mask & 1) == 0)) {
         nonfiring_cyl_count = 5;
         ign_adv_sum_firing_cyl = obd_ii_ign_adv_per_cylinder[0];
       }
-      if (((o2_sensor_ready_per_cyl[2] != 0) && ((coilpack_failure_flags & 4) == 0)) &&
+      if (((ign_cyl_enabled[2] != 0) && ((coilpack_failure_flags & 4) == 0)) &&
          ((cyl_fuelcut_sparking_mask & 4) == 0)) {
         nonfiring_cyl_count = nonfiring_cyl_count - 1;
         ign_adv_sum_firing_cyl = ign_adv_sum_firing_cyl + obd_ii_ign_adv_per_cylinder[2];
       }
-      if (((o2_sensor_ready_per_cyl[4] != 0) && ((coilpack_failure_flags & 0x10) == 0)) &&
+      if (((ign_cyl_enabled[4] != 0) && ((coilpack_failure_flags & 0x10) == 0)) &&
          ((cyl_fuelcut_sparking_mask & 0x10) == 0)) {
         nonfiring_cyl_count = nonfiring_cyl_count - 1;
         ign_adv_sum_firing_cyl = ign_adv_sum_firing_cyl + obd_ii_ign_adv_per_cylinder[4];
       }
     }
     if ((misfire_condition_flags & 0x40) == 0) {
-      if (((o2_sensor_ready_per_cyl[1] != 0) && ((coilpack_failure_flags & 2) == 0)) &&
+      if (((ign_cyl_enabled[1] != 0) && ((coilpack_failure_flags & 2) == 0)) &&
          ((cyl_fuelcut_sparking_mask & 2) == 0)) {
         nonfiring_cyl_count = nonfiring_cyl_count - 1;
         ign_adv_sum_firing_cyl = ign_adv_sum_firing_cyl + obd_ii_ign_adv_per_cylinder[1];
       }
-      if (((o2_sensor_ready_per_cyl[3] != 0) && ((coilpack_failure_flags & 8) == 0)) &&
+      if (((ign_cyl_enabled[3] != 0) && ((coilpack_failure_flags & 8) == 0)) &&
          ((cyl_fuelcut_sparking_mask & 8) == 0)) {
         nonfiring_cyl_count = nonfiring_cyl_count - 1;
         ign_adv_sum_firing_cyl = ign_adv_sum_firing_cyl + obd_ii_ign_adv_per_cylinder[3];
       }
-      if (((o2_sensor_ready_per_cyl[5] != 0) && ((coilpack_failure_flags & 0x20) == 0)) &&
+      if (((ign_cyl_enabled[5] != 0) && ((coilpack_failure_flags & 0x20) == 0)) &&
          ((cyl_fuelcut_sparking_mask & 0x20) == 0)) {
         nonfiring_cyl_count = nonfiring_cyl_count - 1;
         ign_adv_sum_firing_cyl = ign_adv_sum_firing_cyl + obd_ii_ign_adv_per_cylinder[5];
@@ -52520,7 +52654,7 @@ void torque_model(void)
     }
   }
                     // 42/255 is the mount of torque reduction, per cylinder from a hard cut.
-  constant_42 = 42;
+  torque_factor_per_cyl_step = 42;
   torque_cut_demand_factor = (ushort)torque_limit_external_factor - (ushort)torque_limit_base_factor
   ;
   _torque_limit_base_factor = (ulonglong)torque_limit_base_factor;
@@ -52546,7 +52680,7 @@ void torque_model(void)
       lVar5 = libc_abs(((ulonglong)torque_limit_external_factor +
                        (longlong)(int)(uint)torque_cut_level_as_cyl_count * 0x2a) -
                        _torque_limit_base_factor);
-      lVar6 = libc_abs((0xff - (longlong)(int)(uint)constant_42 *
+      lVar6 = libc_abs((0xff - (longlong)(int)(uint)torque_factor_per_cyl_step *
                                (longlong)(int)(torque_cut_level_as_cyl_count + 1)) -
                        (ulonglong)torque_limit_external_factor);
       if ((int)lVar6 < (int)lVar5) {
@@ -52556,10 +52690,11 @@ void torque_model(void)
     if (torque_cut_level_as_cyl_count < failed_ignition_cyl_count) {
       torque_cut_level_as_cyl_count = failed_ignition_cyl_count;
     }
-    if ((uint)torque_limit_external_factor + (uint)constant_42 * (uint)torque_cut_level_as_cyl_count
-        < 0x100) {
+    if ((uint)torque_limit_external_factor +
+        (uint)torque_factor_per_cyl_step * (uint)torque_cut_level_as_cyl_count < 0x100) {
       torque_allowed_factor =
-           torque_limit_external_factor + constant_42 * torque_cut_level_as_cyl_count;
+           torque_limit_external_factor + torque_factor_per_cyl_step * torque_cut_level_as_cyl_count
+      ;
       if ((torque_cut_level_as_cyl_count != 0) && (torque_cut_level_as_cyl_count < 6)) {
         iVar1 = (int)((0xff - (uint)torque_allowed_factor) * 6) /
                 (int)(6 - (uint)torque_cut_level_as_cyl_count);
@@ -52925,7 +53060,7 @@ void torque_limit_request_arbitration(void)
       abs_esp_can_torque_request_flags = abs_esp_can_torque_request_flags | 0x800;
       torque_limit_0xb7_hold_timer = CAL_torque_ext_torque_limit_hold_count;
     }
-    if (((flexcan_mesg_0xb7_is_7byte) && ((abs_esp_can_torque_request_flags & 0x400) != 0)) &&
+    if (((tc_torque_limit_use_slow_path) && ((abs_esp_can_torque_request_flags & 0x400) != 0)) &&
        ((short)torque_limit_0xb7_fast_validated < (short)torque_limit_external_tc_slow)) {
       if ((short)torque_alphaN_net < (short)torque_limit_external_tc_slow) {
         if ((short)torque_limit_0xb7_fast_validated < (short)torque_alphaN_net) {
@@ -53026,7 +53161,7 @@ void torque_limit_request_arbitration(void)
     tcu_can_status_flags = tcu_can_status_flags & 0xf3ff;
     torque_limit_tcu_hold_timer = '\0';
   }
-  if (((COD_base.COD[0] >> 0xd & 7) == 1) && ((DAT_40002687 & 1) != 0)) {
+  if (((COD_base.COD[0] >> 0xd & 7) == 1) && ((ips_shift_torque_request_active & 1) != 0)) {
     torque_limit_ips_shift_fast = torque_requested_during_shift_raw;
     torque_limit_ips_shift_slow = torque_requested_during_shift_scaled;
     DAT_4000268c = 1;
@@ -53071,13 +53206,13 @@ void torque_limit_request_arbitration(void)
     dpm_torque_split_active = false;
     bVar4 = false;
   }
-  if (((flexcan_mesg_0xb7_is_7byte) || (tcu_slow_channel_active_never_set)) || ((bVar3 || (bVar4))))
-  {
-    DAT_4000268e = 1;
+  if (((tc_torque_limit_use_slow_path) || (tcu_slow_channel_active_never_set)) ||
+     ((bVar3 || (bVar4)))) {
+    torque_limit_slow_path_active = 1;
     bVar3 = true;
   }
   else {
-    DAT_4000268e = 0;
+    torque_limit_slow_path_active = 0;
     bVar3 = false;
   }
   if ((((tcu_can_status_flags & 0xc00) == 0) || ((abs_esp_can_torque_request_flags & 0x3800) == 0))
@@ -53090,7 +53225,7 @@ void torque_limit_request_arbitration(void)
           torque_limit_arbitrated_fast = torque_limit_dpm_spark;
           torque_limit_arbitrated_slow = torque_limit_dpm_throttle;
         }
-        else if ((DAT_40002687 & 1) == 0) {
+        else if ((ips_shift_torque_request_active & 1) == 0) {
           if ((tcu_can_status_flags & 0xc00) == 0) {
             torque_limit_arbitrated_fast = 911;
             torque_limit_arbitrated_slow = 911;
@@ -53130,7 +53265,7 @@ void torque_limit_request_arbitration(void)
     }
     bVar2 = !bVar1;
     if (bVar3) {
-      if ((flexcan_mesg_0xb7_is_7byte) && (tcu_slow_channel_active_never_set)) {
+      if ((tc_torque_limit_use_slow_path) && (tcu_slow_channel_active_never_set)) {
         if (((short)torque_limit_0xb7_slow_validated < (short)torque_limit_tcu_0xc7_validated) ||
            ((short)torque_limit_0xb7_slow_validated < (short)torque_limit_arbitrated_fast)) {
           if (((short)torque_limit_tcu_0xc7_validated < (short)torque_limit_0xb7_slow_validated) ||
@@ -53145,7 +53280,7 @@ void torque_limit_request_arbitration(void)
           torque_limit_arbitrated_slow = torque_limit_0xb7_slow_validated;
         }
       }
-      else if (flexcan_mesg_0xb7_is_7byte) {
+      else if (tc_torque_limit_use_slow_path) {
         if ((short)torque_limit_tcu_0xc7_validated < (short)torque_limit_0xb7_slow_validated) {
           torque_limit_arbitrated_slow = torque_limit_0xb7_slow_validated;
         }
@@ -53206,7 +53341,7 @@ void torque_limit_request_arbitration(void)
   }
   if (((((abs_esp_can_torque_request_flags & 0x3800) == 0) ||
        ((abs_esp_can_torque_request_flags & 0x1000) == 0)) || (!bVar2)) &&
-     (((DAT_40002687 & 1) == 0 &&
+     (((ips_shift_torque_request_active & 1) == 0 &&
       ((short)torque_cruise_request < (short)torque_limit_arbitrated_fast)))) {
     torque_limit_arbitrated_fast = torque_cruise_request;
     bVar1 = false;
@@ -53301,7 +53436,7 @@ void torque_limit_request_arbitration(void)
         tcu_torque_limit_onset_latch = '\0';
       }
       else if ((((COD_base.COD[1] >> 0xe & 1) == 0) || ((COD_base.COD[0] >> 0xd & 7) != 1)) ||
-              ((DAT_40002687 & 1) == 0)) {
+              ((ips_shift_torque_request_active & 1) == 0)) {
         if ((((((COD_base.COD[1] >> 0xe & 1) == 0) || ((COD_base.COD[0] >> 0xd & 7) != 1)) ||
              (!tcu_0xc7_torque_request_active)) ||
             (((tcu_can_status_flags & 0x100) == 0 || ((tcu_can_status_flags & 0x400) == 0)))) ||
@@ -53443,7 +53578,7 @@ void obd_ii_mode14_processing(void)
 
 
 
-void FUN_000beeb8(uint16_t param_1)
+void ac_set_compressor_pwm(uint16_t param_1)
 
 {
   eTPU_calculate_and_set_channel_value('\x10',param_1);
@@ -53458,81 +53593,82 @@ byte ac_compressor_criteria_check(void)
   ushort uVar1;
   byte bVar2;
   
-  uVar1 = DAT_400026de | 8;
+  uVar1 = ac_inhibit_flags | 8;
   if (CAL_ac_compressor_runtime_min < runtime_since_start) {
-    uVar1 = DAT_400026de & 0xfff7;
+    uVar1 = ac_inhibit_flags & 0xfff7;
   }
   if ((short)(ushort)CAL_ac_compressor_max_throttle < (short)accel_pedal_latched >> 2) {
-    DAT_400026de = uVar1 | 1;
+    ac_inhibit_flags = uVar1 | 1;
   }
   else {
-    DAT_400026de = uVar1;
+    ac_inhibit_flags = uVar1;
     if ((short)accel_pedal_latched >> 2 < (short)(ushort)DAT_400086b7) {
-      DAT_400026de = uVar1 & 0xfffe;
+      ac_inhibit_flags = uVar1 & 0xfffe;
     }
   }
-  if ((DAT_400026de & 1) == 0) {
-    DAT_400026e3 = DAT_400086ca;
+  if ((ac_inhibit_flags & 1) == 0) {
+    ac_tps_inhibit_timer = DAT_400086ca;
   }
   if (CAL_ac_compressor_max_coolant_temp_max < coolant_temp) {
-    DAT_400026de = DAT_400026de | 2;
+    ac_inhibit_flags = ac_inhibit_flags | 2;
   }
   else if (coolant_temp < CAL_ac_compressor_max_coolant_temp_min) {
-    DAT_400026de = DAT_400026de & 0xfffd;
+    ac_inhibit_flags = ac_inhibit_flags & 0xfffd;
   }
   if (CAL_ac_compressor_engine_speed_max < engine_speed_8bit) {
-    if (DAT_40002716 == '\0') {
-      DAT_400026de = DAT_400026de | 4;
+    if (ac_rpm_inhibit_delay_timer == '\0') {
+      ac_inhibit_flags = ac_inhibit_flags | 4;
     }
   }
   else if (engine_speed_8bit < CAL_ac_compressor_engine_speed_min) {
-    DAT_400026de = DAT_400026de & 0xfffb;
-    DAT_40002716 = DAT_400086c6;
+    ac_inhibit_flags = ac_inhibit_flags & 0xfffb;
+    ac_rpm_inhibit_delay_timer = DAT_400086c6;
   }
   if (CAL_ac_compressor_engine_speed2[0] < engine_speed_8bit) {
-    if ((DAT_40002720 == 0) && ((DAT_400026de & 0x40) == 0)) {
-      DAT_400026de = DAT_400026de | 0x40;
-      DAT_40002722 = (ushort)DAT_40008787 * 10;
+    if ((DAT_40002720 == 0) && ((ac_inhibit_flags & 0x40) == 0)) {
+      ac_inhibit_flags = ac_inhibit_flags | 0x40;
+      ac_rpm_cutoff_min_hold_timer = (ushort)DAT_40008787 * 10;
     }
   }
-  else if (((engine_speed_8bit < CAL_ac_compressor_engine_speed2[1]) && (DAT_40002722 == 0)) ||
-          (car_speed_u8 == '\0')) {
-    DAT_400026de = DAT_400026de & 0xffbf;
-    DAT_40002722 = 0;
+  else if (((engine_speed_8bit < CAL_ac_compressor_engine_speed2[1]) &&
+           (ac_rpm_cutoff_min_hold_timer == 0)) || (car_speed_u8 == '\0')) {
+    ac_inhibit_flags = ac_inhibit_flags & 0xffbf;
+    ac_rpm_cutoff_min_hold_timer = 0;
     DAT_40002720 = (ushort)DAT_40008786 * 10;
   }
   if (CAL_ac_compressor_deactivate_car_speed[0] < car_speed_u8) {
-    DAT_400026de = DAT_400026de | 0x10;
+    ac_inhibit_flags = ac_inhibit_flags | 0x10;
   }
   else if (car_speed_u8 < CAL_ac_compressor_deactivate_car_speed[1]) {
-    DAT_400026de = DAT_400026de & 0xffef;
+    ac_inhibit_flags = ac_inhibit_flags & 0xffef;
   }
-  if ((short)(ushort)DAT_40008707 < (short)obd_ii_ac_evap_temp) {
+  if ((short)(ushort)CAL_ac_inhibit_evap_temp < (short)obd_ii_ac_evap_temp) {
     if ((short)(ushort)DAT_40008708 < (short)obd_ii_ac_evap_temp) {
-      DAT_400026de = DAT_400026de & 0xffdf;
-      DAT_40002718 = (ushort)DAT_40008718 << 2;
+      ac_inhibit_flags = ac_inhibit_flags & 0xffdf;
+      ac_evap_freeze_inhibit_timer = (ushort)CAL_ac_evap_freeze_inhibit_delay << 2;
     }
-    else if ((DAT_400026de & 0x20) == 0) {
-      DAT_40002718 = (ushort)DAT_40008718 << 2;
+    else if ((ac_inhibit_flags & 0x20) == 0) {
+      ac_evap_freeze_inhibit_timer = (ushort)CAL_ac_evap_freeze_inhibit_delay << 2;
     }
   }
-  else if ((DAT_40002718 == 0) && (DAT_4000271a == '\0')) {
-    if ((DAT_400026de & 0x20) == 0) {
+  else if ((ac_evap_freeze_inhibit_timer == 0) && (DAT_4000271a == '\0')) {
+    if ((ac_inhibit_flags & 0x20) == 0) {
       init_ac_system_timers();
     }
-    DAT_400026de = DAT_400026de | 0x20;
+    ac_inhibit_flags = ac_inhibit_flags | 0x20;
   }
   if (engine_speed_16bit < (ushort)((ushort)CAL_ac_compressor_engine_speed3[0] << 2)) {
-    DAT_400026de = DAT_400026de | 0x80;
+    ac_inhibit_flags = ac_inhibit_flags | 0x80;
   }
   else if ((ushort)((ushort)CAL_ac_compressor_engine_speed3[1] << 2) < engine_speed_16bit) {
-    DAT_400026de = DAT_400026de & 0xff7f;
+    ac_inhibit_flags = ac_inhibit_flags & 0xff7f;
   }
   if (ac_compressor_state == (AC_FAIL|AC_START)) {
     bVar2 = 1;
   }
-  else if (((DAT_400026de & 0xfe) == 0) &&
-          (((DAT_400026de & 1) == 0 || (((DAT_400026de & 1) != 0 && (DAT_400026e3 == '\0')))))) {
+  else if (((ac_inhibit_flags & 0xfe) == 0) &&
+          (((ac_inhibit_flags & 1) == 0 ||
+           (((ac_inhibit_flags & 1) != 0 && (ac_tps_inhibit_timer == '\0')))))) {
     bVar2 = 0;
   }
   else {
@@ -53549,10 +53685,10 @@ bool get_ac_cooling_fan_required(void)
   bool rv;
   
   if (digital_input_debounced[2] == '\0') {
-    rv = SUB81((-(ulonglong)DAT_400026fe & 0xffffffff) >> 0x1f,0);
+    rv = SUB81((-(ulonglong)ac_fan_startup_hold_timer & 0xffffffff) >> 0x1f,0);
   }
   else {
-    DAT_400026fe = (ushort)DAT_400086d5 * 10;
+    ac_fan_startup_hold_timer = (ushort)DAT_400086d5 * 10;
     rv = true;
   }
   return rv;
@@ -53599,18 +53735,18 @@ int16_t clip_value(int16_t val,int16_t lower_bound,int16_t upper_bound)
 void init_ac_system_timers(void)
 
 {
-  DAT_400015f9 = DAT_4000871e;
-  DAT_400026ea = 0;
+  DAT_400015f9 = CAL_ac_load_ramp_steps;
+  ac_pid_p_term = 0;
   DAT_400026ec = 0;
-  DAT_400026ee = 0;
+  ac_pid_d_term = 0;
   DAT_40002714 = 0;
-  DAT_400026f0 = 0;
-  DAT_400026f2 = 0;
+  ac_pid_out_accum = 0;
+  ac_pid_target_accum = 0;
   DAT_400026f4 = 0;
-  DAT_400026fc = 0;
-  DAT_400015fb = DAT_40008727;
-  DAT_4000270a = (ushort)DAT_4000873c * (ushort)CAL_ac_evap_timer_ticks_5ms;
-  DAT_4000270c = (ushort)DAT_4000873d * (ushort)CAL_ac_evap_timer_ticks_5ms;
+  ac_compressor_dc = 0;
+  ac_compressor_soft_engage_timer = CAL_ac_compressor_soft_engage_time;
+  DAT_4000270a = (ushort)CAL_ac_load_slew_up_period_ * (ushort)CAL_ac_evap_timer_ticks_5ms;
+  DAT_4000270c = (ushort)CAL_ac_load_slew_down_period * (ushort)CAL_ac_evap_timer_ticks_5ms;
   DAT_4000271c = obd_ii_ac_evap_temp;
   DAT_4000271f = 0;
   return;
@@ -53638,7 +53774,7 @@ void ac_compressor(void)
   if (bVar1 == 0) {
     if ((ac_clutch_input == false) || (DAT_400026fa != '\0')) {
       ac_compressor_request = 0;
-      DAT_400026e1 = DAT_400086b8;
+      DAT_400026e1 = CAL_ac_ign_comp_delay;
       DAT_400026e0 = 0;
     }
     else {
@@ -53653,10 +53789,10 @@ void ac_compressor(void)
     }
     ac_compressor_request = 0;
     DAT_400026e0 = 0;
-    DAT_400026e1 = DAT_400086b8;
+    DAT_400026e1 = CAL_ac_ign_comp_delay;
   }
   ac_cooling_fan_required = get_ac_cooling_fan_required();
-  if ((DAT_4000270e == '\0') &&
+  if ((ac_clutch_engage_request == '\0') &&
      (((obd_ii_mode2f_flags_state & 0x40000) == 0 || ((obd_ii_mode2f_flags_enabled & 0x40000) == 0))
      )) {
     obd_ii_relay_status = obd_ii_relay_status & 0xdf;
@@ -53690,7 +53826,7 @@ void ac_200hz(void)
       DAT_400026e0 = DAT_400026e0 + '\x01';
     }
   }
-  ac_evap_sensor_process();
+  ac_compressor_speed_update();
   ac_10hz_timer = ac_10hz_timer + 0xff;
   if (ac_10hz_timer == '\0') {
     ac_10hz_timer = 20;
@@ -53698,7 +53834,7 @@ void ac_200hz(void)
     _ac_load_limit =
          lookup_2D_uint8_interpolated
                    ('\x04',engine_speed_8bit,CAL_ac_load_limit,CAL_ac_load_limit_X_rpm);
-    DAT_400026f6 = (ushort)_ac_load_limit * 40;
+    ac_power_limit = (ushort)_ac_load_limit * 40;
     ac_evap_temp_delta = obd_ii_ac_evap_temp - CAL_ac_evap_target_temp;
     if ((short)ac_evap_temp_delta < 1200) {
       if ((short)ac_evap_temp_delta < -0x190) {
@@ -53721,7 +53857,7 @@ void ac_200hz(void)
       DAT_4000271e = DAT_40008719;
     }
     if (ac_compressor_state == AC_OFF) {
-      DAT_4000270e = 0;
+      ac_clutch_engage_request = 0;
       ac_compressor_ign_compensation_active = false;
       ac_load_mw___ = 0;
       init_ac_system_timers();
@@ -53731,68 +53867,74 @@ void ac_200hz(void)
         ac_compressor_ign_compensation_active = true;
       }
       if (obd_ii_ac_clutch_relay == '\0') {
-        DAT_4000270e = 1;
-        ac_load_mw___ = clip_value((ushort)DAT_40008729 * 0x28,2000,DAT_400026f6);
-        DAT_400015fb = DAT_40008727;
+        ac_clutch_engage_request = 1;
+        ac_load_mw___ = clip_value((ushort)CAL_ac_unknown3 * 0x28,2000,ac_power_limit);
+        ac_compressor_soft_engage_timer = CAL_ac_compressor_soft_engage_time;
       }
-      else if (DAT_400015fb == '\0') {
+      else if (ac_compressor_soft_engage_timer == '\0') {
         if (obd_ii_ac_clutch_relay != '\0') {
-          ac_load_mw___ = clip_value(ac_load_mw___ + DAT_400026f4,2000,DAT_400026f6);
+          ac_load_mw___ = clip_value(ac_load_mw___ + DAT_400026f4,2000,ac_power_limit);
           DAT_400015f9 = DAT_400015f9 - 1;
           if (DAT_400015f9 == 0) {
             ac_compressor_state = AC_RUNNING;
-            if (DAT_40008721 == 0) {
+            if (CAL_ac_evap_pid_ki_warm == 0) {
               DAT_400026ec = 0;
             }
             else {
               bVar6 = lookup_2D_uint8_interpolated('\b',x_val,&DAT_4000918a,&DAT_40009182);
-              DAT_400026ec = (ac_load_mw___ + (ushort)DAT_40008736 * -0x28) -
+              DAT_400026ec = (ac_load_mw___ + (ushort)CAL_ac_compressor_power_offset * -0x28) -
                              ac_evap_temp_delta * bVar6;
             }
             DAT_40002726 = ac_evap_temp_delta;
-            DAT_400026ee = 0;
+            ac_pid_d_term = 0;
             DAT_40002714 = 0;
-            DAT_4000270a = (ushort)DAT_4000873c * (ushort)CAL_ac_evap_timer_ticks_5ms;
-            DAT_4000270c = (ushort)DAT_4000873d * (ushort)CAL_ac_evap_timer_ticks_5ms;
+            DAT_4000270a = (ushort)CAL_ac_load_slew_up_period_ * (ushort)CAL_ac_evap_timer_ticks_5ms
+            ;
+            DAT_4000270c = (ushort)CAL_ac_load_slew_down_period *
+                           (ushort)CAL_ac_evap_timer_ticks_5ms;
           }
         }
       }
       else {
-        DAT_400015fb = DAT_400015fb + -1;
-        ac_load_mw___ = clip_value((ushort)DAT_40008729 * 0x28,2000,DAT_400026f6);
-        DAT_400015f9 = DAT_4000871e;
+        ac_compressor_soft_engage_timer = ac_compressor_soft_engage_timer + -1;
+        ac_load_mw___ = clip_value((ushort)CAL_ac_unknown3 * 0x28,2000,ac_power_limit);
+        DAT_400015f9 = CAL_ac_load_ramp_steps;
         bVar6 = lookup_2D_uint8_interpolated('\b',x_val,&DAT_4000918a,&DAT_40009182);
-        DAT_40002728 = clip_value((ushort)DAT_40008736 * 0x28 + ac_evap_temp_delta * bVar6,2000,
-                                  DAT_400026f6);
-        DAT_400026f4 = (short)(((ulonglong)DAT_40002728 + (ulonglong)DAT_40008729 * -0x28 &
-                               0xffffffff) / (ulonglong)DAT_4000871e);
+        DAT_40002728 = clip_value((ushort)CAL_ac_compressor_power_offset * 0x28 +
+                                  ac_evap_temp_delta * bVar6,2000,ac_power_limit);
+        DAT_400026f4 = (short)(((ulonglong)DAT_40002728 + (ulonglong)CAL_ac_unknown3 * -0x28 &
+                               0xffffffff) / (ulonglong)CAL_ac_load_ramp_steps);
       }
     }
     else if (ac_compressor_state == AC_RUNNING) {
       bVar6 = lookup_2D_uint8_interpolated('\b',x_val,&DAT_4000918a,&DAT_40009182);
-      uVar3 = (uint)DAT_400026f6;
-      if ((int)((int)(short)ac_evap_temp_delta * (uint)bVar6) < (int)(uint)DAT_400026f6) {
+      uVar3 = (uint)ac_power_limit;
+      if ((int)((int)(short)ac_evap_temp_delta * (uint)bVar6) < (int)(uint)ac_power_limit) {
         uVar3 = (int)(short)ac_evap_temp_delta * (uint)bVar6;
       }
-      DAT_400026ea = (short)uVar3;
-      if (DAT_40008721 == 0) {
+      ac_pid_p_term = (short)uVar3;
+      if (CAL_ac_evap_pid_ki_warm == 0) {
         DAT_400026ec = 0;
       }
-      else if (DAT_4000270f == '\0') {
-        if ((short)(ushort)DAT_40008707 < (short)obd_ii_ac_evap_temp) {
-          DAT_4000270f = CAL_ac_evap_timer_ticks_5ms + 0xff;
+      else if (ac_evap_pid_update_period == '\0') {
+        if ((short)(ushort)CAL_ac_inhibit_evap_temp < (short)obd_ii_ac_evap_temp) {
+          ac_evap_pid_update_period = CAL_ac_evap_timer_ticks_5ms + 0xff;
           lVar7 = (longlong)DAT_400026ec +
-                  (longlong)(int)(uint)DAT_40008721 * (longlong)(int)(short)ac_evap_temp_delta;
+                  (longlong)(int)(uint)CAL_ac_evap_pid_ki_warm *
+                  (longlong)(int)(short)ac_evap_temp_delta;
         }
         else {
-          DAT_4000270f = DAT_40008748 + -1;
+          ac_evap_pid_update_period = DAT_40008748 + -1;
           if (DAT_4000271a == '\0') {
-            if ((int)((uint)DAT_40008718 * 4 + (uint)DAT_40008778 * -4) < (int)(uint)DAT_40002718) {
+            if ((int)((uint)CAL_ac_evap_freeze_inhibit_delay * 4 + (uint)DAT_40008778 * -4) <
+                (int)(uint)ac_evap_freeze_inhibit_timer) {
               lVar7 = (longlong)DAT_400026ec +
-                      (longlong)(int)(uint)DAT_40008747 * (longlong)(int)(short)ac_evap_temp_delta;
+                      (longlong)(int)(uint)CAL_ac_evap_pid_ki_cold *
+                      (longlong)(int)(short)ac_evap_temp_delta;
             }
             else {
-              uVar3 = (int)(short)ac_evap_temp_delta * (uint)DAT_40008779 * (uint)DAT_40008747;
+              uVar3 = (int)(short)ac_evap_temp_delta *
+                      (uint)DAT_40008779 * (uint)CAL_ac_evap_pid_ki_cold;
               lVar7 = (longlong)DAT_400026ec +
                       (longlong)((int)uVar3 / 10 + ((int)uVar3 >> 0x1f)) +
                       (ulonglong)(uVar3 >> 0x1f);
@@ -53803,70 +53945,79 @@ void ac_200hz(void)
           }
         }
         lVar5 = libc_abs(lVar7);
-        if ((int)lVar5 < (int)((uint)DAT_40008722 * 0x28)) {
+        if ((int)lVar5 < (int)((uint)CAL_ac_evap_pid_integrator_limit * 0x28)) {
           DAT_4000271f = '\0';
           DAT_400026ec = (short)lVar7;
-          DAT_4000270a = (ushort)DAT_4000873c * (ushort)CAL_ac_evap_timer_ticks_5ms;
-          DAT_4000270c = (ushort)DAT_4000873d * (ushort)CAL_ac_evap_timer_ticks_5ms;
+          DAT_4000270a = (ushort)CAL_ac_load_slew_up_period_ * (ushort)CAL_ac_evap_timer_ticks_5ms;
+          DAT_4000270c = (ushort)CAL_ac_load_slew_down_period * (ushort)CAL_ac_evap_timer_ticks_5ms;
         }
         else {
           DAT_4000271f = '\x01';
           if ((int)lVar7 < 1) {
             if (DAT_4000270c == 0) {
-              if (DAT_400026f0 < 0x7d1) {
-                DAT_400026f2 = (ushort)DAT_40008736 * -0x28 + 2000;
+              if (ac_pid_out_accum < 0x7d1) {
+                ac_pid_target_accum = (ushort)CAL_ac_compressor_power_offset * -0x28 + 2000;
               }
               else {
-                DAT_400026f2 = DAT_400026f2 + (ushort)DAT_40008741 * -0x28;
-                DAT_400026ec = DAT_400026ec + (ushort)DAT_40008741 * 0x28;
+                ac_pid_target_accum =
+                     ac_pid_target_accum + (ushort)CAL_ac_load_slew_down_step * -0x28;
+                DAT_400026ec = DAT_400026ec + (ushort)CAL_ac_load_slew_down_step * 0x28;
               }
-              DAT_4000270c = (ushort)DAT_4000873d * (ushort)CAL_ac_evap_timer_ticks_5ms;
+              DAT_4000270c = (ushort)CAL_ac_load_slew_down_period *
+                             (ushort)CAL_ac_evap_timer_ticks_5ms;
             }
             else {
-              DAT_400026ec = (ushort)DAT_40008722 * -0x28;
+              DAT_400026ec = (ushort)CAL_ac_evap_pid_integrator_limit * -0x28;
             }
-            DAT_4000270a = (ushort)DAT_4000873c * (ushort)CAL_ac_evap_timer_ticks_5ms;
+            DAT_4000270a = (ushort)CAL_ac_load_slew_up_period_ * (ushort)CAL_ac_evap_timer_ticks_5ms
+            ;
           }
           else {
             if (DAT_4000270a == 0) {
-              if ((int)(short)DAT_400026f0 < (int)(uint)DAT_400026f6) {
-                DAT_400026f2 = DAT_400026f2 + (ushort)DAT_40008740 * 0x28;
-                DAT_400026ec = DAT_400026ec + (ushort)DAT_40008740 * -0x28;
+              if ((int)(short)ac_pid_out_accum < (int)(uint)ac_power_limit) {
+                ac_pid_target_accum = ac_pid_target_accum + (ushort)CAL_ac_load_slew_up_step * 0x28;
+                DAT_400026ec = DAT_400026ec + (ushort)CAL_ac_load_slew_up_step * -0x28;
               }
               else {
-                DAT_400026f2 = DAT_400026f6 + (ushort)DAT_40008736 * -0x28;
+                ac_pid_target_accum =
+                     ac_power_limit + (ushort)CAL_ac_compressor_power_offset * -0x28;
               }
-              DAT_4000270a = (ushort)DAT_4000873c * (ushort)CAL_ac_evap_timer_ticks_5ms;
+              DAT_4000270a = (ushort)CAL_ac_load_slew_up_period_ *
+                             (ushort)CAL_ac_evap_timer_ticks_5ms;
             }
             else {
-              DAT_400026ec = (ushort)DAT_40008722 * 0x28;
+              DAT_400026ec = (ushort)CAL_ac_evap_pid_integrator_limit * 0x28;
             }
-            DAT_4000270c = (ushort)DAT_4000873d * (ushort)CAL_ac_evap_timer_ticks_5ms;
+            DAT_4000270c = (ushort)CAL_ac_load_slew_down_period *
+                           (ushort)CAL_ac_evap_timer_ticks_5ms;
           }
         }
       }
       else {
-        DAT_4000270f = DAT_4000270f + -1;
+        ac_evap_pid_update_period = ac_evap_pid_update_period + -1;
       }
-      if (DAT_40008720 == 0) {
-        DAT_400026ee = 0;
+      if (CAL_ac_evap_pid_kd == 0) {
+        ac_pid_d_term = 0;
         DAT_40002714 = 0;
       }
       else {
         if (DAT_40002710 == '\0') {
           DAT_40002724 = ac_evap_temp_delta - DAT_40002726;
-          DAT_40002714 = (ushort)DAT_40008720 * DAT_40002724 * 4;
+          DAT_40002714 = (ushort)CAL_ac_evap_pid_kd * DAT_40002724 * 4;
           DAT_40002726 = ac_evap_temp_delta;
           DAT_40002710 = DAT_4000870a;
         }
         DAT_40002710 = DAT_40002710 + -1;
-        uVar3 = (int)DAT_400026ee * (0x100 - (uint)DAT_4000870b) +
-                (int)DAT_40002714 * (uint)DAT_4000870b;
-        DAT_400026ee = (short)(uVar3 >> 8) + (ushort)((int)uVar3 < 0 && (uVar3 & 0xff) != 0);
+        uVar3 = (int)ac_pid_d_term * (0x100 - (uint)CAL_ac_evap_pid_derivative_filter_alpha) +
+                (int)DAT_40002714 * (uint)CAL_ac_evap_pid_derivative_filter_alpha;
+        ac_pid_d_term = (short)(uVar3 >> 8) + (ushort)((int)uVar3 < 0 && (uVar3 & 0xff) != 0);
       }
-      DAT_400026f0 = clip_value(DAT_400026f2 + (ushort)DAT_40008736 * 0x28,2000,DAT_400026f6);
+      ac_pid_out_accum =
+           clip_value(ac_pid_target_accum + (ushort)CAL_ac_compressor_power_offset * 0x28,2000,
+                      ac_power_limit);
       ac_load_mw___ =
-           clip_value(DAT_400026ee + DAT_400026ea + DAT_400026f0 + DAT_400026ec,2000,DAT_400026f6);
+           clip_value(ac_pid_d_term + ac_pid_p_term + ac_pid_out_accum + DAT_400026ec,2000,
+                      ac_power_limit);
     }
     else if (ac_compressor_state == AC_SHUTDOWN) {
       DAT_400026f4 = (ushort)DAT_40008723 * -10;
@@ -53874,34 +54025,34 @@ void ac_200hz(void)
       if (ac_load_mw___ < 0x7d1) {
         ac_load_mw___ = 2000;
         if (ac_compressor_ign_compensation_active != false) {
-          DAT_400026e2 = DAT_400086cc;
+          DAT_400026e2 = CAL_ac_shutdown_delay;
         }
         ac_compressor_ign_compensation_active = false;
         if (DAT_400026e2 == '\0') {
-          DAT_4000270e = 0;
+          ac_clutch_engage_request = 0;
           ac_compressor_state = AC_OFF;
           DAT_400026fa = '2';
         }
       }
       else {
-        DAT_400026e2 = DAT_400086cc;
+        DAT_400026e2 = CAL_ac_shutdown_delay;
       }
     }
     else if (ac_compressor_state == AC_FAIL) {
-      DAT_4000270e = 0;
+      ac_clutch_engage_request = 0;
       ac_compressor_ign_compensation_active = false;
       ac_load_mw___ = 0;
     }
     else if (ac_compressor_state == (AC_FAIL|AC_START)) {
-      DAT_4000270e = 0;
+      ac_clutch_engage_request = 0;
       ac_compressor_ign_compensation_active = false;
       ac_load_mw___ = 0;
     }
     ac_load2____ = ac_load_mw___;
     uVar2 = ((longlong)(int)(uint)ac_load_mw___ * 0x13a5c & 0xffffffffU) /
             ((ulonglong)sensor_adc_ecu_voltage * 100);
-    DAT_400026fc = (undefined2)uVar2;
-    FUN_000beeb8(uVar2 & 0xffff);
+    ac_compressor_dc = (undefined2)uVar2;
+    ac_set_compressor_pwm(uVar2 & 0xffff);
     bVar1 = DAT_400026fa == '\0';
     DAT_400026fa = DAT_400026fa + -1;
     if (bVar1) {
@@ -53917,25 +54068,25 @@ void ac_200hz(void)
     if (bVar1) {
       DAT_400026e2 = '\0';
     }
-    bVar1 = DAT_400026e3 == '\0';
-    DAT_400026e3 = DAT_400026e3 + -1;
+    bVar1 = ac_tps_inhibit_timer == '\0';
+    ac_tps_inhibit_timer = ac_tps_inhibit_timer + -1;
     if (bVar1) {
-      DAT_400026e3 = '\0';
+      ac_tps_inhibit_timer = '\0';
     }
-    bVar1 = DAT_40002716 == '\0';
-    DAT_40002716 = DAT_40002716 + -1;
+    bVar1 = ac_rpm_inhibit_delay_timer == '\0';
+    ac_rpm_inhibit_delay_timer = ac_rpm_inhibit_delay_timer + -1;
     if (bVar1) {
-      DAT_40002716 = '\0';
+      ac_rpm_inhibit_delay_timer = '\0';
     }
-    bVar1 = DAT_40002718 == 0;
-    DAT_40002718 = DAT_40002718 - 1;
+    bVar1 = ac_evap_freeze_inhibit_timer == 0;
+    ac_evap_freeze_inhibit_timer = ac_evap_freeze_inhibit_timer - 1;
     if (bVar1) {
-      DAT_40002718 = 0;
+      ac_evap_freeze_inhibit_timer = 0;
     }
-    bVar1 = DAT_400026fe == 0;
-    DAT_400026fe = DAT_400026fe + -1;
+    bVar1 = ac_fan_startup_hold_timer == 0;
+    ac_fan_startup_hold_timer = ac_fan_startup_hold_timer + -1;
     if (bVar1) {
-      DAT_400026fe = 0;
+      ac_fan_startup_hold_timer = 0;
     }
     sVar4 = DAT_4000270c;
     if (DAT_4000271f != '\0') {
@@ -53955,10 +54106,10 @@ void ac_200hz(void)
     if (bVar1) {
       DAT_4000271e = '\0';
     }
-    bVar1 = DAT_40002722 == 0;
-    DAT_40002722 = DAT_40002722 + -1;
+    bVar1 = ac_rpm_cutoff_min_hold_timer == 0;
+    ac_rpm_cutoff_min_hold_timer = ac_rpm_cutoff_min_hold_timer + -1;
     if (bVar1) {
-      DAT_40002722 = 0;
+      ac_rpm_cutoff_min_hold_timer = 0;
     }
     bVar1 = DAT_40002720 == 0;
     DAT_40002720 = DAT_40002720 + -1;
@@ -53971,13 +54122,13 @@ void ac_200hz(void)
 
 
 
-void ac_evap_sensor_process(void)
+void ac_compressor_speed_update(void)
 
 {
   uint uVar1;
   
-  uVar1 = fuel_level_sensor_flag;
-  if (0xfffff < fuel_level_sensor_flag) {
+  uVar1 = ac_compressor_speed_period_us;
+  if (0xfffff < ac_compressor_speed_period_us) {
     uVar1 = 0xfffff;
   }
   if (uVar1 == 0xfffff) {
@@ -53985,9 +54136,9 @@ void ac_evap_sensor_process(void)
   }
   else {
     DAT_40002730 = (ushort)(60000000 / (ulonglong)uVar1);
-    uVar1 = (0x100 - (uint)DAT_4000887b) * DAT_4000272c;
+    uVar1 = (0x100 - (uint)CAL_ac_compressor_speed_filter_coeff) * DAT_4000272c;
     DAT_4000272c = ((int)uVar1 >> 8) + (uint)((int)uVar1 < 0 && (uVar1 & 0xff) != 0) +
-                   (uint)DAT_4000887b * (uint)DAT_40002730;
+                   (uint)CAL_ac_compressor_speed_filter_coeff * (uint)DAT_40002730;
     DAT_400026e8 = (short)(DAT_4000272c >> 8) +
                    (ushort)((int)DAT_4000272c < 0 && (DAT_4000272c & 0xff) != 0);
   }
@@ -54057,15 +54208,16 @@ void ac_compressor_fault_check(void)
     DAT_40002736 = (undefined2)uVar1;
     DAT_40002732 = (undefined2)
                    (((longlong)(int)(uint)engine_speed_16bit *
-                     (longlong)(int)((100 - (uint)DAT_4000cb4c) * 0x7f) & 0xffffffffU) / 10000);
+                     (longlong)(int)((100 - (uint)CAL_obd_ac_load_diag_tolerance_pct) * 0x7f) &
+                    0xffffffffU) / 10000);
     DAT_40002734 = (undefined2)
                    ((ulonglong)
                     ((longlong)(int)(uint)engine_speed_16bit *
-                    (longlong)(int)((DAT_4000cb4c + 100) * 0x7f)) / 10000);
+                    (longlong)(int)((CAL_obd_ac_load_diag_tolerance_pct + 100) * 0x7f)) / 10000);
     if ((obd_ii_ac_clutch_relay != '\0') &&
        ((ushort)((ushort)DAT_4000cb5d * 0x32) < engine_speed_16bit)) {
-      if (((uVar1 & 0xffff) < (ulonglong)DAT_4000cb4c + 100) &&
-         ((100 - (ulonglong)DAT_4000cb4c & 0xffffffff) < (uVar1 & 0xffff))) {
+      if (((uVar1 & 0xffff) < (ulonglong)CAL_obd_ac_load_diag_tolerance_pct + 100) &&
+         ((100 - (ulonglong)CAL_obd_ac_load_diag_tolerance_pct & 0xffffffff) < (uVar1 & 0xffff))) {
         sVar2 = DAT_40002708 + -1;
         if (DAT_40002708 == 0) {
           sVar2 = DAT_40002708;
@@ -54112,7 +54264,9 @@ void obd_ii_init_ac_diagnostics(void)
 
 
 
-void obd_ii_init_ac_evap_diagnostics(void)
+// Mode 01 DTC status update: A/C evaporator temp sensor (P0537, P0538) and B1422.
+
+void obd_ii_dtc_update_ac(void)
 
 {
   obd_ii_set_active_code_and_FF
@@ -54148,14 +54302,14 @@ void init_tps_shaping(void)
     *(undefined1 *)((int)&struct_tps_shaping_flags_40007f98 + (uint)uVar1 * 0x14 + 3) = 100;
     *(undefined1 *)((int)&struct_tps_shaping_flags_40007f98 + (uint)uVar1 * 0x14 + 4) = 0x14;
   }
-  struct_tps_shaping_flags_40007fe8.accum_timer = (uint32_t)&DAT_00002710;
-  struct_tps_shaping_flags_40007fe8.curr_threshold = 10000;
-  struct_tps_shaping_flags_40007fe8.threshold_0 = 10000;
-  struct_tps_shaping_flags_40007fe8.threshold_2 = 0xffff;
-  struct_tps_shaping_flags_40007fe8.decrement_rate = '\x14';
-  struct_tps_shaping_flags_40007fe8.increment_rate._0_1_ = 4;
+  etb_driver_fault_debounce.accum_timer = (uint32_t)&DAT_00002710;
+  etb_driver_fault_debounce.curr_threshold = 10000;
+  etb_driver_fault_debounce.threshold_0 = 10000;
+  etb_driver_fault_debounce.threshold_2 = 0xffff;
+  etb_driver_fault_debounce.decrement_rate = '\x14';
+  etb_driver_fault_debounce.increment_rate._0_1_ = 4;
   tps_system_state = TS_NO_FAULT;
-  DAT_40002769 = 0;
+  accel_pedal_system_state = 0;
   DAT_4000276a = 1;
   accel_pedal_track_d_selected = true;
   for (uVar1 = 5; uVar1 < 10; uVar1 = uVar1 + 1) {
@@ -54260,15 +54414,15 @@ void tps_dual_sensor_validation_and_selection
   if (((tps_system_state == TS_CONFIRMED_FAULT) || (TSL_RUN < throttle_actuator_state)) ||
      ((THROTTLE_TPS_FAULT < throttle_control_mode ||
       (((obd_ii_relay_status & 0x10) != 0 || ((tps_error_flags & 0xbf) == 0)))))) {
-    if (struct_tps_shaping_flags_40007fe8.state != TS_CONFIRMED_FAULT) {
-      struct_tps_shaping_flags_40007fe8.current_input = TS_IN_RANGE;
-      tps_debounce_with_hysteresis(&struct_tps_shaping_flags_40007fe8);
+    if (etb_driver_fault_debounce.state != TS_CONFIRMED_FAULT) {
+      etb_driver_fault_debounce.current_input = TS_IN_RANGE;
+      tps_debounce_with_hysteresis(&etb_driver_fault_debounce);
     }
   }
   else {
-    struct_tps_shaping_flags_40007fe8.current_input = TS_LOW;
-    tps_debounce_with_hysteresis(&struct_tps_shaping_flags_40007fe8);
-    tps_error_flags_snapshot = tps_error_flags;
+    etb_driver_fault_debounce.current_input = TS_LOW;
+    tps_debounce_with_hysteresis(&etb_driver_fault_debounce);
+    etb_driver_diag_latched = tps_error_flags;
   }
   puVar3 = PTR_DAT_4000140c;
   if (lVar9 == 1) {
@@ -54330,7 +54484,7 @@ void tps_dual_sensor_validation_and_selection
   }
   if ((((struct_tps_shaping_flags_40007f98.state == TS_CONFIRMED_FAULT) &&
        (struct_tps_shaping_flags_40007fac.state == TS_CONFIRMED_FAULT)) ||
-      (struct_tps_shaping_flags_40007fe8.state == TS_CONFIRMED_FAULT)) ||
+      (etb_driver_fault_debounce.state == TS_CONFIRMED_FAULT)) ||
      ((struct_tps_shaping_flags_40007fc0.state == TS_CONFIRMED_FAULT ||
       (tps_system_state == TS_CONFIRMED_FAULT)))) {
     tps_system_state = TS_CONFIRMED_FAULT;
@@ -54415,7 +54569,7 @@ void accel_pedal_position_from_voltage
                       CAL_sensor_accel_pedal_midpoint_voltage_range[0],
                       CAL_sensor_accel_pedal_midpoint_voltage_range[1]);
   if (accel_pedal_pos_d_clipped.current_input == TS_IN_RANGE) {
-    if (u16_factor_1_1023_40001522 < _accel_pedal_pos_d_voltage) {
+    if (accel_pedal_d_zero_voltage < _accel_pedal_pos_d_voltage) {
       uVar4 = pedalD_scale_to_10bit((uint)_accel_pedal_pos_d_voltage);
       uVar1 = (ulonglong)(int)uVar4;
     }
@@ -54431,7 +54585,7 @@ void accel_pedal_position_from_voltage
   }
   uVar7 = (u16_factor_1_1023)uVar1;
   if (accel_pedal_pos_e_clipped.current_input == TS_IN_RANGE) {
-    if (DAT_40001524 < _accel_pedal_pos_e_voltage) {
+    if (accel_pedal_e_zero_voltage < _accel_pedal_pos_e_voltage) {
       uVar2 = accel_pedal_e_scale_voltage(_accel_pedal_pos_e_voltage);
     }
     else {
@@ -54497,19 +54651,19 @@ void accel_pedal_position_from_voltage
   if (((accel_pedal_pos_d_clipped.state == TS_CONFIRMED_FAULT) &&
       (accel_pedal_pos_e_clipped.state == TS_CONFIRMED_FAULT)) ||
      ((struct_tps_shaping_flags_40008024.state == TS_CONFIRMED_FAULT ||
-      ((adc37_threshold.state == TS_CONFIRMED_FAULT || (DAT_40002769 == '\x02')))))) {
-    DAT_40002769 = '\x02';
+      ((adc37_threshold.state == TS_CONFIRMED_FAULT || (accel_pedal_system_state == '\x02')))))) {
+    accel_pedal_system_state = '\x02';
   }
   else if ((((accel_pedal_pos_d_clipped.state == TS_CONFIRMED_FAULT) ||
             (accel_pedal_pos_e_clipped.state == TS_CONFIRMED_FAULT)) ||
            (struct_tps_shaping_flags_4000804c.state == TS_CONFIRMED_FAULT)) ||
-          (DAT_40002769 == '\x01')) {
-    DAT_40002769 = '\x01';
+          (accel_pedal_system_state == '\x01')) {
+    accel_pedal_system_state = '\x01';
   }
   else {
-    DAT_40002769 = '\0';
+    accel_pedal_system_state = '\0';
   }
-  if (DAT_40002769 == '\x02') {
+  if (accel_pedal_system_state == '\x02') {
     accel_pedal_pos_16bit = 0;
   }
   else {
@@ -54548,8 +54702,8 @@ void accel_pedal_position_from_voltage
     DAT_40002514 = DAT_40002514 | 0x80;
   }
   accel_pedal_latched = accel_pedal_pos_16bit;
-  accel_pedal_state_degraded = DAT_40002769 == '\x01';
-  accel_pedal_fault_active = DAT_40002769 == '\x02';
+  accel_pedal_state_degraded = accel_pedal_system_state == '\x01';
+  accel_pedal_fault_active = accel_pedal_system_state == '\x02';
   DAT_40002132 = uVar7 - uVar6;
   return;
 }
@@ -54703,7 +54857,7 @@ enum_tps_shaping_state get_tps_system_state(void)
 undefined1 get_accel_pedal_diag_state(void)
 
 {
-  return DAT_40002769;
+  return accel_pedal_system_state;
 }
 
 
@@ -55372,10 +55526,10 @@ void revlimit(void)
           ((((COD_base.COD[0] >> 0xd & 7) == 1 && (gear_index_auto != revlimit_active_gear_ips)) &&
            ((int)((uint)CAL_revlimit_release_rpm_delta * 10) < (int)(short)revlimit_rpm_error)))) {
     revlimit_state_flags = revlimit_state_flags & 0xf7f6;
-    revlimit_maf_flow_bounded = 0;
+    revlimit_flow_base = 0;
     revlimit_tps_max = 0;
-    revlimit_load = 0;
-    revlimit_maf_flow_raw = 0;
+    revlimit_load_setpoint = 0;
+    revlimit_flow_setpoint = 0;
     revlimit_active_gear_ips = NO_GEAR;
     revlimit_esclated_timer = '\0';
   }
@@ -55402,39 +55556,39 @@ void revlimit(void)
                  ((short)revlimit_rpm_error >> 0xf)) >> 0xf);
   }
   if ((int)((uint)CAL_revlimit_flow_integral_limit * 100) <
-      (int)((uint)revlimit_airflow_gain_from_integrator_per_gear *
-           (int)revlimit_escalation_integrator) / 100) {
+      (int)((uint)revlimit_airflow_gain_from_integrator_per_gear * (int)revlimit_rpm_error_integral)
+      / 100) {
     revlimit_flow_integral_term = (ushort)CAL_revlimit_flow_integral_limit * 100;
   }
   else if ((int)((uint)revlimit_airflow_gain_from_integrator_per_gear *
-                (int)revlimit_escalation_integrator) / 100 <
+                (int)revlimit_rpm_error_integral) / 100 <
            (int)((uint)CAL_revlimit_flow_integral_limit * -100)) {
     revlimit_flow_integral_term = (ushort)CAL_revlimit_flow_integral_limit * -100;
   }
   else {
     revlimit_flow_integral_term =
          ((short)((int)((uint)revlimit_airflow_gain_from_integrator_per_gear *
-                       (int)revlimit_escalation_integrator) / 100) +
-         (revlimit_escalation_integrator >> 0xf)) -
+                       (int)revlimit_rpm_error_integral) / 100) +
+         (revlimit_rpm_error_integral >> 0xf)) -
          ((short)((short)((int)((uint)revlimit_airflow_gain_from_integrator_per_gear *
-                               (int)revlimit_escalation_integrator) / 0x640000) +
-                 (revlimit_escalation_integrator >> 0xf)) >> 0xf);
+                               (int)revlimit_rpm_error_integral) / 0x640000) +
+                 (revlimit_rpm_error_integral >> 0xf)) >> 0xf);
   }
   if ((int)((uint)CAL_revlimit_flow_rpm_rate_limit * 100) <
-      (int)((uint)revlimit_airflow_gain_from_rpm_per_gear * (int)revlimit_rpm_error_rate) / 10) {
+      (int)((uint)revlimit_airflow_gain_from_rpm_per_gear * (int)revlimit_rpm_approach_rate) / 10) {
     revlimit_airflow_rpm_term = (ushort)CAL_revlimit_flow_rpm_rate_limit * 10;
   }
-  else if ((int)((uint)revlimit_airflow_gain_from_rpm_per_gear * (int)revlimit_rpm_error_rate) / 10
-           < (int)((uint)CAL_revlimit_flow_rpm_rate_limit * -100)) {
+  else if ((int)((uint)revlimit_airflow_gain_from_rpm_per_gear * (int)revlimit_rpm_approach_rate) /
+           10 < (int)((uint)CAL_revlimit_flow_rpm_rate_limit * -100)) {
     revlimit_airflow_rpm_term = (ushort)CAL_revlimit_flow_rpm_rate_limit * -10;
   }
   else {
     revlimit_airflow_rpm_term =
-         ((short)((int)((uint)revlimit_airflow_gain_from_rpm_per_gear * (int)revlimit_rpm_error_rate
-                       ) / 10) + (revlimit_rpm_error_rate >> 0xf)) -
-         ((short)((short)((int)((uint)revlimit_airflow_gain_from_rpm_per_gear *
-                               (int)revlimit_rpm_error_rate) / 0xa0000) +
-                 (revlimit_rpm_error_rate >> 0xf)) >> 0xf);
+         ((short)((int)((uint)revlimit_airflow_gain_from_rpm_per_gear *
+                       (int)revlimit_rpm_approach_rate) / 10) + (revlimit_rpm_approach_rate >> 0xf))
+         - ((short)((short)((int)((uint)revlimit_airflow_gain_from_rpm_per_gear *
+                                 (int)revlimit_rpm_approach_rate) / 0xa0000) +
+                   (revlimit_rpm_approach_rate >> 0xf)) >> 0xf);
   }
   if ((((revlimit_state_flags & 0x40) != 0) && ((revlimit_state_flags & 1) != 0)) &&
      (CAL_revlimit_overrun_count_threshold < revlimit_fuelcut_count)) {
@@ -55442,16 +55596,16 @@ void revlimit(void)
          lookup_2D_uint8_interpolated
                    (7,car_current_gear,CAL_revlimit_escalation_integrator_step,
                     CAL_revlimit_escalation_integrator_step_X_gear);
-    revlimit_integrator_decrement = (ushort)revlimit_escalation_integrator_step_per_gear * 25;
-    _revlimit_escalation_integrator = revlimit_escalation_integrator;
+    revlimit_i_term_step = (ushort)revlimit_escalation_integrator_step_per_gear * 25;
+    _revlimit_escalation_integrator = revlimit_rpm_error_integral;
     if (((int)((uint)CAL_revlimit_integrator_limit * -0xfa) <
-         (int)((int)revlimit_escalation_integrator - (uint)revlimit_integrator_decrement)) &&
+         (int)((int)revlimit_rpm_error_integral - (uint)revlimit_i_term_step)) &&
        (_revlimit_escalation_integrator =
-             revlimit_escalation_integrator +
+             revlimit_rpm_error_integral +
              (ushort)revlimit_escalation_integrator_step_per_gear * -25, revlimit_tps_max == 0)) {
-      _revlimit_escalation_integrator = revlimit_escalation_integrator;
+      _revlimit_escalation_integrator = revlimit_rpm_error_integral;
     }
-    revlimit_escalation_integrator = _revlimit_escalation_integrator;
+    revlimit_rpm_error_integral = _revlimit_escalation_integrator;
     revlimit_state_flags = revlimit_state_flags & 0xffbf | 0x10;
   }
   _revlimit_tps = (ushort)(((ulonglong)revlimit_tps_max * 0xff) / (ulonglong)tps_scaling_factor);
@@ -55460,12 +55614,12 @@ void revlimit(void)
   }
                     // revlimit_tps_target doesn't seem to be read anywhere
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {
-    revlimit_tps_target =
+    revlimit_tps_max_remapped_unused =
          lookup_2D_uint16_interpolated
                    (16,_revlimit_tps,CAL_tpstarget_tour_ips_X_pps,CAL_tpstarget_tour_ips);
   }
   else {
-    revlimit_tps_target =
+    revlimit_tps_max_remapped_unused =
          lookup_2D_uint16_interpolated
                    (16,_revlimit_tps,CAL_tpstarget_tour_manual_X_pps,CAL_tpstarget_tour_manual);
   }
@@ -55493,13 +55647,13 @@ void revlimit_200hz(void)
   else if ((int)(uint)engine_speed_16bit < (int)(revlimit_soft - 0x32)) {
     revlimit_timer_ticks_past_limit = 0;
   }
-  speedlimit_timer_expired = vehicle_speed_limit_enforce_timer == '\0';
-  vehicle_speed_limit_enforce_timer = vehicle_speed_limit_enforce_timer + 0xff;
+  speedlimit_timer_expired = revlimit_flow_update_divider == '\0';
+  revlimit_flow_update_divider = revlimit_flow_update_divider + 0xff;
   if (speedlimit_timer_expired) {
-    vehicle_speed_limit_enforce_timer = '\0';
+    revlimit_flow_update_divider = '\0';
   }
-  if (vehicle_speed_limit_enforce_timer == '\0') {
-    vehicle_speed_limit_enforce_timer = '\x05';
+  if (revlimit_flow_update_divider == '\0') {
+    revlimit_flow_update_divider = '\x05';
     if (speed_limit_target_ramped == 51000) {
       if (revlimit_car_speed_limit < car_speed_x100) {
         speed_limit_target_ramped = car_speed_x100;
@@ -55545,70 +55699,71 @@ void revlimit_200hz(void)
       revlimit_state_flags = revlimit_state_flags & 0xfbff;
     }
     if ((revlimit_state_flags & 1) != 0) {
-      if (revlimit_maf_flow_bounded == 0) {
+      if (revlimit_flow_base == 0) {
         revlimit_airflow_threshold =
              lookup_2D_uint8_interpolated
                        ('\a',car_current_gear,CAL_revlimit_airflow_threshold,
                         CAL_revlimit_airflow_threshold_X_gear);
         if ((revlimit_state_flags & 0x800) == 0) {
           if ((ushort)((ushort)revlimit_airflow_threshold * 200) < obd_ii_maf_flow) {
-            revlimit_maf_flow_raw = (ushort)revlimit_airflow_threshold * 200;
-            revlimit_maf_flow_bounded = revlimit_maf_flow_raw;
+            revlimit_flow_setpoint = (ushort)revlimit_airflow_threshold * 200;
+            revlimit_flow_base = revlimit_flow_setpoint;
           }
           else {
-            revlimit_maf_flow_raw = obd_ii_maf_flow;
-            revlimit_maf_flow_bounded = revlimit_maf_flow_raw;
+            revlimit_flow_setpoint = obd_ii_maf_flow;
+            revlimit_flow_base = revlimit_flow_setpoint;
           }
         }
         else if ((ushort)((ushort)revlimit_airflow_threshold * 200) < obd_ii_maf_flow) {
-          revlimit_maf_flow_bounded = (ushort)revlimit_airflow_threshold * 200;
-          revlimit_maf_flow_raw = obd_ii_maf_flow;
+          revlimit_flow_base = (ushort)revlimit_airflow_threshold * 200;
+          revlimit_flow_setpoint = obd_ii_maf_flow;
         }
         else {
-          revlimit_maf_flow_raw = obd_ii_maf_flow;
-          revlimit_maf_flow_bounded = obd_ii_maf_flow;
+          revlimit_flow_setpoint = obd_ii_maf_flow;
+          revlimit_flow_base = obd_ii_maf_flow;
         }
       }
       uVar5 = (longlong)revlimit_flow_proportional_term +
-              (longlong)revlimit_flow_integral_term + (ulonglong)revlimit_maf_flow_bounded & 0xffff;
+              (longlong)revlimit_flow_integral_term + (ulonglong)revlimit_flow_base & 0xffff;
       if ((int)((int)revlimit_flow_proportional_term +
-               (int)revlimit_flow_integral_term + (uint)revlimit_maf_flow_bounded) < 0) {
+               (int)revlimit_flow_integral_term + (uint)revlimit_flow_base) < 0) {
         uVar5 = 0;
       }
-      lVar2 = libc_abs(uVar5 - revlimit_maf_flow_raw);
+      lVar2 = libc_abs(uVar5 - revlimit_flow_setpoint);
       if (((int)(uint)CAL_revlimit_maf_error_max_10g < (int)lVar2) &&
          (((revlimit_state_flags & 0x10) == 0 ||
           (revlimit_fuelcut_count <= CAL_revlimit_overrun_count_threshold)))) {
-        if (revlimit_maf_flow_raw < uVar5) {
-          revlimit_maf_flow_raw = revlimit_maf_flow_raw + CAL_revlimit_maf_error_max_10g;
+        if (revlimit_flow_setpoint < uVar5) {
+          revlimit_flow_setpoint = revlimit_flow_setpoint + CAL_revlimit_maf_error_max_10g;
           revlimit_state_flags = revlimit_state_flags & 0xfffb | 2;
         }
         else {
-          revlimit_maf_flow_raw = revlimit_maf_flow_raw - CAL_revlimit_maf_error_max_10g;
+          revlimit_flow_setpoint = revlimit_flow_setpoint - CAL_revlimit_maf_error_max_10g;
           revlimit_state_flags = revlimit_state_flags & 0xfffd | 4;
         }
       }
       else {
-        revlimit_maf_flow_raw = (ushort)uVar5;
+        revlimit_flow_setpoint = (ushort)uVar5;
         revlimit_state_flags = revlimit_state_flags & 0xfff9;
       }
-      if ((int)((int)((uint)revlimit_maf_flow_raw * (uint)engine_speed_period_adj) / 100000 -
+      if ((int)((int)((uint)revlimit_flow_setpoint * (uint)engine_speed_period_adj) / 100000 -
                (uint)load_comp_idle) < 0) {
-        revlimit_load = 0;
+        revlimit_load_setpoint = 0;
       }
-      else if ((int)((int)((uint)revlimit_maf_flow_raw * (uint)engine_speed_period_adj) / 100000 -
+      else if ((int)((int)((uint)revlimit_flow_setpoint * (uint)engine_speed_period_adj) / 100000 -
                     (uint)load_comp_idle) < 0x496) {
-        revlimit_load =
-             (short)((int)((uint)revlimit_maf_flow_raw * (uint)engine_speed_period_adj) / 100000) -
+        revlimit_load_setpoint =
+             (short)((int)((uint)revlimit_flow_setpoint * (uint)engine_speed_period_adj) / 100000) -
              load_comp_idle;
       }
       else {
-        revlimit_load = 0x495;
+        revlimit_load_setpoint = 0x495;
       }
       bVar3 = lookup_3D_uint8_interpolated
                         ('\x14','\x14',(ushort)engine_speed_8bit,
-                         (ushort)((int)((uint)revlimit_load * 0x100 - (uint)revlimit_load) / 0x495)
-                         & 0xff,CAL_load_to_tps_mapping,CAL_load_to_tps_mapping_X_rpm,
+                         (ushort)((int)((uint)revlimit_load_setpoint * 0x100 -
+                                       (uint)revlimit_load_setpoint) / 0x495) & 0xff,
+                         CAL_load_to_tps_mapping,CAL_load_to_tps_mapping_X_rpm,
                          CAL_load_to_tps_mapping_Y_load);
       revlimit_tps_max = (short)((uint)bVar3 << 2) - (short)_tps_idle;
       if ((uint)bVar3 << 2 < _tps_idle) {
@@ -55622,56 +55777,56 @@ void revlimit_200hz(void)
       revlimit_esclated_timer = '\0';
     }
     if ((revlimit_state_flags & 1) == 0) {
-      revlimit_escalation_integrator = 0;
+      revlimit_rpm_error_integral = 0;
     }
-    else if ((int)revlimit_escalation_integrator + (int)(short)revlimit_rpm_error / 10 <
+    else if ((int)revlimit_rpm_error_integral + (int)(short)revlimit_rpm_error / 10 <
              (int)((uint)CAL_revlimit_integrator_limit * -0xfa)) {
-      revlimit_escalation_integrator = (ushort)CAL_revlimit_integrator_limit * -0xfa;
+      revlimit_rpm_error_integral = (ushort)CAL_revlimit_integrator_limit * -0xfa;
     }
     else if ((int)((uint)CAL_revlimit_integrator_limit * 0xfa) <
-             (int)revlimit_escalation_integrator + (int)(short)revlimit_rpm_error / 10) {
-      revlimit_escalation_integrator = (ushort)CAL_revlimit_integrator_limit * 0xfa;
+             (int)revlimit_rpm_error_integral + (int)(short)revlimit_rpm_error / 10) {
+      revlimit_rpm_error_integral = (ushort)CAL_revlimit_integrator_limit * 0xfa;
     }
     else if (((((short)revlimit_rpm_error < 0) && (revlimit_tps_max != 0)) &&
              ((revlimit_state_flags & 4) == 0)) ||
             (((0 < (short)revlimit_rpm_error && (revlimit_tps_max + _tps_idle < (uint)DAT_4000160a))
              && ((revlimit_state_flags & 2) == 0)))) {
-      revlimit_escalation_integrator =
-           revlimit_escalation_integrator +
+      revlimit_rpm_error_integral =
+           revlimit_rpm_error_integral +
            (((short)revlimit_rpm_error / 10 + ((short)revlimit_rpm_error >> 0xf)) -
            ((short)((short)((int)(short)revlimit_rpm_error / 0xa0000) +
                    ((short)revlimit_rpm_error >> 0xf)) >> 0xf));
     }
-    timer_is_zero = revlimit_rpm_rate_update_timer == '\0';
-    revlimit_rpm_rate_update_timer = revlimit_rpm_rate_update_timer + 0xff;
+    timer_is_zero = revlimit_approach_rate_divider == '\0';
+    revlimit_approach_rate_divider = revlimit_approach_rate_divider + 0xff;
     if (timer_is_zero) {
-      revlimit_rpm_rate_update_timer = '\0';
+      revlimit_approach_rate_divider = '\0';
     }
-    if (revlimit_rpm_rate_update_timer == '\0') {
-      revlimit_rpm_rate_update_timer = '\x02';
+    if (revlimit_approach_rate_divider == '\0') {
+      revlimit_approach_rate_divider = '\x02';
       if ((short)revlimit_rpm_error < 1001) {
         uVar4 = revlimit_rpm_error;
         if ((short)revlimit_rpm_error < 0x32) {
           uVar4 = 0x32;
         }
-        if ((((int)(short)revlimit_rpm_error - (int)(short)u16_rspeed_rpm_400027f0) * 10) /
+        if ((((int)(short)revlimit_rpm_error - (int)(short)revlimit_rpm_error_prev) * 10) /
             (int)(short)uVar4 < (int)((uint)CAL_revlimit_rpm_rate_limit * -0x19)) {
-          revlimit_rpm_error_rate = (ushort)CAL_revlimit_rpm_rate_limit * -0x19;
+          revlimit_rpm_approach_rate = (ushort)CAL_revlimit_rpm_rate_limit * -0x19;
         }
-        else if ((((int)(short)revlimit_rpm_error - (int)(short)u16_rspeed_rpm_400027f0) * 10) /
+        else if ((((int)(short)revlimit_rpm_error - (int)(short)revlimit_rpm_error_prev) * 10) /
                  (int)(short)uVar4 < 1) {
-          revlimit_rpm_error_rate =
-               (short)((((int)(short)revlimit_rpm_error - (int)(short)u16_rspeed_rpm_400027f0) * 10)
+          revlimit_rpm_approach_rate =
+               (short)((((int)(short)revlimit_rpm_error - (int)(short)revlimit_rpm_error_prev) * 10)
                       / (int)(short)uVar4);
         }
         else {
-          revlimit_rpm_error_rate = 0;
+          revlimit_rpm_approach_rate = 0;
         }
       }
       else {
-        revlimit_rpm_error_rate = 0;
+        revlimit_rpm_approach_rate = 0;
       }
-      u16_rspeed_rpm_400027f0 = revlimit_rpm_error;
+      revlimit_rpm_error_prev = revlimit_rpm_error;
     }
   }
   if (revlimit_startup_offset != 0) {
@@ -56073,7 +56228,7 @@ void p0316_eval_tc_request_state(void)
           p0316_eval_tc_request_state = P0316_TC_STATE_PASS;
         }
         _state = p0316_eval_tc_request_state;
-        if (flexcan_mesg_0xb7_is_7byte != false) {
+        if (tc_torque_limit_use_slow_path != false) {
           p0316_eval_tc_request_state = P0316_TC_STATE_FAIL;
           _state = p0316_eval_tc_request_state;
         }
@@ -56210,7 +56365,7 @@ void obd_ii_monitors_misc1(void)
   if (((COD_base.COD[1] >> 9 & 1) != 0) && ((CAL_obd_ii_U0316 & 7) != 0)) {
     if ((ignition_on_flags & 1) == 0) {
       p0316_eval_tc_request_state = P0316_TC_STATE_INIT;
-      DAT_4000282c = DAT_4000d44f;
+      DAT_4000282c = CAL_obd_ii_U0316_debounce_count;
     }
     else if ((((p0316_eval_tc_request_state == P0316_TC_STATE_INIT) && (engine_speed_16bit == 0)) &&
              (car_speed_u8 == '\0')) || (bVar3 = can_a4_has_extended_data(), bVar3)) {
@@ -56233,7 +56388,7 @@ void obd_ii_monitors_misc1(void)
       }
       else if ((p0316_eval_tc_request_state == P0316_TC_STATE_PASS) &&
               (obd_ii_monitor_pass(&CAL_obd_ii_U0316,&LEA_obd_ii_U0316_dtc_state),
-              DAT_4000282c < DAT_4000d44f)) {
+              DAT_4000282c < CAL_obd_ii_U0316_debounce_count)) {
         DAT_4000282c = DAT_4000282c + 1;
       }
     }
@@ -56350,10 +56505,10 @@ void ips_data_zero(void)
   DAT_40001608 = 0xff;
   DAT_400027d9 = 0;
   engine_state_failure_flags = engine_state_failure_flags & 0xfffff7ff;
-  DAT_400027da = 0;
+  ips_throttle_restrict = 0;
   DAT_40001c6c = 0;
   main_diagnostic_flags = main_diagnostic_flags & 0xffdf;
-  DAT_40001b3a = 0;
+  ips_shift_light_flags = 0;
   ips_cal_version_received = 0;
   DAT_400015ce = 0xff;
   obd_ii_oil_temp_ips = 0;
@@ -56443,7 +56598,7 @@ void obd_ii_init_can_bus_diagnostics(void)
   DAT_4000282d = DAT_4000d464;
   DAT_4000282f = DAT_4000d44c;
   DAT_4000282b = DAT_4000d459;
-  DAT_4000282c = DAT_4000d44f;
+  DAT_4000282c = CAL_obd_ii_U0316_debounce_count;
   tc_enable_condition_2 = (bool)DAT_4000d45a;
   DAT_4000282e = DAT_4000d465;
   ips_cal_version_received = 0;
@@ -56608,7 +56763,7 @@ void ips_shift_state_mgmt_1000hz(undefined4 *_ips_rev_match_control_state)
         if (*(uint16_t *)*_ips_rev_match_control_state == DAT_40002842) {
           ips_shift_state_handler(&ips_shift_state);
         }
-        *_ips_rev_match_control_state = &DAT_400088f2;
+        *_ips_rev_match_control_state = &CAL_ips_speed_match_p_gain;
       }
       ips_engine_speed_matching_pid_ctrl___(&ips_shift_state);
       uVar6 = *(u16_torque_nm *)((int)_ips_rev_match_control_state + 0x42);
@@ -56634,9 +56789,9 @@ void ips_shift_state_mgmt_1000hz(undefined4 *_ips_rev_match_control_state)
                        (uint)DAT_40001629 * iVar5;
         iVar5 = DAT_4000283c / 0xa00;
         if (iVar5 < 0x1c3) {
-          if (iVar5 < DAT_4000890e) {
-            iVar5 = (int)DAT_4000890e;
-            DAT_4000283c = DAT_4000890e * 0xa00;
+          if (iVar5 < CAL_torque_estimate_min_ips) {
+            iVar5 = (int)CAL_torque_estimate_min_ips;
+            DAT_4000283c = CAL_torque_estimate_min_ips * 0xa00;
           }
         }
         else {
@@ -56659,7 +56814,7 @@ void ips_shift_state_mgmt_1000hz(undefined4 *_ips_rev_match_control_state)
   else {
     torque_requested_during_shift_raw = 0x38f;
     torque_requested_during_shift_scaled = 0x38f;
-    DAT_40002687 = 0;
+    ips_shift_torque_request_active = 0;
   }
   return;
 }
@@ -56675,7 +56830,7 @@ void ips_torque_reduction_request(u16_torque_nm param_1,char param_2)
   if (param_2 == '\0') {
     torque_requested_during_shift_raw = 911;
     torque_requested_during_shift_scaled = 911;
-    DAT_40002687 = DAT_40002687 & 0xfe;
+    ips_shift_torque_request_active = ips_shift_torque_request_active & 0xfe;
   }
   else {
     iVar2 = (int)(short)param_1 * (int)(short)((CAL_ips_torque_reduction_slow_scale_pct >> 1) + 100)
@@ -56687,7 +56842,7 @@ void ips_torque_reduction_request(u16_torque_nm param_1,char param_2)
         (short)(ushort)CAL_ips_torque_reduction_slow_floor_nm_) {
       torque_requested_during_shift_scaled = (u16_torque_nm)CAL_ips_torque_reduction_slow_floor_nm_;
     }
-    DAT_40002687 = DAT_40002687 | 1;
+    ips_shift_torque_request_active = ips_shift_torque_request_active | 1;
     torque_requested_during_shift_raw = param_1;
   }
   return;
@@ -56711,7 +56866,7 @@ void init_ips_speed_matching_controller(undefined4 *param_1)
   param_1[0x16] = &DAT_40002838;
   param_1[0x17] = &DAT_40001621;
   param_1[0x18] = &DAT_40001622;
-  *param_1 = &DAT_400088f2;
+  *param_1 = &CAL_ips_speed_match_p_gain;
   param_1[1] = &DAT_400088f6;
   param_1[0xb] = &DAT_400088f8;
   param_1[0x11] = &DAT_400088fa;
@@ -56724,7 +56879,7 @@ void init_ips_speed_matching_controller(undefined4 *param_1)
   param_1[7] = &DAT_40008908;
   param_1[8] = &DAT_4000890a;
   param_1[9] = &DAT_4000890c;
-  param_1[10] = &DAT_4000890e;
+  param_1[10] = &CAL_torque_estimate_min_ips;
   *(undefined2 *)((int)param_1 + 0x32) = 0;
   *(undefined2 *)(param_1 + 0xd) = 0;
   *(undefined2 *)((int)param_1 + 0x36) = 0;
@@ -56737,7 +56892,7 @@ void init_ips_speed_matching_controller(undefined4 *param_1)
   *(undefined2 *)((int)param_1 + 0x32) = 0;
   ips_shift_state_handler(&ips_shift_state);
   ips_engine_speed_matching_pid_ctrl___(&ips_shift_state);
-  DAT_40002687 = 0;
+  ips_shift_torque_request_active = 0;
   return;
 }
 
@@ -57248,7 +57403,7 @@ void gear_shift_indicator_update(void)
          ((tc_cornering_inhibit_limit <= tc_cornering_intensity___ || ((abs_esp_flags & 7) != 0))))
       {
         traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-        u8_time_100ms_40002861 = CAL_slip_timer_intervention2;
+        gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
         traction_flags_unknown = traction_flags_unknown & 0xbb;
       }
       else if (((((brake_switch & 0x11) == 0) &&
@@ -57256,7 +57411,7 @@ void gear_shift_indicator_update(void)
                && (car_current_gear < traction_slip_detected_gear)) &&
               (((traction_flags_unknown & 2) != 0 && (car_current_gear < _cur_gear1)))) {
         _tc_flags_unknown1 = traction_flags_unknown & 0xbf;
-        u8_time_100ms_40002861 = CAL_slip_timer_intervention2;
+        gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
         if ((traction_timer_per_gear_intervention == '\0') ||
            (bVar3 = traction_flags_unknown & 4, traction_flags_unknown = _tc_flags_unknown1,
            bVar3 != 0)) {
@@ -57268,20 +57423,20 @@ void gear_shift_indicator_update(void)
                  || ((brake_switch & 0x11) != 0)))) && ((traction_flags_unknown & 0x20) == 0)) ||
               (cVar4 == '\0')) {
         traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-        u8_time_100ms_40002861 = CAL_slip_timer_intervention2;
+        gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
         traction_flags_unknown = traction_flags_unknown & 0xbb;
       }
       else {
         bVar3 = traction_flags_unknown & 0xfb;
         traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-        if ((u8_time_100ms_40002861 == '\0') ||
+        if ((gsi_downshift_advisory_timer == '\0') ||
            (bVar2 = traction_flags_unknown & 0x40, traction_flags_unknown = bVar3, bVar2 != 0)) {
           traction_flags_unknown = bVar3 | 0x40;
         }
       }
       if (((traction_flags_unknown & 4) == 0) && ((traction_flags_unknown & 0x40) == 0)) {
         traction_control_gear_recommended__ = '\x0f';
-        u8_time_100ms_4000285f = '\0';
+        slip_gear_change_holdoff_timer = '\0';
       }
       else {
         _tc_gear_unknown1 = 0;
@@ -57302,13 +57457,13 @@ void gear_shift_indicator_update(void)
         }
         if ((traction_control_gear_recommended__ == '\x0f') ||
            ((_tc_gear_unknown1 != traction_control_gear_recommended__ &&
-            (u8_time_100ms_4000285f == '\0')))) {
+            (slip_gear_change_holdoff_timer == '\0')))) {
           traction_control_gear_recommended__ = _tc_gear_unknown1;
           if ((traction_flags_unknown & 0x40) == 0) {
-            u8_time_100ms_4000285f = CAL_slip_timer_per_gear_intervention;
+            slip_gear_change_holdoff_timer = CAL_slip_timer_per_gear_intervention;
           }
           else {
-            u8_time_100ms_4000285f = CAL_slip_timer_intervention2;
+            slip_gear_change_holdoff_timer = CAL_slip_timer_intervention2;
           }
         }
       }
@@ -57321,9 +57476,9 @@ void gear_shift_indicator_update(void)
       traction_flags_unknown = 0;
       traction_power_based_rpm_threshold = 0;
       traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-      u8_time_100ms_40002861 = CAL_slip_timer_intervention2;
+      gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
       traction_inhibit_accel_pedal_timer = '\0';
-      u8_time_100ms_4000285f = '\0';
+      slip_gear_change_holdoff_timer = '\0';
       traction_slip_detected_gear = NO_GEAR;
       traction_power_limit_gear = NO_GEAR;
       traction_control_gear_recommended__ = '\x0f';
@@ -57373,9 +57528,9 @@ void gear_shift_indicator_update(void)
     traction_power_based_rpm_threshold = 0;
     traction_relax_factor_starting = 0;
     traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-    u8_time_100ms_40002861 = CAL_slip_timer_intervention2;
+    gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
     traction_inhibit_accel_pedal_timer = '\0';
-    u8_time_100ms_4000285f = '\0';
+    slip_gear_change_holdoff_timer = '\0';
     traction_slip_detected_gear = NO_GEAR;
     traction_power_limit_gear = NO_GEAR;
     traction_control_gear_recommended__ = '\x0f';
@@ -57412,15 +57567,15 @@ void slip_timers_and_steering_rate_100ms(void)
   if (intervention_per_gear_timer_zero) {
     traction_timer_per_gear_intervention = '\0';
   }
-  intervention_unknown_timer_zero = u8_time_100ms_40002861 == '\0';
-  u8_time_100ms_40002861 = u8_time_100ms_40002861 + 0xff;
+  intervention_unknown_timer_zero = gsi_downshift_advisory_timer == '\0';
+  gsi_downshift_advisory_timer = gsi_downshift_advisory_timer + 0xff;
   if (intervention_unknown_timer_zero) {
-    u8_time_100ms_40002861 = '\0';
+    gsi_downshift_advisory_timer = '\0';
   }
-  bVar1 = u8_time_100ms_4000285f == '\0';
-  u8_time_100ms_4000285f = u8_time_100ms_4000285f + 0xff;
+  bVar1 = slip_gear_change_holdoff_timer == '\0';
+  slip_gear_change_holdoff_timer = slip_gear_change_holdoff_timer + 0xff;
   if (bVar1) {
-    u8_time_100ms_4000285f = '\0';
+    slip_gear_change_holdoff_timer = '\0';
   }
   _steering_angle_abs = libc_abs((longlong)(short)steering_angle);
   steering_angle_delta = 0;
@@ -58364,7 +58519,7 @@ void dpm_slip_calculator(void)
   u8_slip_2pct _dpm_slip_target_comp_pedal;
   byte dpm_slip_target_comp_pedal;
   byte _tc_slip_filter_coeff;
-  uint32_t _tc_torque_cut_lookup;
+  uint32_t _dpm_torque_cut_p_term;
   
   dpm_front_axle_speed_max = wheel_speeds.RF;
   if (wheel_speeds.RF < wheel_speeds.LF) {
@@ -58478,8 +58633,9 @@ void dpm_slip_calculator(void)
     dpm_slip_target_base = 0xff;
   }
   if ((dpm_control_flags & 4) == 0) {
-    if ((uint)dpm_slip_target_from_pedal + (uint)CAL_dpm_slip_target_offset < 0xffff) {
-      dpm_slip_target = dpm_slip_target_from_pedal + CAL_dpm_slip_target_offset;
+    if ((uint)dpm_slip_target_from_pedal + (uint)CAL_dpm_slip_target_straight_line_offset < 0xffff)
+    {
+      dpm_slip_target = dpm_slip_target_from_pedal + CAL_dpm_slip_target_straight_line_offset;
     }
     else {
       dpm_slip_target = 0xffff;
@@ -58519,24 +58675,24 @@ void dpm_slip_calculator(void)
         dpm_torque_when_tc_activated = torque_net_engine_combustion;
       }
       dpm_control_flags = dpm_control_flags | 3;
-      _tc_torque_cut_lookup =
+      _dpm_torque_cut_p_term =
            lookup_3D_uint32_interpolated
                      (6,10,(uint)dpm_front_axle_speed_max,(uint)dpm_slip_error_filtered,
-                      CAL_dpm_torque_cut_factor,CAL_dpm_torque_cut_factor_X_carspeed,
-                      CAL_dpm_torque_cut_factor_Y_slip);
-      dpm_torque_cut_factor = (char)_tc_torque_cut_lookup;
-      if ((_tc_torque_cut_lookup & 0xff) + (uint)dpm_torque_cut_accumulated < 256) {
-        dpm_torque_cut_total = dpm_torque_cut_factor + dpm_torque_cut_accumulated;
+                      CAL_dpm_torque_cut_p_term,CAL_dpm_torque_cut_p_term_X_carspeed,
+                      CAL_dpm_torque_cut_p_term_Y_slip);
+      dpm_torque_cut_p_term = (u8_factor_1_255)_dpm_torque_cut_p_term;
+      if ((_dpm_torque_cut_p_term & 0xff) + (uint)dpm_torque_cut_i_term < 256) {
+        dpm_torque_cut_fraction = dpm_torque_cut_p_term + dpm_torque_cut_i_term;
       }
       else {
-        dpm_torque_cut_total = 0xff;
+        dpm_torque_cut_fraction = 0xff;
       }
       torque_limit_dpm_spark =
            dpm_torque_when_tc_activated -
-           (((short)((int)((int)(short)dpm_torque_when_tc_activated * (uint)dpm_torque_cut_total) /
-                    0xff) + ((short)dpm_torque_when_tc_activated >> 0xf)) -
+           (((short)((int)((int)(short)dpm_torque_when_tc_activated * (uint)dpm_torque_cut_fraction)
+                    / 0xff) + ((short)dpm_torque_when_tc_activated >> 0xf)) -
            (short)((longlong)
-                   (int)((int)(short)dpm_torque_when_tc_activated * (uint)dpm_torque_cut_total) *
+                   (int)((int)(short)dpm_torque_when_tc_activated * (uint)dpm_torque_cut_fraction) *
                    0x80808081 >> 0x3f));
       if ((short)torque_limit_dpm_spark < (short)CAL_dpm_torque_min_allowed) {
         torque_limit_dpm_spark = CAL_dpm_torque_min_allowed;
@@ -58554,8 +58710,8 @@ void dpm_slip_calculator(void)
       torque_limit_dpm_spark = 911;
       torque_limit_dpm_throttle = 911;
       dpm_torque_when_tc_activated = 911;
-      dpm_torque_cut_total = '\0';
-      dpm_torque_cut_accumulated = '\0';
+      dpm_torque_cut_fraction = '\0';
+      dpm_torque_cut_i_term = '\0';
       dpm_slip_integral_accumulator = 0;
       dpm_control_flags = dpm_control_flags & 0xfffd | 1;
     }
@@ -58564,8 +58720,8 @@ void dpm_slip_calculator(void)
     torque_limit_dpm_spark = 911;
     torque_limit_dpm_throttle = 911;
     dpm_torque_when_tc_activated = 911;
-    dpm_torque_cut_total = 0;
-    dpm_torque_cut_accumulated = '\0';
+    dpm_torque_cut_fraction = 0;
+    dpm_torque_cut_i_term = '\0';
     dpm_slip_integral_accumulator = 0;
     dpm_control_flags = dpm_control_flags & 0xfffc;
   }
@@ -58609,45 +58765,45 @@ void dpm_system_state_manager_200hz(void)
     }
     dpm_control_flags = _dpm_control_flags_tmp;
                     // Separate cornering from straight line acceleration
-    if (CAL_dpm_lr_diff_cornerning_threshold < dpm_max_lr_speed_diff) {
-      if (dpm_direct_mode_on_delay == 0) {
+    if (CAL_dpm_cornering_lr_speed_diff_threshold < dpm_max_lr_speed_diff) {
+      if (dpm_cornering_detect_timer == 0) {
         dpm_control_flags = dpm_control_flags | 4;
-        dpm_direct_mode_off_delay = CAL_dpm_direct_mode_off_delay;
+        dpm_cornering_release_timer = CAL_dpm_cornering_release_delay;
       }
       else {
-        dpm_direct_mode_on_delay = dpm_direct_mode_on_delay - 1;
+        dpm_cornering_detect_timer = dpm_cornering_detect_timer - 1;
       }
     }
     else {
-      uVar1 = dpm_direct_mode_off_delay - 1;
-      if (dpm_direct_mode_off_delay == 0) {
-        uVar1 = dpm_direct_mode_off_delay;
+      uVar1 = dpm_cornering_release_timer - 1;
+      if (dpm_cornering_release_timer == 0) {
+        uVar1 = dpm_cornering_release_timer;
       }
-      dpm_direct_mode_off_delay = uVar1;
+      dpm_cornering_release_timer = uVar1;
       if (uVar1 == 0) {
         dpm_control_flags = dpm_control_flags & 0xfffb;
-        dpm_direct_mode_on_delay = CAL_dpm_direct_mode_on_delay;
+        dpm_cornering_detect_timer = CAL_dpm_cornering_detect_delay;
       }
     }
     if ((dpm_control_flags & 2) == 0) {
       dpm_integral_update_timer = CAL_dpm_integral_update_period;
       dpm_slip_integral_accumulator = 0;
-      dpm_torque_cut_accumulated = '\0';
+      dpm_torque_cut_i_term = '\0';
     }
     else if (dpm_integral_update_timer == 0) {
       dpm_integral_update_timer = CAL_dpm_integral_update_period;
       iVar2 = (int)dpm_slip_integral_accumulator +
-              (uint)dpm_slip_error_filtered * (uint)CAL_dpm_integral_gain;
-      if ((int)((uint)CAL_dpm_integral_limit << 7) < iVar2) {
-        dpm_slip_integral_accumulator = (ushort)CAL_dpm_integral_limit << 7;
+              (uint)dpm_slip_error_filtered * (uint)CAL_dpm_torque_cut_i_gain;
+      if ((int)((uint)CAL_dpm_torque_cut_i_limit << 7) < iVar2) {
+        dpm_slip_integral_accumulator = (ushort)CAL_dpm_torque_cut_i_limit << 7;
       }
-      else if (iVar2 < (int)((uint)CAL_dpm_integral_limit * -0x80)) {
-        dpm_slip_integral_accumulator = (ushort)CAL_dpm_integral_limit * -0x80;
+      else if (iVar2 < (int)((uint)CAL_dpm_torque_cut_i_limit * -0x80)) {
+        dpm_slip_integral_accumulator = (ushort)CAL_dpm_torque_cut_i_limit * -0x80;
       }
       else {
         dpm_slip_integral_accumulator = (short)iVar2;
       }
-      dpm_torque_cut_accumulated = (u8_factor_1_255)((ushort)dpm_slip_integral_accumulator >> 8);
+      dpm_torque_cut_i_term = (u8_factor_1_255)((ushort)dpm_slip_integral_accumulator >> 8);
     }
     else {
       dpm_integral_update_timer = dpm_integral_update_timer - 1;
@@ -58728,7 +58884,7 @@ void dpm_mode_button_handler(void)
 
 
 
-undefined8 FUN_000cbea8(undefined4 param_1,undefined4 param_2)
+undefined8 eh_register_table(undefined4 param_1,undefined4 param_2)
 
 {
   if (DAT_40008158 == 0) {
@@ -58742,7 +58898,7 @@ undefined8 FUN_000cbea8(undefined4 param_1,undefined4 param_2)
 
 
 
-void FUN_000cbedc(int param_1)
+void eh_deregister_table(int param_1)
 
 {
   if (param_1 != 0) {
@@ -58834,27 +58990,27 @@ longlong u128_divide_to_u64(uint dividend_hi,uint dividend_lo,ulonglong divisor_
 
 
 
-void FUN_000cbff0(void)
+void flash_driver_open(void)
 
 {
   undefined4 local_10;
   undefined4 local_c [3];
   
-  if (PTR_DAT_40001648 == &DAT_fffffffe) {
-    FUN_00040a14(&local_10,local_c);
-    PTR_DAT_40001648 = (undefined *)FUN_000cbea8(local_10,local_c[0]);
+  if (flash_driver_init_status == &DAT_fffffffe) {
+    get_flash_driver_descriptor(&local_10,local_c);
+    flash_driver_init_status = (undefined *)eh_register_table(local_10,local_c[0]);
   }
   return;
 }
 
 
 
-void FUN_000cc034(void)
+void eh_table_fini(void)
 
 {
-  if (PTR_DAT_40001648 != &DAT_fffffffe) {
-    FUN_000cbedc();
-    PTR_DAT_40001648 = &DAT_fffffffe;
+  if (flash_driver_init_status != &DAT_fffffffe) {
+    eh_deregister_table();
+    flash_driver_init_status = &DAT_fffffffe;
   }
   return;
 }
@@ -58927,13 +59083,13 @@ byte libc_memcmp2(int a,int b,longlong param_3)
 
 
 
-//    This is effectively.
-//    
-//    *(volatile uint32_t *)0xC3F8801C = 0x00014A53;
-//    isync();
-// 
+// Flash image of the SRAM stub used by init_flash_biu:
+//   *(volatile uint32_t *)r6 = r7; isync();
+// FLASH_BIUCR = 0x00014A53 (flash read/write wait states, address pipelining, prefetch, line
+// buffers).
+// Executed from its SRAM copy at 0x4000F000, never from here.
 
-void intc_setup_safe_write(void)
+void flash_biucr_write_stub(void)
 
 {
   undefined4 *in_r6;
