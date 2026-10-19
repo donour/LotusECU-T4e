@@ -78,6 +78,13 @@
    </table>
    <description/>
   </table>
+  <table category="ac" endian="big" name="ac: evap pid ki cold boost factor" sizex="1" storageaddress="0x0125" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="50" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>evap pid ki cold boost factor</data>
+   </table>
+   <description/>
+  </table>
   <table category="ac" endian="big" name="ac: evap pid ki warm" sizex="1" storageaddress="0x00CD" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -3052,6 +3059,27 @@
    </table>
    <description>Calibration: ignition base manual. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4-10)</description>
   </table>
+  <table category="ign" endian="big" name="ign: closed throttle base ips" sizex="16" storageaddress="0x39B6" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x39A6" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Calibration: ignition compensation coolant IPS noflags. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4)</description>
+  </table>
+  <table category="ign" endian="big" name="ign: closed throttle base ips cam lowload" sizex="16" storageaddress="0x408E" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x407E" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Calibration: ignition compensation coolant IPS flags. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4)</description>
+  </table>
+  <table category="ign" endian="big" name="ign: closed throttle base manual" sizex="16" storageaddress="0x0C96" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
+   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x0C86" storagetype="uint8" type="X Axis">
+    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
+   </table>
+   <description>Coolant-temperature ignition advance offset (u8_angle_1/4deg, advance-only) added to final spark timing in the idle and cruise ignition modes on manual-gearbox cars, indexed by ..._X_coolant_temp. Selected whenever the VVT scheduler is on the baseline intake cam map or the cams have not deviated from it (ign_idle_base_flags bit 0 clear, or ign_idle_base_variant == 0); the low-load cam schedule uses CAL_ign_comp_coolant_manual_cam_lowload instead, which is identical in the stock calibration.</description>
+  </table>
   <table category="ign" endian="big" name="ign: comp ac compressor active" sizex="1" storageaddress="0x00AF" storagetype="int8" type="2D" userlevel="1">
    <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -3079,27 +3107,6 @@
     <data>comp coolant engine stopped min</data>
    </table>
    <description/>
-  </table>
-  <table category="ign" endian="big" name="ign: comp coolant ips flags" sizex="16" storageaddress="0x408E" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
-   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x407E" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <description>Calibration: ignition compensation coolant IPS flags. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4)</description>
-  </table>
-  <table category="ign" endian="big" name="ign: comp coolant ips noflags" sizex="16" storageaddress="0x39B6" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
-   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x39A6" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <description>Calibration: ignition compensation coolant IPS noflags. Tunable map/constant (not a live channel); log spark advance to confirm the timing strategy and headroom to knock. (deg; raw/4)</description>
-  </table>
-  <table category="ign" endian="big" name="ign: comp coolant manual cam base" sizex="16" storageaddress="0x0C96" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
-   <table endian="big" name="coolant temp" sizex="16" storageaddress="0x0C86" storagetype="uint8" type="X Axis">
-    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
-   </table>
-   <description>Coolant-temperature ignition advance offset (u8_angle_1/4deg, advance-only) added to final spark timing in the idle and cruise ignition modes on manual-gearbox cars, indexed by ..._X_coolant_temp. Selected whenever the VVT scheduler is on the baseline intake cam map or the cams have not deviated from it (ign_idle_base_flags bit 0 clear, or ign_idle_base_variant == 0); the low-load cam schedule uses CAL_ign_comp_coolant_manual_cam_lowload instead, which is identical in the stock calibration.</description>
   </table>
   <table category="ign" endian="big" name="ign: comp coolant manual cam lowload" sizex="16" storageaddress="0x406E" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degrees" coarseincrement="1.0" expression="x/4" fineincrement="0.25" format="0.00" to_byte="x*4" units="°"/>
@@ -7940,6 +7947,16 @@
     <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    </table>
    <description>Slip target: used for RaceTC patch only.</description>
+  </table>
+  <table category="racetc" endian="big" name="racetc: torque cut p term" sizex="6" sizey="10" storageaddress="0x034E" storagetype="uint16" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
+   <table endian="big" name="carspeed" sizex="6" storageaddress="0x032E" storagetype="uint16" type="X Axis">
+    <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
+   </table>
+   <table endian="big" name="slip" sizey="10" storageaddress="0x033A" storagetype="uint16" type="Y Axis">
+    <scaling category="Wheelslip" coarseincrement="2" expression="x/8" fineincrement="1" format="0.00" to_byte="x*8" units="%"/>
+   </table>
+   <description/>
   </table>
   <table category="revlimit" endian="big" name="revlimit: bounce count threshold" sizex="1" storageaddress="0x0263" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>

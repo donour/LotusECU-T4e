@@ -239,6 +239,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_dutycycle_100/255", "uint8", "%", "x*100/255", "x*255/100", "0", "1", "5", "Dutycycle"),
 		new DF("u8_x256","uint8","#","x*256","x/256","0","256","2560","Number"),
 		new DF("u8_factor_1","uint8","%","x","x","0","1","5","Percent"),
+		new DF("u8_factor_1/10","uint8","%","x*10","x/10","0","10","50","Percent"),
 		new DF("u8_factor_1/32","uint8","%","x*100/32","x*32/100","0","1","5","Percent"),
 		new DF("u8_factor_1/64","uint8","%","x*100/64","x*64/100","0","1","5","Percent"),
 		new DF("u8_factor_10/1632","uint8","%","x*1000/1632","x*1632/1000","0","1","5","Percent"),

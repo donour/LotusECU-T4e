@@ -383,6 +383,13 @@
    </table>
    <description>Calibration: closedloop short-term fuel trim increment period (ms = val*5).</description>
   </table>
+  <table category="closedloop" endian="big" name="closedloop: tipout rpm threshold" sizex="1" storageaddress="0x4544" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>tipout rpm threshold</data>
+   </table>
+   <description/>
+  </table>
   <table category="cluster" endian="big" name="cluster: brake switch max speed ips unknown" sizex="1" storageaddress="0x026C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -1023,33 +1030,26 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: drive-cycle-assist IPS nolc (val/255; 8-element array).</description>
   </table>
-  <table category="dpm" endian="big" name="dpm: direct mode off delay" sizex="1" storageaddress="0x465E" storagetype="uint16" type="2D" userlevel="1">
+  <table category="dpm" endian="big" name="dpm: cornering detect delay" sizex="1" storageaddress="0x4660" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>direct mode off delay</data>
+    <data>cornering detect delay</data>
    </table>
    <description>"Direct mode" (flag bit 2) likely means more aggressive TC intervention when there's significant left-right wheel speed difference - i.e., one wheel spinning more than the other.</description>
   </table>
-  <table category="dpm" endian="big" name="dpm: direct mode on delay" sizex="1" storageaddress="0x4660" storagetype="uint16" type="2D" userlevel="1">
+  <table category="dpm" endian="big" name="dpm: cornering lr speed diff threshold" sizex="1" storageaddress="0x465C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>cornering lr speed diff threshold</data>
+   </table>
+   <description>Calibration: driver performance mode lr diff threshold (km/h = val/100).</description>
+  </table>
+  <table category="dpm" endian="big" name="dpm: cornering release delay" sizex="1" storageaddress="0x465E" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>direct mode on delay</data>
+    <data>cornering release delay</data>
    </table>
    <description>"Direct mode" (flag bit 2) likely means more aggressive TC intervention when there's significant left-right wheel speed difference - i.e., one wheel spinning more than the other.</description>
-  </table>
-  <table category="dpm" endian="big" name="dpm: integral gain" sizex="1" storageaddress="0x466A" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>integral gain</data>
-   </table>
-   <description>Calibration: driver performance mode integral gain.</description>
-  </table>
-  <table category="dpm" endian="big" name="dpm: integral limit" sizex="1" storageaddress="0x466B" storagetype="uint8" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>integral limit</data>
-   </table>
-   <description>Calibration: driver performance mode integral limit.</description>
   </table>
   <table category="dpm" endian="big" name="dpm: integral update period" sizex="1" storageaddress="0x4662" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x*5/1000" fineincrement="0.1" format="0.00" to_byte="x*1000/5" units="s"/>
@@ -1064,13 +1064,6 @@ Unit is x / 4.83 mpg</description>
     <data>intervention threshold</data>
    </table>
    <description>Calibration: driver performance mode intervention threshold (% = val/8).</description>
-  </table>
-  <table category="dpm" endian="big" name="dpm: lr diff cornerning threshold" sizex="1" storageaddress="0x465C" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>lr diff cornerning threshold</data>
-   </table>
-   <description>Calibration: driver performance mode lr diff threshold (km/h = val/100).</description>
   </table>
   <table category="dpm" endian="big" name="dpm: max vehicle speed" sizex="1" storageaddress="0x4667" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
@@ -1117,14 +1110,28 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: driver performance mode slip target compensation pedal (% = val*2; 36-element array).</description>
   </table>
-  <table category="dpm" endian="big" name="dpm: slip target offset" sizex="1" storageaddress="0x4666" storagetype="uint8" type="2D" userlevel="1">
+  <table category="dpm" endian="big" name="dpm: slip target straight line offset" sizex="1" storageaddress="0x4666" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Wheelslip" coarseincrement="2" expression="x/8" fineincrement="1" format="0.00" to_byte="x*8" units="%"/>
    <table name="" sizex="1" type="Static X Axis">
-    <data>slip target offset</data>
+    <data>slip target straight line offset</data>
    </table>
-   <description>Calibration: driver performance mode slip target offset (% = val/8).</description>
+   <description>A fixed extra slip allowance, in 1/8 % steps (u8_slip_1/8pct), added to the pedal-derived target dpm_slip_target_from_pedal to give the final dpm_slip_target. It's only applied while flag bit 2 is clear. dpm_system_state_manager_200hz sets that bit when the left/right wheel-speed difference exceeds CAL_dpm_lr_diff_cornerning_threshold, which means the car is cornering. So the car gets more wheelspin before TC cuts torque when driving straight, and when cornering the offset drops out, the target falls back to the pedal value, and TC steps in earlier to protect lateral grip. The on/off delays (CAL_dpm_direct_mode_on_delay / _off_delay) stop it from flickering on and off at corner entry and exit.</description>
   </table>
-  <table category="dpm" endian="big" name="dpm: torque cut factor" sizex="6" sizey="10" storageaddress="0x1336" storagetype="uint16" type="3D" userlevel="1">
+  <table category="dpm" endian="big" name="dpm: torque cut i gain" sizex="1" storageaddress="0x466A" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>torque cut i gain</data>
+   </table>
+   <description>Calibration: driver performance mode integral gain.</description>
+  </table>
+  <table category="dpm" endian="big" name="dpm: torque cut i limit" sizex="1" storageaddress="0x466B" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>torque cut i limit</data>
+   </table>
+   <description>Calibration: driver performance mode integral limit.</description>
+  </table>
+  <table category="dpm" endian="big" name="dpm: torque cut p term" sizex="6" sizey="10" storageaddress="0x1336" storagetype="uint16" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    <table endian="big" name="carspeed" sizex="6" storageaddress="0x1316" storagetype="uint16" type="X Axis">
     <scaling category="km/h" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="km/h"/>
@@ -1132,7 +1139,7 @@ Unit is x / 4.83 mpg</description>
    <table endian="big" name="slip" sizey="10" storageaddress="0x1322" storagetype="uint16" type="Y Axis">
     <scaling category="Wheelslip" coarseincrement="2" expression="x/8" fineincrement="1" format="0.00" to_byte="x*8" units="%"/>
    </table>
-   <description>Calibration: driver performance mode torque cut factor (val/255; 60-element array).</description>
+   <description>dpm_torque_cut_factor is the proportional part of the GT430's ECU traction control. Once the filtered slip error (how far wheel slip is above the target) passes CAL_dpm_intervention_threshold, the ECU looks it up in the 6×10 table CAL_dpm_torque_cut_factor. That table is indexed by front-axle speed, which is effectively vehicle speed since the fronts aren't driven, and by slip error in 1/8 % steps. The ECU adds it to the integral term dpm_torque_cut_accumulated, capping the sum to form dpm_torque_cut_total. That total sets how much of dpm_torque_when_tc_activated (the combustion torque captured when TC first stepped in) is removed. The result is torque_limit_dpm_spark, floored at CAL_dpm_torque_min_allowed, and the throttle limit is set a margin above it.</description>
   </table>
   <table category="dpm" endian="big" name="dpm: torque margin factor" sizex="1" storageaddress="0x466D" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
@@ -2530,10 +2537,24 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Calibration: fuel learn time step.</description>
   </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 2 maf max" sizex="1" storageaddress="0x01DA" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 2 maf max</data>
+   </table>
+   <description/>
+  </table>
   <table category="inj" endian="big" name="inj: fuel learn zone 2 maf min" sizex="1" storageaddress="0x01DC" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
    <table name="" sizex="1" type="Static X Axis">
     <data>fuel learn zone 2 maf min</data>
+   </table>
+   <description/>
+  </table>
+  <table category="inj" endian="big" name="inj: fuel learn zone 3 maf min" sizex="1" storageaddress="0x01E2" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fuel learn zone 3 maf min</data>
    </table>
    <description/>
   </table>
@@ -3952,6 +3973,13 @@ Unit is x / 4.83 mpg</description>
    <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
    <description>Calibration: OBD-II P0106 (OBD-II monitor enable level).</description>
   </table>
+  <table category="obd" endian="big" name="obd: ii P0106 partload rpm window" sizex="1" storageaddress="0x4452" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii P0106 partload rpm window</data>
+   </table>
+   <description/>
+  </table>
   <table category="obd" name="obd: ii P0107" sizey="1" storageaddress="0x4B5A" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
    <state data="01" name="Non-emissions 1-trip"/>
@@ -5128,6 +5156,13 @@ Unit is x / 4.83 mpg</description>
    <state data="92" name="Emissions Type B critical (2-trip MIL priority)"/>
    <description>Calibration: OBD-II P0500 (OBD-II monitor enable level).</description>
   </table>
+  <table category="obd" endian="big" name="obd: ii P0500 car speed min" sizex="1" storageaddress="0x43E8" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii P0500 car speed min</data>
+   </table>
+   <description/>
+  </table>
   <table category="obd" name="obd: ii P0506" sizey="1" storageaddress="0x4BD9" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
    <state data="01" name="Non-emissions 1-trip"/>
@@ -6261,6 +6296,13 @@ Unit is x / 4.83 mpg</description>
     <data>ii fuel type</data>
    </table>
    <description>Calibration: OBD-II fuel type.</description>
+  </table>
+  <table category="obd" endian="big" name="obd: ii mode06 o2 switch time min" sizex="1" storageaddress="0x43D6" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>ii mode06 o2 switch time min</data>
+   </table>
+   <description/>
   </table>
   <table category="obd" endian="big" name="obd: ii mode2f timeout" sizex="1" storageaddress="0x4438" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="s"/>
@@ -7774,6 +7816,13 @@ Unit is x / 4.83 mpg</description>
     <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
    </table>
    <description>Calibration: throttle position scaling factor RPM (val/255; 16-element array).</description>
+  </table>
+  <table category="tps" endian="big" name="tps: warmup max" sizex="1" storageaddress="0x018C" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Percent" coarseincrement="1" expression="x*100/1023" fineincrement="0.1" format="0.00" to_byte="x*1023/100" units="%"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>warmup max</data>
+   </table>
+   <description/>
   </table>
   <table category="tpssmooth" name="tpssmooth: accel pedal modes enable" sizey="1" storageaddress="0x0295" type="Switch" userlevel="1">
    <state data="00" name="Disabled"/>
@@ -14392,6 +14441,23 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>OBD-II: idle learn.</description>
   </table>
+  <table category="obd" endian="big" name="obd: monitor 03" sizex="10" storageaddress="0x16B4" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
+   <table name="signal" sizex="10" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <data>64</data>
+    <data>96</data>
+    <data>128</data>
+    <data>160</data>
+    <data>192</data>
+    <data>224</data>
+    <data>256</data>
+    <data>288</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
+  </table>
   <table category="octane" endian="big" name="octane: scaler" sizex="6" storageaddress="0x0394" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="signal" sizex="6" type="Static X Axis">
@@ -14404,6 +14470,20 @@ Unit is x / 4.83 mpg</description>
     <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description>Learned/adaptive value: octane scaler (6-element array).</description>
+  </table>
+  <table category="perf" endian="big" name="perf: struct A b byte1" sizex="1" storageaddress="0x0FC1" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>struct A b byte1</data>
+   </table>
+   <description/>
+  </table>
+  <table category="perf" endian="big" name="perf: struct A b word0" sizex="1" storageaddress="0x0FC2" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>struct A b word0</data>
+   </table>
+   <description/>
   </table>
   <table category="time" endian="big" name="time: at rpm" sizex="8" storageaddress="0x0DD8" storagetype="uint32" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
