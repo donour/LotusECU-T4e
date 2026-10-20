@@ -115,5 +115,27 @@ class CalSites(unittest.TestCase):
 		with self.assertRaisesRegex(PatchError, "really unused"):
 			apply_cal_sites(FakeElf(), [site], FlashImage("cal", t.find_base(t.cal), t.cal.base, t.cal.size), stock)
 
+class HC08Checksum(unittest.TestCase):
+	"""hc08-tps derives the HC08 checksum immediate from its table in the
+	assembler; it must match the checksum of the image actually built."""
+
+	@staticmethod
+	def checksum(prog):
+		# hc08_patcher/HC08_TPS_firmware_update.md, section 4.1
+		image = prog.read(int.from_bytes(prog.read(0x4008C, 4), "big"), 0x2400)
+		return (0x0123 - sum(b + 1 for b in image[:0x2000] + image[0x23DC:])) & 0xFFFF
+
+	def test_checksum_matches_image(self):
+		recipe = load_recipe("gt430-federal")
+		if(not os.path.exists(recipe.cal)): self.skipTest(f"{recipe.cal} not found")
+		t = load_target(recipe.target)
+		stock = FlashImage("prog", t.find_base(t.prog), t.prog.base, t.prog.size)
+		self.assertEqual(self.checksum(stock), 0xDA01)
+		with tempfile.TemporaryDirectory() as work:
+			res = build(Toolchain(), recipe, work, log=lambda s: None)
+		imm = int.from_bytes(res.prog.read(t.symbols["HC08_check_CRC"] + 0x12, 2), "big")
+		self.assertNotEqual(imm, 0xDA01)
+		self.assertEqual(imm, self.checksum(res.prog))
+
 if __name__ == "__main__":
 	unittest.main()

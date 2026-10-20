@@ -3455,3 +3455,18 @@ fcb_buffer = 0xfffc8080;
 /* t6patch additions */
 _SDA_BASE_ = 0x40009430;              /* r13 small-data anchor, set at 0x40524 in startup */
 siu_pcr184_config = 0x4285c;          /* li r0,0x0100: value stored to SIU_PCR184 (pad RG4) at init */
+cruise_switch_pos = 0x4000264c;       /* enum_cruise_switch_pos; cruise_switch_pos_unknown above, renamed in Ghidra */
+
+/* federal-gt sites */
+vin_flags_vin7_R = 0xc5514;           /* cmplwi r0,'R': the VIN[6] == 'R' branch of vin_flags */
+vin_flags_vin7_R_diag = 0xc553c;      /* sth main_diagnostic_flags (|= 4) in that branch */
+vin_flags_vin7_S = 0xc5544;           /* the next test, VIN[6] == 'S' */
+vin_flags_done = 0xc56a8;             /* end of the VIN[6] tests */
+flexcan_a_tx_403_byte4 = 0xb4fec;     /* byte 4 (DPM index) of CAN A 0x403, then the DLC */
+cluster_data_send_call_tx_403 = 0x5d5a4;          /* bl flexcan_a_tx_403 */
+dpm_state_manager_call_button_handler = 0xcbaf4;  /* bl dpm_mode_button_handler */
+
+/* torque-4nm sites */
+torque_limit_by_rpm_scale = 0xab3ec;  /* slwi r0,r0,1: CAL_torque_limit_by_rpm -> Nm */
+torque_limit_coolant_scale = 0xab424; /* slwi r0,r0,1: coolant torque limit (torque_limit_engine_speed) -> Nm */
+calc_tps_for_torque_limit_no_limit = 0xbd5a0;     /* cmplwi r0,510: a limit >= 510 Nm is no limit */

@@ -1,0 +1,64 @@
+id = "federal-gt"
+version = 1
+description = "Run the GT430 firmware on a Federal (US) Evora GT: VIN check, cluster frame, DPM on the cruise stalk"
+targets = ["C132E0278"]
+sources = ["federal_gt.S"]
+# Reimplements the hand patch in the 20260820 tune's prog (first made for
+# T6EVRGT430E01_BIN.cpt.exported, 2026-03-08). The VIN and 0x403 sites are
+# byte-identical to it. The DPM controls and display are call-site wrappers
+# instead of code written over flexcan_a_tx_d2_100hz and
+# fuel_level_and_usage, so CAN 0xD2 (IPS) is still sent and the fuel range
+# still shows "---" on a fuel sender fault.
+
+# vin_flags: accept VIN[6] == 'D' (Federal Evora GT) in place of 'R'. 'D'
+# gets variant nibble 4 in 0x40002811 (as 'C', 'V' and 'P') and, like 'C',
+# does not set main_diagnostic_flags bit 2. 'R' is no longer recognised.
+[[sites]]
+name = "vin7_D"
+at = "vin_flags_vin7_R"
+expect = [
+	"cmplwi %r0, 0x52",
+	"bne vin_flags_vin7_S",
+	"li %r4, 3",
+	"addi %r3, %r13, {0x40002810 - _SDA_BASE_}",
+	"lbz %r0, 1(%r3)",
+	"rlwimi %r0, %r4, 4, 24, 27",
+	"stb %r0, 1(%r3)",
+	"lhz %r0, {main_diagnostic_flags - _SDA_BASE_}(%r13)",
+	"ori %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+]
+
+[[sites]]
+name = "vin7_D_no_diag"
+at = "vin_flags_vin7_R_diag"
+expect = [
+	"sth %r0, {main_diagnostic_flags - _SDA_BASE_}(%r13)",
+	"b vin_flags_done",
+]
+
+# flexcan_a_tx_403 (CAN A 0x403 to the cluster): 4 data bytes instead of 5.
+# Byte 4 is the GT430 cluster's DPM index, which the Federal cluster lacks.
+[[sites]]
+name = "tx_403_dlc4"
+at = "flexcan_a_tx_403_byte4"
+expect = [
+	"clrlwi %r0, %r0, 24",
+	"stb %r0, 0(%r7)",
+	"li %r4, 5",
+	"lis %r3, -4",
+	"lwz %r0, 528(%r3)",
+	"rlwimi %r0, %r4, 16, 12, 15",
+]
+
+# The Federal car has no DPM +/- buttons: the cruise stalk stands in.
+[[sites]]
+name = "dpm_buttons"
+at = "dpm_state_manager_call_button_handler"
+expect = ["bl dpm_mode_button_handler"]
+
+# And no DPM display: the cluster's fuel range/economy fields show it.
+[[sites]]
+name = "dpm_display"
+at = "cluster_data_send_call_tx_403"
+expect = ["bl flexcan_a_tx_403"]

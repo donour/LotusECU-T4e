@@ -1,0 +1,41 @@
+id = "torque-4nm"
+version = 1
+description = "Torque limit tables in 4 Nm steps (up to 1020 Nm) instead of 2 Nm (up to 510 Nm)"
+targets = ["C132E0278"]
+sources = ["torque_4nm.S"]
+# From the 20260820 tune's prog (tune notes 20260221 and 20260307).
+#
+# WARNING: only use this with a cal whose torque limit tables have been
+# rescaled to 4 Nm. With a stock (2 Nm) cal every limit doubles.
+#   CAL_torque_limit_by_rpm (8x8, gear x rpm)
+#   the coolant torque limit (4 points, read into torque_limit_engine_speed)
+# Both are u8; the firmware converts them to Nm with a shift, which goes
+# from << 1 to << 2. torque_limit and everything after it stay in Nm.
+
+[[sites]]
+name = "by_rpm"
+at = "torque_limit_by_rpm_scale"
+expect = [
+	"slwi %r0, %r0, 1",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {torque_limit_by_rpm - _SDA_BASE_}(%r13)",
+]
+
+[[sites]]
+name = "coolant"
+at = "torque_limit_coolant_scale"
+expect = [
+	"slwi %r0, %r0, 1",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {torque_limit_engine_speed - _SDA_BASE_}(%r13)",
+]
+
+# calc_tps_for_torque_limit treats a limit of 510 Nm (the old table maximum)
+# or more as no limit. Raised to 911 Nm, the no-limit value race-tc uses.
+[[sites]]
+name = "no_limit"
+at = "calc_tps_for_torque_limit_no_limit"
+expect = [
+	"cmplwi %r0, 510",
+	"bge calc_tps_for_torque_limit + 0xcc",
+]

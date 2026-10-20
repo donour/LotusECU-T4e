@@ -1,4 +1,5 @@
-# Wideband + flex-fuel on the GT430, on top of your 93-octane tune.
+# Wideband + flex-fuel on the GT430, on top of your 93-octane tune, for a
+# Federal Evora GT (see gt430-federal).
 target = "C132E0278"
-modules = ["wideband", "flexfuel"]
+modules = ["federal-gt", "torque-4nm", "hc08-tps", "wideband", "flexfuel"]
 cal = "../../patch/C132E0278_TAB.20260628-93octane.cpt"

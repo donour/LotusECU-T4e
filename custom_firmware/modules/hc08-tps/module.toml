@@ -1,0 +1,35 @@
+id = "hc08-tps"
+version = 1
+description = "Raise the HC08 throttle monitor's TPS limit vs rpm table and fix the HC08 checksum"
+targets = ["C132E0278"]
+sources = ["hc08_tps.S"]
+# The HC08 throttle monitor keeps its own copy of the cal's "tps: scaling
+# factor rpm" table, inside the HC08 image in prog (see
+# hc08_patcher/HC08_TPS_firmware_update.md). Raising the cal table without it
+# leaves the monitor enforcing the stock limits. The values in hc08_tps.S are
+# the 20260820 tune's; keep them at or above the cal table.
+#
+# The prog checks the checksum the HC08 reports against an immediate in
+# HC08_check_CRC. hc08_tps.S derives the new value from the table, so the
+# two always agree.
+
+# The rpm axis is verified, not changed.
+[[sites]]
+name = "table"
+at = "hc08_tps_scaling_factor_X_rpm"
+expect = [
+	".byte 0x19, 0x1f, 0x27, 0x2f, 0x37, 0x3f, 0x4e, 0x5e, 0x6e, 0x7d, 0x8d, 0x9c, 0xac, 0xbb, 0xcb, 0xdb",
+	".byte 0x8d, 0xa4, 0xb7, 0xce, 0xd4, 0xd4, 0xd5, 0xd5, 0xb4, 0xa9, 0xb6, 0xcc, 0xe4, 0xff, 0xff, 0xff",
+]
+
+[[sites]]
+name = "checksum"
+at = "HC08_check_CRC"
+expect = [
+	"lis %r3, hc08_crc16@ha",
+	"lhz %r0, hc08_crc16@l(%r3)",
+	"clrlwi %r4, %r0, 16",
+	"lis %r3, 1",
+	"addi %r3, %r3, 0xda01 - 0x10000",
+	"clrlwi %r0, %r3, 16",
+]

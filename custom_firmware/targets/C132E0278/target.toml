@@ -1,18 +1,19 @@
 # 2019 Evora GT430, firmware C132E0278 (T6-EVORA--F430-V000E), MPC5534.
 #
-# The pinned prog is patch/T6EVRGT430E01_BIN.cpt. It differs from the
-# Ghidra project's C132E0278.hex in 159 bytes (0x437ee-0xc553f), so it is
-# probably the "USDM_PATCHED" image patch/build.py used. Confirm it's what is on
-# the car before flashing anything built for this target.
+# The pinned prog is the factory image, extracted from the official
+# C132E0278.CRP (official_firmware/2019GT430/T6EVRGT430E01_BIN.cpt). It is the
+# image in the Ghidra project. Changes that earlier builds took from a
+# hand-patched prog are modules now: federal-gt (run on a Federal Evora GT),
+# torque-4nm and hc08-tps.
 name = "C132E0278"
-description = "Evora GT430 MY19 (T6-EVORA--F430-V000E), USDM-patched prog"
+description = "Evora GT430 MY19 (T6-EVORA--F430-V000E), factory prog"
 symbols = "symbols.sym"
 
 [prog]
 base = 0x40000
 size = 0xC0000
 stock = "T6EVRGT430E01_BIN.cpt"
-sha256 = "e3a7868cd4685b59919b7b79dc4b3f190ff7df030c2137f90e89fd975c41bc31"
+sha256 = "b11a1812dc742ace61eb190e41d6435deef8b908158e5090d14ee1a4f4c52aea"
 free = 0xD8988
 
 [cal]

@@ -1,0 +1,6 @@
+# GT430 firmware for a Federal Evora GT, with your 93-octane tune: the prog
+# changes of the hand-patched 20260820 tune prog, as modules.
+# The cal must have its torque limit tables in 4 Nm steps (torque-4nm).
+target = "C132E0278"
+modules = ["federal-gt", "torque-4nm", "hc08-tps"]
+cal = "../../patch/C132E0278_TAB.20260628-93octane.cpt"

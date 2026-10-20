@@ -81,7 +81,7 @@ FIXTURES = [
 		"asflags": ["--defsym", "FLEXFUEL=1", "--defsym", "WIDEBAND=1"],
 		"include": "patch/t6/combined",
 		"sym": "patch/t6/T6-GT430.sym",
-		"prog": "bases/T6EVRGT430E01_BIN.cpt",
+		"prog": "../patch/T6EVRGT430E01_BIN.cpt", # The hand-patched prog of the legacy builds
 		"cal": "../patch/C132E0278_TAB.20260628-93octane.cpt",
 		"layout": Layout(0xD8988, 0x100000, 0x269AC, 0x40000, 0x4000F000, 0x40010000),
 		"sites": HOOK_SITES + [
