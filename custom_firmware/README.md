@@ -143,7 +143,7 @@ expect = [                        # or { B13200091 = [...], C132E0278 = [...] }
 
 | Module | Targets | Notes |
 |---|---|---|
-| `race-tc` | B13200091 | Race traction control, from `20260706/s1_dpm` (a15fc67), where it was called dpm; renamed with identical machine code. The torque-arbitration filter moved out of `hook.S` into `race_tc_hooks.S`. v2: the dash display rewrites only the CAN 0x402 frame (hook `tpms_frame_packed`), and only while race-tc is on, so TPMS works normally with it off. v3: the slip-target base table and its level axis are cal sites (`CAL_racetc_slip_target_base`, `..._X_dpm_level`, cal offsets 0x31E / 0x30E). v4: 9 levels instead of 6 (`RACE_TC_MAX_LEVEL`); default slip-target bases 0–24 % in 3 % steps. |
+| `race-tc` | B13200091 | Race traction control, from `20260706/s1_dpm` (a15fc67), where it was called dpm; renamed with identical machine code. The torque-arbitration filter moved out of `hook.S` into the module (`race_tc.S`, with the other hook handlers). v2: the dash display rewrites only the CAN 0x402 frame (hook `tpms_frame_packed`), and only while race-tc is on, so TPMS works normally with it off. v3: the slip-target base table and its level axis are cal sites (`CAL_racetc_slip_target_base`, `..._X_dpm_level`, cal offsets 0x31E / 0x30E). v4: 9 levels instead of 6 (`RACE_TC_MAX_LEVEL`); default slip-target bases 0–24 % in 3 % steps. |
 | `wideband` | both | From `patch/t6/wideband`. Its sites are now verified across the whole skipped ADC sequence. |
 | `flexfuel` | C132E0278 | From `patch/t6/flexfuel`. Pad RG4 site located on the GT430 only. |
 

@@ -1,11 +1,10 @@
-#TODO: OBD-II data reading is incorrect and forces reboot
-#TODO: tune the i term from race TC correction in state mgmt
-#TODO: move the CAL tables out of the data segment
+#TODO: tune the i term; with the GT430's 20 s update period it rarely acts
+#TODO: move the remaining CAL_race_tc_* tables from .text into the cal
 
 # race-tc: race traction control, 9-level slip-based torque cut.
 # Built from the GT430's (C132E0278) slip control, which the GT430 firmware
-# calls DPM (dpm_* symbols there), ported to B13200091 (S1 Evora NA).
-# Variable set follows C132E0278/DPM_plan.md Phase 1.
+# calls DPM (dpm_* symbols there), ported to B13200091 (S1 Evora NA). The
+# slip, slip-target, slip-error and torque-cut code is dpm_slip_calculator.
 
 # Constants
 .set RACE_TC_SLIP_TARGET_STRAIGHT_LINE_OFFSET, 16 # 2% in 1/8% units, skipped while cornering
@@ -13,7 +12,19 @@
 
 .set RACE_TC_TORQUE_NO_LIMIT,   911 # Nm sentinel = "no torque cut requested"
 
-# race_tc_control_flags bitmap
+.set DRIVER_INPUT_TC_OFF,       0x40 # driver_input_flags[1]: stock TC switched off
+
+# Sets cr0 to EQ when the stock TC is on, NE when it has been switched off
+# with its button: driver_input_flags[1] bit 0x40, digital input 6, toggled,
+# and only set when the coding enables the button. Clobbers reg.
+.macro test_tc_off reg
+	lis	\reg, (driver_input_flags + 1)@ha
+	lbz	\reg, (driver_input_flags + 1)@l(\reg)
+	andi.	\reg, \reg, DRIVER_INPUT_TC_OFF
+.endm
+
+# race_tc_control_flags bitmap. Only ARMED, CUTTING and DIRECT are used; the
+# rest are the GT430's bits, kept for reference and never set here.
 .set RACE_TC_FLAG_ARMED,        0x0001 # In operating window (armed); set even below threshold
 .set RACE_TC_FLAG_CUTTING,      0x0002 # Actively cutting torque (snapshot taken on its rising edge)
 .set RACE_TC_FLAG_DIRECT,       0x0004 # Direct mode active (high L-R speed diff)
@@ -24,17 +35,9 @@
 .set RACE_TC_FLAG_BTN_INC,      0x0080 # Increase button pressed
 .set RACE_TC_FLAG_BTN_DEC,      0x0100 # Decrease button pressed
 
-.section .data
-
-# race TC runtime state.
-#
-# These are defined as explicit .bss labels rather than .comm. On PowerPC
-# EABI the assembler diverts small .comm objects (<= the -G small-data
-# threshold, default 8 bytes) into .sbss. The combined Makefile only sets
-# -Tbss $(RAM) and never places .sbss, so those symbols would link at VMA 0
-# (showing up as uRam0000xxxx in the disassembly) instead of the 0x4000xxxx
-# SRAM block. Explicit .bss placement avoids the diversion and also gives a
-# deterministic layout for the later OBD readback patch.
+# race TC runtime state, in patch RAM (zeroed by t6p_core_init before
+# race_tc_init runs). Explicit .bss labels rather than .comm give a fixed
+# layout, so the addresses in symbols.txt stay put between builds for logging.
 #
 # Ordered widest-first (4/2/1 byte) so every field stays naturally aligned
 # with no padding.
@@ -73,7 +76,7 @@ race_tc_rear_axle_speed_max:       .skip 2 # u16_speed_1/100kph, max(LR, RR)
 race_tc_front_lr_speed_diff:       .skip 2 # u16_speed_1/100kph, abs(LF - RF)
 race_tc_rear_lr_speed_diff:        .skip 2 # u16_speed_1/100kph, abs(LR - RR)
 race_tc_max_lr_speed_diff:         .skip 2 # u16_speed_1/100kph, max of front/rear L-R diffs
-race_tc_cornering_detect_timer:    .skip 2 # u16_time_5ms, countdown to enter direct mode
+race_tc_cornering_detect_timer:    .skip 2 # u16_time_5ms, countdown to enter direct mode (unused)
 race_tc_cornering_release_timer:   .skip 2 # u16_time_5ms, countdown to exit direct mode
 race_tc_integral_update_timer:     .skip 2 # u16_time_5ms, integral update period countdown
 
@@ -88,6 +91,7 @@ race_tc_both_buttons_pressed:      .skip 1 # bool, dual-press latch
 
 .section .text
 .global race_tc_init, race_tc_slip_calculator, race_tc_system_state_manager_200hz
+.global race_tc_dash_display, race_tc_torque_arbitration_filter
 
 # The firmware does not zero-fill the patch .bss region, so every
 # variable must be initialized explicitly here.
@@ -181,7 +185,7 @@ race_tc_init:
 #   race_tc_slip_target          = per-level target (via race_tc_calc_slip_target)
 # Clobbers r0, r3-r11; calls race_tc_calc_slip_target.
 race_tc_calc_slip:
-	# Push link register (this function now calls race_tc_calc_slip_target).
+	# Push link register (this function calls race_tc_calc_slip_target).
 	stwu	%r1, -8(%r1)
 	mflr	%r0
 	stw	%r0, 12(%r1)
@@ -240,7 +244,8 @@ slip_3:
 	sth	%r0, race_tc_rear_lr_speed_diff@l(%r10)
 
 	# race_tc_max_lr_speed_diff = max(front_lr_diff, rear_lr_diff)
-	# Cornering magnitude; the direct-mode hysteresis will consume this later.
+	# Cornering magnitude, read by the direct-mode hysteresis in
+	# race_tc_system_state_manager_200hz.
 	cmplw	%r11, %r0	# front (r11) vs rear (r0), unsigned
 	bge	slip_4
 	mr	%r11, %r0	# rear larger -> r11 = max
@@ -279,7 +284,7 @@ slip_5:
 	blr
 
 # Compute race_tc_slip_target: the slip threshold race_tc_slip is judged against.
-# Ported from C132E0278.c:58274-58327 (the "system enabled" active path).
+# Ported from dpm_slip_calculator (the "system enabled" active path).
 #
 #   pedal_comp = lookup_3D(6,6, vehicle_speed_kph, (pedal>>2)&0xff,
 #                          CAL_race_tc_slip_target_from_pedal, _X_carspeed, _Y_pps)
@@ -357,7 +362,7 @@ tgt_on:
 	add	%r3, %r3, %r5
 
 	# Add the offset unless direct mode is active. In direct mode (cornering)
-	# the offset is skipped to tighten the target (C132E0278.c:58317-58327).
+	# the offset is skipped to tighten the target, as on the GT430.
 	lis	%r6, race_tc_control_flags@ha
 	lhz	%r6, race_tc_control_flags@l(%r6)
 	andi.	%r6, %r6, RACE_TC_FLAG_DIRECT
@@ -378,7 +383,7 @@ tgt_done:
 
 # Subfunction of race_tc_slip_calculator. Derives the slip error and its
 # asymmetric (fast-attack / slow-decay) filter from race_tc_slip and
-# race_tc_slip_target. Ported from C132E0278.c:58328-58349.
+# race_tc_slip_target. Ported from dpm_slip_calculator.
 #   race_tc_slip_error_raw = (slip > target) ? slip - target : 0
 #   coeff = lookup_2D(8, vehicle_speed_kph,
 #                     CAL_race_tc_slip_filter_coeff, _X_carspeed)   # gain, /256
@@ -458,9 +463,9 @@ serr_done:
 	blr
 
 # Subfunction of race_tc_slip_calculator: the torque-cut / intervention block.
-# Port of C132E0278.c:58442-58500. Produces race_tc_torque_limit_spark/throttle,
+# Ported from dpm_slip_calculator. Produces race_tc_torque_limit_spark/throttle,
 # race_tc_torque_cut_p_term/fraction and the ARMED/CUTTING flags. While CUTTING,
-# race_tc_torque_arbitration_filter (race_tc_hooks.S) applies the limits as
+# race_tc_torque_arbitration_filter (below) applies the limits as
 # min() on the firmware's external torque request and sets the ABS source bit,
 # so torque_model turns them into spark retard, cylinder cut and a throttle cap.
 #
@@ -469,7 +474,8 @@ serr_done:
 #   CAL_race_tc_min_vehicle_speed < vehicle_speed_kph < CAL_race_tc_max_vehicle_speed
 #   CAL_race_tc_min_engine_rpm < engine_speed_16bit
 #   (inj_flags & 1) == 0                              (fuel cut inactive)
-#   (race_tc_control_flags & RACE_TC_FLAG_SYS_DISABLED) == 0  (set by the later ABS gate)
+#   (race_tc_control_flags & RACE_TC_FLAG_SYS_DISABLED) == 0  (never set: always passes;
+#                                                    ABS faults are handled in race_tc_slip_calculator)
 # The GT430 SLIP_VALID (bit 3) gate is dropped: mode 0 already forces
 # target=0xFFFF -> error 0, and the mode!=0 gate covers "valid".
 #
@@ -696,8 +702,9 @@ CAL_race_tc_torque_cut_i_limit:			.byte 0x80	# uint8_t      (GT430 @ 0x4000ccbf)
 # Main-loop race TC entry: derive axle maxima / L-R diffs / slip and the slip
 # target (race_tc_calc_slip), then the raw + filtered slip error
 # (race_tc_calc_slip_error), then the torque cut / intervention (race_tc_calc_torque_cut).
-# Called from the main loop hook. The torque-cut outputs are inert until the
-# torque-path injection stage.
+# Called from the main loop hook. The torque limits it produces are applied by
+# race_tc_torque_arbitration_filter (below). An ABS fault (wheel
+# speeds not trustworthy) skips the calculation and resets the torque outputs.
 race_tc_slip_calculator:
 	# Push link register on stack
 	stwu	%r1, -8(%r1)
@@ -729,7 +736,9 @@ race_tc_sc_done:
 	addi	%r1, %r1, 8
 	blr
 
-	# 200 Hz (5 ms) race TC state machine.  Three responsibilities per tick:
+	# 200 Hz (5 ms) race TC state machine.  Four responsibilities per tick:
+	#   T. While the stock TC is off, hold the TPMS status at "initialised,
+	#      no faults" so the cluster shows the race TC display, not a TPMS fault.
 	#   0. Sport-button long-press (> 1.0 s) increments race_tc_mode_index
 	#      (0..RACE_TC_MAX_LEVEL, wraps to 0).  Short presses are untouched and still
 	#      toggle sport mode via the firmware's existing logic.
@@ -737,6 +746,21 @@ race_tc_sc_done:
 	#   2. PI integral controller (accumulates slip error into torque cut).
 	# Leaf (no calls) -> no LR frame. Clobbers r0, r3-r11.
 	race_tc_system_state_manager_200hz:
+		# === Stage T: TPMS status while the stock TC is off ===
+		# driver_input_flags[1] bit 0x40 is the TC button's toggled state
+		# (digital input 6, only when the car is coded with the button), the
+		# bit sent to the ESP in CAN 0x114 byte 4. cluster_send_data turns
+		# real TPMS faults into the TPMS light (CAN 0x400) and, with no
+		# working TPMS module, the cluster then hides the 0x402 values that
+		# race_tc_dash_display writes. 0x0200 = module initialised, all
+		# else clear, as the firmware has it after a good TPMS start.
+		test_tc_off	%r3
+		beq	race_tc_tpms_done
+		li	%r3, 0x0200
+		lis	%r4, tire_pressure_valid_and_error@ha
+		sth	%r3, tire_pressure_valid_and_error@l(%r4)
+	race_tc_tpms_done:
+
 		# === Stage 0: sport-button long-press (> 1.0 s) -> mode increment ===
 		# Uses digital_input_raw_state[3] (0x40002C9B), which tracks
 		# the physical button level even when the debounce is in toggle
@@ -813,7 +837,7 @@ race_tc_sc_done:
 	dsm_clear:
 		andi.	%r6, %r6, (0xffff & ~RACE_TC_FLAG_DIRECT)
 		sth	%r6, race_tc_control_flags@l(%r5)
-		b	dsm_integral		# was dsm_ret; now continue to PI
+		b	dsm_integral
 
 	dsm_cornering:
 		# --- cornering: engage DIRECT, reload the exit timer ---
@@ -822,7 +846,7 @@ race_tc_sc_done:
 		lis	%r8, CAL_race_tc_cornering_release_delay@ha
 		lhz	%r8, CAL_race_tc_cornering_release_delay@l(%r8)
 		sth	%r8, race_tc_cornering_release_timer@l(%r7)
-		# fall through to PI controller (was blr)
+		# fall through to the PI controller
 
 	# === Stage 2: PI integral controller ===
 	# if (!(flags & CUTTING)): reset timer + accumulator + i_term
@@ -898,6 +922,136 @@ race_tc_sc_done:
 		lis	%r4, race_tc_torque_cut_i_term@ha
 		stb	%r3, race_tc_torque_cut_i_term@l(%r4)
 		blr
+
+# ---- Hook handlers ------------------------------------------------------------
+# Called by the t6patch hook dispatchers (tpms_frame_packed and
+# torque_arbitration_exit); both used to be inline in patch/t6/combined/hook.S
+# (20260706/s1_dpm, a15fc67).
+
+# tpms_frame_packed handler (cluster_send_data, 10 Hz): show race TC on the dash's
+# tyre-pressure display while race TC is on (level 1-9) or the stock TC is off
+# (any level, 0 included, to show race TC is the system in charge).
+#
+# Only the outgoing CAN 0x402 frame (tpms_output) is rewritten; tpms_pressure
+# and OBD PIDs 0x215/0x216 are untouched. With the stock TC on at level 0 the
+# frame is left as the firmware packed it, so a working TPMS displays normally.
+# tire_pressure_valid_and_error (and so the TPMS light) is held clear while the
+# stock TC is off, in race_tc_system_state_manager_200hz.
+#
+# The cluster shows a 0x402 pressure byte as 2 kPa/count, in psi rounded to
+# the nearest whole number (0.2901 psi/count). v1-v5 sent value * 2.5 << 1,
+# which assumed 0.4 psi per tpms_pressure count; on the car levels 0..9 read
+# 0,1,3,4,6,7,9,10,12,13, exactly what 0.2901 psi/count gives. The bytes are
+# now written at that scale so the dash reads the numbers themselves:
+#   front (tpms_output[0], [2]) = slip target in %: (target_1/8% * 441 + 512) >> 10,
+#                                 capped at 255; 0 at level 0
+#   rear  (tpms_output[1], [3]) = level:            (level * 3530 + 512) >> 10
+# 441/1024 = 1/(8 * 0.2901) and 3530/1024 = 1/0.2901; both read back exactly
+# for every whole value up to 74.
+#   tpms_output[4] low nibble (per-tyre OK) = 0, as packed from flags 0x0200
+#   with CAL_tpms_version == 0.
+# Leaf. Clobbers r3-r6.
+race_tc_dash_display:
+	lis	%r3, race_tc_mode_index@ha
+	lbz	%r6, race_tc_mode_index@l(%r3)
+	cmplwi	%r6, 0
+	bne	dash_show
+	# Level 0 shows too while the stock TC is off: race TC is the system
+	# in charge then, and the zeros say so.
+	test_tc_off	%r3
+	beqlr					# TC on, level 0: leave the real TPMS frame
+dash_show:
+	lis	%r4, tpms_output@ha
+	addi	%r4, %r4, tpms_output@l
+	# Front = slip target in %. At level 0 the target is 0xFFFF (never
+	# cut); show 0.
+	li	%r3, 0
+	cmplwi	%r6, 0
+	beq	dash_front
+	lis	%r3, race_tc_slip_target@ha
+	lhz	%r3, race_tc_slip_target@l(%r3)
+	mulli	%r3, %r3, 441
+	addi	%r3, %r3, 512
+	srwi	%r3, %r3, 10
+	cmplwi	%r3, 255
+	ble	dash_front
+	li	%r3, 255
+dash_front:
+	stb	%r3, 0(%r4)
+	stb	%r3, 2(%r4)
+	# Rear = level
+	mulli	%r3, %r6, 3530
+	addi	%r3, %r3, 512
+	srwi	%r3, %r3, 10
+	stb	%r3, 1(%r4)
+	stb	%r3, 3(%r4)
+	# Per-tyre OK flags clear. With CAL_tpms_version != 0 the firmware does
+	# not pack byte 4 (0x59D28), so neither do we.
+	lis	%r3, CAL_tpms_version@ha
+	lbz	%r3, CAL_tpms_version@l(%r3)
+	cmplwi	%r3, 0
+	bnelr
+	lbz	%r3, 4(%r4)
+	rlwinm	%r3, %r3, 0, 24, 27
+	stb	%r3, 4(%r4)
+	blr
+
+# torque_arbitration_exit handler: runs at the end of
+# torque_limit_request_arbitration, after it has selected the winning source
+# and stored the spark/throttle limits in:
+#   torque_limit_external_request      (fast/spark)
+#   torque_external_request_tps_based  (slow/throttle)
+# and set torque_limit_source_flags to the winning source bits. Both limits are
+# written only by torque_limit_request_arbitration and read only by
+# torque_model. The firmware reads them signed (lha); the unsigned compares
+# below assume non-negative limits.
+#
+# Applies race TC's limit as a min() override: if race TC is actively cutting AND
+# race TC's limit is tighter than the arbitration result, race TC's limit replaces it.
+# It also sets bit 0x02 (ABS) in source_flags when race TC is cutting, so the
+# torque_model master gate sees a non-zero source even when ABS/TCU are idle.
+#
+# Leaf. Clobbers r3-r5.
+race_tc_torque_arbitration_filter:
+	# Guard: if race TC is not cutting, return immediately.
+	lis	%r3, race_tc_control_flags@ha
+	lhz	%r3, race_tc_control_flags@l(%r3)
+	andi.	%r3, %r3, 0x0002
+	beq	arb_race_tc_done
+
+	# --- spark / fast channel ---
+	lis	%r3, race_tc_torque_limit_spark@ha
+	lhz	%r3, race_tc_torque_limit_spark@l(%r3)	# r3 = race TC spark
+
+	# Load the arbitrated fast limit.  Keep base in r5, value in r4.
+	lis	%r5, torque_limit_external_request@ha
+	lhz	%r4, torque_limit_external_request@l(%r5)	# r4 = arbitrated (r5 = base)
+
+	cmplw	%r3, %r4
+	bge	arb_race_tc_throttle			# race TC >= arbitrated -> skip
+	sth	%r3, torque_limit_external_request@l(%r5)	# race TC tighter -> override
+
+arb_race_tc_throttle:
+	# --- throttle / slow channel ---
+	lis	%r3, race_tc_torque_limit_throttle@ha
+	lhz	%r3, race_tc_torque_limit_throttle@l(%r3)	# r3 = race TC throttle
+
+	lis	%r5, torque_external_request_tps_based@ha
+	lhz	%r4, torque_external_request_tps_based@l(%r5)	# r4 = arbitrated (r5 = base)
+
+	cmplw	%r3, %r4
+	bge	arb_race_tc_flags				# race TC >= arbitrated -> skip
+	sth	%r3, torque_external_request_tps_based@l(%r5)	# race TC tighter -> override
+
+arb_race_tc_flags:
+	# Ensure the torque_model master gate sees a non-zero source.
+	lis	%r4, torque_limit_source_flags@ha
+	lbz	%r3, torque_limit_source_flags@l(%r4)
+	ori	%r3, %r3, 0x02			# set ABS bit
+	stb	%r3, torque_limit_source_flags@l(%r4)
+
+arb_race_tc_done:
+	blr
 
 # ---- Cal sites (declared in module.toml) ------------------------------------
 # Default values for stock-cal locations labelled for race-tc. t6patch writes

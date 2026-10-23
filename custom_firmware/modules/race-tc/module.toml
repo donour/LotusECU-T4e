@@ -1,16 +1,21 @@
 id = "race-tc"
-version = 5
+version = 6
 description = "Race traction control: 9-level slip-based torque cut, built from the GT430's slip control"
 # The GT430 (C132E0278) has this natively (its firmware calls it DPM).
 targets = ["B13200091"]
-sources = ["race_tc.S", "race_tc_hooks.S"]
+sources = ["race_tc.S"]
 # v1 was named "dpm". v2: the dash display rewrites only the CAN 0x402 frame,
 # and only while race-tc is on (race_tc_mode_index != 0), instead of
 # overwriting the TPMS data every 5 ms. v3: the slip-target base table and
 # its level axis moved from the code into stock-cal locations. v4: 9 levels
 # (was 6; levels 6-9 get their own slip targets in the cal-site defaults).
 # v5: the torque-cut P-term table and its axes moved from the code into
-# stock-cal locations.
+# stock-cal locations. v6: while the stock TC is switched off, the TPMS
+# status is held at "initialised, no faults" (as v1 did all the time), so a
+# missing TPMS module no longer makes the cluster hide the race TC display,
+# and the display shows at every level, 0 included (all zeros). The display
+# bytes are scaled for the cluster's 2 kPa/count psi readout, so the level and
+# slip target % read directly (v1-v5 showed level 2 as 3 and level 9 as 13).
 
 [hooks]
 init = "race_tc_init"

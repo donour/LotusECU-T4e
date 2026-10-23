@@ -82,6 +82,10 @@ accel_pedal_latched           = 0x40001F0E;  /* u16 1/1023 factor */
 sport_button_enable           = 0x40001742;  /* u8 - toggled sport-mode state */
 sport_button_raw_state         = 0x40002C9B;  /* u8 - digital_input_raw_state[3], 1=pressed */
 driver_input_flags            = 0x40001769;  /* u8[2] - packed brake/clutch/sport */
+/* driver_input_flags[1] (0x4000176A) is CAN 0x114 byte 4 to the ESP:
+ * 0x80 = sport (digital input 3), 0x40 = TC off (digital input 6, toggled;
+ * forced clear unless the coding enables the TC button), set in
+ * digital_input_debounce at 0x4BE24-0x4BFCC. */
 
 /* Fuel / spark gates. */
 inj_flags                     = 0x40001994;  /* bit 0 = fuel cut active */
@@ -110,8 +114,8 @@ hook_tpms_frame_packed_continue = 0x59e60;
  * Torque path (clamp injection - race-tc)
  * ========================================================================= */
 
-torque_net_engine_combustion       = 0x400023CC;  /* u16 nm; what we'd snapshot at intervention */
-torque_alphaN_net                  = 0x400023CE;  /* u16 nm; the final output we'd clamp */
+torque_net_engine_combustion       = 0x400023CC;  /* Nm, read signed by the firmware; race-tc snapshots it when a cut starts */
+torque_alphaN_net                  = 0x400023CE;  /* Nm; torque_model's final output */
 torque_limit_engine_protection     = 0x400023FA;
 torque_limit_external_and_internal = 0x400023FC;
 torque_external_request_final      = 0x4000240A;
@@ -133,7 +137,7 @@ torque_limit_external_request  = 0x400014C2;
 torque_external_request_tps_based = 0x400014C4;
 
 /* =========================================================================
- * Lookup helpers (called by slip-target & torque-cut tables in later phases)
+ * Lookup helpers (used by race-tc's slip-target, filter and torque-cut tables)
  * ========================================================================= */
 
 lookup_2D_uint8_interpolated  = 0x0005D5D4;
@@ -158,14 +162,18 @@ obd_resp                      = 0x40008540;
 /* =========================================================================
  * Symbols that DO NOT EXIST in this firmware (GT430-only references):
  *   - tc_inhibit_flags, tc_enable_condition_1, tc_enable_condition_2
- *       S1 NA has no ECU-side TC; gate race-tc via abs_esp_flags & ABS bit instead.
+ *       S1 NA has no ECU-side TC: the ESP module does it, and the ECU only
+ *       forwards the TC button (driver_input_flags[1] bit 0x40). race-tc is
+ *       gated on the abs_esp_flags ABS fault bit instead.
  *   - torque_external_request_margin
  *       GT430-only torque-routing concept (IPS coordination); skip in port.
  *   - abs_wheel_speed_validity_flags
- *       Referenced in B13200091.c:4122 but not a global symbol; treat as
- *       always-valid for now, refine if false-trigger problems appear.
+ *       Referenced in the decompiled B13200091.c but not a global symbol;
+ *       treated as always valid, refine if false-trigger problems appear.
  *   - digital_input_debounce_state
- *       Referenced as an array; locate via Ghidra when button handling lands.
+ *       Not needed: race-tc reads the sport button's raw level
+ *       (sport_button_raw_state = digital_input_raw_state[3]), because the
+ *       debounced value of a toggle input flips on each press.
  * ========================================================================= */
 
 /* Patch variables (.bss) are placed from 0x4000F000, the end of the
