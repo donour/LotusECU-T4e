@@ -1843,7 +1843,7 @@ Unit is x / 4.83 mpg</description>
    <description>Calibration: idle compensation vehicle speed manual (8-element array).</description>
   </table>
   <table category="idle" endian="big" name="idle: comp while moving" sizex="16" storageaddress="0x4006" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Gram/Second" coarseincrement="1" expression="x/10" fineincrement="0.01" format="0.0" to_byte="x*10" units="g/s"/>
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/10" fineincrement="0.1" format="0.0" to_byte="x*10" units="g/s"/>
    <table endian="big" name="rpm" sizex="16" storageaddress="0x3FE6" storagetype="uint16" type="X Axis">
     <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    </table>
@@ -8388,10 +8388,10 @@ Unit is x / 4.83 mpg</description>
  <rom>
   <romid>
    <xmlid>T6-EVORA-GT430-V000E - Learned data</xmlid>
-   <market>World</market>
+   <market>ROW</market>
    <make>Lotus</make>
    <model>Evora GT</model>
-   <submodel>2012-2022</submodel>
+   <submodel>2019</submodel>
    <transmission>MT</transmission>
    <filesize>48kb</filesize>
    <memmodel>MPC5534</memmodel>

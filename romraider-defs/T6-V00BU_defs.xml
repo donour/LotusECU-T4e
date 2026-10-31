@@ -6,13 +6,13 @@
    <market>World</market>
    <make>Lotus</make>
    <model>Evora</model>
-   <submodel>2012-2022</submodel>
+   <submodel>2010-2014</submodel>
    <transmission>MT</transmission>
    <filesize>25050b</filesize>
    <memmodel>MPC5534</memmodel>
    <flashmethod>CRP</flashmethod>
    <internalidaddress>0x59D4</internalidaddress>
-   <internalidstring>LOTUS EVORA </internalidstring>
+   <internalidstring>LOTUS EVORA MY11</internalidstring>
    <noRamOffset>1</noRamOffset>
   </romid>
   <table category="ac" endian="big" name="ac: compressor power offset" sizex="1" storageaddress="0x00E2" storagetype="uint8" type="2D" userlevel="1">
@@ -826,6 +826,27 @@
    </table>
    <description>Air temperature threshold for fan activation </description>
   </table>
+  <table category="cooling" endian="big" name="cooling: fan bay afterrun heatsoak duration" sizex="1" storageaddress="0x0038" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="10" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fan bay afterrun heatsoak duration</data>
+   </table>
+   <description/>
+  </table>
+  <table category="cooling" endian="big" name="cooling: fan bay afterrun heatsoak window" sizex="1" storageaddress="0x0039" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="10" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fan bay afterrun heatsoak window</data>
+   </table>
+   <description/>
+  </table>
+  <table category="cooling" endian="big" name="cooling: fan bay afterrun shutdown duration" sizex="1" storageaddress="0x0037" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Second" coarseincrement="10" expression="x*2" fineincrement="2" format="0" to_byte="x/2" units="s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>fan bay afterrun shutdown duration</data>
+   </table>
+   <description/>
+  </table>
   <table category="cooling" endian="big" name="cooling: fan bay idle stationary dwell" sizex="1" storageaddress="0x003C" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Second" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="s"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -1119,6 +1140,13 @@
     <data>airflow fast slew time</data>
    </table>
    <description>after set/accel/coast hold: cruise_airflow_fast_slew_timer = val*5 (200 Hz) = 25 ms/count, stock 20 = 0.5 s; airflow rises at 2x slew step, falls unlimited</description>
+  </table>
+  <table category="cruise" endian="big" name="cruise: airflow slew step" sizex="1" storageaddress="0x0219" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>airflow slew step</data>
+   </table>
+   <description/>
   </table>
   <table category="cruise" endian="big" name="cruise: brake standstill timer" sizex="1" storageaddress="0x028A" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Millisecond" coarseincrement="20" expression="x*10" fineincrement="10" format="0" to_byte="x/10" units="ms"/>
@@ -8014,6 +8042,13 @@
    </table>
    <description/>
   </table>
+  <table category="revlimit" endian="big" name="revlimit: flow slew step" sizex="1" storageaddress="0x0242" storagetype="uint8" type="2D" userlevel="1">
+   <scaling category="Gram/Second" coarseincrement="1" expression="x/100" fineincrement="0.01" format="0.00" to_byte="x*100" units="g/s"/>
+   <table name="" sizex="1" type="Static X Axis">
+    <data>flow slew step</data>
+   </table>
+   <description/>
+  </table>
   <table category="revlimit" endian="big" name="revlimit: hard hysteresis" sizex="1" storageaddress="0x0128" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="RPM" coarseincrement="100" expression="x" fineincrement="10" format="0" to_byte="x" units="rpm"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -8273,13 +8308,6 @@
    </table>
    <description>Calibration: sensor A/C EVAP temperature scaling. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range.</description>
   </table>
-  <table category="sensor" endian="big" name="sensor: accel pedal midpoint voltage range" sizex="1" storageaddress="0x4578" storagetype="uint16" type="2D" userlevel="1">
-   <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
-   <table name="" sizex="1" type="Static X Axis">
-    <data>accel pedal midpoint voltage range</data>
-   </table>
-   <description/>
-  </table>
   <table category="sensor" endian="big" name="sensor: accel pedal pos d threshold" sizex="2" storageaddress="0x4426" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Number" coarseincrement="100" expression="x" fineincrement="1" format="0" to_byte="x" units="#"/>
    <table name="signal" sizex="2" type="Static X Axis">
@@ -8297,6 +8325,15 @@
     <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
    </table>
    <description>Calibration: sensor accelerator pedal position e threshold. Tunable map/constant (not a live channel); log the raw sensor signal to check sensor health and range.</description>
+  </table>
+  <table category="sensor" endian="big" name="sensor: accel pedal ref voltage threshold" sizex="2" storageaddress="0x4578" storagetype="uint16" type="2D" userlevel="1">
+   <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   <table name="signal" sizex="2" type="Static X Axis">
+    <data>0</data>
+    <data>32</data>
+    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
+   </table>
+   <description/>
   </table>
   <table category="sensor" endian="big" name="sensor: adc baro limit" sizex="1" storageaddress="0x43AC" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="Volt" coarseincrement="0.2" expression="x*5/1023" fineincrement="0.05" format="0.00" to_byte="x*1023/5" units="v"/>
