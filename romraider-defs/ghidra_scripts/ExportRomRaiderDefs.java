@@ -237,6 +237,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_gear","uint8","gear","x","x","0","1","10","Gear"),
 		new DF("u8_gain_(x-104)/26","uint8","slope","(x-104)/26","(x*26)+104","0.00","0.1","1","Slope"),
 		new DF("u8_dutycycle_100/255", "uint8", "%", "x*100/255", "x*255/100", "0", "1", "5", "Dutycycle"),
+		new DF("u8_dutycycle_100/65280", "uint8", "%", "x*100/65280", "x*65280/100", "0.000", "0.002", "0.02", "Dutycycle"),
 		new DF("u8_x256","uint8","#","x*256","x/256","0","256","2560","Number"),
 		new DF("u8_factor_1","uint8","%","x","x","0","1","5","Percent"),
 		new DF("u8_factor_1/10","uint8","%","x*10","x/10","0","10","50","Percent"),
@@ -259,6 +260,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_factor_1/32","uint16","%","x*100/32","x*32/100","0","1","5","Percent"),
 		new DF("u16_factor_1/100","uint16","%","x","x","0","1","5","Percent"),
 		new DF("u16_factor_1/255","uint16","%","x*100/255","x*255/100","0.0","1","5","Percent"),
+		new DF("u16_factor_1/1000","uint16","ratio","x/1000","x*1000","0.000","0.001","0.01","Ratio"),
 		new DF("i16_factor_1/20","int16","%","x*100/20","x*20/100","0.00","0.1","1","Percent"),
 		new DF("i16_factor_1/1000","int16","%","x*100/1000","x*1000/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/1023","uint16","%","x*100/1023","x*1023/100","0.00","0.1","1","Percent"),
@@ -284,6 +286,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_ve_1/2pct","uint16","%","x/2","x*2","0.0","0.5","5","Volumetric Efficiency"),
 		new DF("u8_accel_1/255g","uint8","G","x/255","x*255","0.000","0.004","0.04","G"),
 		new DF("u8_accel_1/200g","uint8","G","x/200","x*200","0.000","0.005","0.05","G"),
+		new DF("u8_accel_1/100g","uint8","G","x/100","x*100","0.00","0.01","0.1","G"),
 		new DF("i16_accel_1/200g","int16","G","x/200","x*200","0.000","0.005","0.05","G"),
 		new DF("u8_fuel_gal_x10","uint8","gal","x/10","x*10","0.00","0.1","1","gallons"),
 		new DF("u8_distance_km","uint8", "km","x","x","0","1","10","km"),
@@ -320,6 +323,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_rspeed_4-512rpm","uint8","rpm","(x*4)-512","(x+512)/4","0","4","16","RPM"),
 		new DF("u8_rspeed_accel_1/168","uint8","%","x*100/168","x*168/100","0.0","1","5","Percent"),
 		new DF("u16_rspeed_rpm","uint16","rpm","x","x","0","10","100","RPM"),
+		new DF("i16_rspeed_rpm","int16","rpm","x","x","0","10","100","RPM"),
 		new DF("u16_rspeed_1/4rpm","uint16","rpm","x/4","x*4","0","10","100","RPM"),
 		new DF("u16_rspeed_4rpm","uint16","rpm","x*4","x/4","0","10","100","RPM"),
 		new DF("u8_rspeed_4+500rpm","uint8","rpm","(x*4)+500","(x-500)/4","0","4","16","RPM"),
@@ -331,6 +335,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_freq_hz","uint16","Hz","x","x","0","1","100","Hertz"),
 		new DF("u16_length_mm","uint16","cm","x/10","x*10","0.0","0.1","2","Centimeter"),
 		new DF("u8_speed_kph","uint8","km/h","x","x","0","1","10","km/h"),
+		new DF("u16_speed_kph","uint16","km/h","x","x","0","1","10","km/h"),
 		new DF("u8_speed_1/10kph","uint8","km/h","x/10","x*10","0.0","0.1","1","km/h"),
 		new DF("u8_speed_1/100kph","uint8","km/h","x/100","x*100","0.00","0.01","0.1","km/h"),
 		new DF("u16_speed_1/100kph","uint16","km/h","x/100","x*100","0.00","0.01","1","km/h"),
@@ -338,6 +343,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_temp_1/10C","uint8","°C","x/10","x*10","0.0","0.1","1","Degree Celsius"),
 		new DF("u8_temp_5/8-40c","uint8","°C","(x*5/8)-40","(x+40)*8/5","0.0","0.625","2","Degree Celsius"),
 		new DF("u8_temp_1-40c","uint8","°C","x-40","x+40","0","1","2","Degree Celsius"),
+		new DF("u8_tempdelta_5/8c","uint8","°C","x*5/8","x*8/5","0.0","0.625","2","Degree Celsius"),
 		new DF("u16_temp_5/8-40c","uint16","°C","(x*5/8)-40","(x+40)*8/5","0.0","0.625","2","Degree Celsius"),
 		new DF("u8_time_us","uint8","us","x","x","0","1","10","Microsecond"),
 		new DF("u8_time_8us","uint8","us","x*8","x/8","0","8","100","Microsecond"),
@@ -348,6 +354,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_time_256us","uint8","ms","x*256/1000","x*1000/256","0.0","0.2","1","Millisecond"),
 		new DF("u8_time_512us","uint8","ms","x*512/1000","x*1000/512","0.0","0.4","2","Millisecond"),
 		new DF("u8_time_ms","uint8","ms","x","x","0","1","10","Millisecond"),
+		new DF("u8_time_1ms","uint8","ms","x","x","0","1","10","Millisecond"),
 		new DF("u8_time_5ms","uint8","ms","x*5","x/5","0","5","10","Millisecond"),
 		new DF("u8_time_10ms","uint8","ms","x*10","x/10","0","10","20","Millisecond"),
 		new DF("u8_time_20ms","uint8","ms","x*20","x/20","0","20","60","Millisecond"),
@@ -373,6 +380,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u32_time_100ms","uint32","s","x/10","x*10","0.0","0.1","1","Second"),
 		new DF("u16_time_s","uint16","s","x","x","0","1","5","Second"),
 		new DF("u8_load_2mg/stroke","uint8","mg/stroke","x*2","x/2","0","2","8","Milligram/Stroke"),
+		new DF("u8_load_mg/stroke","uint8","mg/stroke","x","x","0","1","5","Milligram/Stroke"),
 		new DF("u8_load_4mg/stroke","uint8","mg/stroke","x*4","x/4","0","4","20","Milligram/Stroke"),
 		new DF("u8_load_1173mg/255stroke","uint8","mg/stroke","x*1173/255","x*255/1173","0.0","4","20","Milligram/Stroke"),
 		new DF("u16_load_4mg/stroke","uint16","mg/stroke","x*4","x/4","0","4","20","Milligram/Stroke"),
@@ -381,6 +389,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_flow_2g/s","uint8","g/s","x*2","x/2","0","2","10","Gram/Second"),
 		new DF("u8_flow_10mg/s","uint8","g/s","x/100","x*100","0.00","0.01","1","Gram/Second"),
 		new DF("u8_flow_100mg/s","uint8","g/s","x/10","x*10","0.0","0.1","10","Gram/Second"),
+		new DF("u8_flow_200mg/s","uint8","g/s","x/5","x*5","0.0","0.2","1","Gram/Second"),
+		new DF("u8_flow_500mg/s","uint8","g/s","x/2","x*2","0.0","0.5","2","Gram/Second"),
 		new DF("u8_flow_-100mg/s","uint8","g/s","x/-10","x*-10","0.0","0.1","10","Gram/Second"),
 		new DF("u16_flow_100/256mg/s","uint16","mg/s","x*100/256","x*256/100","0.0","0.1","10","Milligram/Second"),
 		new DF("u8_flow_100/1024mg/s","uint8","mg/s","x*100/1024","x*1024/100","0.0","0.1","10","Milligram/Second"),
@@ -391,6 +401,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_flow_100mg/s","uint16","g/s","x/10","x*10","0.0","0.1","1","Gram/Second"),
 		new DF("u8_mass_g","uint8","g","x","x","0","1","5","Gram"),
 		new DF("u8_mass_4g","uint8","g","x*4","x/4","0","4","20","Gram"),
+		new DF("u8_mass_5g","uint8","g","x*5","x/5","0","5","25","Gram"),
 		new DF("u8_mass_8g","uint8","g","x*8","x/8","0","8","40","Gram"),
 		new DF("u16_mass_g","uint16","g","x","x","0","1","5","Gram"),
 		new DF("u16_mass_40g","uint16","g","x*40","x/40","0","40","200","Gram"),
@@ -429,6 +440,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_afr_1/100","uint16","A/F","x/100","x*100","0.00","0.01","0.1","AFR"),
 		new DF("u16_afr_1/100","uint16","λ","(x/100)/14.6","(x*14.6)*100","0.000","0.001","0.01","Lambda"),
 		new DF("u16_torque_nm","uint16","Newton meter","x","x","0","1","8","nm"),
+		new DF("i16_torque_nm","int16","Newton meter","x","x","0","1","8","nm"),
 		new DF("u8_torque_nm","uint8","Newton meter","x","x","0","1","5","nm"),
 		new DF("u8_torque_2nm","uint8","Newton meter","x*2","x/2","0","2","8","nm"),
 		new DF("u8_torque_4nm","uint8","Newton meter","x*4","x/4","0","4","16","nm"),
@@ -567,6 +579,17 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		{"Disabled", "00"},
 		{"FlexCAN A", "01"},
 		{"FlexCAN C", "02"}
+	};
+
+	/* enum_t6e_gear: a gear index (as in car_gear_current), 1 byte. */
+	private static final String[][] T6E_GEAR = {
+		{"Neutral / no gear", "00"},
+		{"1st gear", "01"},
+		{"2nd gear", "02"},
+		{"3rd gear", "03"},
+		{"4th gear", "04"},
+		{"5th gear", "05"},
+		{"6th gear", "06"}
 	};
 
 
@@ -1000,6 +1023,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				addXmlSwitch(doc, parent, s, EXHAUST_VALVE_OVERRIDE_MODE);
 			else if (s.datatype.equals("enum_flexcan_bus_select"))
 				addXmlSwitch(doc, parent, s, FLEXCAN_BUS_SELECT);
+			else if (s.datatype.equals("enum_t6e_gear"))
+				addXmlSwitch(doc, parent, s, T6E_GEAR);
 			else if ("CAL_obd2_monitors".equals(s.name))
 				addXmlSwitch(doc, parent, s, OBD2MONITORS);
 			else if ("CAL_ecu_unlock_magic".equals(s.name))
