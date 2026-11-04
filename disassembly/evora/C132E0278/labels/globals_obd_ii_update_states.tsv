@@ -1,0 +1,33 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-03): globals of obd_ii_update_states().
+# The function runs the MIL flash pattern, warm-up / drive-cycle detection, distance counters, dispatches the
+# OBD monitors by obd_ii_monitor_task_scheduler_token bit (100 ms tokens), and rotates through the current /
+# confirmed / pending / permanent DTC lists, one code per list every 10 calls, as 5-char text + raw + decimal.
+# obd_ii_dtc_unpack(): decimal DTC = letter*10000 (P=0, C=1, B=2, U=3) + the 4 BCD digits (P0171 -> 171).
+T	u16_distance_10cm	u16_distance_mm
+#
+D	40001c6a	obd_ii_mil_state_flags	uint16_t	MIL state: bit0/1 MIL requested (either -> mode 01 MIL bit), bit2 flash request, bit3 MIL lamp output (toggled every 5 x 100 ms to flash; read by the cluster), bit4 distance-with-MIL counting, bit5 DTC event timer active, bit6 secondary lamp (cluster). Was obd_ii_montior_passes_bitfield.
+D	40001c7c	obd_ii_mil_flash_counter	u8_count	100 ms ticks in the MIL flash cycle (toggle every 5; 29/30 for the readiness-display pattern at key-on).
+D	40001c6c	ips_tcu_lamp_request	uint8_t	Byte 2 of CAN 0x250 from the IPS TCU: bit0 = request MIL on, bit1 = request the secondary lamp (IPS-coded cars only); zeroed on CAN timeout.
+D	40001c86	obd_ii_warmup_counted	uint8_t	1 once this drive cycle has been counted in obd_ii_warmups_since_code_cleared.
+D	40001c78	obd_ii_drive_cycle_complete	uint8_t	1 when the drive-cycle timers below have all expired (runtime, time above speed, idle time); enables DTC aging in mode 01 processing.
+D	40001c8a	obd_ii_drive_cycle_runtime_timer	u16_time_100ms	Countdown of engine running time (CAL_obd_ii_drive_cycle_runtime).
+D	40001c8c	obd_ii_drive_cycle_speed_timer	u16_time_100ms	Countdown of time at or above CAL_obd_ii_drive_cycle_car_speed_min (CAL_obd_ii_gd_speed_time).
+D	40001c88	obd_ii_drive_cycle_idle_timer	u16_time_100ms	Countdown of continuous idle time (CAL_obd_ii_drive_cycle_idle_time); reloaded if moving with rpm above the idle target by CAL_obd_ii_monitor_rpm_delta_max.
+D	40001db4	idle_speed_target_base	u16_rspeed_rpm	Idle target rpm without dashpot / car-speed / pedal adders (idle()); used for rpm-above-idle tests.
+D	40001c84	obd_ii_distance_since_clear_frac	u16_distance_10cm	Sub-km accumulator for obd_ii_distance_since_codes_cleared_km: += car_speed_x100/360 per 100 ms (10 cm units); at 10000 (1 km) the km counter increments.
+D	40001c7e	obd_ii_dtc_display_divider	u8_count	Calls between DTC list rotation steps (10).
+D	40001c7f	obd_ii_dtc_current_index	u8_count	Index into obd_ii_dtc_current[] of the code shown in obd_ii_DTC_current.
+D	40001c80	obd_ii_dtc_confirmed_index	u8_count	Index into obd_ii_DTC_confirmed[] of the code shown in obd_ii_DTC_confirmed_text.
+D	40001c81	obd_ii_dtc_pending_index	u8_count	Index into obd_ii_dtc_pending[] of the code shown in obd_ii_DTC_pending.
+D	40001c82	obd_ii_dtc_permanent_index	u8_count	Index (0..7) into LEA_obd_ii_permanent_dtc[] of the code shown in obd_ii_perm_dtc.
+D	40001c8e	obd_ii_dtc_current_raw	uint16_t	Packed DTC (letter<<14 | BCD) currently shown from the current list.
+D	40001c90	obd_ii_dtc_confirmed_raw	uint16_t	Packed DTC currently shown from the confirmed list.
+D	40001c92	obd_ii_dtc_permanent_raw	uint16_t	Packed DTC currently shown from the permanent list.
+D	40001c94	obd_ii_dtc_pending_raw	uint16_t	Packed DTC currently shown from the pending list.
+D	40001c70	obd_ii_dtc_current_decimal	uint16_t	obd_ii_dtc_unpack(obd_ii_dtc_current_raw): decimal code, e.g. P0171 = 171, U0122 = 30122.
+D	40001c96	obd_ii_dtc_confirmed_decimal	uint16_t	obd_ii_dtc_unpack(obd_ii_dtc_confirmed_raw).
+D	40001c98	obd_ii_dtc_permanent_decimal	uint16_t	obd_ii_dtc_unpack(obd_ii_dtc_permanent_raw).
+D	40001c72	obd_ii_dtc_pending_decimal	uint16_t	obd_ii_dtc_unpack(obd_ii_dtc_pending_raw).
+D	400014d0	-	-	5-char text of the current-list DTC being shown (e.g. "P0171").
+D	400014d8	-	-	5-char text of the permanent-list DTC being shown.
+D	400014e8	-	-	5-char text of the pending-list DTC being shown.
