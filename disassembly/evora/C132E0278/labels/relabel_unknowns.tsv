@@ -1,0 +1,65 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): replace *_unknown* labels with names from usage; unit fixes.
+D	000b297c	flexcan_a_clear_mb7_iflag	-	Clears FlexCAN A IFLAG bit 7 (MB7, write-1-to-clear). No direct callers. Was flexcan_unknown1.
+D	000b2994	flexcan_a_clear_mb8_iflag	-	Clears FlexCAN A IFLAG bit 8 (MB8, write-1-to-clear). No direct callers. Was flexcan_unknown2.
+D	000afcd4	chlog_checksum_step	-	Adds up to 256 bytes from diag_tx_ptr into the chlog_response_data checksum per call; returns 1 while bytes remain, then sends the CAN 0x351 response. Was diagnostic_tx_unknown.
+D	000af4c0	telemetry_queue_reset	-	Clears queue_len and queue_head of the 0x351 telemetry TX queue. Was queue_reset_unknown.
+D	00097084	init_evap_purge_solenoid_pwm	-	SIU PCR 0x8d + eTPU ch 0x1b PWM for the purge solenoid at 100000/CAL_evap_purge_pwm_period Hz. Was init_evap_purge_solenoid_unknown.
+D	000898e0	obd_ii_o2_no_activity_track	-	O2 no-activity helper: tracks pre-cat min/max; restarts (status |0x20, count = rate cal) when the swing exceeds CAL_obd_ii_o2_flatline_band, else on count 0 with a plausible pre/post pair sets status bit 0x10. Was o2_sensor_range_check_unknown.
+D	00076c90	lea_reset_knock_baseline_3d	-	Sets every LEA_knock_baseline_3d[8][8][6] cell to 2000. Was lea_reset3_unknown.
+D	00054460	eTPU_read_period_channel_state	-	Reads an eTPU period-measurement channel: params 1, 5, 0xd, 0x11, 0x15 (24-bit) and 0, 0x14 (8-bit status). Was eTPU_read_batch_unknown.
+D	00040f64	init_ebi_chip_selects	-	EBI MCR + chip selects CS0-3 (BR/OR: 0x3ff80000, 0x20000000, 0x20800000, 0x30000000). Was init_ebi_unknown.
+D	4000877e	CAL_engine_running_period_max	u16_time_us	engine_is_running set when engine_period_90deg_us < this (rpm = 15e6/val) and engine_running_confirm_timer is 0. Was CAL_ecu_engine_running_threshold_unknown (uint8_t[2]).
+D	40008780	-	u16_time_us	engine_is_running cleared when engine_period_90deg_us > this (rpm = 15e6/val). Was typed u16_time_4us.
+D	400088ac	CAL_roughness_ign_gain	uint8_t	ign_comp_roughness_request (1/4 deg) = -roughness_delta_rpm_filtered * cal / 1000, capped by CAL_roughness_ign_adv_max. Was CAL_roughness_unknown7.
+D	400088a9	CAL_roughness_cycle_mean_max	uint8_t	Roughness comp only while roughness_cycle_mean <= this (same units as roughness_cycle_mean). Was CAL_roughness_unknown4.
+D	400088a8	CAL_roughness_cycle_mean_min	uint8_t	Roughness comp only while roughness_cycle_mean >= this. Was CAL_roughness_unknown5.
+D	400088a6	CAL_roughness_transition_count_min	u8_count	Roughness valid (flag 0x80) needs roughness_rise_count + roughness_fall_count >= this. Was CAL_roughness_unknown2.
+D	400088a1	CAL_roughness_cycle_period_max	u8_count	Roughness inhibited (flag 0x8000) when roughness_cycle_period (samples) >= this. Was CAL_roughness_unknown8.
+D	400088a0	CAL_roughness_peak_valley_delta_min	uint8_t	Roughness comp only while roughness_peak_valley_delta >= this (captured crank-speed units). Was CAL_roughness_unknown6.
+D	40008729	CAL_ac_compressor_power_initial	uint8_t	A/C power demand at clutch engage = cal*40 (ac_compressor_power units, clipped 2000..ac_power_limit); the load ramp starts here. Was CAL_ac_unknown3.
+D	40008712	CAL_sensor_pps_zero_learn_rate	u8_factor_1/256	Pedal track D/E zero-voltage learn: zero -= (zero - sample)*cal/256 when the sample is below the learned zero (floor 0xaa). Was CAL_sensor_pps_unknown1.
+D	40001522	-	u16_voltage_5/1023v	Learned APP sensor D zero (minimum) voltage. Was typed u16_factor_1/1023 (track E twin is a voltage).
+D	400087c3	CAL_idle_integral_max_clamp	u8_flow_100mg/s	Idle PI integral upper clamp: integral/0x2800 <= cal (integral>>10 = 10 mg/s, so cal is 100 mg/s). Was CAL_idle_air_control_unknown.
+D	400087c4	-	u8_flow_100mg/s	Idle PI integral lower clamp: integral/0x2800 >= -cal (100 mg/s).
+D	400087c8	CAL_idle_moving_blend_rpm_offset	-	idle_comp_moving_blend_rpm_high = idle target + cal*8. Was CAL_idle_unknown1.
+D	400087c7	CAL_idle_control_entry_rpm_offset	-	idle_control_entry_rpm = idle target + cal*8. obd_ii_idle_speed_control_monitor also compares the raw value (no x8) with the rpm error - firmware unit mismatch. Was CAL_idle_unknown2.
+D	40008765	CAL_idle_control_exit_rpm_offset	-	idle_control_exit_rpm = idle target + cal*8. Was CAL_idle_unknown3.
+D	40008764	CAL_idle_control_low_rpm_offset	-	idle_control_low_rpm = idle target + cal*8. Was CAL_idle_unknown4.
+D	40008912	CAL_idle_cold_learn_coolant_temp_min	-	Cold idle learn (LEA_idle_cold_learning_coolant*) only while this < coolant_temp < CAL_idle_learn_temp_range[0]. Was CAL_idle_unknown6.
+D	4000c892	CAL_idle_air_control_integral_X_speed_error	-	X axis (idle speed error + 0x8000, rpm) of CAL_idle_air_control_integral.
+D	4000c8b2	CAL_idle_air_control_integral	-	Idle PI integral step vs speed error (offset-binary, clipped -0x9f6..); added to idle_air_control_integral_term each CAL_idle_integral_update_period. Was CAL_idle_error_correction_unknown.
+D	4000279a	cod_option_bits_2_3	-	Variant coding COD[1] bits 2-3; decoded and re-encoded but never read. Was tps_config_unknown.
+D	40001be8	load_unused	-	Write-only: cleared to 0 in engine_load, never read. Was load_unknown.
+D	4000b2f2	CAL_closedloop_tps_correction_tour_manual_X_tps	-	X axis (throttle position, tps_abs_b_smoothed) of CAL_closedloop_tps_correction_tour_manual. Was ..._X_unknown.
+D	400061d4	tps_b_lowpass_state	-	Biquad low-pass state producing tps_abs_b_smoothed (init_tps_biquad_filters). Was tps_unknown_history.
+D	40008699	CAL_obd_ii_mil_event_hold_time	-	MIL request (obd_ii_mil_state_flags 0x40) hold after a DTC with config bit 0x20 confirms: obd_ii_dtc_event_timer_100ms = cal*10 (s). Was CAL_obd_ii_countdown_unknown.
+D	40002218	obd_ii_mode2f_starter_relay_timer	-	Mode $2F 0x184 (starter relay) test timeout: 100 = 0.5 s at 200 Hz; at 0 sets obd_ii_mode2f_flags_state 0x2000. Was obd_ii_mode2f_184_timer_unknown.
+D	400021ec	obd_ii_mode2f_engine_stopped_delay	-	Reloaded with CAL_ecu_obd_mode2F_timer while the engine turns, counts down at 200 Hz once stopped; engine-off Mode $2F tests need 0. Was timer_engine_off_unknown1.
+D	4000cae0	CAL_obd_ii_P0116_coldstart_runtime_max	-	P0116 uses CAL_obd_ii_P0116_coolant_deviation_max_coldstart while runtime_since_start < this. Was CAL_obd_ii_runtime_since_start_threshold_unknown.
+D	4000caf4	CAL_obd_ii_postcat_rich_response_time_max	-	Time the post-cat O2 has to go rich after the pre-cat does (200 Hz); expiry sets obd_ii_postcat_response_flags 0x20. Was CAL_cat_check_unknown4.
+D	40002004	obd_ii_postcat_rich_response_timer_b1	u16_time_5ms	Bank 1 post-cat rich-response countdown (CAL_obd_ii_postcat_rich_response_time_max). Was o2_slow_response_timer_b1_a.
+D	40002002	obd_ii_postcat_rich_response_timer_b2	u16_time_5ms	Bank 2 post-cat rich-response countdown. Was o2_slow_response_timer_b2_a.
+D	4000cac8	CAL_obd_ii_o2_slow_response_runtime_min	-	O2 slow-response / post-cat response tests need runtime_since_start > this. Was CAL_obd_ii_o2_slow_response_runtime_limit_unknown.
+D	4000cbba	CAL_obd_ii_o2_slow_response_maf_min	-	O2 slow-response test needs obd_ii_maf_flow > this. Was ..._maf_limit_unknown2.
+D	4000cbc8	CAL_obd_ii_o2_slow_response_maf_max	-	O2 slow-response test needs obd_ii_maf_flow < this. Was ..._maf_limit_unknown.
+D	4000cb2c	CAL_obd_ii_cat_o2_monitor_baro_min	-	Cat/O2 monitors run only while obd_ii_atmospheric_baro > this (mbar). Was CAL_obd_ii_cat_unknown3.
+D	4000dee8	CAL_obd_ii_cat_monitor_min_air_mass	-	Cat monitor minimum accumulated air vs engine-off coolant (compared with accum>>4, 16 g units). Was CAL_emissions_cat_efficiency_unknown1.
+D	4000dee0	CAL_obd_ii_cat_monitor_min_air_mass_X_soak_coolant_temp	-	X axis (coolant_temp_engine_stopped) of CAL_obd_ii_cat_monitor_min_air_mass.
+D	400088e6	CAL_obd_ii_permanent_dtc_enable	-	With CAL_obd_ii_standards_supported == 1: enables permanent DTC storage and the Mode $0A service. Was CAL_obd_ii_diag_unknown.
+D	40008886	CAL_closedloop_jump_lean_scale_run_hours_max	-	Lean jump scaling (IPS/manual CALs) applies while engine_run_timer_total < cal*36000 (100 ms), i.e. cal hours. Was CAL_closedloop_engine_run_learn_timer_unknown.
+D	400086f7	CAL_closedloop_stft_filter_weight	-	IIR weight (/256) of stft_bankN into stft_filter_q8_bankN (o2_fuel_learn_100ms). Was CAL_closedloop_stft_filter_unknown.
+D	4000c8e2	CAL_dca_tps_limit_ips_no_lc_X_time	u8_time_20ms[8]	X axis (dca_tps_ramp_index>>2, 20 ms) of CAL_dca_tps_limit_ips_no_lc. Was CAL_dca_unknown_ips_nolc_X_time (typed 50 ms).
+D	4000c8ea	CAL_dca_tps_limit_ips_no_lc	-	DCA throttle ramp step vs time for IPS cars without COD[0] bit 2; target = idle TPS delta + val*4 (1/1023). Was CAL_dca_unknown_ips_nolc.
+D	4000c8d2	-	u8_time_20ms[8]	X axis (dca_tps_ramp_index>>2, 20 ms) of CAL_dca_tps_limit_manual. Was typed 50 ms.
+D	4000c902	-	u8_time_20ms[8]	X axis (dca_tps_ramp_index>>2, 20 ms) of CAL_dca_tps_limit_ips. Was typed 50 ms.
+D	40008920	CAL_dca_ramp_time_max	-	DCA ends when dca_tps_ramp_index>>2 >= cal (20 ms steps). Was CAL_dca_ramp_timer_unknown.
+D	400026aa	tcu_torque_request_timeout	u8_time_5ms	Reloaded to 200 (1 s) while no TCU 0xC7 torque request is active or during an IPS shift; the 0xC7 limit is honoured only while non-zero. Counts in torque_model_200hz (was typed 10 ms). Was runaway_protection_timeout_unknown.
+D	400018da	vehicle_mode_change_flash_timer	-	After a launch->race fallback (ABS 0xA8 state), toggles output siu_gpdo[0xcf] / obd_ii_relay_status bit 7 every 100 ms for 80 x 10 ms. Was vehicle_mode_timer_unknown3.
+D	400088c0	CAL_ips_gear_engage_brake_speed_max	-	IPS: below this speed the brake must be pressed for the driver-input brake flag; cluster flag 0x20 (press brake) when stopped below it. Was CAL_cluster_brake_switch_max_speed_ips_unknown.
+D	40008922	CAL_engine_speed_reference_coolant_temp_min	-	Engine speed reference update disabled while coolant_temp <= this. Was CAL_engine_speed_coolant_temp_unknown7.
+D	4000cc46	CAL_slip_tc_gear_max_step	u8_count	Max gears between car_current_gear and the TC-recommended gear. Was CAL_slip_gear_offset_unknown (typed u8_gear).
+D	4000cc38	CAL_slip_expected_rpm_max	u16_rspeed_rpm	Slip detection per gear only while slip_expected_engine_rpm_per_gear < this (rpm). Was CAL_slip_car_speed_unknown1 (typed 1/100 km/h).
+D	40008110	-	u16_rspeed_rpm[6]	Expected engine rpm per gear for slip detection (compared with idle target and 500 + 5*LEA threshold). Was typed 1/100 km/h.
+D	4000cc36	CAL_slip_timer_reset_steering_angle	-	TC per-gear intervention timer reset while |steering_angle| >= this (1/10 deg). Was CAL_slip_steering_angle_max_unknown.
+D	400019f0	etpu_sdm_base	-	eTPU shared data memory base (0xc3fcc000), used by eTPU_read/write_param helpers. Was eTPU_base_unknown.
+D	000d09a0	c90fl_ssd_driver_signature	-	ASCII "MPCH7FxBC320": C90FL standard flash driver ID string; no code references. Was processor_info_unknown.
