@@ -1592,14 +1592,13 @@ uint8_t[6] ign_cyl_window_fire_tooth;
 uint8_t[6] ign_cyl_fire_request;
 bool[6] ign_cyl_spark_window_armed;
 byte[6] ign_cyl_enabled;
-undefined *PTR_4000146c;
-undefined UNK_ffffffff;
-uint32_t crank_tooth_time_prev;
-uint32_t crank_tooth_period_prev;
 uint8_t crank_etpu_status;
+uint32_t misfire_seg_start_time;
 uint32_t crank_etpu_param_35;
 u16_count fuel_pump_crank_activity_timer;
 uint8_t crank_sync_level;
+uint32_t crank_tooth_time_prev;
+uint32_t crank_tooth_period_prev;
 uint16_t CAL_fuel_pump_prime_time;
 undefined DAT_00030d40;
 uint16_t CAL_ecu_cvn;
@@ -4797,46 +4796,43 @@ u8_count obd_ii_p2336_threshold_health;
 u8_count CAL_obd_ii_P2337_maturing_limit;
 u8_count CAL_obd_ii_P2338_maturing_limit;
 u8_count CAL_obd_ii_P2339_maturing_limit;
-short misfire_baseline_cyl4_q8;
+short[153] misfire_baseline_cyl4_q8;
 u8_raw-128[153] LEA_misfire_baseline_cyl1;
-short misfire_baseline_cyl5_q8;
+short[153] misfire_baseline_cyl5_q8;
 u8_raw-128[153] LEA_misfire_baseline_cyl2;
-short misfire_baseline_cyl6_q8;
+short[153] misfire_baseline_cyl6_q8;
 u8_raw-128[153] LEA_misfire_baseline_cyl3;
 u8_raw-128[153] LEA_misfire_baseline_cyl4;
 u8_raw-128[153] LEA_misfire_baseline_cyl5;
 u8_raw-128[153] LEA_misfire_baseline_cyl6;
-uint32_t[6][64] misfire_buffer_unknown;
+int[6][64] misfire_baseline_filter_q8;
 int16_t[6][64] LEA_misfire_baseline;
-short misfire_baseline_cyl1_q8;
-short misfire_baseline_cyl2_q8;
-short misfire_baseline_cyl3_q8;
-uint8_t[153] s__000d0130;
-uint8_t[153] s__000d01c9;
-uint8_t[153] s__000d0262;
-uint8_t[153] s__000d02fb;
-uint8_t[153] s__000d0394;
-uint8_t[153] s__000d042d;
-uint8_t[153] s__000d04c8;
-uint8_t[153] s_}}_{yz~_}|}~_000d0561;
-uint8_t[153] s_~|{_|xx_|wvu_|vsss_}xssss_{vssss_000d05fa;
-uint8_t[153] s__000d0693;
-uint8_t[153] s__000d072c;
-uint8_t[153] s__000d07c5;
+short[153] misfire_baseline_cyl1_q8;
+short[153] misfire_baseline_cyl2_q8;
+short[153] misfire_baseline_cyl3_q8;
 uint16_t[6][64] misfire_baseline1;
 uint16_t[6][64] misfire_baseline2;
+uint8_t[153] misfire_baseline_default_set1_cyl1;
+uint8_t[153] misfire_baseline_default_set1_cyl2;
+uint8_t[153] misfire_baseline_default_set1_cyl3;
 uint8_t[16] LEA_misfire_trim_cyl1;
+uint8_t[153] misfire_baseline_default_set1_cyl4;
 uint8_t[16] LEA_misfire_trim_cyl2;
+uint8_t[153] misfire_baseline_default_set1_cyl5;
 uint8_t[16] LEA_misfire_trim_cyl3;
+uint8_t[153] misfire_baseline_default_set1_cyl6;
 uint8_t[16] LEA_misfire_trim_cyl4;
+uint8_t[153] misfire_baseline_default_set0_cyl1;
 uint8_t[16] LEA_misfire_trim_cyl5;
+uint8_t[153] misfire_baseline_default_set0_cyl2;
 uint8_t[16] LEA_misfire_trim_cyl6;
+uint8_t[153] misfire_baseline_default_set0_cyl3;
+uint8_t[153] misfire_baseline_default_set0_cyl4;
+uint8_t[153] misfire_baseline_default_set0_cyl5;
+uint8_t[153] misfire_baseline_default_set0_cyl6;
 uint32_t[6] misfire_seg_period;
 uint32_t[6] misfire_seg_period_prev;
 u8_count misfire_last_sampled_cyl;
-pointer PTR_LEA_misfire_trim_cyl1_000d10f8;
-pointer PTR_misfire_baseline_cyl1_q8_000d1110;
-pointer PTR_LEA_misfire_baseline_cyl1_000d1128;
 short misfire_sensitivity;
 short misfire_rpm_load_threshold_scaled;
 bool CAL_misfire_per_cyl_learn_enable;
@@ -4848,6 +4844,9 @@ uint16_t[6] misfire_event_count;
 short[6] misfire_metric_per_cyl;
 uint16_t[6] misfires_per_cyl;
 u16_time_5ms[6] misfire_cyl_holdoff_timer;
+pointer[6] misfire_lea_trim_cyl_ptrs;
+pointer[6] misfire_baseline_q8_cyl_ptrs;
+pointer[6] misfire_lea_baseline_cyl_ptrs;
 u8_count misfire_cyl_detect_divider;
 u16_count misfire_window_15s_counter;
 u16_count misfire_window_3s_counter;
@@ -4903,7 +4902,7 @@ u16_torque_nm torque_net_engine_combustion;
 uint16_t[6] misfire_rate_per_cyl;
 uint16_t[6] misfire_count_per_cyl;
 u16_count obd_ii_max_misfire_results_emissions;
-uint16_t[2] obd_ii_misfires_unknown_cat_damage;
+u16_count[2] obd_ii_misfire_cat_damage_metric;
 u8_obd2level_t6 CAL_obd_ii_P1301;
 u8_obd2level_t6 CAL_obd_ii_P1302;
 u16_time_5ms misfire_enable_hold_timer;
@@ -4940,8 +4939,8 @@ uint32_t misfire_wheel_speed_filt_rr;
 u16_speed_1/100kph CAL_wheel_speed_rate_min;
 u16_speed_1/100kph CAL_wheel_speed_min;
 uint32_t misfire_wheel_speed_filter_q8_lf;
-uint32_t misfire_wheel_speed_filt;
-int misfire_wheel_speed_deviation;
+uint32_t misfire_wheel_speed_filt_lf;
+int misfire_wheel_speed_dev_lf;
 int misfire_wheel_speed_dev_rf;
 int misfire_wheel_speed_dev_lr;
 int misfire_wheel_speed_dev_rr;
@@ -7585,6 +7584,7 @@ uint32_t eh_table_size;
 uint32_t eh_table_registered;
 undefined DAT_fffffffe;
 pointer flash_driver_init_status;
+undefined UNK_ffffffff;
 undefined4 siu_midr;
 undefined4 DAT_fff48018;
 
@@ -10630,7 +10630,7 @@ void crank_trigger_process___(undefined8 param_1,undefined8 param_2,ulonglong pa
 {
   bool bVar1;
   uint uVar2;
-  undefined *puVar3;
+  uint32_t uVar3;
   
   crank_etpu_status = etpu_sdm_read_u8(0);
   crank_tooth_counter = etpu_sdm_read_param24(0x2d);
@@ -10643,14 +10643,14 @@ void crank_trigger_process___(undefined8 param_1,undefined8 param_2,ulonglong pa
     engine_speed_period_1 = 0xffffffff;
   }
   else {
-    puVar3 = (undefined *)etpu_sdm_read_param24(0x3d);
+    uVar3 = etpu_sdm_read_param24(0x3d);
     if ((((((crank_tooth_counter == 8) || (crank_tooth_counter == 0x14)) ||
           (crank_tooth_counter == 0x20)) ||
          ((crank_tooth_counter == 0x2c || (crank_tooth_counter == 0x38)))) ||
         (crank_tooth_counter == 0x44)) &&
        (bVar1 = engine_speed_period_1 == 0xffffffff,
-       engine_speed_period_1 = (int)puVar3 - crank_tooth_time_prev & 0xffffff,
-       crank_tooth_time_prev = (uint32_t)puVar3, bVar1)) {
+       engine_speed_period_1 = uVar3 - crank_tooth_time_prev & 0xffffff,
+       crank_tooth_time_prev = uVar3, bVar1)) {
       engine_speed_period_1 = 0xffffff;
     }
     switch(crank_tooth_counter) {
@@ -10660,7 +10660,7 @@ void crank_trigger_process___(undefined8 param_1,undefined8 param_2,ulonglong pa
     case 0x24:
     case 0x30:
     case 0x3c:
-      PTR_4000146c = puVar3;
+      misfire_seg_start_time = uVar3;
       break;
     case 4:
     case 0x10:
@@ -10668,8 +10668,8 @@ void crank_trigger_process___(undefined8 param_1,undefined8 param_2,ulonglong pa
     case 0x28:
     case 0x34:
     case 0x40:
-      uVar2 = (int)puVar3 - (int)PTR_4000146c & 0xffffff;
-      if (PTR_4000146c == &UNK_ffffffff) {
+      uVar2 = uVar3 - misfire_seg_start_time & 0xffffff;
+      if (misfire_seg_start_time == 0xffffffff) {
         uVar2 = crank_tooth_period_prev;
       }
       if (crank_tooth_counter == 0x10) {
@@ -29774,17 +29774,17 @@ void load_misfire_learned_baselines(void)
   
   for (i = 0; i < 6; i = i + 1) {
     for (j = 0; j < 64; j = j + 1) {
-      misfire_buffer_unknown[i][j] = (int)LEA_misfire_baseline[i][j] << 8;
+      misfire_baseline_filter_q8[i][j] = (int)LEA_misfire_baseline[i][j] << 8;
     }
   }
   for (k = 0; k < 153; k = k + 1) {
     watchdog_retrigger();
-    (&misfire_baseline_cyl1_q8)[k] = (LEA_misfire_baseline_cyl1[k] - 128) * 0x100;
-    (&misfire_baseline_cyl2_q8)[k] = (LEA_misfire_baseline_cyl2[k] - 128) * 0x100;
-    (&misfire_baseline_cyl3_q8)[k] = (LEA_misfire_baseline_cyl3[k] - 128) * 0x100;
-    (&misfire_baseline_cyl4_q8)[k] = (LEA_misfire_baseline_cyl4[k] - 128) * 0x100;
-    (&misfire_baseline_cyl5_q8)[k] = (LEA_misfire_baseline_cyl5[k] - 128) * 0x100;
-    (&misfire_baseline_cyl6_q8)[k] = (LEA_misfire_baseline_cyl6[k] - 128) * 0x100;
+    misfire_baseline_cyl1_q8[k] = (LEA_misfire_baseline_cyl1[k] - 128) * 0x100;
+    misfire_baseline_cyl2_q8[k] = (LEA_misfire_baseline_cyl2[k] - 128) * 0x100;
+    misfire_baseline_cyl3_q8[k] = (LEA_misfire_baseline_cyl3[k] - 128) * 0x100;
+    misfire_baseline_cyl4_q8[k] = (LEA_misfire_baseline_cyl4[k] - 128) * 0x100;
+    misfire_baseline_cyl5_q8[k] = (LEA_misfire_baseline_cyl5[k] - 128) * 0x100;
+    misfire_baseline_cyl6_q8[k] = (LEA_misfire_baseline_cyl6[k] - 128) * 0x100;
   }
   return;
 }
@@ -29814,22 +29814,22 @@ void init_lea_misfire_baselines(void)
   }
   if (CAL_lea_misfire_baseline_set == true) {
     for (i = 0; i < 0x99; i = i + 1) {
-      LEA_misfire_baseline_cyl1[i] = s__000d0130[i];
-      LEA_misfire_baseline_cyl2[i] = s__000d01c9[i];
-      LEA_misfire_baseline_cyl3[i] = s__000d0262[i];
-      LEA_misfire_baseline_cyl4[i] = s__000d02fb[i];
-      LEA_misfire_baseline_cyl5[i] = s__000d0394[i];
-      LEA_misfire_baseline_cyl6[i] = s__000d042d[i];
+      LEA_misfire_baseline_cyl1[i] = misfire_baseline_default_set1_cyl1[i];
+      LEA_misfire_baseline_cyl2[i] = misfire_baseline_default_set1_cyl2[i];
+      LEA_misfire_baseline_cyl3[i] = misfire_baseline_default_set1_cyl3[i];
+      LEA_misfire_baseline_cyl4[i] = misfire_baseline_default_set1_cyl4[i];
+      LEA_misfire_baseline_cyl5[i] = misfire_baseline_default_set1_cyl5[i];
+      LEA_misfire_baseline_cyl6[i] = misfire_baseline_default_set1_cyl6[i];
     }
   }
   else {
     for (i = 0; i < 0x99; i = i + 1) {
-      LEA_misfire_baseline_cyl1[i] = s__000d04c8[i];
-      LEA_misfire_baseline_cyl2[i] = s_____yz_______000d0561[i];
-      LEA_misfire_baseline_cyl3[i] = s______xx__wvu__vsss__xssss__vssss_000d05fa[i];
-      LEA_misfire_baseline_cyl4[i] = s__000d0693[i];
-      LEA_misfire_baseline_cyl5[i] = s__000d072c[i];
-      LEA_misfire_baseline_cyl6[i] = s__000d07c5[i];
+      LEA_misfire_baseline_cyl1[i] = misfire_baseline_default_set0_cyl1[i];
+      LEA_misfire_baseline_cyl2[i] = misfire_baseline_default_set0_cyl2[i];
+      LEA_misfire_baseline_cyl3[i] = misfire_baseline_default_set0_cyl3[i];
+      LEA_misfire_baseline_cyl4[i] = misfire_baseline_default_set0_cyl4[i];
+      LEA_misfire_baseline_cyl5[i] = misfire_baseline_default_set0_cyl5[i];
+      LEA_misfire_baseline_cyl6[i] = misfire_baseline_default_set0_cyl6[i];
     }
   }
   for (i = 0; i < 0x11; i = i + 1) {
@@ -29907,8 +29907,8 @@ void misfire_detect_per_cylinder_200hz(uint8_t last_fired_cylinder)
     lVar12 = lVar8;
   }
   while (misfire_detect_cyl_index != last_fired_cylinder) {
-    puVar1 = (&PTR_LEA_misfire_baseline_cyl1_000d1128)[misfire_detect_cyl_index];
-    puVar2 = (&PTR_misfire_baseline_cyl1_q8_000d1110)[misfire_detect_cyl_index];
+    puVar1 = misfire_lea_baseline_cyl_ptrs[misfire_detect_cyl_index];
+    puVar2 = misfire_baseline_q8_cyl_ptrs[misfire_detect_cyl_index];
     if ((lVar12 == 0xff) || (CAL_misfire_per_cyl_learn_enable == false)) {
       uVar13 = 0x80;
     }
@@ -29989,14 +29989,14 @@ void misfire_detect_per_cylinder_200hz(uint8_t last_fired_cylinder)
        (((misfire_condition_flags & 0x1000) == 0 &&
         (((misfire_condition_flags & 0x2000) == 0 &&
          (misfire_cyl_detected[misfire_detect_cyl_index] == '\0')))))) {
-      misfire_trim_ptr = (&PTR_LEA_misfire_trim_cyl1_000d10f8)[misfire_detect_cyl_index];
+      misfire_trim_ptr = misfire_lea_trim_cyl_ptrs[misfire_detect_cyl_index];
       iVar5 = (int)uVar11;
       if (((inj_flags & 1) != 0) && (car_speed_u8 != '\0')) {
-        uVar10 = misfire_buffer_unknown[misfire_detect_cyl_index][iVar3] * 0xfc;
-        misfire_buffer_unknown[misfire_detect_cyl_index][iVar3] =
+        uVar10 = misfire_baseline_filter_q8[misfire_detect_cyl_index][iVar3] * 0xfc;
+        misfire_baseline_filter_q8[misfire_detect_cyl_index][iVar3] =
              (short)uVar6 * 4 + ((int)uVar10 >> 8) + (uint)((int)uVar10 < 0 && (uVar10 & 0xff) != 0)
         ;
-        uVar10 = misfire_buffer_unknown[misfire_detect_cyl_index][iVar3];
+        uVar10 = misfire_baseline_filter_q8[misfire_detect_cyl_index][iVar3];
         LEA_misfire_baseline[misfire_detect_cyl_index][iVar3] =
              (short)(uVar10 >> 8) + (ushort)((int)uVar10 < 0 && (uVar10 & 0xff) != 0);
         uVar10 = misfire_accel_filter_per_cyl[misfire_detect_cyl_index] * 0xfc;
@@ -30235,7 +30235,7 @@ void misfire_detection_update(void)
     }
     for (bVar5 = 0; bVar5 < 2; bVar5 = bVar5 + 1) {
       if (misfire_cat_damage_accum[bVar5] < misfire_cat_damage_rate[bVar5]) {
-        obd_ii_misfires_unknown_cat_damage[bVar5] = misfire_cat_damage_rate[bVar5];
+        obd_ii_misfire_cat_damage_metric[bVar5] = misfire_cat_damage_rate[bVar5];
         for (uVar12 = 0; uVar12 < 6; uVar12 = uVar12 + 2 & 0xff) {
           if (local_20[bVar5] == 0) {
             misfire_rate_per_cyl[uVar12 + bVar5] = 0;
@@ -30249,7 +30249,7 @@ void misfire_detection_update(void)
         }
       }
       else {
-        obd_ii_misfires_unknown_cat_damage[bVar5] = misfire_cat_damage_accum[bVar5];
+        obd_ii_misfire_cat_damage_metric[bVar5] = misfire_cat_damage_accum[bVar5];
         for (uVar12 = 0; uVar12 < 6; uVar12 = uVar12 + 2 & 0xff) {
           if ((misfire_cat_damage_accum[bVar5] == 0) ||
              (misfire_cyl_holdoff_timer[uVar12 + bVar5] != 0)) {
@@ -30263,8 +30263,8 @@ void misfire_detection_update(void)
       }
     }
     if ((CAL_obd_ii_P1302 & 7) != 0) {
-      if ((misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[0]) ||
-         (misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[1])) {
+      if ((misfire_threshold_current_window < obd_ii_misfire_cat_damage_metric[0]) ||
+         (misfire_threshold_current_window < obd_ii_misfire_cat_damage_metric[1])) {
         uVar2 = obd_ii_p1302_health + 0xff;
         if (obd_ii_p1302_health == '\0') {
           uVar2 = obd_ii_p1302_health;
@@ -30274,15 +30274,15 @@ void misfire_detection_update(void)
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P1302,&LEA_obd_ii_P1302_dtc_state,&LEA_obd_ii_P1302_fail_counter,
                      &LEA_obd_ii_P1302_pass_counter,0x1302,0);
-          if (((misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[0]) ||
+          if (((misfire_threshold_current_window < obd_ii_misfire_cat_damage_metric[0]) ||
               ((misfire_condition_flags & 0x1000) != 0)) &&
-             ((misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[1] ||
+             ((misfire_threshold_current_window < obd_ii_misfire_cat_damage_metric[1] ||
               ((misfire_condition_flags & 0x2000) != 0)))) {
             misfire_condition_flags = misfire_condition_flags & 0xffffff9f | 0x3800;
             engine_state_failure_flags = engine_state_failure_flags & 0xfffdffff;
             coilpack_failure_set('\x02');
           }
-          else if (misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[0]) {
+          else if (misfire_threshold_current_window < obd_ii_misfire_cat_damage_metric[0]) {
             misfire_condition_flags = misfire_condition_flags | 0x1020;
             engine_state_failure_flags = engine_state_failure_flags | 0x20000;
             coilpack_failure_set('\0');
@@ -30290,7 +30290,7 @@ void misfire_detection_update(void)
               misfire_cyl_holdoff_timer[uVar12] = 100;
             }
           }
-          else if (misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[1]) {
+          else if (misfire_threshold_current_window < obd_ii_misfire_cat_damage_metric[1]) {
             misfire_condition_flags = misfire_condition_flags | 0x2040;
             engine_state_failure_flags = engine_state_failure_flags | 0x20000;
             coilpack_failure_set('\x01');
@@ -30642,7 +30642,7 @@ void misfire_rough_road_detect_200hz(void)
   misfire_wheel_speed_filter_q8_lf =
        ((int)uVar1 >> 8) + (uint)((int)uVar1 < 0 && (uVar1 & 0xff) != 0) +
        (uint)CAL_wheel_speed_smoothing * (uint)wheel_speeds.LF;
-  misfire_wheel_speed_filt =
+  misfire_wheel_speed_filt_lf =
        ((int)misfire_wheel_speed_filter_q8_lf >> 8) +
        (uint)((int)misfire_wheel_speed_filter_q8_lf < 0 &&
              (misfire_wheel_speed_filter_q8_lf & 0xff) != 0);
@@ -30670,11 +30670,11 @@ void misfire_rough_road_detect_200hz(void)
        ((int)misfire_wheel_speed_filter_q8_rr >> 8) +
        (uint)((int)misfire_wheel_speed_filter_q8_rr < 0 &&
              (misfire_wheel_speed_filter_q8_rr & 0xff) != 0);
-  misfire_wheel_speed_deviation = wheel_speeds.LF - misfire_wheel_speed_filt;
+  misfire_wheel_speed_dev_lf = wheel_speeds.LF - misfire_wheel_speed_filt_lf;
   misfire_wheel_speed_dev_rf = wheel_speeds.RF - misfire_wheel_speed_filt_rf;
   misfire_wheel_speed_dev_lr = wheel_speeds.LR - misfire_wheel_speed_filt_lr;
   misfire_wheel_speed_dev_rr = wheel_speeds.RR - misfire_wheel_speed_filt_rr;
-  lVar2 = libc_abs((ulonglong)(uint)misfire_wheel_speed_deviation);
+  lVar2 = libc_abs((ulonglong)(uint)misfire_wheel_speed_dev_lf);
   if ((((((int)(short)CAL_wheel_speed_rate_min < (int)lVar2) &&
         (CAL_wheel_speed_min < wheel_speeds.LF)) ||
        ((lVar2 = libc_abs((ulonglong)(uint)misfire_wheel_speed_dev_rf),
@@ -31117,14 +31117,14 @@ void obd_ii_mode22_processing(void)
     uVar5 = 5;
     break;
   case 0x239:
-    if (obd_ii_misfires_unknown_cat_damage[1] < obd_ii_misfires_unknown_cat_damage[0]) {
-      obd_ii_response[3] = (byte)(obd_ii_misfires_unknown_cat_damage[0] >> 8);
-      obd_ii_response[4] = (byte)obd_ii_misfires_unknown_cat_damage[0];
+    if (obd_ii_misfire_cat_damage_metric[1] < obd_ii_misfire_cat_damage_metric[0]) {
+      obd_ii_response[3] = (byte)(obd_ii_misfire_cat_damage_metric[0] >> 8);
+      obd_ii_response[4] = (byte)obd_ii_misfire_cat_damage_metric[0];
       uVar5 = 5;
     }
     else {
-      obd_ii_response[3] = (byte)(obd_ii_misfires_unknown_cat_damage[1] >> 8);
-      obd_ii_response[4] = (byte)obd_ii_misfires_unknown_cat_damage[1];
+      obd_ii_response[3] = (byte)(obd_ii_misfire_cat_damage_metric[1] >> 8);
+      obd_ii_response[4] = (byte)obd_ii_misfire_cat_damage_metric[1];
       uVar5 = 5;
     }
     break;

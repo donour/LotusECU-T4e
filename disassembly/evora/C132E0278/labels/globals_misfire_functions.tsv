@@ -1,0 +1,27 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): globals in the misfire functions (misfire_*, *_misfire*).
+D	000d0130	misfire_baseline_default_set1_cyl1	uint8_t[153]	Default LEA_misfire_baseline_cyl1 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is true.
+D	000d01c9	misfire_baseline_default_set1_cyl2	uint8_t[153]	Default LEA_misfire_baseline_cyl2 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is true.
+D	000d0262	misfire_baseline_default_set1_cyl3	uint8_t[153]	Default LEA_misfire_baseline_cyl3 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is true.
+D	000d02fb	misfire_baseline_default_set1_cyl4	uint8_t[153]	Default LEA_misfire_baseline_cyl4 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is true.
+D	000d0394	misfire_baseline_default_set1_cyl5	uint8_t[153]	Default LEA_misfire_baseline_cyl5 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is true.
+D	000d042d	misfire_baseline_default_set1_cyl6	uint8_t[153]	Default LEA_misfire_baseline_cyl6 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is true.
+D	000d04c8	misfire_baseline_default_set0_cyl1	uint8_t[153]	Default LEA_misfire_baseline_cyl1 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is false.
+D	000d0561	misfire_baseline_default_set0_cyl2	uint8_t[153]	Default LEA_misfire_baseline_cyl2 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is false.
+D	000d05fa	misfire_baseline_default_set0_cyl3	uint8_t[153]	Default LEA_misfire_baseline_cyl3 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is false.
+D	000d0693	misfire_baseline_default_set0_cyl4	uint8_t[153]	Default LEA_misfire_baseline_cyl4 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is false.
+D	000d072c	misfire_baseline_default_set0_cyl5	uint8_t[153]	Default LEA_misfire_baseline_cyl5 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is false.
+D	000d07c5	misfire_baseline_default_set0_cyl6	uint8_t[153]	Default LEA_misfire_baseline_cyl6 (u8 offset 128) loaded by init_lea_misfire_baselines when CAL_lea_misfire_baseline_set is false.
+D	000d10f8	misfire_lea_trim_cyl_ptrs	pointer[6]	Per-cylinder pointers to LEA_misfire_trim_cylN (misfire_detect_per_cylinder_200hz).
+D	000d1110	misfire_baseline_q8_cyl_ptrs	pointer[6]	Per-cylinder pointers to misfire_baseline_cylN_q8.
+D	000d1128	misfire_lea_baseline_cyl_ptrs	pointer[6]	Per-cylinder pointers to LEA_misfire_baseline_cylN.
+D	4000146c	misfire_seg_start_time	uint32_t	24-bit eTPU tooth timestamp (crank param 0x3d) latched at teeth 0/12/24/36/48/60; 4 teeth later (now - this) & 0xffffff -> misfire_record_segment_period. Was PTR_4000146c.
+D	40005000	misfire_baseline_filter_q8	int[6][64]	Per-cylinder x252/256 IIR (<<8) of the segment metric; >>8 written back to LEA_misfire_baseline[cyl][cell]. Was misfire_buffer_unknown.
+D	40005c04	-	short[153]	Cyl 1 per-cell baseline IIR (<<8, x252/256, saturates 0x8000/0x7fff); >>8 + 128 -> LEA_misfire_baseline_cyl1. Seeded from (LEA - 128) << 8.
+D	40005ad0	-	short[153]	Cyl 2 per-cell baseline IIR (<<8, x252/256, saturates 0x8000/0x7fff); >>8 + 128 -> LEA_misfire_baseline_cyl2. Seeded from (LEA - 128) << 8.
+D	4000599c	-	short[153]	Cyl 3 per-cell baseline IIR (<<8, x252/256, saturates 0x8000/0x7fff); >>8 + 128 -> LEA_misfire_baseline_cyl3. Seeded from (LEA - 128) << 8.
+D	40005868	-	short[153]	Cyl 4 per-cell baseline IIR (<<8, x252/256, saturates 0x8000/0x7fff); >>8 + 128 -> LEA_misfire_baseline_cyl4. Seeded from (LEA - 128) << 8.
+D	40005734	-	short[153]	Cyl 5 per-cell baseline IIR (<<8, x252/256, saturates 0x8000/0x7fff); >>8 + 128 -> LEA_misfire_baseline_cyl5. Seeded from (LEA - 128) << 8.
+D	40005600	-	short[153]	Cyl 6 per-cell baseline IIR (<<8, x252/256, saturates 0x8000/0x7fff); >>8 + 128 -> LEA_misfire_baseline_cyl6. Seeded from (LEA - 128) << 8.
+D	40001f30	obd_ii_misfire_cat_damage_metric	u16_count[2]	Cat-damage misfire metric per window: max(misfire_cat_damage_rate, misfire_cat_damage_accum); compared with misfire_threshold_current_window. Was obd_ii_misfires_unknown_cat_damage.
+D	40001ee8	misfire_wheel_speed_dev_lf	-	Rough-road: LF wheel speed minus its filtered value.
+D	40001f08	misfire_wheel_speed_filt_lf	-	Rough-road: filtered LF wheel speed (misfire_wheel_speed_filter_q8_lf >> 8).
