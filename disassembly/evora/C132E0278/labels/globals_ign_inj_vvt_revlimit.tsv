@@ -1,0 +1,223 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-03): runtime globals read/written by
+# ignition(), injection(), vvt(), revlimit() (+ their 200 Hz companions where they define the variable).
+# Names/units derived from 0278 code; unit evidence in each comment.
+T	i16_rspeed_rpm	i16_angle_1/4deg
+T	u32_time_ns	u32_time_us
+T	u8_factor_1/25	u8_factor_1/255
+T	u16_mass_10ug	u16_mass_mg
+T	u16_flow_1/100ml/s	u16_flow_mg/s
+T	u8_speed_2kph	u8_speed_kph
+T	i16_dutycycle_1/2000	i16_angle_1/4deg
+T	i32_angle_1/4deg	i32_accel_1/255g
+T	i32_dutycycle_1/2000	i32_accel_1/255g
+#
+# ---------------- ignition() ----------------
+D	40001480	ign_comp_overtemp	-	Over-temp spark comp = ign_comp_overtemp_rpm_base x ign_comp_overtemp_coolant_factor/128 (deg = val/4). Added in normal mode and to the knock ceiling. Was ign_comp_coolant.
+D	40001482	ign_comp_air_temp_idle	-	Air-temp spark comp from CAL_ign_comp_engine_air[temp_engine_air], used only in idle/cruise modes (deg = val/4). Was ign_temp_engine_air_comp.
+D	40001484	ign_comp_overtemp_rpm_base	-	CAL_ign_comp_overtemp[rpm] (^0x80 signed), before the coolant factor (deg = val/4). Was ign_comp_rpm.
+D	40001486	ign_comp_overtemp_coolant_factor	-	CAL_ign_comp_overtemp_coeff[coolant_temp] multiplier on the over-temp comp (val/128). Was ign_adv_adj_coolant_factor.
+D	40001488	ign_comp_manifold_temp_base	-	CAL_ign_comp_manifold_temp[rpm, charge temp] (^0x80 signed), before the load factor (deg = val/4). Was ign_comp_manifold_temp_raw.
+D	4000148a	ign_comp_manifold_temp_load_factor	-	CAL_ign_comp_manifold_temp_load_multiplier[rpm, load] (val/128). Was ..._load_multiplier.
+D	4000148c	ign_adv_max_low_gear	i16_angle_1/4deg	Low-gear spark cap from CAL_ign_limit_first_gear_manual (deg = val/4); 0xff = no cap. ign_base is clipped to it. Was ign_adv_limit.
+D	4000148e	-	u8_angle_1/4deg	Per-cylinder torque-retard recovery step per 200 Hz tick (deg = val/4, no offset: compared raw against ign_torque_retard_per_cyl).
+D	40001730	ign_sync_spark_countdown	u16_count	Spark events to skip after crank sync (reset to 12 in engine_sync_reset_etpu_init, -1 per ign ISR); spark/injection scheduling waits for 0. Was ign_startup_delay_counter.
+D	4000175c	engine_period_trend_us	int	(older 4-sample mean - newest 4-sample mean of engine_period_90deg_us)/15; >0 = engine accelerating. Axis for CAL_ign_comp_idle_rpm_rate. Was rpm_or_roughness_measure_unknown.
+D	400017d8	crank_sync_state	uint8_t	0 = not synced, 1 = crank/cam synced (set in etpu_ch0_crank_isr). Gates spark/injection scheduling. Was engine_running_state.
+D	400017e8	crank_time_per_0p1deg_ns	u32_time_ns	eTPU crank param 0x31: time per 0.1 crank deg in ns (init 1666667 = 10 rpm). dwell_angle = dwell_us*1000/this. Was eTPU_crank_angle_speed_scaling.
+D	40001800	ign_cyl_spark_window_armed	-	Per-cyl spark window armed (set at tooth table 0x400028f8 in ign_update_cyl_enable_by_tooth, cleared on fuel cut). Rising edge -> ign_schedule_cylinder_event enable. Was ign_per_cyl_enable???.
+D	40001944	ign_cyl_spark_window_armed_prev	-	Previous-pass copy of ign_cyl_spark_window_armed (edge detect); also gates the per-cyl torque-retard recompute. Was ign_per_cyl_enable2???.
+D	40001900	ign_base_limited	-	ign_base clipped to ign_adv_max_low_gear; base for normal/startup modes (deg = val/4). Was ign_adv_target1.
+D	40001906	ign_adv_target_rate_limited	-	ign_adv_target slewed by ignition_retard_and_recovery_200hz (step_advance/step_retard every 10 ticks = 50 ms); bypassed while torque_limit_source_flags&0x3f (deg = val/4). Was ign_target_rate_limited.
+D	4000190c	ign_comp_normal_total	-	Sum of normal-mode comps: driveaway + manifold temp + over-temp + test trim - tps-rate retard (+ startup base scaling) (deg = val/4). Also used by torque_model. Was ign_comp_rpm_accel.
+D	40001912	ign_comp_roughness	i16_angle_1/4deg	Roughness spark comp actually applied (= ign_comp_roughness_request in NORMAL/NORMAL_STARTUP modes with roughness_flags&0x100, else 0) (deg = val/4). Was __ign_comp_roughness_detection.
+D	40001914	-	-	Idle speed-error spark comp from CAL_ign_comp_idle_error (or _moving above CAL_vehicle_moving_speed_min), plus dashpot lift term (deg = val/4).
+D	40001916	-	-	Driveaway idle-error spark comp from CAL_ign_comp_idle_error_driveaway[idle_speed_error_pedal_comp] (deg = val/4); 0 above driveaway speed/rpm.
+D	4000191a	ign_base_scale_startup	u16_factor_1/255	Startup scaling of ign_base_limited from CAL_ign_comp_startup_tps[maf accum, tps] (val/255); 0xff = inactive. Was ign_comp_startup_tps (not an angle).
+D	4000191c	ign_retard_startup	u8_angle_1/4deg	Startup spark retard from CAL_ign_comp_startup_* (stopped coolant x air since start), subtracted in idle/cruise modes (deg = val/4). Was ign_comp_startup.
+D	4000191e	-	uint16_t	bit0 stopped-coolant in startup window, bit1 startup comp applied, bit2 cruise target reached.
+D	40001920	ign_retard_tps_rate	u8_angle_1/4deg	Throttle-rate spark retard from CAL_ign_comp_tps_rate (subtracted, zero-extended) (deg = val/4). Was ign_comp_tps_rate.
+D	40001922	ign_comp_manifold_temp	-	Charge/manifold-temp spark comp = base x load factor/128 (deg = val/4). Also used by injection power-enrich-from-retard. Was ign_comp_iat.
+D	40001932	ign_adv_start	u8_angle_1/4deg	Fixed spark during crank + hold window, CAL_ign_comp_coldstart[stopped coolant] used raw, no -10 deg offset (deg = val/4). Was ign_coldstart_comp.
+D	40001936	ign_comp_idle_rpm_rate	-	Idle dashpot spark comp from CAL_ign_comp_idle_rpm_rate[engine_period_trend_us]; 0 when no dashpot lift (deg = val/4). Was ign_comp_transient_total.
+D	40001938	-	i16_angle_1/4deg	Idle speed-error spark comp while moving (CAL_ign_comp_idle_error_moving).
+D	4000193c	ign_start_timing_hold_timer_5ms	u16_time_5ms	Held at CAL_ign_target_update_inhibit_timer*2 while engine not running, counts down after start; non-zero = IGN_COLD_START mode (ign_adv_start). Was ign_target_update_inhibit_timer_5ms.
+D	4000193e	ign_idle_dashpot_recovery_timer_5ms	u8_time_5ms	Reloaded with CAL_ign_comp_recovery_timer while dashpot lift active; scales the negative idle-error comp back in. Was ign_idle_comp_recovery_timer_5ms.
+D	40003050	ign_torque_retard_margin_per_cyl	-	Per-cyl (target + cyl trim - ign_adv_min - ign_comp_torque_reduction) when positive (deg = val/4). (0091 name)
+D	4000305c	ign_torque_retard_per_cyl	-	Per-cyl retard subtracted from the final advance; decays by ign_retard_recovery_step at 200 Hz on cut cylinders (deg = val/4). Was ign_adv_with_torque_retard.
+D	40003068	ign_adv_knock_ceiling_per_cyl	-	Per-cyl ceiling = ign_base - knock retard - octane retard + manifold-temp + over-temp comps; final advance clipped to it (deg = val/4). Was ign_adv_with_knock_retard.
+D	40003090	ign_dwell_angle_per_cyl	-	Dwell converted to crank angle (dwell_us*1000/crank_time_per_0p1deg_ns), limited so dwell+advance <= 305 deg (deg = val/10). Was ign_volt_comp_angle_per_cyl.
+D	400030a8	ign_dwell_start_angle_per_cyl	u16_angle_1/10deg[6]	Coil-on angle = ign_angle_scheduled - ign_dwell_angle_per_cyl, wrapped to 0..720 deg (deg = val/10).
+D	40001ab8	-	uint16_t	-
+D	40001aba	ign_comp_roughness_request	i16_angle_1/4deg	Roughness controller spark request from engine_roughness_200hz, clipped to CAL_roughness_ign_adv_max/min (deg = val/4). Was ign_adv_from_roughness_detection.
+D	40001db6	idle_speed_target_pedal_comp	u16_rspeed_rpm	Idle target incl. idle_comp_accel_pedal_pos*4 (driveaway target).
+D	40001db8	idle_speed_error_pedal_comp	i16_rspeed_rpm	engine_speed_16bit - idle_speed_target_pedal_comp (RPM, signed). Axis for CAL_ign_comp_idle_error_driveaway. Was idle_speed_error_tps_compensated.
+D	40001dba	-	i16_rspeed_rpm	engine_speed_16bit - obd_ii_idle_speed_target_total (RPM, signed).
+D	40001df8	idle_dashpot_rpm_lift	-	Idle target rpm lift (dashpot) after a high-rpm transient, decays in idle_airflow_decay_manager (RPM). Was idle_comp_high_rpm_transient.
+D	40001e18	idle_dashpot_rpm_lift_max	u16_rspeed_rpm	CAL_idle_dashpot_rpm_lift_max[rpm]*10 (RPM). Normalises the dashpot spark comp. Was idle_comp_high_rpm_transient_max.
+D	4000260c	cruise_status_flags	uint32_t	Cruise control state bitfield (bit1 = cruise engaged; also reported in mode 22). Was obd_ii_cruise_status.
+D	4000261e	-	u16_factor_1/1023	Cruise-commanded pedal (val/1023; >>2 gives the 8-bit pps axis).
+D	40002662	-	i16_angle_1/4deg	Torque-model spark reduction request (<=0) (deg = val/4).
+D	40002686	-	uint8_t	-
+#
+# ---------------- injection() ----------------
+D	40001490	-	-	Warm-up enrichment factor CAL_inj_warmup_factor_*[load, coolant], min 64 (val/64).
+D	40001492	-	u8_factor_1/32	Cranking air-temp enrichment CAL_inj_cranking_comp_air_temp[charge temp, air since start], clamped 32..64 (val/32 = 1.0..2.0).
+D	40001498	-	u8_factor_1/128	Charge-air-temp enrichment CAL_inj_enrichment_charge_air_temp[load, charge temp], min 128 (val/128).
+D	4000168d	inj_bank_balance_test_trim	u8_raw-128	RAM-only dev trim (init 0x80), added as (x-128)/2 to the bank balance ratio. Was inj_bank_balance_trim_unused.
+D	4000168f	afr_target_test_trim	-	RAM-only dev trim (init 0), adds 0.02 AFR per count to afr_target_base. Was afr_target_trim_0p02_steps.
+D	40001692	inj_angle_test_override	u8_angle_720/256deg	RAM-only dev override (init 0): values >= 3 replace CAL_inj_angle. Was inj_angle_test_trim.
+D	40001693	-	u8_angle_1/4-32deg	RAM-only dev spark trim (init 0x80 = 0), added in every ignition mode.
+D	40001694	-	u8_raw-128	RAM-only dev trim (init 0x80), adds (x-128)/2 to inj_efficiency (1/400 per count).
+D	400016b6	maf_accum_load_weighted_g	u16_mass_g	Air mass since start weighted by cranking_load_weight (g). Axis of CAL_inj_cranking_enrichment_mass_accum. Was maf_accum_since_start_scaled.
+D	40001766	intake_air_temp_engine_stopped	-	Intake-air sensor temp latched while stopped (CAL_sensor_intake_air_scaling); cranking air-temp axis when CAL_tmap_use_for_inj. Was temp_engine_air_derived1.
+D	40001770	engine_period_90deg_us	u32_time_us	Crank period per 90 deg (us): rpm = 15e6/val; 720 deg window = val*8. Was engine_speed_period_2.
+D	4000177c	-	uint16_t	bit0/3 rev-limit fuel cut, bit4 ignition off, bit5 cut counted.
+D	40001950	-	-	Injector dead time = CAL_inj_deadtime_base[volts, dP]*20 us x CAL_inj_deadtime_comp_iat/100, max 5100 (us).
+D	40001954	inj_pw_from_mass_b1	u32_time_us	Bank-1 pulse for the required fuel mass: mass(10 ug)*10000/flow(mg/s) (us), before enrichments. Was mass_to_time_scaler_b1.
+D	40001958	inj_pw_from_mass_b2	u32_time_us	Bank-2 pulse for the required fuel mass (us). Was mass_to_time_scaler_b2.
+D	4000195c	cranking_enrichment_blend	u8_factor_1/255	mass_accum x soak x air_temp factors /65025; pulse x (1 + val/255). Was enrichment_cranking_blend.
+D	40001968	inj_prime_pulse_time	-	Prime pulse fired at crank sync = startup offset + dead time, max 65535 (us). Was inj_startup_pulse_time.
+D	4000196c	-	u32_angle_1/10deg	CAL_inj_angle (or test override) x 7200/256 (deg = val/10).
+D	400019d6	afr_target_base	u16_afr_1/100	CAL_inj_afr_base*5 + 500 + test trim (AFR = val/100). Was afr_target.
+D	40001974	afr_target	-	Base AFR target, forced to CAL_closedloop_afr during the closed-loop entry hold (AFR = val/100). afr_commanded = this - afr_enrichment_from_ign_retard. Was afr_target2.
+D	4000197a	-	u16_mass_10ug	Fuel mass per injection = load_mass_per_stroke_raw*100/AFR (mg = val/100).
+D	40001984	-	u32_time_us	-
+D	4000198c	inj_pw_b1_limited	u32_time_us	Bank-1 pulse after the cold-start cap and the overflow clamp, before fuel trims (us). Was inj_pw_b1_pretrim.
+D	40001990	inj_pw_b2_limited	u32_time_us	Bank-2 pulse after the cold-start cap and the overflow clamp, before fuel trims (us). Was inj_pw_b2_pretrim.
+D	400019cc	inj_pw_b1_base	-	Bank-1 pulse with all enrichments, tip-in/out and DFCO recovery, before the cold-start cap (us). Was inj_pw_b1_pretrims.
+D	400019d0	inj_pw_b2_base	-	Bank-2 pulse with all enrichments, before the cold-start cap (us). Was inj_pw_b2_pretrims.
+D	40001994	-	u16_mass_10ug	Bank-1 fuel mass after evap purge credit (mg = val/100).
+D	40001996	-	u16_mass_10ug	Bank-2 fuel mass after evap purge credit (mg = val/100).
+D	4000199a	-	u8_factor_1/200	Injector efficiency CAL_inj_efficiency + test trim, clamped 100..255 (val/200; 200 = 1.0). Was typed /100.
+D	4000199e	-	u16_flow_1/100ml/s	Instantaneous fuel volume flow = rpm*flow*avg_pw/CAL density/15000 (mL/s = val/100). Was typed 1/10 mL/km.
+D	400019a0	-	u16_economy_1/10ml_per_km	fuel_usage_instantaneous*360/car_speed_u8 (mL/km = val/10).
+D	400019a4	-	u8_factor_1/200	Bank balance CAL_inj_bank_balance + test trim, clamped 170..230 (val/200): bank2 flow x val/200, bank1 x (400-val)/200.
+D	400019a8	-	u8_count	Rev-limit fuel-cut events (cleared once rpm drops CAL_revlimit_release_rpm_delta*10 below target).
+D	400019a6	revlimit_fuelcut_timer_5ms	u16_time_5ms	Time in rev-limit fuel cut (injection_flags&8), +1 per 200 Hz tick. Was u16_time_100ms_400019a6.
+D	400019a9	evap_purge_fuel_fraction_b1	u8_factor_1/255	Bank-1 evap purge fuel / required fuel (val/255; 255 = all). Was mass_ratio_b1_prev.
+D	400019aa	evap_purge_fuel_fraction_b2	u8_factor_1/255	Bank-2 evap purge fuel / required fuel (val/255). Was mass_ratio_b2_prev.
+D	400019ab	cranking_load_weight	u8_factor_1/25	CAL_inj_cranking_enrichment_load[load] (val/25; stock 25 = 1.0): weights maf_accum_load_weighted_g. Was cranking_enrichment_load.
+D	400019b8	cranking_enrichment_soak_factor	u8_factor_1/255	CAL_inj_cranking_enrichment_soak_time[engine off time] (val/255). Was inj_cranking_enrichment_soak_time_X_engine_off_time.
+D	400019b9	-	u8_factor_1/255	CAL_inj_cranking_enrichment_air_temp[air temp stopped, coolant stopped] (val/255).
+D	400019ba	-	u8_factor_1/255	CAL_inj_cranking_enrichment_mass_accum[maf_accum_load_weighted_g] (val/255).
+D	400019c0	-	-	Dead-time air-temp multiplier CAL_inj_deadtime_comp_iat (val/100).
+D	400019c1	-	u8_factor_1/16	Cold-start pulse cap factor CAL_inj_coldstart_enrichment, min 24 (val/16 of inj_pw_from_mass).
+D	400019d4	closedloop_entry_delay	u8_time_20ms	Closed-loop entry hold (cruise or power-enrich CAL), compared as <<2 to the 5 ms timer. Was closedloop_entry_delay_steps.
+D	400019d8	-	u8_factor_1/100	CAL_inj_accel_enrichment_load_threshold[rpm], compared with load_pct (val/100).
+D	400019e0	-	-	Rail-to-manifold fuel pressure (mbar = val*50); dead-time axis.
+D	40001b4c	-	uint16_t	bit0 = decel fuel cut (fixed spark, zero fuel usage).
+D	40001852	-	uint16_t	-
+D	40001b60	inj_post_start_trim	i16_factor_1/10000	Post-start fuel multiplier offset: pulse x (10000 + val)/10000; decays to 0 in inj_transient_ramp_200hz. Was inj_trim_post_start.
+D	40001e3e	knock_ign_retard_octane_sum	-	Sum of ign_knock_retard_octane[6] (deg = val/4). Was knock_ign_retard_sum.
+D	40002174	-	u16_mass_10ug	Bank-1 evap purge fuel mass per injection (mg = val/100).
+D	40002176	-	u16_mass_10ug	Bank-2 evap purge fuel mass per injection (mg = val/100).
+#
+# ---------------- vvt() ----------------
+D	4000168e	vvt_exhaust_target_test_override	u8_angle_1/4deg	RAM-only dev override (init 0): values >= 4 replace the exhaust base target. Was vvt_exhaust_fallback_angle_zero.
+D	40001690	vvt_intake_target_test_override	u8_angle_1/4deg	RAM-only dev override (init 0): values >= 4 replace the intake base target. Was vvt_intake_fallback_angle_zero.
+D	40001550	-	i16_angle_1/4deg	Max inlet cam position seen during the start-up park check, bank 1.
+D	40001552	-	i16_angle_1/4deg	Max inlet cam position seen during the start-up park check, bank 2.
+D	40001554	-	i16_angle_1/4deg	Max exhaust cam position seen during the start-up park check, bank 1.
+D	40001556	-	i16_angle_1/4deg	Max exhaust cam position seen during the start-up park check, bank 2.
+D	40001558	cam_park_position_min_inlet_b1	i16_angle_1/4deg	Min inlet cam position seen during the start-up park check, bank 1.
+D	4000155a	cam_park_position_min_inlet_b2	i16_angle_1/4deg	Min inlet cam position seen during the start-up park check, bank 2.
+D	4000155c	cam_park_position_min_exhaust_b1	i16_angle_1/4deg	Min exhaust cam position seen during the start-up park check, bank 1.
+D	4000155e	cam_park_position_min_exhaust_b2	i16_angle_1/4deg	Min exhaust cam position seen during the start-up park check, bank 2.
+D	40001560	-	u16_factor_1/1000	Inlet VVT solenoid duty = pi_output/2 + 400 (val/1000; 1 = off). Sent x10 to vvt_inlet_update_b1.
+D	40001562	-	u16_factor_1/1000	Inlet VVT solenoid duty bank 2 (val/1000; ~1/1024 via CAL_vvt_pwm_period*val>>10).
+D	40001564	-	u16_factor_1/1000	Exhaust VVT solenoid duty bank 1 (val/1000).
+D	40001566	-	u16_factor_1/1000	Exhaust VVT solenoid duty bank 2 (val/1000; ~1/1024).
+D	40001722	obd_ii_vvt_inlet_position_bank2	-	Inlet cam position bank 2 (deg = val/4). Was obd_ii_vvt_inlet_angle_bank2.
+D	40002442	obd_ii_vvt_inlet_error_bank2	i16_angle_1/4deg	obd_ii_vvt_inlet_target - inlet position bank 2 (deg = val/4). Was obd_ii_vvt_inlet_angle_error_bank2.
+D	40002444	obd_ii_vvt_inlet_error_bank1	i16_angle_1/4deg	obd_ii_vvt_inlet_target - inlet position bank 1 (deg = val/4). Was obd_ii_vvt_inlet_angle_error_bank1.
+D	4000243e	-	i16_angle_1/4deg	Exhaust cam error bank 2 = target + position (exhaust position is negative-going) (deg = val/4).
+D	40002440	-	i16_angle_1/4deg	Exhaust cam error bank 1 = target + position (deg = val/4).
+D	40002448	obd_ii_vvt_inlet_target	-	Inlet cam target used by BOTH banks, ramped 0.25 deg / 50 ms toward vvt_inlet_target_requested in vvt_200hz (deg = val/4). Was vvt_inlet_target_bank1.
+D	40002446	obd_ii_vvt_exhaust_target	-	Exhaust cam target used by BOTH banks, ramped 0.25 deg / 50 ms (deg = val/4). Was obd_ii_vvt_exhaust_target_bank1.
+D	400023c2	vvt_inlet_target_requested	u16_angle_1/4deg	Inlet base map (normal or low-load) - coolant offset, clamped 0..43 deg (deg = val/4). Was vvt_inlet_taget_calc_bank1.
+D	400023c4	vvt_exhaust_target_requested	-	Exhaust base map - coolant comp, clamped 0..35 deg (deg = val/4). Was vvt_exhaust_taget_calc_bank1.
+D	400023c6	-	i16_dutycycle_1/2000	Inlet b1 PI proportional term = error*CAL_vvt_error_gain_startup>>8.
+D	400023c8	vvt_pi_integral_inlet_b1	i32_dutycycle_1/2000	Inlet b1 PI integrator (<<8), += error*CAL_vvt_integral_gain every 50 ms, clamped +-0x19000 (= +-400 after >>8).
+D	400023cc	vvt_pi_output_inlet_b1	i32_dutycycle_1/2000	Inlet b1 PI output = P + I>>8, clamped +-400; -400 forced after target==0 timeout (park). duty = val/2 + 400.
+D	400023d0	-	i16_dutycycle_1/2000	Inlet b2 PI proportional term.
+D	400023d4	vvt_pi_integral_inlet_b2	i32_dutycycle_1/2000	Inlet b2 PI integrator (<<8), clamped +-0x19000.
+D	400023d8	vvt_pi_output_inlet_b2	i32_dutycycle_1/2000	Inlet b2 PI output, clamped +-400.
+D	400023dc	-	i16_dutycycle_1/2000	Exhaust b1 PI proportional term.
+D	400023e0	vvt_pi_integral_exhaust_b1	i32_dutycycle_1/2000	Exhaust b1 PI integrator (<<8), clamped +-0x19000.
+D	400023e4	vvt_pi_output_exhaust_b1	i32_dutycycle_1/2000	Exhaust b1 PI output, clamped +-400.
+D	400023e8	-	i16_dutycycle_1/2000	Exhaust b2 PI proportional term.
+D	400023ec	vvt_pi_integral_exhaust_b2	i32_dutycycle_1/2000	Exhaust b2 PI integrator (<<8), clamped +-0x19000.
+D	400023f0	vvt_pi_output_exhaust_b2	i32_dutycycle_1/2000	Exhaust b2 PI output, clamped +-400.
+D	400023f8	-	int	Sum of inlet b1 cam positions during the park check (1/4 deg units). Was typed u16 (it is a 32-bit sum).
+D	400023fc	-	int	Sum of inlet b2 cam positions during the park check.
+D	40002400	-	int	Sum of exhaust b1 cam positions during the park check.
+D	40002404	-	int	Sum of exhaust b2 cam positions during the park check.
+D	40002408	-	uint	Park-check sample count, inlet b1.
+D	4000240c	-	uint	Park-check sample count, inlet b2.
+D	40002410	-	uint	Park-check sample count, exhaust b1.
+D	40002414	-	uint	Park-check sample count, exhaust b2.
+D	40002418	-	uint8_t	Per-controller flag (bit0 in-b1, bit1 in-b2, bit2 ex-b1, bit3 ex-b2): integrator to be cleared when target leaves 0.
+D	40002419	-	u8_time_100ms	Counts down while the inlet target is 0 (reload CAL_vvt_zero_target_timeout); at 0 the PI output is forced to -400 (park).
+D	4000241a	-	u8_time_100ms	Counts down while the exhaust target is 0; at 0 the PI output is forced to -400.
+D	4000241c	vvt_low_load_target_offset	u8_angle_1/4deg	Mean (intake+exhaust) of active target - normal-map target while both cams are on the low-load map, 0..255 (deg = val/4); non-zero selects idle LEA offsets / alt spark tables. Was vvt_error_scale.
+D	4000241d	-	uint8_t	bit0 low-load map active, bit1 normal map, bit2 ramping to low-load, bit3 ramping to normal.
+D	4000241e	-	uint8_t	bit0 low-load map active, bit1 normal map, bit2 ramping to low-load, bit3 ramping to normal.
+D	4000241f	-	u8_count	Cam edge watchdog exhaust b2: reloaded to CAL_obd_ii_crank_cam_error_count_max by the cam ISR, -1 per crank rev; also a new-sample flag for the park check.
+D	40002420	-	u8_count	Cam edge watchdog exhaust b1.
+D	40002421	-	u8_count	Cam edge watchdog inlet b2.
+D	40002422	cam_edge_watchdog_inlet_b1	u8_count	Cam edge watchdog inlet b1 (see exhaust b2). Was cam_edge_watchdog.
+D	40002424	-	i32_angle_1/4deg	Mean park position exhaust b2; |mean| > CAL_vvt_cam_park_offset_max sets the offset fault.
+D	40002428	-	i32_angle_1/4deg	Mean park position exhaust b1.
+D	4000242c	-	i32_angle_1/4deg	Mean park position inlet b2.
+D	40002430	-	i32_angle_1/4deg	Mean park position inlet b1.
+D	40002434	-	uint8_t	Park offset fault exhaust b2 (0 ok, 0xff = |mean| > CAL_vvt_cam_park_offset_max); blocks closed-loop VVT.
+D	40002435	-	uint8_t	Park offset fault exhaust b1.
+D	40002436	cam_park_offset_fault_inlet_b2	uint8_t	Park offset fault inlet b2.
+D	40002437	-	uint8_t	Park offset fault inlet b1.
+D	40002438	-	uint8_t	Park check done exhaust b2 (1 = done).
+D	40002439	-	uint8_t	Park check done exhaust b1.
+D	4000243a	cam_park_check_done_inlet_b2	uint8_t	Park check done inlet b2 (1 = done).
+D	4000243b	-	uint8_t	Park check done inlet b1.
+D	4000243c	vvt_enable_delay_5ms	u16_time_5ms	CAL_vvt_start_timer[stopped coolant]*20: before this runtime the cams are held parked and sampled; after it closed-loop VVT runs. Was vvt_start_time.
+D	400021d8	-	uint32_t	-
+D	400021dc	-	uint32_t	-
+D	400021ee	-	u8_factor_1/256	Mode $2F VVT test duty (val/256) applied to all four solenoids.
+D	40002248	-	uint32_t	-
+#
+# ---------------- revlimit() ----------------
+D	4000160e	-	-	CAL_vehicle_speed_limit*200 (2 km/h units), 51000 = no limit (km/h = val/100).
+D	40001f38	-	uint32_t	-
+D	400027c8	-	uint16_t	bit0 airflow limiter active, bit1/2 flow setpoint stepping up/down, bit3 tps cap valid, bit4 escalated, bit6 fuel cut hit, bit7 speed-limit rpm active, bit8 capped by speed-limit max, bit9 speed-limit rpm valid, bit10 speed target ramping, bit11 overspeed.
+D	400027ca	-	i16_rspeed_rpm	revlimit_soft_target - engine_speed_16bit (RPM, signed).
+D	400027cc	-	-	Throttle cap from the airflow limiter: CAL_load_to_tps_mapping[revlimit_load_setpoint] - idle tps (val/1023).
+D	400027d0	-	u16_flow_10mg/s	Airflow setpoint stepped toward base + P + I by CAL_revlimit_maf_error_max_10g (mg/s = val*10).
+D	400027d2	-	u16_load_mg/stroke	revlimit_flow_setpoint converted to load minus idle load, max 1173 (mg/stroke).
+D	400027d4	-	-	Latched copy of revlimit_hard: fuel cut ends when rpm <= this (RPM). Also sent on CAN.
+D	400027dc	revlimit_soft_target	-	revlimit_soft - 2*trim_per_gear, lowered to the speed-limit rpm when active (RPM). Airflow limiter target. Was revlimit_current.
+D	400027e2	-	short	Limiter integrator: += error/10 per tick, clamped +-CAL_revlimit_integrator_limit*250.
+D	400027e4	-	short	Rpm approach rate = d(error)*10/max(error,50) every 15 ms, clipped to [-CAL_revlimit_rpm_rate_limit*25, 0].
+D	400027e6	-	i16_flow_10mg/s	Limiter P term = gain*error/5, clipped +-CAL_revlimit_flow_proportional_limit*100 (mg/s = val*10).
+D	400027e8	-	i16_flow_10mg/s	Limiter I term = gain*integral/100, clipped +-CAL_revlimit_flow_integral_limit*100 (mg/s = val*10).
+D	400027ea	-	i16_flow_10mg/s	Limiter rate term = gain*approach_rate/10 (mg/s = val*10). NB the +clip writes CAL*10 while testing CAL*100.
+D	400027ee	-	u16_flow_10mg/s	Airflow at limiter entry: min(maf, CAL_revlimit_airflow_threshold*2 g/s) (mg/s = val*10).
+D	400027f2	-	short	Escalation step = CAL_revlimit_escalation_integrator_step[gear]*25 (integrator units).
+D	400027f4	revlimit_speed_limit_rpm	u16_rspeed_rpm	revlimit_rpm_at_speed_limit capped at revlimit_speed_limit_rpm_cap (RPM). Was rpm_speed_estimated_clipped_tomax.
+D	400027fc	revlimit_speed_limit_rpm_cap	u16_rspeed_rpm	CAL_revlimit_max_with_speedlimit when a speed limit is enforced, else 0 (RPM). Also caps revlimit_hard. Was revlimit_max.
+D	400027fe	revlimit_rpm_at_speed_limit	u16_rspeed_rpm	Engine rpm that gives speed_limit_target_ramped in the current gear = target*rpm/car_speed (RPM). Was rpm_speed_estimated.
+D	40002800	revlimit_hard_coldstart_offset	u16_rspeed_rpm	Cold-start reduction of the hard limit, decays by CAL_revlimit_startup_offset_decrement at 200 Hz (RPM). Was revlimit_startup_offset.
+D	40002802	revlimit_soft_coldstart_offset	-	Cold-start reduction of the soft limit, decays like the hard one (RPM). Was revlimit_startup_max_offset.
+D	40002804	-	enum_t6e_gear	IPS gear latched when the limiter escalates; NO_GEAR = none.
+D	40002806	revlimit_coldstart_hard	-	Cold-start hard limit (CAL_revlimit_coldstart_rpm_envelope row 0) or the normal one when warm (RPM). Was revlimit_coldstart_rpm_envelope_min.
+D	40002808	revlimit_coldstart_soft	-	Cold-start soft limit (envelope row 0xffff) or the normal one when warm (RPM). Was revlimit_coldstart_rpm_envelope_max.
+D	4000280a	revlimit_escalated_timer	u8_time_25ms	Set to 40 (1 s) on escalation/overspeed, -1 every 25 ms. Was revlimit_esclated_timer.
+#
+# ---------------- CAL types found while tracing these globals ----------------
+D	4000888e	-	u8_time_20ms	Closed-loop entry hold, cruise (x4 vs a 5 ms timer = 20 ms units; stock 150 = 3 s). Was typed u8_time_ms.
+D	40008888	-	u8_time_20ms	Closed-loop entry hold after power enrichment (20 ms units). Was typed u8_time_ms.
+D	400088b6	-	u8_speed_2kph	Vehicle speed limit (km/h = val*2; x200 into 1/100 km/h; stock 104 = 208 km/h). Was typed u8_speed_kph.
+D	4000e010	-	u8_factor_1/25[6]	Cranking air-mass weight by load (val/25; stock 25..125 = 1.0..5.0). Was typed /255.
+D	40008d16	-	u8_angle_1/4deg[8]	Crank/start fixed spark by stopped coolant; firmware uses it raw (deg = val/4), no -10 deg offset. Was typed u8_angle_1/4-10deg.
+D	40009fb2	-	u8_factor_1/255[64]	Startup scaling of ign_base_limited [maf accum x tps] (val/255; 255 = none). Was typed i8_angle_1/4deg.
+D	4000aa3a	-	u8_angle_1/4deg[8]	Throttle-rate spark retard, subtracted zero-extended (deg = val/4). Was typed i8_angle_1/4deg.
+D	4000d74c	-	u8_angle_1/4deg[64]	Torque-retard recovery step per 200 Hz tick (deg = val/4). Was typed i8_angle_1/4deg.
+D	4000872b	-	u8_angle_1/4deg	Idle dashpot spark advance at full lift: x lift/lift_max into ign_comp_idle_error (deg = val/4). Was typed u8_factor_1/255.
