@@ -1,0 +1,3 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): OBD request/response buffers are 128 bytes (were byte[8]); absorbs DAT_40007ded (Mode 06 record 6 MID echo, written via a folded obd_ii_response+0x2d base).
+D	40007d40	-	byte[128]	OBD-II request buffer (128 bytes, 0x40007d40-0x40007dbf).
+D	40007dc0	-	byte[128]	OBD-II response buffer (128 bytes, 0x40007dc0-0x40007e3f); multi-record replies (Mode 06, 9-byte records) index past byte 8.
