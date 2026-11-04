@@ -1,0 +1,42 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-03): globals of
+# obd_ii_tps_and_airflow_plausibility_monitor() (runs once per 100 ms via obd_ii_monitor_task_scheduler_token bit 0x10).
+# Per-DTC health counters are seeded with their CAL debounce count in obd_ii_update_tps_and_throttle_dtcs() and
+# zeroed when the DTC fails; the tail folds them into engine_state_failure_flags bit2 (TPS) and bit16 (throttle/airflow).
+#
+# ---- health counters (were misnamed latch/not_failed/countdown) ----
+D	40001cb8	obd_ii_p0122_health	u8_count	Health for P0122 (TPS1 low): seeded CAL_obd_ii_P0122_debounce_count, 0 on fail. Was latch_counter_p0122.
+D	40001cb9	obd_ii_p0123_health	u8_count	Health for P0123 (TPS1 high). Was latch_counter_p0123.
+D	40001cba	obd_ii_p0222_health	u8_count	Health for P0222 (TPS2 low). Was latch_counter_p0222.
+D	40001cbb	obd_ii_p0223_health	u8_count	Health for P0223 (TPS2 high). Was latch_counter_p0223.
+D	40001cbc	obd_ii_throttle_model_health	u8_count	Health of the throttle actuator model monitor (obd_ii_throttle_actuator_model_monitor_200hz): seeded/limited by CAL_tps_obd_throttle_monitor_pass_threshold; 0 sets engine_state_failure_flags bit16. Was obd_ii_throttle_monitor_pass_counter.
+D	40001cbd	obd_ii_p2119_health	u8_count	Health for P2119 (throttle body range/performance). Was obd_ii_P2119_not_failed.
+D	40001cbe	obd_ii_p2173_health	u8_count	Health for P2173 (high airflow / load plausibility): +1 per pass window to CAL_obd_ii_P2173_fail_count, -1 per fail window, fails at 0. Was obd_ii_P2173_fail_countdown.
+D	40001cbf	obd_ii_p2135_health	u8_count	Health for P2135 (TPS1/TPS2 correlation). Was obd_ii_P2135_not_failed.
+D	40001cc0	obd_ii_p2104_health	u8_count	Health for P2104 (throttle forced idle: actuator state >= TSL_FAULT or control mode >= severe fault).
+D	40001cc1	obd_ii_p1104_health	u8_count	Health for P1104 (ETB / HC08 state mismatch).
+D	40001cc2	obd_ii_p2105_health	u8_count	Health for P2105 (throttle forced engine shutdown: TSL_SHUTDOWN).
+D	40001cc3	obd_ii_p2106_health	u8_count	Health for P2106 (throttle forced limited power: pedal or TPS degraded).
+D	40001cc4	obd_ii_p2107_health	u8_count	Health for P2107 (throttle control module processor, hc08_obd_flags bits 6/7).
+D	40001cc5	obd_ii_p2100_health	u8_count	Health for P2100 (ETB motor circuit open, etb_driver_diag_latched bit4).
+D	40001cc6	obd_ii_p2102_health	u8_count	Health for P2102 (ETB motor circuit low, bit3).
+D	40001cc7	obd_ii_p2103_health	u8_count	Health for P2103 (ETB motor circuit high, bit2).
+D	40001cc8	obd_ii_p2108_health	u8_count	Health for P2108 (ETB motor control module performance, bit0).
+D	40001cd0	obd_ii_p1106_health	u8_count	Health for P1106 (left-foot-braking strategy, lfb_state_flags bit3).
+#
+# ---- tick counters / data ----
+D	40001ccc	obd_ii_p2173_debounce_ticks	short	P2173 window counter (100 ms ticks): +1 per implausible sample, at CAL_obd_ii_P2173_load_difference_max -> health-1; in a pass window counts down to 0 before health+1. Was typed u16_load_mg/stroke.
+D	40001cce	obd_ii_p2107_fail_ticks	u16_count	Consecutive P2107 failing samples; at obd_ii_monitor_debounce_ticks decrements obd_ii_p2107_health.
+D	40001cd4	obd_ii_p2173_load_delta_min	u16_load_mg/stroke	CAL_load_plausibility_test_delta[rpm, tps]*2: minimum load excess over alpha-N for the sample to count as plausible (mg/stroke).
+D	40001cd8	obd_ii_p2173_maf_load_delta	int	load_measured_maf - load_alphaN_expected (mg/stroke, signed).
+D	40001cdc	obd_ii_p2173_sd_load_delta	int	load_from_speed_density - load_alphaN_expected (mg/stroke, signed).
+#
+# ---- inputs / flags ----
+D	40002515	-	uint8_t	TPS circuit faults: bit0 TPS1 high (P0123), bit1 TPS1 low (P0122), bit2 TPS2 high (P0223), bit3 TPS2 low (P0222), bit4/5 TPS1-TPS2 correlation (P2135).
+D	40004f33	-	uint8_t	HC08 status bits reported to OBD: bit4 safety-fallback (SF) mode active, bit6/7 HC08 / ETB module internal fault (P2107).
+D	40002738	-	uint8_t	Latched ETB H-bridge driver diagnostics: bit0 P2108, bit2 P2103 (circuit high), bit3 P2102 (circuit low), bit4 P2100 (open); used once etb_driver_fault_debounce is TS_CONFIRMED_FAULT.
+D	4000249c	-	uint8_t	Left-foot-braking state bits (bit3 = LFB fault -> P1106).
+D	40002450	-	bool	Set by tps_control_1000hz on throttle body range/performance failure -> P2119.
+D	40001cc9	-	bool	Set when P2107 fails; blocks normal ETB control in tps_control_1000hz.
+D	40001cd2	-	u16_time_100ms	Time in HC08 safety-fallback mode (hc08_obd_flags bit4), 100 ms; its max is kept in LEA_hc08_sf_mode_max_duration.
+D	400048a8	-	u16_time_100ms	Longest HC08 safety-fallback episode seen (100 ms), persisted.
+D	40001cca	obd_ii_throttle_model_fail_ticks	u16_count	Fail-sample counter of the throttle actuator model monitor; decrements obd_ii_throttle_model_health. Was obd_ii_throttle_monitor_fail_debounce.

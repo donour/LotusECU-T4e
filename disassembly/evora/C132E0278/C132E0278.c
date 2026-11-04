@@ -2077,7 +2077,7 @@ uint8_t LEA_obd_ii_P0610_dtc_state;
 undefined1 driver_input_mode_timer;
 undefined1 driver_input_hold_timer;
 uint16_t obd_ii_mil_state_flags;
-undefined1 lfb_state_flags;
+uint8_t lfb_state_flags;
 bool ips_enforce_speed_limit;
 uint8_t ambient_temp_can_status;
 uint8_t ips_tcu_lamp_request;
@@ -2653,7 +2653,7 @@ u32_distance_1/112500km car_speed_running_total_avg_trip;
 uint32_t LEA_fuel_usage_running_total_range_to_empty;
 u32_distance_1/112500km car_speed_running_total_range_to_empty;
 u16_distance_km LEA_fuel_range_smoothed;
-uint16_t LEA_hc08_sf_mode_max_duration;
+u16_time_100ms LEA_hc08_sf_mode_max_duration;
 u8_count LEA_hc08_sf_mode_event_count;
 u16_voltage_5/4095v LEA_tps_track_b_closed_count;
 u16_voltage_18/1023v LEA_tps_calib_ok_ecu_voltage;
@@ -4198,36 +4198,21 @@ ushort DAT_40004eba;
 undefined2 DAT_40004ebc;
 u8_count CAL_obd_ii_P0135_debounce_count;
 u8_count CAL_obd_ii_P0141_heater_current_debounce_count;
-int DAT_40001cd8;
 u8_count CAL_obd_ii_P2173_fail_count;
-int DAT_40001cdc;
-short DAT_40001cd4;
-u16_load_mg/stroke DAT_40001ccc;
-uint8_t obd_ii_P2135_not_failed;
-undefined1 DAT_40001cc1;
+u8_count obd_ii_p2135_health;
 u8_count CAL_obd_ii_P2107_debounce_count;
-undefined1 obd_ii_P2119_not_failed;
-undefined1 DAT_40001cd0;
-undefined1 DAT_40001cc0;
-undefined1 etb_module_fault_latched;
-undefined1 DAT_40001cc2;
-undefined2 hc08_sf_mode_duration;
-short DAT_40001cce;
-undefined1 tps_fault_flags;
-byte DAT_40001cc4;
+u8_count obd_ii_p2119_health;
+bool etb_module_fault_latched;
+u16_time_100ms hc08_sf_mode_duration;
+uint8_t tps_fault_flags;
 bool accel_pedal_state_degraded;
-undefined1 obd_ii_P2173_fail_countdown;
-undefined1 DAT_40001cc3;
+u8_count obd_ii_p2173_health;
 bool accel_pedal_fault_active;
-char DAT_40001cc5;
 bool tps_state_degraded;
-char DAT_40001cc6;
-char DAT_40001cc7;
-char DAT_40001cc8;
 enum_throttle_system_state throttle_control_mode;
 u8_count obd_ii_p0102_health;
-undefined1 hc08_obd_flags;
-undefined1 obd_ii_throttle_monitor_pass_counter;
+uint8_t hc08_obd_flags;
+u8_count obd_ii_throttle_model_health;
 u8_count obd_ii_p0103_health;
 u8_rspeed_125/4+500rpm[8] CAL_load_plausibility_test_delta_X_rpm;
 u8_factor_1/255[8] CAL_load_plausibility_test_delta_Y_tps;
@@ -4235,8 +4220,8 @@ u8_obd2level_t6 CAL_obd_ii_P0122;
 u8_load_2mg/stroke[64] CAL_load_plausibility_test_delta;
 u8_obd2level_t6 CAL_obd_ii_P0123;
 enum_throttle_actuator_state throttle_actuator_state;
-undefined1 etb_driver_diag_latched;
-undefined1 obd_ii_throttle_body_range_perf;
+uint8_t etb_driver_diag_latched;
+bool obd_ii_throttle_body_range_perf;
 u8_count obd_ii_p1107_health;
 u8_count obd_ii_p1108_health;
 u8_obd2level_t6 CAL_obd_ii_P0222;
@@ -4246,10 +4231,25 @@ u8_obd2level_t6 CAL_obd_ii_P2119;
 u8_obd2level_t6 CAL_obd_ii_P1106;
 struct_tps_shaping_flags etb_driver_fault_debounce;
 u8_obd2level_t6 CAL_obd_ii_P1104;
-u8_count latch_counter_p0122;
-u8_count latch_counter_p0123;
-u8_count latch_counter_p0222;
-u8_count latch_counter_p0223;
+u8_count obd_ii_p2104_health;
+u8_count obd_ii_p1104_health;
+u8_count obd_ii_p0122_health;
+u8_count obd_ii_p2105_health;
+u8_count obd_ii_p0123_health;
+u8_count obd_ii_p2106_health;
+u8_count obd_ii_p2107_health;
+u8_count obd_ii_p0222_health;
+u8_count obd_ii_p0223_health;
+u8_count obd_ii_p2100_health;
+u8_count obd_ii_p2102_health;
+u8_count obd_ii_p2103_health;
+u8_count obd_ii_p2108_health;
+u8_count obd_ii_p1106_health;
+short obd_ii_p2173_debounce_ticks;
+u16_count obd_ii_p2107_fail_ticks;
+u16_load_mg/stroke obd_ii_p2173_load_delta_min;
+int obd_ii_p2173_maf_load_delta;
+int obd_ii_p2173_sd_load_delta;
 u16_count obd_ii_monitor_debounce_ticks;
 u8_obd2level_t6 CAL_obd_ii_P2173;
 u8_obd2level_t6 CAL_obd_ii_P2104;
@@ -4279,26 +4279,16 @@ u16_factor_1/1023 CAL_tps_obd_throttle_monitor_tps_rate_blank_threshold;
 undefined1 obd_ii_throttle_monitor_blank_timer;
 uint16_t CAL_tps_obd_throttle_monitor_error_parity_mask;
 uint16_t CAL_tps_obd_throttle_monitor_error_threshold;
-undefined2 obd_ii_throttle_monitor_fail_debounce;
+u16_count obd_ii_throttle_model_fail_ticks;
 u8_count CAL_tps_obd_throttle_monitor_pass_threshold;
 uint16_t CAL_tps_obd_throttle_monitor_fail_threshold;
-u8_count DAT_40001cd0;
-u8_count DAT_40001cc0;
 u8_count CAL_obd_ii_P2104_debounce_count;
-u8_count DAT_40001cc1;
 u8_count CAL_obd_ii_P2105_debounce_count;
-u8_count DAT_40001cc2;
 u8_count CAL_obd_ii_P2106_debounce_count;
-u8_count DAT_40001cc3;
-u8_count DAT_40001cc4;
 u8_count CAL_obd_ii_P2100_debounce_count;
-u8_count DAT_40001cc5;
 u8_count CAL_obd_ii_P2102_debounce_count;
-u8_count DAT_40001cc6;
 u8_count CAL_obd_ii_P2103_debounce_count;
-u8_count DAT_40001cc7;
 u8_count CAL_obd_ii_P2108_debounce_count;
-u8_count DAT_40001cc8;
 u8_count CAL_obd_ii_P0122_debounce_count;
 u8_count CAL_obd_ii_P0123_debounce_count;
 u8_count CAL_obd_ii_P1106_debounce_count;
@@ -25028,7 +25018,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2135,&LEA_obd_ii_P2135_dtc_state,&LEA_obd_ii_P2135_fail_counter,
                  &LEA_obd_ii_P2135_pass_counter,0x2135,0);
-      obd_ii_P2135_not_failed = '\0';
+      obd_ii_p2135_health = '\0';
     }
   }
   if ((CAL_obd_ii_P0122 & 7) != 0) {
@@ -25039,7 +25029,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0122,&LEA_obd_ii_P0122_dtc_state,&LEA_obd_ii_P0122_fail_counter,
                  &LEA_obd_ii_P0122_pass_counter,0x122,0);
-      latch_counter_p0122 = '\0';
+      obd_ii_p0122_health = '\0';
     }
   }
   if ((CAL_obd_ii_P0123 & 7) != 0) {
@@ -25050,7 +25040,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0123,&LEA_obd_ii_P0123_dtc_state,&LEA_obd_ii_P0123_fail_counter,
                  &LEA_obd_ii_P0123_pass_counter,0x123,0);
-      latch_counter_p0123 = '\0';
+      obd_ii_p0123_health = '\0';
     }
   }
   if ((CAL_obd_ii_P0222 & 7) != 0) {
@@ -25061,7 +25051,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0222,&LEA_obd_ii_P0222_dtc_state,&LEA_obd_ii_P0222_fail_counter,
                  &LEA_obd_ii_P0222_pass_counter,0x222,0);
-      latch_counter_p0222 = '\0';
+      obd_ii_p0222_health = '\0';
     }
   }
   if ((CAL_obd_ii_P0223 & 7) != 0) {
@@ -25072,52 +25062,52 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0223,&LEA_obd_ii_P0223_dtc_state,&LEA_obd_ii_P0223_fail_counter,
                  &LEA_obd_ii_P0223_pass_counter,0x223,0);
-      latch_counter_p0223 = 0;
+      obd_ii_p0223_health = 0;
     }
   }
-  if (((CAL_obd_ii_P2119 & 7) == 0) || (obd_ii_throttle_body_range_perf == '\0')) {
+  if (((CAL_obd_ii_P2119 & 7) == 0) || (obd_ii_throttle_body_range_perf == false)) {
     obd_ii_monitor_pass(&CAL_obd_ii_P2119,&LEA_obd_ii_P2119_dtc_state);
   }
   else {
     obd_ii_monitor_fail_transition
               (&CAL_obd_ii_P2119,&LEA_obd_ii_P2119_dtc_state,&LEA_obd_ii_P2119_fail_counter,
                &LEA_obd_ii_P2119_pass_counter,0x2119,0);
-    obd_ii_P2119_not_failed = '\0';
+    obd_ii_p2119_health = '\0';
   }
   if ((((((CAL_obd_ii_P2173 & 7) == 0) || (engine_is_running == false)) ||
        (obd_ii_p0102_health == '\0')) ||
       ((obd_ii_p0103_health == '\0' || (obd_ii_p1107_health == '\0')))) ||
      (obd_ii_p1108_health == '\0')) {
-    DAT_40001ccc = 0;
+    obd_ii_p2173_debounce_ticks = 0;
   }
   else {
-    DAT_40001cd8 = load_measured_maf - load_alphaN_expected;
-    DAT_40001cdc = load_from_speed_density - load_alphaN_expected;
+    obd_ii_p2173_maf_load_delta = load_measured_maf - load_alphaN_expected;
+    obd_ii_p2173_sd_load_delta = load_from_speed_density - load_alphaN_expected;
     bVar1 = lookup_3D_uint8_interpolated
                       ('\b','\b',(ushort)engine_speed_8bit,(ushort)tps_8bit,
                        CAL_load_plausibility_test_delta,CAL_load_plausibility_test_delta_X_rpm,
                        CAL_load_plausibility_test_delta_Y_tps);
-    DAT_40001cd4 = (ushort)bVar1 << 1;
-    if ((DAT_40001cd8 < (int)((uint)bVar1 << 1)) || (DAT_40001cdc < (int)((uint)bVar1 << 1))) {
-      if (DAT_40001ccc == 0) {
-        if (obd_ii_P2173_fail_countdown < CAL_obd_ii_P2173_fail_count) {
-          obd_ii_P2173_fail_countdown = obd_ii_P2173_fail_countdown + 1;
-          DAT_40001ccc = CAL_obd_ii_P2173_load_difference_max;
+    obd_ii_p2173_load_delta_min = (ushort)bVar1 << 1;
+    if ((obd_ii_p2173_maf_load_delta < (int)((uint)bVar1 << 1)) ||
+       (obd_ii_p2173_sd_load_delta < (int)((uint)bVar1 << 1))) {
+      if (obd_ii_p2173_debounce_ticks == 0) {
+        if (obd_ii_p2173_health < CAL_obd_ii_P2173_fail_count) {
+          obd_ii_p2173_health = obd_ii_p2173_health + '\x01';
+          obd_ii_p2173_debounce_ticks = CAL_obd_ii_P2173_load_difference_max;
         }
         else {
           obd_ii_monitor_pass(&CAL_obd_ii_P2173,&LEA_obd_ii_P2173_dtc_state);
         }
       }
       else {
-        DAT_40001ccc = DAT_40001ccc - 1;
+        obd_ii_p2173_debounce_ticks = obd_ii_p2173_debounce_ticks + -1;
       }
     }
     else {
-      DAT_40001ccc = DAT_40001ccc + 1;
-      if ((((int)(uint)CAL_obd_ii_P2173_load_difference_max <= (int)(short)DAT_40001ccc) &&
-          (DAT_40001ccc = 0, obd_ii_P2173_fail_countdown != 0)) &&
-         (obd_ii_P2173_fail_countdown = obd_ii_P2173_fail_countdown - 1,
-         obd_ii_P2173_fail_countdown == 0)) {
+      obd_ii_p2173_debounce_ticks = obd_ii_p2173_debounce_ticks + 1;
+      if ((((int)(uint)CAL_obd_ii_P2173_load_difference_max <= (int)obd_ii_p2173_debounce_ticks) &&
+          (obd_ii_p2173_debounce_ticks = 0, obd_ii_p2173_health != '\0')) &&
+         (obd_ii_p2173_health = obd_ii_p2173_health + 0xff, obd_ii_p2173_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2173,&LEA_obd_ii_P2173_dtc_state,&LEA_obd_ii_P2173_fail_counter,
                    &LEA_obd_ii_P2173_pass_counter,0x2173,0);
@@ -25129,7 +25119,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_pass(&CAL_obd_ii_P1104,&LEA_obd_ii_P1104_dtc_state);
     }
     else {
-      DAT_40001cc1 = 0;
+      obd_ii_p1104_health = '\0';
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P1104,&LEA_obd_ii_P1104_dtc_state,&LEA_obd_ii_P1104_fail_counter,
                  &LEA_obd_ii_P1104_pass_counter,0x1104,0);
@@ -25140,7 +25130,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_pass(&CAL_obd_ii_P1106,&LEA_obd_ii_P1106_dtc_state);
     }
     else {
-      DAT_40001cd0 = 0;
+      obd_ii_p1106_health = '\0';
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P1106,&LEA_obd_ii_P1106_dtc_state,&LEA_obd_ii_P1106_fail_counter,
                  &LEA_obd_ii_P1106_pass_counter,0x1106,0);
@@ -25151,7 +25141,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_pass(&CAL_obd_ii_P2104,&LEA_obd_ii_P2104_dtc_state);
     }
     else {
-      DAT_40001cc0 = 0;
+      obd_ii_p2104_health = '\0';
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2104,&LEA_obd_ii_P2104_dtc_state,&LEA_obd_ii_P2104_fail_counter,
                  &LEA_obd_ii_P2104_pass_counter,0x2104,0);
@@ -25159,7 +25149,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
   }
   if ((CAL_obd_ii_P2105 & 7) != 0) {
     if (throttle_actuator_state == TSL_SHUTDOWN) {
-      DAT_40001cc2 = 0;
+      obd_ii_p2105_health = '\0';
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2105,&LEA_obd_ii_P2105_dtc_state,&LEA_obd_ii_P2105_fail_counter,
                  &LEA_obd_ii_P2105_pass_counter,0x2105,0);
@@ -25170,21 +25160,21 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
   }
   if ((CAL_obd_ii_P2107 & 7) != 0) {
     if (((hc08_obd_flags & 0x40) == 0) && ((hc08_obd_flags & 0x80) == 0)) {
-      DAT_40001cce = 0;
+      obd_ii_p2107_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2107,&LEA_obd_ii_P2107_dtc_state);
-      if (DAT_40001cc4 < CAL_obd_ii_P2107_debounce_count) {
-        DAT_40001cc4 = DAT_40001cc4 + 1;
+      if (obd_ii_p2107_health < CAL_obd_ii_P2107_debounce_count) {
+        obd_ii_p2107_health = obd_ii_p2107_health + '\x01';
       }
     }
     else {
-      DAT_40001cce = DAT_40001cce + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_40001cce) &&
-         ((DAT_40001cce = 0, DAT_40001cc4 != 0 &&
-          (DAT_40001cc4 = DAT_40001cc4 - 1, DAT_40001cc4 == 0)))) {
+      obd_ii_p2107_fail_ticks = obd_ii_p2107_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2107_fail_ticks) &&
+         ((obd_ii_p2107_fail_ticks = 0, obd_ii_p2107_health != '\0' &&
+          (obd_ii_p2107_health = obd_ii_p2107_health + 0xff, obd_ii_p2107_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2107,&LEA_obd_ii_P2107_dtc_state,&LEA_obd_ii_P2107_fail_counter,
                    &LEA_obd_ii_P2107_pass_counter,0x2107,0);
-        etb_module_fault_latched = 1;
+        etb_module_fault_latched = true;
       }
     }
   }
@@ -25194,21 +25184,21 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
       obd_ii_monitor_pass(&CAL_obd_ii_P2106,&LEA_obd_ii_P2106_dtc_state);
     }
     else {
-      DAT_40001cc3 = 0;
+      obd_ii_p2106_health = '\0';
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2106,&LEA_obd_ii_P2106_dtc_state,&LEA_obd_ii_P2106_fail_counter,
                  &LEA_obd_ii_P2106_pass_counter,0x2106,0);
     }
   }
-  if (((DAT_40001cc5 != '\0') && (DAT_40001cc6 != '\0')) &&
-     ((DAT_40001cc7 != '\0' && (DAT_40001cc8 != '\0')))) {
+  if (((obd_ii_p2100_health != '\0') && (obd_ii_p2102_health != '\0')) &&
+     ((obd_ii_p2103_health != '\0' && (obd_ii_p2108_health != '\0')))) {
     if ((CAL_obd_ii_P2100 & 7) != 0) {
       if (((etb_driver_diag_latched & 0x10) == 0) ||
          (etb_driver_fault_debounce.state != TS_CONFIRMED_FAULT)) {
         obd_ii_monitor_pass(&CAL_obd_ii_P2100,&LEA_obd_ii_P2100_dtc_state);
       }
       else {
-        DAT_40001cc5 = '\0';
+        obd_ii_p2100_health = '\0';
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2100,&LEA_obd_ii_P2100_dtc_state,&LEA_obd_ii_P2100_fail_counter,
                    &LEA_obd_ii_P2100_pass_counter,0x2100,0);
@@ -25220,7 +25210,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
         obd_ii_monitor_pass(&CAL_obd_ii_P2102,&LEA_obd_ii_P2102_dtc_state);
       }
       else {
-        DAT_40001cc6 = '\0';
+        obd_ii_p2102_health = '\0';
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2102,&LEA_obd_ii_P2102_dtc_state,&LEA_obd_ii_P2102_fail_counter,
                    &LEA_obd_ii_P2102_pass_counter,0x2102,0);
@@ -25232,7 +25222,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
         obd_ii_monitor_pass(&CAL_obd_ii_P2103,&LEA_obd_ii_P2103_dtc_state);
       }
       else {
-        DAT_40001cc7 = '\0';
+        obd_ii_p2103_health = '\0';
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2103,&LEA_obd_ii_P2103_dtc_state,&LEA_obd_ii_P2103_fail_counter,
                    &LEA_obd_ii_P2103_pass_counter,0x2103,0);
@@ -25244,7 +25234,7 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
         obd_ii_monitor_pass(&CAL_obd_ii_P2108,&LEA_obd_ii_P2108_dtc_state);
       }
       else {
-        DAT_40001cc8 = '\0';
+        obd_ii_p2108_health = '\0';
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2108,&LEA_obd_ii_P2108_dtc_state,&LEA_obd_ii_P2108_fail_counter,
                    &LEA_obd_ii_P2108_pass_counter,0x2108,0);
@@ -25264,13 +25254,13 @@ void obd_ii_tps_and_airflow_plausibility_monitor(void)
     }
     hc08_sf_mode_duration = hc08_sf_mode_duration + 1;
   }
-  if ((((obd_ii_P2135_not_failed == '\0') || (latch_counter_p0122 == '\0')) ||
-      (latch_counter_p0123 == '\0')) ||
-     ((latch_counter_p0222 == '\0' || (latch_counter_p0223 == '\0')))) {
+  if ((((obd_ii_p2135_health == '\0') || (obd_ii_p0122_health == '\0')) ||
+      (obd_ii_p0123_health == '\0')) ||
+     ((obd_ii_p0222_health == '\0' || (obd_ii_p0223_health == '\0')))) {
     engine_state_failure_flags = engine_state_failure_flags | 4;
   }
-  if (((obd_ii_P2119_not_failed == '\0') || (obd_ii_throttle_monitor_pass_counter == '\0')) ||
-     (obd_ii_P2173_fail_countdown == 0)) {
+  if (((obd_ii_p2119_health == '\0') || (obd_ii_throttle_model_health == '\0')) ||
+     (obd_ii_p2173_health == '\0')) {
     engine_state_failure_flags = engine_state_failure_flags | 0x10000;
   }
   return;
@@ -25390,26 +25380,25 @@ void obd_ii_throttle_actuator_model_monitor_200hz(void)
            ((int)uVar4 >> 1) - (uVar4 & (uint)lVar7) >> 0x1f) == 0) &&
          (lVar7 = libc_abs((longlong)obd_ii_throttle_model_error),
          (int)lVar7 <= (int)(uint)CAL_tps_obd_throttle_monitor_error_threshold)) {
-        if (obd_ii_throttle_monitor_fail_debounce == 0) {
-          if (obd_ii_throttle_monitor_pass_counter < CAL_tps_obd_throttle_monitor_pass_threshold) {
-            obd_ii_throttle_monitor_pass_counter = obd_ii_throttle_monitor_pass_counter + 1;
-            obd_ii_throttle_monitor_fail_debounce = CAL_tps_obd_throttle_monitor_fail_threshold;
+        if (obd_ii_throttle_model_fail_ticks == 0) {
+          if (obd_ii_throttle_model_health < CAL_tps_obd_throttle_monitor_pass_threshold) {
+            obd_ii_throttle_model_health = obd_ii_throttle_model_health + '\x01';
+            obd_ii_throttle_model_fail_ticks = CAL_tps_obd_throttle_monitor_fail_threshold;
           }
           else {
             obd_ii_monitor_pass(&CAL_obd_ii_P0638,&LEA_obd_ii_P0638_dtc_state);
           }
         }
         else {
-          obd_ii_throttle_monitor_fail_debounce = obd_ii_throttle_monitor_fail_debounce - 1;
+          obd_ii_throttle_model_fail_ticks = obd_ii_throttle_model_fail_ticks - 1;
         }
       }
       else {
-        obd_ii_throttle_monitor_fail_debounce = obd_ii_throttle_monitor_fail_debounce + 1;
-        if (((CAL_tps_obd_throttle_monitor_fail_threshold <= obd_ii_throttle_monitor_fail_debounce)
-            && (obd_ii_throttle_monitor_fail_debounce = 0, obd_ii_throttle_monitor_pass_counter != 0
-               )) && (obd_ii_throttle_monitor_pass_counter =
-                           obd_ii_throttle_monitor_pass_counter - 1,
-                     obd_ii_throttle_monitor_pass_counter == 0)) {
+        obd_ii_throttle_model_fail_ticks = obd_ii_throttle_model_fail_ticks + 1;
+        if (((CAL_tps_obd_throttle_monitor_fail_threshold <= obd_ii_throttle_model_fail_ticks) &&
+            (obd_ii_throttle_model_fail_ticks = 0, obd_ii_throttle_model_health != '\0')) &&
+           (obd_ii_throttle_model_health = obd_ii_throttle_model_health + 0xff,
+           obd_ii_throttle_model_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0638,&LEA_obd_ii_P0638_dtc_state,&LEA_obd_ii_P0638_fail_counter,
                      &LEA_obd_ii_P0638_pass_counter,0x638,0);
@@ -25425,25 +25414,25 @@ void obd_ii_throttle_actuator_model_monitor_200hz(void)
 void obd_ii_update_tps_and_throttle_dtcs(void)
 
 {
-  latch_counter_p0122 = CAL_obd_ii_P0122_debounce_count;
-  latch_counter_p0123 = CAL_obd_ii_P0123_debounce_count;
-  latch_counter_p0222 = CAL_obd_ii_P0222_debounce_count;
-  latch_counter_p0223 = CAL_obd_ii_P0223_debounce_count;
-  obd_ii_throttle_monitor_pass_counter = CAL_tps_obd_throttle_monitor_pass_threshold;
-  obd_ii_throttle_monitor_fail_debounce = 0;
-  DAT_40001cd0 = CAL_obd_ii_P1106_debounce_count;
-  obd_ii_P2119_not_failed = CAL_obd_ii_P2119_debounce_count;
-  obd_ii_P2173_fail_countdown = CAL_obd_ii_P2173_fail_count;
-  obd_ii_P2135_not_failed = CAL_obd_ii_P2135_debounce_count;
-  DAT_40001cc0 = CAL_obd_ii_P2104_debounce_count;
-  DAT_40001cc1 = CAL_obd_ii_P1104_debounce_count;
-  DAT_40001cc2 = CAL_obd_ii_P2105_debounce_count;
-  DAT_40001cc3 = CAL_obd_ii_P2106_debounce_count;
-  DAT_40001cc4 = CAL_obd_ii_P2107_debounce_count;
-  DAT_40001cc5 = CAL_obd_ii_P2100_debounce_count;
-  DAT_40001cc6 = CAL_obd_ii_P2102_debounce_count;
-  DAT_40001cc7 = CAL_obd_ii_P2103_debounce_count;
-  DAT_40001cc8 = CAL_obd_ii_P2108_debounce_count;
+  obd_ii_p0122_health = CAL_obd_ii_P0122_debounce_count;
+  obd_ii_p0123_health = CAL_obd_ii_P0123_debounce_count;
+  obd_ii_p0222_health = CAL_obd_ii_P0222_debounce_count;
+  obd_ii_p0223_health = CAL_obd_ii_P0223_debounce_count;
+  obd_ii_throttle_model_health = CAL_tps_obd_throttle_monitor_pass_threshold;
+  obd_ii_throttle_model_fail_ticks = 0;
+  obd_ii_p1106_health = CAL_obd_ii_P1106_debounce_count;
+  obd_ii_p2119_health = CAL_obd_ii_P2119_debounce_count;
+  obd_ii_p2173_health = CAL_obd_ii_P2173_fail_count;
+  obd_ii_p2135_health = CAL_obd_ii_P2135_debounce_count;
+  obd_ii_p2104_health = CAL_obd_ii_P2104_debounce_count;
+  obd_ii_p1104_health = CAL_obd_ii_P1104_debounce_count;
+  obd_ii_p2105_health = CAL_obd_ii_P2105_debounce_count;
+  obd_ii_p2106_health = CAL_obd_ii_P2106_debounce_count;
+  obd_ii_p2107_health = CAL_obd_ii_P2107_debounce_count;
+  obd_ii_p2100_health = CAL_obd_ii_P2100_debounce_count;
+  obd_ii_p2102_health = CAL_obd_ii_P2102_debounce_count;
+  obd_ii_p2103_health = CAL_obd_ii_P2103_debounce_count;
+  obd_ii_p2108_health = CAL_obd_ii_P2108_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0222,&LEA_obd_ii_P0222_dtc_state,0x222,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0223,&LEA_obd_ii_P0223_dtc_state,0x223,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0123,&LEA_obd_ii_P0123_dtc_state,0x123,0);
@@ -40115,8 +40104,8 @@ void obd_ii_monitor_completion_update(void)
   
   obd_ii_monitor_debounce_ticks = (u16_count)CAL_obd_ii_monitor_debounce_cycles;
   if (((((obd_ii_p101_config & 7) == 0) || (!engine_is_running)) || ((ignition_on_flags & 1) == 0))
-     || (((latch_counter_p0122 == '\0' || (latch_counter_p0123 == '\0')) ||
-         ((latch_counter_p0222 == '\0' || (latch_counter_p0223 == '\0')))))) {
+     || (((obd_ii_p0122_health == '\0' || (obd_ii_p0123_health == '\0')) ||
+         ((obd_ii_p0222_health == '\0' || (obd_ii_p0223_health == '\0')))))) {
     obd_ii_p0101_status = obd_ii_p0101_status & 0xcc;
     obd_ii_p0101_load_ratio_pct = 100;
     load_residual_maf_vs_alphaN_expected = 0;
@@ -40274,9 +40263,9 @@ void obd_ii_monitor_completion_update(void)
         (obd_ii_p0101_idle_health != '\0')) &&
        ((obd_ii_p0101_partload_health != '\0' && (obd_ii_p0102_health != '\0')))) &&
       (((obd_ii_p0103_health != '\0' &&
-        ((latch_counter_p0122 != '\0' && (latch_counter_p0123 != '\0')))) &&
-       (latch_counter_p0222 != '\0')))) &&
-     ((((latch_counter_p0223 != '\0' && (obd_ii_P2135_not_failed != '\0')) &&
+        ((obd_ii_p0122_health != '\0' && (obd_ii_p0123_health != '\0')))) &&
+       (obd_ii_p0222_health != '\0')))) &&
+     ((((obd_ii_p0223_health != '\0' && (obd_ii_p2135_health != '\0')) &&
        ((engine_state_failure_flags & 1) == 0)) &&
       (((obd_ii_p1107_health != '\0' && (obd_ii_p1108_health != '\0')) &&
        ((LEA_obd_ii_P1109_dtc_state & 4) == 0)))))) {
@@ -45217,7 +45206,7 @@ void tps_control_1000hz(void)
   tps_track_a_smoothed = adc_smooth_lowpass(&tps_smooth_filter_state,tps_absolute_);
   tps_abs_b_smoothed = adc_smooth_lowpass(&tps_unknown_history,sample);
   if (((((lfb_state_flags & 8) == 0) && ((engine_state_failure_flags & 0x10000) == 0)) &&
-      (etb_module_fault_latched == '\0')) && (throttle_actuator_state < TSL_FAULT)) {
+      (etb_module_fault_latched == false)) && (throttle_actuator_state < TSL_FAULT)) {
     if (((int)(short)etb_initialization_state - 2U < 3) &&
        (sensor_adc_ecu_voltage < CAL_tps_etb_low_voltage_threshold)) {
       if (etb_low_voltage_debounce_counter == '\0') {
@@ -45269,7 +45258,7 @@ void tps_control_1000hz(void)
         etb_driver_fault_debounce.state = TS_CONFIRMED_FAULT;
         etb_driver_fault_debounce.accum_timer = 0xffff;
       }
-      obd_ii_throttle_body_range_perf = 1;
+      obd_ii_throttle_body_range_perf = true;
       throttle_actuator_activity = false;
       etb_initialization_state = ETB_FAULT;
     }
@@ -45291,7 +45280,7 @@ void tps_control_1000hz(void)
         etb_driver_fault_debounce.state = TS_CONFIRMED_FAULT;
         etb_driver_fault_debounce.accum_timer = 0xffff;
       }
-      obd_ii_throttle_body_range_perf = 1;
+      obd_ii_throttle_body_range_perf = true;
       etb_initialization_state = ETB_FAULT;
     }
     throttle_actuator_activity = false;
@@ -45573,7 +45562,7 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
       if (((((COD_base.COD[1] >> 0x15 & 3) == 2) && ((clutch_pos_sensor & 8) == 0)) &&
           ((clutch_pos_sensor & 0x10) == 0)) && (CAL_lfb_clutch_threshold < clutch_pos_voltage)) {
         lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
-        lfb_state_flags = 0;
+        lfb_state_flags = '\0';
       }
       else {
         if ((ushort)((ushort)CAL_lfb_tps_max << 2) < accel_pedal_pos_16bit) {
@@ -45696,7 +45685,7 @@ ulonglong update_left_foot_brake_tps_inhibit(void)
         }
         lfb_tps_max = (short)DAT_400024ee >> 2;
         if (((lfb_state_flags & 0x40) == 0) && (0xffe < lfb_tps_max)) {
-          lfb_state_flags = 0;
+          lfb_state_flags = '\0';
           lbf_entry_countdown_timer = (ushort)CAL_lfb_timer_entry << 5;
           lfb_tps_max = 0xfff;
         }
@@ -45860,7 +45849,7 @@ void init_globals(void)
 {
   obd_ii_reset_sensor_rationality_monitors();
   init_tps_shaping();
-  tps_fault_flags = 0;
+  tps_fault_flags = '\0';
   DAT_40002514 = 0;
   accel_pedal_state_degraded = false;
   tps_16bit = 0;
