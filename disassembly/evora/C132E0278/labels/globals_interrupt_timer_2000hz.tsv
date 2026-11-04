@@ -1,0 +1,110 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-03): globals of interrupt_timer_2000hz().
+# Tick rates (0278): every ISR = 2 kHz (0.5 ms); 1 kHz slot reload 2; 200 Hz slot reload 10;
+# 100/50/20/10 Hz nested in 200 Hz; 5 Hz/333 ms/2 Hz/1 Hz nested in 10 Hz. Timer units below follow
+# the block each variable is counted in. TCR1 timestamps = 0.1 us, 24-bit wrap.
+T	u32_time_100ns	u32_time_us
+T	u8_time_500us	u8_time_5ms
+#
+# ---- scheduler dividers ----
+D	40001447	-	u8_count	Divider in the 2 kHz ISR, reload 2 -> 1 kHz slot (idle air decay, tps_control_1000hz, IPS shift, mixture tests, CAC diag).
+D	40001448	-	u8_count	Divider, reload 10 -> 200 Hz slot (bulk of periodic work).
+D	40001440	-	u8_count	Divider inside 200 Hz, reload 2 -> 100 Hz slot.
+D	40001441	-	u8_count	Divider inside 200 Hz, reload 4 -> 50 Hz slot (CAN-logger timeslots 2-3 only).
+D	40001442	-	u8_count	Divider inside 200 Hz, reload 10 -> 20 Hz slot (CAN-logger timeslots 4-5 only).
+D	4000143e	-	short	Divider inside 200 Hz, reload 20 -> 10 Hz (100 ms) slot; tested < 1 so signed.
+D	40001443	-	u8_count	Divider inside 10 Hz, reload 2 -> 5 Hz slot (O2 sensor fault detection).
+D	40001444	event_timer_333ms	u8_count	Divider inside 10 Hz, reload 3 -> 333 ms slot (eMIOS watchdog, A/C speed timeout, service coding). Was tick_counter_333ms.
+D	40001445	-	u8_count	Divider inside 10 Hz, reload 5 -> 2 Hz slot (CAN-logger timeslot 8 only).
+D	40001446	-	u8_count	Divider inside 10 Hz, reload 10 -> 1 Hz slot (CAN-logger timeslot 9 only).
+D	400016f7	-	u8_time_500us[10]	High-speed CAN logger timeslot countdowns, -1 per 2 kHz tick; at 0 call flexcan_counters_scheduler_tick(n). Armed with staggered values 2..38 by the 100/50/20/10/2/1 Hz slots.
+#
+# ---- task timing (TCR1, 0.1 us) ----
+D	40002f70	task_start_timestamps	u32_time_100ns[12]	TCR1 timestamp at entry of each rate slot (index = slot; 11 = ISR entry). Was etpu_timestamp_prev_array.
+D	40002f40	-	u32_time_100ns[12]	TCR1 timestamp at exit of each rate slot.
+D	40002f10	-	u32_time_100ns[12]	Max execution time per slot (slot 11 = max ISR entry-to-entry period).
+D	40002ec0	task_last_execution_time	u32_time_100ns[11]	Last non-zero execution time per slot 0..10 (0.1 us).
+D	40002eec	isr_period_ticks	u32_time_100ns	ISR entry-to-entry period (0.1 us; nominal 5000 = 500 us). Was etpu_elapsed_ticks.
+D	40001710	isr_period_min_ticks	u32_time_100ns	Min ISR period seen (reset 0x7fffffff). Was etpu_elapsed_min_ticks.
+D	40001714	isr_period_max_ticks	u32_time_100ns	Max ISR period seen after warm-up. Was etpu_elapsed_max_captured_ticks.
+D	40001449	isr_period_stats_warmup_count	u8_count	ISR ticks to skip before min/max period capture. Was etpu_stats_warmup_counter.
+D	400016f3	-	uint8_t	Non-zero clears the task/ISR timing min/max at the end of the ISR.
+#
+# ---- 2 kHz / 1 kHz ----
+D	40001580	flexcan_ccp_tx_timeout	u8_time_500us	Set to 4 (2 ms) when CAN 0x351 (CCP) is sent; if still pending (queue flag 0x08) when it expires the flag is cleared and flexcan_ccp_tx_timeout_count++.
+D	40002530	flexcan_ccp_tx_timeout_count	u8_count	CCP (0x351) transmit timeouts.
+#
+# ---- 200 Hz timers ----
+D	40001719	esci_rx_frame_timeout_5ms	u8_time_5ms	HC08 link: inter-byte timeout, reloaded to 6 (30 ms) per byte in esci_message_receive_validate; expiry resets the frame parser.
+D	4000143c	hc08_rx_timeout_5ms	u8_time_5ms	HC08 link: reloaded to 100 (500 ms) on each valid frame; 0 = HC08 silent (HC08_com).
+D	40001da2	timer_unused_40001da2	u16_time_5ms	Decremented at 200 Hz but never loaded or read elsewhere.
+D	400016e0	timer_unused_400016e0	u16_time_5ms	Decremented at 200 Hz but never loaded or read elsewhere.
+D	40001a04	timer_unused_40001a04	u16_time_5ms	Decremented at 200 Hz but never loaded or read elsewhere.
+D	4000147c	-	u8_time_5ms	Down-counter at 200 Hz.
+D	400016c8	o2_sensor1_heater_retry_timer	u16_time_5ms	Set to 100 (500 ms) on sensor-1 heater over-current; heater re-enabled when it expires.
+D	400016ca	o2_sensor2_heater_retry_timer	u16_time_5ms	Sensor-2 heater over-current retry (500 ms).
+D	400016cc	o2_sensor5_heater_retry_timer	u16_time_5ms	Sensor-5 heater over-current retry (500 ms).
+D	400016ce	o2_sensor6_heater_retry_timer	u16_time_5ms	Sensor-6 heater over-current retry (500 ms).
+D	40001886	o2_sensor1_heater_overcurrent	uint8_t	1 = sensor-1 heater (gpdo 0x60) cut for over-current; cleared when the retry timer expires.
+D	40001887	o2_sensor2_heater_overcurrent	uint8_t	1 = sensor-2 heater (gpdo 0x62) cut for over-current.
+D	40001888	o2_sensor5_heater_overcurrent	uint8_t	1 = sensor-5 heater (gpdo 99) cut for over-current.
+D	40001889	o2_sensor6_heater_overcurrent	uint8_t	1 = sensor-6 heater (gpdo 100) cut for over-current.
+D	400016bc	o2_heater_warmup_state	uint8_t	O2 heaters: 0 engine not running (off), 1 warm-up PWM (runtime < CAL_sensor_o2_heater_warmup_duration), 2 normal.
+D	400016ee	o2_heater_warmup_pwm_counter	u8_time_5ms	Warm-up PWM phase counter (period CAL_sensor_o2_heater_warmup_pwm_period, on for the first 80%).
+D	4000171c	-	-	Engine running time, +1 per 200 Hz tick (ms = val*5); 0 when not running.
+D	400016a8	fuel_on_time_5ms	u16_time_5ms	Continuous fueling time (no DFCO, injection cut or torque cut >= 6), saturates. Was fuel_on_continuous_ticks.
+D	400016a6	dfco_active_time_5ms	u16_time_5ms	Time in decel fuel cut, saturates at 5100 (25.5 s); max captured by the catalyst monitor.
+D	400016aa	-	-	Fuel-cut inhibit countdown (ms = val*5).
+D	400016d4	-	u16_time_5ms	Injtip overrun hysteresis countdown.
+D	40001b5e	-	u16_time_5ms	DFCO recovery enrichment cooldown countdown.
+D	400016e4	-	u32_time_5ms	Time with ignition on and engine stopped (no readers).
+D	400016ac	-	u16_time_5ms	Engine-bay fan enable delay, counts up while coded (vs CAL_cooling_engine_bay_fan_enable_delay).
+D	400016ba	-	u16_time_5ms	Alpha-N learning stabilization countdown (CAL_load_learning_stabilization_delay).
+D	400016ec	-	u16_time_5ms	Alpha-N learning hold-off countdown after a disturbance (CAL_load_learning_holdoff_delay).
+D	40004d58	-	u16_time_5ms[5]	Per-group OBD similar-conditions debounce countdowns (5 entries, 200 Hz).
+D	400016f2	-	u8_time_5ms	Countdown between dfco_pedal_ramp_current steps (CAL_dfco_pedal_ramp_step_interval).
+D	400016a4	dfco_pedal_ramp_current	u16_count	Ramps +1 per CAL_dfco_pedal_ramp_step_interval toward dfco_pedal_ramp_target (pedal-based DFCO exit ramp); -1 per tick when inj_flags&2. Was dfco_pedal_ramp_target2.
+D	40001b50	-	u8_count	DFCO exit ramp target from CAL_injtip_dfco_pedal_ramp_target[pedal].
+D	400016e8	-	u16_count	Tick counter for the tip-in/out decay divider (CAL_injtip_tipin/tipout_decay_rate_divider).
+D	40001b4e	-	u8_factor_1/1023	Tip-in transient magnitude decay step (CAL_injtip_in_rpm_decay[rpm]) (TPS rate units, /1023).
+D	40001b4f	-	u8_factor_1/1023	Tip-out transient magnitude decay step (TPS rate units, /1023).
+D	400016ea	-	-	Hold time before the transient magnitude decays (CAL_injtip_transient_throttle_response_time[coolant, rpm]) (ms = val*5).
+#
+# ---- load filters (200 Hz) ----
+D	40001870	load_mass_per_stroke_filter_q8	int	X-tau (fuel-film) filtered load accumulator (<<8); >>8 gives load_mass_per_stroke_raw. Was load_filtered1.
+D	40001704	load_maf_diag_filter_q8	int	X-tau filtered load_measured_maf accumulator (<<8); >>8 gives load_maf_diag. Was load_filtered_from_maf (typed mg, but is x256).
+D	40001874	load_filtered_slow_q8	int	Slow IIR (255/256) of load_selected_raw, accumulator (<<8); >>8 gives load_filtered_slow. Was load_filtered_slow_accum.
+D	40001708	load_measured_maf_filter_q8	int	IIR accumulator (<<8) of load_measured_maf (CAL_load_filter_low_pass_coeff, 1 kHz); >>8 gives load_measured_maf_filtered. Was load_measured_maf_filter_accum_q8.
+D	400016f4	inj_fuel_film_xtau_coeff	-	Fuel-film filter coefficient = X factor x alpha /255 (or the disabled default) (val/255). Was inj_fuel_fillm_xtau_coeff_combined.
+D	400016f6	-	-	Fuel-film alpha from CAL_injtip_fuel_film_alpha_inc/dec[airflow_rate_from_load] (val/255).
+D	40001b90	airflow_rate_from_load	u16_flow_10mg/s	load_computed_alphaN*1e5/engine_speed_period_adj (mg/s = val*10); axis /200 for the fuel-film alpha. Was load_mass_per_time.
+#
+# ---- air-mass integrators (200 Hz) ----
+D	400016c4	maf_accum_load_weighted	u32_mass_mg	sum of maf*cranking_load_weight/500 per tick = mg x weight/25; /1000 -> maf_accum_load_weighted_g. Was maf_accum_integral.
+D	4000238c	thermostat_warmup_air_mass	u32_mass_mg	sum of maf*thermostat_warmup_load_weight/5100 per tick = mg x weight/255; >>16 compared with thermostat_diag_maf_threshold_ips.
+D	40002390	thermostat_warmup_load_weight	u8_factor_1/255	CAL_cooling_thermostat_warmup_load_factor[load] while moving/off idle, 255 at idle.
+#
+# ---- 100 Hz / 10 Hz ----
+D	400016b2	-	u8_time_10ms	Engine-bay fan run time, +1 per 10 ms while coded, saturates 255.
+D	400016ef	-	uint8_t	IPS-coded cruise bits sent in CAN 0xD2: bit0 = cruise_status_flags.0, bit1 = .1, bit2 = .10 or .22, bit3 = .16 (updated at 100 Hz).
+D	4000170c	ecu_on_time_100ms	u32_time_100ms	+1 per 100 ms, capped at 39,321,000 (45.5 days); no readers.
+D	400016de	ign_on_time_100ms	u16_time_100ms	Time since ignition on (100 ms), saturates.
+D	400016d6	-	u16_time_100ms	Engine-bay fan: time since engine stop (after it has run), 100 ms, saturates.
+D	400016d8	-	u16_time_100ms	Engine-bay fan: time stationary (car speed 0), 100 ms, saturates.
+D	40001c76	obd_ii_dtc_event_timer_100ms	u16_time_100ms	Loaded with CAL_obd_ii_countdown_unknown*10 on DTC set / similar-conditions clear; -1 per 100 ms; obd_ii_update_states acts while non-zero.
+D	400014c8	-	uint16_t	OBD monitor run tokens: all bits set every 100 ms; each monitor consumes its bit (bit0 update_states, bit7 fuel-trim monitors, ...).
+#
+# ---- misc ----
+D	4000216c	evap_purge_duty_hi	u8_factor_1/256	High byte of evap_purge_duty_ramped (duty/256); non-zero blocks alpha-N learning.
+D	400016f0	load_alphaN_maf_corr_inc_count	u8_count	Count of +1 steps applied to LEA_load_alphaN_maf_error_correction_X_rpm.
+D	400016f1	load_alphaN_maf_corr_dec_count	u8_count	Count of -1 steps applied to LEA_load_alphaN_maf_error_correction_X_rpm.
+D	40001ba4	-	uint16_t	Alpha-N MAF-error learn cell: bit15 valid, bits0-14 rpm index (LEA index = val+40).
+D	40001ba2	-	-	Alpha-N trim learn cell: bit15 valid, bits0-14 rpm index (LEA index = val+40).
+D	40001778	-	int	Engine speed change over CAL_engine_accel_lookback_teeth (signed; raw units, used vs CAL_load_alphaN_learning_rpm_rate_max / CAL_idle_dashpot_decel_threshold).
+D	40001c74	-	uint8_t	Non-zero once the engine has run this ignition cycle.
+D	40001a7c	-	uint16_t	bit0 = new gear detected (resets current_gear_time).
+D	400068a8	-	uint8_t	FlexCAN TX queue state (bit3 = CCP 0x351 TX pending).
+#
+# ---- CAL types found while tracing ----
+D	4000e278	-	u8_flow_2g/s[8]	X-axis (airflow_rate_from_load/200 = 2 g/s) of CAL_injtip_fuel_film_alpha_inc.
+D	4000e288	-	u8_flow_2g/s[8]	X-axis (airflow_rate_from_load/200 = 2 g/s) of CAL_injtip_fuel_film_alpha_dec.
+D	400087ac	-	u16_time_5ms	Engine-bay fan enable delay (compared with a 200 Hz up-counter; ms = val*5).
