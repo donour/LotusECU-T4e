@@ -6422,7 +6422,7 @@ u8_count knock_window_irq_count;
 uint8_t INTC_PSR+0x62;
 u16_freq_hz CAL_knock_dsp_sample_rate_hz;
 uint16_t[2] knock_sensor_level_b2;
-ushort[16] knock_level_scaled;
+uint16_t[128] knock_level_scaled;
 enum_knock_mode CAL_knock_mode;
 u8_count knock_buffer_last_index;
 bool knock_sensor_new_data_available;
@@ -6430,26 +6430,25 @@ u8_count knock_curr_cylinder;
 uint8_t knock_buffer_index;
 uint8_t knock_agc_gain_normalization_divisor;
 uint16_t[2] knock_sensor_level_b1;
-pointer[11] PTR_ARRAY_000d13c0;
-short[11] SHORT_ARRAY_40006900;
+pointer[11] knock_candidate_freq_ptrs;
+uint16_t[11] knock_bin_freq_sorted;
 u8_count knock_freq_bin_count;
 uint8_t knock_dsp_reset_request;
 int[64] knock_bin_energy_x2;
-uint8_t knock_freq_bin_index;
+uint8_t[11] knock_freq_bin_index;
 u8_rspeed_125/4+500rpm[3] CAL_knock_agc_threshold;
 u8_rspeed_125/4+500rpm CAL_knock_agc_hysteresis_band;
 uint8_t knock_agc_stage_current;
 bool knock_agc_stage_override_enable;
 uint8_t knock_agc_stage_override_value;
-undefined knock_sine_table_q15;
-int knock_bin_energy;
+short[64] knock_sine_table_q15;
+int[11] knock_bin_energy;
 int knock_energy_sum;
 int knock_energy_x2_sum;
-undefined2 knock_hann_window_q15;
+short[64] knock_hann_window_q15;
 uint8_t knock_dsp_window_select;
-undefined1 DAT_000d1240;
-undefined2 DAT_000d12c0;
-pointer PTR_DAT_000d1340;
+uint8_t[128] knock_fft_bitrev_index;
+short[128] knock_fft_twiddle_q15;
 uint8_t[7] knock_fft_bin_start;
 uint8_t[7] knock_fft_bin_width;
 int[128] knock_fft_re;
@@ -45649,8 +45648,9 @@ void knock_interrupt_adc_process(void)
     knock_sensor_level_b1[1] = knock_sensor_v_odd;
     knock_sensor_level_b2[1] = knock_sensor_v_even;
     knock_level_scaled[knock_buffer_index] =
-         (ushort)((int)((knock_sensor_v_raw - 0x200) * (uint)knock_sensitivity) /
-                 (int)(uint)knock_agc_gain_normalization_divisor);
+         (uint16_t)
+         ((int)((knock_sensor_v_raw - 0x200) * (uint)knock_sensitivity) /
+         (int)(uint)knock_agc_gain_normalization_divisor);
     if (((CAL_knock_mode == spectral_128window) && (knock_buffer_index < 0x7f)) ||
        ((CAL_knock_mode != spectral_128window &&
         ((int)(uint)knock_buffer_index < (int)(knock_buffer_size - 1))))) {
@@ -45685,21 +45685,21 @@ void knock_configure_frequency_bins(void)
   
   uVar1 = 0;
   for (j = 0; j < 0xb; j = j + 1) {
-    if (CAL_knock_dsp_sample_rate_hz < *(ushort *)PTR_ARRAY_000d13c0[j]) {
+    if (CAL_knock_dsp_sample_rate_hz < *(ushort *)knock_candidate_freq_ptrs[j]) {
       local_30[j] = 0;
     }
     else {
-      local_30[j] = *(short *)PTR_ARRAY_000d13c0[j];
+      local_30[j] = *(short *)knock_candidate_freq_ptrs[j];
     }
   }
-  copy_and_sort(0xb,local_30,SHORT_ARRAY_40006900);
+  copy_and_sort(0xb,local_30,(short *)knock_bin_freq_sorted);
   for (i = 0; i < 0xb; i = i + 1) {
-    if (SHORT_ARRAY_40006900[i] == 0) {
+    if (knock_bin_freq_sorted[i] == 0) {
       uVar1 = uVar1 + 1 & 0xff;
     }
     else {
-      SHORT_ARRAY_40006900[i - uVar1] = SHORT_ARRAY_40006900[i];
-      SHORT_ARRAY_40006900[i] = 0;
+      knock_bin_freq_sorted[i - uVar1] = knock_bin_freq_sorted[i];
+      knock_bin_freq_sorted[i] = 0;
     }
   }
   knock_freq_bin_count = 11 - (char)uVar1;
@@ -45714,8 +45714,8 @@ void knock_dsp_setup_bins_and_reset_state(void)
   byte bVar1;
   
   for (bVar1 = 0; bVar1 < knock_freq_bin_count; bVar1 = bVar1 + 1) {
-    (&knock_freq_bin_index)[bVar1] =
-         (uint8_t)(((uint)(ushort)SHORT_ARRAY_40006900[bVar1] << 6) /
+    knock_freq_bin_index[bVar1] =
+         (uint8_t)(((uint)knock_bin_freq_sorted[bVar1] << 6) /
                   ((uint)CAL_knock_dsp_sample_rate_hz << 1));
   }
   if (knock_dsp_reset_request != '\0') {
@@ -45798,9 +45798,8 @@ void knock_dsp_mode1_goertzel_64sample(void)
   
   if ((CAL_knock_mode == goertzel_64sample) && (knock_sensor_new_data_available)) {
     for (bVar11 = 0; bVar11 < knock_freq_bin_count; bVar11 = bVar11 + 1) {
-      lVar2 = ((longlong)
-               *(short *)(&knock_sine_table_q15 +
-                         ((&knock_freq_bin_index)[bVar11] + 0x10 & 0x3f) * 2) & 0x7fffffffU) * 2;
+      lVar2 = ((longlong)knock_sine_table_q15[knock_freq_bin_index[bVar11] + 0x10 & 0x3f] &
+              0x7fffffffU) * 2;
       bVar4 = 0;
       lVar1 = 0;
       lVar9 = 0;
@@ -45864,8 +45863,8 @@ void knock_dsp_mode1_goertzel_64sample(void)
       if ((int)local_44[bVar11] < (int)local_70[bVar11]) {
         local_44[bVar11] = local_70[bVar11];
       }
-      (&knock_bin_energy)[bVar11] = local_44[bVar11];
-      knock_energy_sum = knock_energy_sum + (&knock_bin_energy)[bVar11];
+      knock_bin_energy[bVar11] = local_44[bVar11];
+      knock_energy_sum = knock_energy_sum + knock_bin_energy[bVar11];
       knock_energy_x2_sum = knock_energy_x2_sum + knock_bin_energy_x2[bVar11];
     }
     knock_sensor_new_data_available = false;
@@ -45910,10 +45909,8 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
     }
     for (i = 0; i < knock_freq_bin_count; i = i + 1) {
       goertzel_coeff =
-           ((longlong)
-            *(short *)(&knock_sine_table_q15 +
-                      (((&knock_freq_bin_index)[i] & 0x7f) * 2 + 0x10 & 0x3f) * 2) & 0x7fffffffU) *
-           2;
+           ((longlong)knock_sine_table_q15[(knock_freq_bin_index[i] & 0x7f) * 2 + 0x10 & 0x3f] &
+           0x7fffffffU) * 2;
       bVar5 = 0;
       lVar2 = 0;
       lVar9 = 0;
@@ -46035,10 +46032,10 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
       if ((int)local_4c[bVar5] < (int)local_78[bVar5]) {
         local_4c[bVar5] = local_78[bVar5];
       }
-      (&knock_bin_energy)[bVar5] = local_4c[bVar5];
+      knock_bin_energy[bVar5] = local_4c[bVar5];
       iVar4 = (int)(uVar3 << 2);
       *(int *)((int)&knock_energy_sum + iVar4) =
-           *(int *)((int)&knock_energy_sum + iVar4) + (&knock_bin_energy)[bVar5];
+           *(int *)((int)&knock_energy_sum + iVar4) + knock_bin_energy[bVar5];
     }
     knock_detect_and_update_baseline
               ((uint8_t)uVar3,*(uint32_t *)((int)&knock_energy_sum + (int)(uVar3 << 2)));
@@ -46052,80 +46049,73 @@ void knock_dsp_mode4_goertzel_3_overlapping_windows(void)
 void knock_dsp_mode2_goertzel_dual_window_64(void)
 
 {
-  int iVar1;
-  int iVar2;
+  short sVar1;
+  short sVar2;
   int iVar3;
   int iVar4;
-  byte bVar5;
-  ulonglong uVar6;
+  int iVar5;
+  int iVar6;
   byte bVar7;
-  int iVar8;
-  ushort uVar9;
-  short sVar10;
+  ulonglong uVar8;
+  byte bVar9;
+  int iVar10;
+  uint16_t uVar11;
+  short sVar12;
   int local_70 [11];
   int local_44 [17];
   
-  iVar1 = 0;
-  iVar2 = 0;
   iVar3 = 0;
   iVar4 = 0;
+  iVar5 = 0;
+  iVar6 = 0;
   if ((CAL_knock_mode == goertzel_2window) && (knock_sensor_new_data_available)) {
-    for (bVar7 = 0; bVar7 < knock_freq_bin_count; bVar7 = bVar7 + 1) {
-      uVar6 = (ulonglong)knock_buffer_last_index - 0x3f & 0xff;
-      for (bVar5 = 0; bVar5 < 0x40; bVar5 = bVar5 + 1) {
+    for (bVar9 = 0; bVar9 < knock_freq_bin_count; bVar9 = bVar9 + 1) {
+      uVar8 = (ulonglong)knock_buffer_last_index - 0x3f & 0xff;
+      for (bVar7 = 0; bVar7 < 0x40; bVar7 = bVar7 + 1) {
+        sVar1 = *(short *)((int)knock_sine_table_q15 +
+                          (int)((((longlong)(int)(uint)bVar7 *
+                                  (longlong)(int)(uint)knock_freq_bin_index[bVar9] * 0x4000000 &
+                                 0xfc000000U) >> 0x1a) << 1));
+        sVar2 = *(short *)((int)knock_sine_table_q15 +
+                          (int)(((((longlong)(int)(uint)bVar7 *
+                                   (longlong)(int)(uint)knock_freq_bin_index[bVar9] + 0x10) *
+                                  0x4000000 & 0xfc000000U) >> 0x1a) << 1));
         if (knock_dsp_window_select == '\0') {
-          uVar9 = knock_level_scaled[bVar5];
+          uVar11 = knock_level_scaled[bVar7];
         }
         else {
-          iVar8 = (int)(short)knock_level_scaled[bVar5] *
-                  (int)(short)(&knock_hann_window_q15)[bVar5];
-          uVar9 = ((short)(iVar8 / 0x7fff) + (short)(iVar8 >> 0x1f)) -
-                  (short)((longlong)iVar8 * 0x80010003 >> 0x3f);
+          iVar10 = (int)(short)knock_level_scaled[bVar7] * (int)knock_hann_window_q15[bVar7];
+          uVar11 = ((short)(iVar10 / 0x7fff) + (short)(iVar10 >> 0x1f)) -
+                   (short)((longlong)iVar10 * 0x80010003 >> 0x3f);
         }
-        iVar1 = iVar1 + (int)(short)uVar9 *
-                        (int)*(short *)(&knock_sine_table_q15 +
-                                       (int)(((((longlong)(int)(uint)bVar5 *
-                                                (longlong)(int)(uint)(&knock_freq_bin_index)[bVar7]
-                                               + 0x10) * 0x4000000 & 0xfc000000U) >> 0x1a) << 1));
-        iVar2 = iVar2 + (int)(short)uVar9 *
-                        (int)*(short *)(&knock_sine_table_q15 +
-                                       (int)((((longlong)(int)(uint)bVar5 *
-                                               (longlong)(int)(uint)(&knock_freq_bin_index)[bVar7] *
-                                               0x4000000 & 0xfc000000U) >> 0x1a) << 1));
+        iVar3 = iVar3 + (int)(short)uVar11 * (int)sVar2;
+        iVar4 = iVar4 + (int)(short)uVar11 * (int)sVar1;
         if (knock_dsp_window_select == '\0') {
-          sVar10 = *(short *)((int)knock_level_scaled + (int)((uVar6 & 0xff) << 1));
+          sVar12 = *(short *)((int)knock_level_scaled + (int)((uVar8 & 0xff) << 1));
         }
         else {
-          iVar8 = (int)*(short *)((int)knock_level_scaled + (int)((uVar6 & 0xff) << 1)) *
-                  (int)*(short *)((int)&knock_hann_window_q15 + (int)((uVar6 & 0xff) << 1));
-          sVar10 = ((short)(iVar8 / 0x7fff) + (short)(iVar8 >> 0x1f)) -
-                   (short)((longlong)iVar8 * 0x80010003 >> 0x3f);
+          iVar10 = (int)*(short *)((int)knock_level_scaled + (int)((uVar8 & 0xff) << 1)) *
+                   (int)*(short *)((int)knock_hann_window_q15 + (int)((uVar8 & 0xff) << 1));
+          sVar12 = ((short)(iVar10 / 0x7fff) + (short)(iVar10 >> 0x1f)) -
+                   (short)((longlong)iVar10 * 0x80010003 >> 0x3f);
         }
-        iVar3 = iVar3 + (int)sVar10 *
-                        (int)*(short *)(&knock_sine_table_q15 +
-                                       (int)(((((longlong)(int)(uint)bVar5 *
-                                                (longlong)(int)(uint)(&knock_freq_bin_index)[bVar7]
-                                               + 0x10) * 0x4000000 & 0xfc000000U) >> 0x1a) << 1));
-        iVar4 = iVar4 + (int)sVar10 *
-                        (int)*(short *)(&knock_sine_table_q15 +
-                                       (int)((((longlong)(int)(uint)bVar5 *
-                                               (longlong)(int)(uint)(&knock_freq_bin_index)[bVar7] *
-                                               0x4000000 & 0xfc000000U) >> 0x1a) << 1));
-        uVar6 = uVar6 + 1;
+        iVar5 = iVar5 + (int)sVar12 * (int)sVar2;
+        iVar6 = iVar6 + (int)sVar12 * (int)sVar1;
+        uVar8 = uVar8 + 1;
       }
-      iVar1 = iVar1 >> 0xf;
-      iVar2 = iVar2 >> 0xf;
-      local_44[bVar7] = iVar1 * iVar1 + iVar2 * iVar2;
       iVar3 = iVar3 >> 0xf;
       iVar4 = iVar4 >> 0xf;
-      local_70[bVar7] = iVar3 * iVar3 + iVar4 * iVar4;
+      local_44[bVar9] = iVar3 * iVar3 + iVar4 * iVar4;
+      iVar5 = iVar5 >> 0xf;
+      iVar6 = iVar6 >> 0xf;
+      local_70[bVar9] = iVar5 * iVar5 + iVar6 * iVar6;
     }
-    for (bVar7 = 0; bVar7 < knock_freq_bin_count; bVar7 = bVar7 + 1) {
-      if (local_44[bVar7] < local_70[bVar7]) {
-        local_44[bVar7] = local_70[bVar7];
+    for (bVar9 = 0; bVar9 < knock_freq_bin_count; bVar9 = bVar9 + 1) {
+      if (local_44[bVar9] < local_70[bVar9]) {
+        local_44[bVar9] = local_70[bVar9];
       }
-      if ((&knock_bin_energy)[bVar7] < local_44[bVar7]) {
-        (&knock_bin_energy)[bVar7] = local_44[bVar7];
+      if (knock_bin_energy[bVar9] < local_44[bVar9]) {
+        knock_bin_energy[bVar9] = local_44[bVar9];
       }
     }
     knock_sensor_new_data_available = false;
@@ -46153,7 +46143,7 @@ void knock_dsp_mode3_fft_128point(void)
   
   if ((CAL_knock_mode == spectral_128window) && (knock_sensor_new_data_available)) {
     for (bVar9 = 0; bVar9 < 0x80; bVar9 = bVar9 + 1) {
-      knock_fft_re[bVar9] = (int)(short)knock_level_scaled[(byte)(&DAT_000d1240)[bVar9]];
+      knock_fft_re[bVar9] = (int)(short)knock_level_scaled[knock_fft_bitrev_index[bVar9]];
       knock_fft_im[bVar9] = 0;
     }
     for (knock_fft_bin_index = '\0'; knock_fft_bin_index < 7;
@@ -46167,13 +46157,15 @@ void knock_dsp_mode3_fft_128point(void)
           uVar2 = uVar7 & 0xff;
           uVar3 = uVar2 + uVar6 & 0xff;
           iVar4 = (*(int *)((int)knock_fft_re + (int)(uVar3 << 2)) *
-                   (int)*(short *)((int)&DAT_000d12c0 + (int)((uVar11 & 0xff) << 1)) -
+                   (int)*(short *)((int)knock_fft_twiddle_q15 + (int)((uVar11 & 0xff) << 1)) -
                   *(int *)((int)knock_fft_im + (int)(uVar3 << 2)) *
-                  (int)*(short *)((int)&PTR_DAT_000d1340 + (int)((uVar11 & 0xff) << 1))) / 0x7fff;
+                  (int)*(short *)((int)knock_fft_twiddle_q15 + (int)((uVar11 & 0xff) << 1) + 0x80))
+                  / 0x7fff;
           iVar5 = (*(int *)((int)knock_fft_re + (int)(uVar3 << 2)) *
-                   (int)*(short *)((int)&PTR_DAT_000d1340 + (int)((uVar11 & 0xff) << 1)) +
-                  *(int *)((int)knock_fft_im + (int)(uVar3 << 2)) *
-                  (int)*(short *)((int)&DAT_000d12c0 + (int)((uVar11 & 0xff) << 1))) / 0x7fff;
+                   (int)*(short *)((int)knock_fft_twiddle_q15 + (int)((uVar11 & 0xff) << 1) + 0x80)
+                  + *(int *)((int)knock_fft_im + (int)(uVar3 << 2)) *
+                    (int)*(short *)((int)knock_fft_twiddle_q15 + (int)((uVar11 & 0xff) << 1))) /
+                  0x7fff;
           *(int *)((int)knock_fft_re + (int)(uVar3 << 2)) =
                *(int *)((int)knock_fft_re + (int)(uVar2 << 2)) - iVar4;
           *(int *)((int)knock_fft_im + (int)(uVar3 << 2)) =

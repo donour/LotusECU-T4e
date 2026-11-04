@@ -1,0 +1,14 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): globals in the 14 knock_* functions.
+D	000d1140	-	short[64]	Q15 sine table, one period in 64 steps (Goertzel coefficients: cos = index + 16 mod 64).
+D	000d11c0	-	short[64]	Q15 Hann window applied to knock samples (mode 2).
+D	000d1240	knock_fft_bitrev_index	uint8_t[128]	Bit-reversed sample order for the 128-point FFT (knock_dsp_mode3_fft_128point).
+D	000d12c0	knock_fft_twiddle_q15	short[128]	Q15 FFT twiddle factors (knock_dsp_mode3_fft_128point).
+D	000d13c0	knock_candidate_freq_ptrs	pointer[11]	Pointers to the 11 candidate knock frequencies; those above CAL_knock_dsp_sample_rate_hz are dropped.
+D	40006620	-	uint8_t[11]	Goertzel bin per active frequency = freq*64 / (2*CAL_knock_dsp_sample_rate_hz).
+D	40006630	-	uint16_t[128]	Knock sample buffer (scaled ADC, written by knock_interrupt_adc_process; 64 or 128 samples by CAL_knock_mode).
+D	40006730	knock_bin_freq_sorted	uint16_t[11]	Usable candidate knock frequencies, sorted, zeros compacted to the end (knock_configure_frequency_bins). Was SHORT_ARRAY_40006900.
+D	40006848	knock_energy_sum	int	Mode 1: total bin energy (scalar, with knock_energy_x2_sum at +4). Mode 4: per-cylinder total energy int[6] indexed by the previous cylinder; passed to knock_detect_and_update_baseline.
+D	40006874	-	int[11]	Per-bin knock energy (mode 1 latest; mode 4/2 max over windows).
+D	40004f58	-	-	Knock detect: per-cylinder events above threshold (halved into knock_noise_half_per_cyl each window).
+D	40004f7c	-	-	Knock detect: baseline snapshot log indexed by knock_trace_index.
+D	40004f94	-	-	Knock detect: peak snapshot log indexed by knock_trace_index.
