@@ -56,6 +56,9 @@ public class ExportRomRaiderDefs extends GhidraScript {
 			return new String [] {"0 - 100 KMH","0 - 160 KMH"};
 		if (n.equals("CAL_injtip_in_adj_gears"))
 			return new String [] {"Neutral","1st gear","2nd gear","3rd gear","4th gear","5th gear"};
+		/* [0] clamps the positive P-term, [1] the negative one (applied as -x). */
+		if (n.equals("CAL_fuel_pump_proportional_limit"))
+			return new String [] {"Positive limit","Negative limit"};
 		if (n.equals("CAL_ign_advance_adj_cyl"))
 			return new String [] {"Cyl #1","Cyl #2","Cyl #3","Cyl #4","Cyl #5","Cyl #6"};
 		if (n.equals("CAL_injtip_in_adj_gears_6"))
@@ -232,15 +235,23 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("uint32_t","uint32","#","x","x","0","1","100","Number"),
 		new DF("int8_t","int8","#","x","x","0","1","10","Number"),
 		new DF("int16_t","int16","#","x","x","0","1","10","Number"),
+		/* Raw byte stored offset-binary (128 = 0), e.g. LEA_misfire_baseline_cylN. */
+		new DF("u8_raw-128","uint8","#","x-128","x+128","0","1","10","Number"),
+		/* Raw word stored offset-binary (32768 = 0), e.g. idle PI correction tables. */
+		new DF("u16_raw-32768","uint16","#","x-32768","x+32768","0","1","10","Number"),
 		new DF("u8_count","uint8","#","x","x","0","1","10","Count"),
 		new DF("u8_count_8x","uint8","#","x*8","x/8","0","8","32","Count"),
+		new DF("u16_count","uint16","#","x","x","0","1","10","Count"),
 		new DF("u8_gear","uint8","gear","x","x","0","1","10","Gear"),
 		new DF("u8_gain_(x-104)/26","uint8","slope","(x-104)/26","(x*26)+104","0.00","0.1","1","Slope"),
 		new DF("u8_dutycycle_100/255", "uint8", "%", "x*100/255", "x*255/100", "0", "1", "5", "Dutycycle"),
+		new DF("u16_dutycycle_100/255", "uint16", "%", "x*100/255", "x*255/100", "0", "1", "5", "Dutycycle"),
 		new DF("u8_dutycycle_100/65280", "uint8", "%", "x*100/65280", "x*65280/100", "0.000", "0.002", "0.02", "Dutycycle"),
 		new DF("u8_x256","uint8","#","x*256","x/256","0","256","2560","Number"),
 		new DF("u8_factor_1","uint8","%","x","x","0","1","5","Percent"),
 		new DF("u8_factor_1/10","uint8","%","x*10","x/10","0","10","50","Percent"),
+		/* x/16 multiplier, 16 = 1.0x = 100% (e.g. cold-start pulse-width cap, 255 = 15.9x) */
+		new DF("u8_factor_1/16","uint8","%","x*100/16","x*16/100","0","6.25","25","Percent"),
 		new DF("u8_factor_1/32","uint8","%","x*100/32","x*32/100","0","1","5","Percent"),
 		new DF("u8_factor_1/64","uint8","%","x*100/64","x*64/100","0","1","5","Percent"),
 		new DF("u8_factor_10/1632","uint8","%","x*1000/1632","x*1632/1000","0","1","5","Percent"),
@@ -270,12 +281,20 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u16_factor_1/2048","uint16","%","x*100/2048","x*2048/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/4095","uint16","%","x*100/4095","x*4095/100","0.00","0.1","1","Percent"),
 		new DF("u16_factor_1/10000","uint16","%","x/10","x*10","0.00","0.1","1","Percent"),
+		/* Signed 1/10000 factor (10000 = 100%), e.g. LEA_fuel_pump_adapt_trim added to the pump command. */
+		new DF("i16_factor_1/10000","int16","%","x/100","x*100","0.00","0.01","1","Percent"),
 		new DF("i16_percent_1/10","int16","%","x/10","x*10","0.00","0.1","1","Percent"),
+		/* Long-term fuel trim in 0.1 % steps (ltft_bank1/2, LEA_obd_ii_ff2_ltft_bank1/2);
+		 * same scale as CAL_obd_P0171/P0172_ltft_limit (i16_percent_1/10). */
+		new DF("i16_factor_1/10pct","int16","%","x/10","x*10","0.0","0.1","1","Percent"),
 		/* Short-term fuel trim.  Distinct from i16_factor_1/20 above, which is the
 		 * closed-loop PID gain type - here the raw value already IS percent/20, so
 		 * CAL_inj_stft_limit = 600 reads as the expected +/-30%, not 3000%.
 		 * Fine increment is exactly one raw count. */
 		new DF("i16_percent_1/20","int16","%","x/20","x*20","0.00","0.05","1","Percent"),
+		/* Same percent/20 scaling but stored offset-binary (raw ^ 0x8000 = signed value),
+		 * e.g. CAL_inj_fuel_learn_stft_lean/rich_limit: 32768 = 0%. */
+		new DF("u16_percent_1/20-1638.4","uint16","%","(x-32768)/20","(x*20)+32768","0.00","0.05","1","Percent"),
 		new DF("u8_percent_100/256-50","uint8","%","(x*100/256)-50","(x+50)*256/100","0.00","0.390625","2","Percent"),
 		new DF("u16_factor_1/65536","uint16","%","x*100/65536","x*65536/100","0.00","0.1","1","Percent"),
 		/* Volumetric efficiency for the estimated-MAP model (CAL_load_map_estimate_ve).
@@ -288,21 +307,25 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_accel_1/200g","uint8","G","x/200","x*200","0.000","0.005","0.05","G"),
 		new DF("u8_accel_1/100g","uint8","G","x/100","x*100","0.00","0.01","0.1","G"),
 		new DF("i16_accel_1/200g","int16","G","x/200","x*200","0.000","0.005","0.05","G"),
+		new DF("i16_accel_1/100g","int16","G","x/100","x*100","0.00","0.01","0.1","G"),
 		new DF("u8_fuel_gal_x10","uint8","gal","x/10","x*10","0.00","0.1","1","gallons"),
 		new DF("u8_distance_km","uint8", "km","x","x","0","1","10","km"),
 		new DF("u16_distance_km","uint16", "km","x","x","0","1","10","km"),
 		new DF("u16_distance_mm_div2","uint16","mm","x*2","x/2","0","2","10","mm"),
+		new DF("u32_distance_10cm","uint32","km","x/10000","x*10000","0.000","0.001","1","km"),
 		new DF("u8_factor_1/2560","uint8","%","x*100/2560","x*2560/100","0.00","0.1","1","Percent"),
 		new DF("u8_voltage_5/255v","uint8","v","x*5/255","x*255/5","0.0","0.1","0.5","Volt"),
 		new DF("u8_voltage_5/1023v","uint8","v","x*5/1023","x*1023/5","0.00","0.05","0.2","Volt"),
 		new DF("u16_voltage_5/1023v","uint16","v","x*5/1023","x*1023/5","0.00","0.05","0.2","Volt"),
 		new DF("u16_voltage_18/1023v","uint16","v","x*18/1023","x*1023/18","0.00","0.05","0.2","Volt"),
+		new DF("u16_voltage_5/4095v","uint16","v","x*5/4095","x*4095/5","0.000","0.01","0.1","Volt"),
 		new DF("u16_current_mA","uint16","A","x/1000","x*1000","0.00","0.01","0.2","Ampere"),
 		new DF("u8_voltage_72/1023v","uint8","v","x*72/1023","x/72*1023","0.0","0.2","1.0","Volt"),
 		new DF("i8_angle_1/4deg","int8","°","x/4","x*4","0.00","0.25","1.0","Degrees"),
 		new DF("u8_angle_1/4deg","uint8","°","x/4","x*4","0.00","0.25","1.0","Degrees"),
 		new DF("u8_angle_1/4-10deg","uint8","°","(x/4)-10","(x+10)*4","0.00","0.25","1.0","Degree"),
 		new DF("u8_angle_1/4-20deg","uint8","°","(x/4)-20","(x+20)*4","0.00","0.25","1.0","Degree"),
+		new DF("u16_angle_1/4deg","uint16","°","x/4","x*4","0.00","0.25","1.0","Degree"),
 		new DF("u16_angle_1/4-20deg","uint16","°","(x/4)-20","(x+20)*4","0.00","0.25","1.0","Degree"),
 		new DF("u8_angle_1/4-30deg","uint8","°","(x/4)-30","(x+30)*4","0.00","0.25","1.0","Degree"),
 		new DF("u8_angle_1/4-32deg","uint8","°","(x/4)-32","(x+32)*4","0.00","0.25","1.0","Degree"),
@@ -323,6 +346,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_rspeed_4-512rpm","uint8","rpm","(x*4)-512","(x+512)/4","0","4","16","RPM"),
 		new DF("u8_rspeed_accel_1/168","uint8","%","x*100/168","x*168/100","0.0","1","5","Percent"),
 		new DF("u16_rspeed_rpm","uint16","rpm","x","x","0","10","100","RPM"),
+		/* Offset-binary rpm (raw ^ 0x8000 = signed), e.g. idle speed-error axes. */
+		new DF("u16_rspeed_rpm-32768","uint16","rpm","x-32768","x+32768","0","10","100","RPM"),
 		new DF("i16_rspeed_rpm","int16","rpm","x","x","0","10","100","RPM"),
 		new DF("u16_rspeed_1/4rpm","uint16","rpm","x/4","x*4","0","10","100","RPM"),
 		new DF("u16_rspeed_4rpm","uint16","rpm","x*4","x/4","0","10","100","RPM"),
@@ -367,9 +392,12 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_time_s","uint8","s","x","x","0","1","5","Second"),
 		new DF("u8_time_2s","uint8","s","x*2","x/2","0","2","10","Second"),
 		new DF("u8_time_5s","uint8","s","x*5","x/5","0","5","25","Second"),
+		/* x*2000 ticks of the 5 ms runtime counter, e.g. thermostat monitor time budget */
+		new DF("u8_time_10s","uint8","s","x*10","x/10","0","10","60","Second"),
 		new DF("u8_time_hours","uint8","hours","x","x","0","1","5","Hours"),
 		new DF("u16_time_25ns","uint16","ns","x*25","x/25","0","25","100","Nanosecond"),
 		new DF("u16_time_us","uint16","us","x","x","0","1","10","microseconds"),
+		new DF("u16_time_10us","uint16","us","x*10","x/10","0","10","100","Microsecond"),
 		new DF("u16_time_ms","uint16","ms","x","x","0","1","10","Millisecond"),
 		new DF("u16_time_4us","uint16","rpm","15000000/x","15000000/x","0","1","10","RPM"),
 		new DF("i16_time_us","int16","us","x","x","0","1","10","Microsecond"),
@@ -389,6 +417,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_flow_2g/s","uint8","g/s","x*2","x/2","0","2","10","Gram/Second"),
 		new DF("u8_flow_10mg/s","uint8","g/s","x/100","x*100","0.00","0.01","1","Gram/Second"),
 		new DF("u8_flow_100mg/s","uint8","g/s","x/10","x*10","0.0","0.1","10","Gram/Second"),
+		/* x<<4 compared with obd_ii_maf_flow (10 mg/s), e.g. CAL_obd_ii_P0096_high_flow_maf_min. */
+		new DF("u8_flow_160mg/s","uint8","g/s","x*0.16","x/0.16","0.00","0.16","1.6","Gram/Second"),
 		new DF("u8_flow_200mg/s","uint8","g/s","x/5","x*5","0.0","0.2","1","Gram/Second"),
 		new DF("u8_flow_500mg/s","uint8","g/s","x/2","x*2","0.0","0.5","2","Gram/Second"),
 		new DF("u8_flow_-100mg/s","uint8","g/s","x/-10","x*-10","0.0","0.1","10","Gram/Second"),
@@ -398,11 +428,20 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_flow_100-12800mg/s","uint8","g/s","(x-128)/10","(x*10)+128","0.0","0.1","10","Gram/Second"),
 		new DF("u16_flow_mg/s","uint16","mg/s","x","x","0","1","5","Milligram/Second"),
 		new DF("u16_flow_10mg/s","uint16","g/s","x/100","x*100","0.00","0.01","1","Gram/Second"),
+		new DF("i16_flow_10mg/s","int16","g/s","x/100","x*100","0.00","0.01","1","Gram/Second"),
+		/* Signed 10 mg/s stored offset-binary (32768 = 0 g/s), e.g. idle baro / ECU-voltage airflow comps. */
+		new DF("u16_flow_10mg/s-327680mg/s","uint16","g/s","(x-32768)/100","(x*100)+32768","0.00","0.01","1","Gram/Second"),
 		new DF("u16_flow_100mg/s","uint16","g/s","x/10","x*10","0.0","0.1","1","Gram/Second"),
 		new DF("u8_mass_g","uint8","g","x","x","0","1","5","Gram"),
 		new DF("u8_mass_4g","uint8","g","x*4","x/4","0","4","20","Gram"),
 		new DF("u8_mass_5g","uint8","g","x*5","x/5","0","5","25","Gram"),
 		new DF("u8_mass_8g","uint8","g","x*8","x/8","0","8","40","Gram"),
+		/* accumulated air since start >> 4 (maf_accumulated_since_start_raw is grams) */
+		new DF("u8_mass_16g","uint8","g","x*16","x/16","0","16","80","Gram"),
+		/* accumulated air since start >> 5 (maf_accumulated_since_start_raw is grams) */
+		new DF("u8_mass_32g","uint8","g","x*32","x/32","0","32","160","Gram"),
+		/* x<<6 compared with obd_ii_accumulated_mass_air/1000 (g), e.g. CAL_obd_ii_P0096_air_mass_min. */
+		new DF("u8_mass_64g","uint8","g","x*64","x/64","0","64","320","Gram"),
 		new DF("u16_mass_g","uint16","g","x","x","0","1","5","Gram"),
 		new DF("u16_mass_40g","uint16","g","x*40","x/40","0","40","200","Gram"),
 		new DF("u8_mass_32mg","uint8","mg","x*32","x/32","0","32","128","Milligram"),
@@ -418,6 +457,8 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		new DF("u8_dt_factor_1/100/5ms","uint8","%/5ms","x","x","0","1","5","Percent/5ms"),
 		new DF("u8_dt_factor_1/1023/5ms","uint8","%/5ms","x*100/1023","x*1023/100","0.00","0.1","1","Percent/5ms"),
 		new DF("u16_ratio_rpm/kph","uint16","rpm/km/h","x","x","0","1","5","Gear Ratio"),
+		/* gear_determination: (engine_speed_1/4rpm*1000>>2)/car_speed_x100 = rpm/kph*10; e.g. 1st gear 796-2550 = 79.6-255.0 */
+		new DF("u16_ratio_1/10rpm/kph","uint16","rpm/km/h","x/10","x*10","0.0","0.1","1","Gear Ratio"),
 		new DF("u16_ratio_1/10mbar/5v","uint16","mbar/5volt","x/10","x*10","0.0","0.1","5","Millibar/5v"),
 		new DF("u16_ratio_mbar/5v","uint16","mbar/5volt","x","x","0","10","50","Millibar/5v"),
 		new DF("i16_pressure_1/10mbar","int16","mbar","x/10","x*10","0.0","0.1","5","Millibar"),
