@@ -1,0 +1,16 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): globals in obd_ii_mode06_processing / obd_ii_set_mode06_supported_pids / obd_ii_mode08_processing / set_obd_ii_set_mode08_flags.
+# All referenced globals were already named and typed; this pass replaces the generic Mode 06 result names with what each stores (from its writer).
+D	4000499a	LEA_obd_ii_postcat_l2r_time_sum_b1	-	Saved obd_ii_postcat_l2r_time_sum_b1 (obd_ii_catalyst_monitor_200hz). Mode 06 MID 1: x5 / CAL_obd_ii_o2_slow_response_sample_count vs CAL_obd_ii_o2_slow_response_limit_lean_to_rich. Was LEA_obd_ii_cat_mode06_result1.
+D	4000499c	LEA_obd_ii_postcat_r2l_time_sum_b1	-	Saved obd_ii_postcat_r2l_time_sum_b1. Mode 06 MID 1: vs CAL_obd_ii_o2_slow_response_limit_rich_to_lean. Was LEA_obd_ii_cat_mode06_result2.
+D	4000499e	LEA_obd_ii_postcat_l2r_time_sum_b2	-	Saved obd_ii_postcat_l2r_time_sum_b2. Mode 06 MID 2. Was LEA_obd_ii_cat_mode06_result3.
+D	400049a0	LEA_obd_ii_postcat_r2l_time_sum_b2	-	Saved obd_ii_postcat_r2l_time_sum_b2. Mode 06 MID 2. Was LEA_obd_ii_cat_mode06_result4.
+D	400049bc	LEA_obd_ii_vvt_inlet_b1_over_advanced_count	-	Saved obd_ii_vvt_inlet_b1_over_advanced_count (0xff = no result). Mode 06 MID 0x35 TID 0x88, limit CAL_obd_ii_vvt_error_fail_count. Was LEA_obd_ii_vvt_mode06_result1.
+D	400049bd	LEA_obd_ii_vvt_inlet_b1_over_retarded_count	-	Saved obd_ii_vvt_inlet_b1_over_retarded_count (0xff = no result). Mode 06 MID 0x35 TID 0x89. Was LEA_obd_ii_vvt_mode06_result2.
+D	400049be	LEA_obd_ii_vvt_inlet_b2_over_advanced_count	-	Saved obd_ii_vvt_inlet_b2_over_advanced_count (0xff = no result). Mode 06 MID 0x36 TID 0x88. Was LEA_obd_ii_vvt_mode06_result3.
+D	400049bf	LEA_obd_ii_vvt_inlet_b2_over_retarded_count	-	Saved obd_ii_vvt_inlet_b2_over_retarded_count (0xff = no result). Mode 06 MID 0x36 TID 0x89. Was LEA_obd_ii_vvt_mode06_result4.
+D	400049f0	LEA_obd_ii_o2_imbalance_metric_b1	-	Saved o2_imbalance_metric_b1 (obd_ii_evaluate_fuel_trim_monitors); Mode 06 MID 0x81 vs CAL_obd_ii_o2_imbalance_threshold. Was LEA_obd_ii_fuel_trim_mode06_result1.
+D	400049f2	LEA_obd_ii_o2_imbalance_metric_b2	-	Saved o2_imbalance_metric_b2; Mode 06 MID 0x82 vs CAL_obd_ii_o2_imbalance_threshold. Was LEA_obd_ii_fuel_trim_mode06_result2.
+D	400049a8	LEA_obd_ii_evap_p0442_leak_metric	-	Saved obd_ii_eval_leak_check_result (EVAP small leak); Mode 06 x40 vs LEA_obd_ii_evap_P0442_decay_limit x40. Was LEA_obd_ii_evap_leak_check_result.
+D	400049aa	LEA_obd_ii_evap_p0456_leak_decay	-	Saved evap_leak_decay (EVAP very small leak); Mode 06 x40 vs LEA_obd_ii_evap_P0456_decay_limit x40. Was LEA_obd_ii_evap_leak_check_value2.
+D	40001f34	-	-	Worst misfire emissions-window count this cycle (-> LEA_obd_ii_misfire_emissions_count_max10); Mode 06 misfire result.
+D	400021dc	-	-	Active-test state bits shared by Mode $2F and Mode 08 (bit 26 = 0x4000000 set by obd_ii_mode08_processing while its EVAP test runs).
