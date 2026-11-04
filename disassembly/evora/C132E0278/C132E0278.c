@@ -1121,6 +1121,10 @@ struct evp_pkey_ctx_st {
 
 typedef ulonglong uint64_t;
 
+typedef uchar u8_rspeed_5+500rpm;
+
+typedef uchar u8_rspeed_5rpm;
+
 
 
 undefined4 REG_FLASH_BIUAPR;
@@ -3480,7 +3484,7 @@ bool CAL_cluster_coolant_warning_test_enable;
 u8_gear[8] CAL_cluster_shiftlight_rpm_offset_manual_X_gear;
 u8_volume_1/10gallon CAL_cluster_fuel_level_zero_clip_threshold;
 u8_temp_5/8-40c[2] CAL_cluster_coolant_warning;
-uint8_t traction_flags;
+uint8_t gsi_flags;
 u8_volume_1/10gallon[2] CAL_cluster_fuel_level_warning_threshold;
 uint8_t cluster_shift_light_state;
 u16_rspeed_rpm CAL_cluster_shift_light_deadband_rpm;
@@ -3494,7 +3498,7 @@ uint16_t fuel_economy_instantaneous;
 uint16_t fuel_economy_avg;
 uint16_t cluster_shiftlight_rpm_offset;
 uint8_t cluster_lamp_test_state;
-enum_slip_detect_mode CAL_slip_detect_mode;
+enum_slip_detect_mode CAL_gsi_mode;
 uint8_t pwm_b3_latched_on;
 u8_count pwm_b3_phase;
 uint8_t pwm_b3_duty_pct;
@@ -7367,55 +7371,55 @@ i16_torque_nm CAL_ips_speed_match_p_term_max;
 i16_torque_nm CAL_ips_speed_match_p_term_min;
 i16_torque_nm CAL_ips_speed_match_i_term_max;
 i16_torque_nm CAL_ips_speed_match_i_term_min;
-u16_ratio_1/10rpm/kph[6] CAL_slip_gear_speed_ratios_ips;
-u16_ratio_1/10rpm/kph[6] CAL_slip_gear_speed_ratios_cr;
-u16_ratio_1/10rpm/kph[6] CAL_slip_gear_speed_ratios_long;
-uint16_t *[6] LEA_slip_gear_speed_ratios;
-u8_rspeed_4+500rpm CAL_slip_threshold_1st_Gear;
-uint8_t *[6] LEA_slip_threshold_per_gear;
-u8_rspeed_4+500rpm[5] CAL_slip_threshold_per_gear_manual;
-u8_rspeed_4+500rpm[5] CAL_slip_slip_threshold_per_gear_ips;
-u8_factor_1/100 CAL_slip_steering_rate_factor;
-u8_factor_1/255 CAL_slip_steering_increase_factor_min;
-u8_time_100ms CAL_slip_inhibit_accel_pedal_timer;
-u8_rspeed_4+500rpm CAL_slip_threshold_hysteresis_offset;
-u8_time_100ms CAL_slip_timer_intervention2;
-u8_count CAL_slip_tc_gear_max_step;
-uint8_t CAL_slip_wheelspeed_front_accel_threshold;
-u8_speed_kph CAL_slip_enable_speed;
-u16_mass_g[4] CAL_slip_comp_maf_accum_manual_X_maf_accum;
-uint16_t[4] CAL_slip_comp_maf_accum_manual;
-u16_power_1/100kw[8] CAL_slip_power_based_rpm_thresholds_X_power;
-u16_rspeed_rpm[8] CAL_slip_power_based_rpm_thresholds;
-uint16_t traction_relax_factor_starting;
-u16_rspeed_rpm CAL_slip_expected_rpm_max;
-uint8_t CAL_gsi_downshift_idle_margin;
-u16_rspeed_rpm[6] slip_expected_engine_rpm_per_gear;
-uint8_t CAL_slip_threshold_rpm_margin;
-u8_time_100ms traction_inhibit_accel_pedal_timer;
-enum_t6e_gear traction_slip_detected_gear;
-enum_t6e_gear traction_power_limit_gear;
-u8_time_100ms[6] traction_per_gear_timer100ms_intervention;
+u16_ratio_1/10rpm/kph[6] CAL_gsi_gear_ratio_ips;
+u16_ratio_1/10rpm/kph[6] CAL_gsi_gear_ratio_close;
+u16_ratio_1/10rpm/kph[6] CAL_gsi_gear_ratio_long;
+uint16_t *[6] gsi_gear_ratio_cal_ptr;
+u8_rspeed_5+500rpm CAL_gsi_min_rpm_gear1;
+uint8_t *[6] gsi_min_rpm_cal_ptr;
+u8_rspeed_5+500rpm[5] CAL_gsi_min_rpm_manual;
+u8_rspeed_5+500rpm[5] CAL_gsi_min_rpm_ips;
+u8_factor_1/100 CAL_gsi_steering_rate_gain;
+uint8_t CAL_gsi_steering_term_max;
+u8_time_100ms CAL_gsi_pedal_applied_hold;
+u8_rspeed_5rpm CAL_gsi_min_rpm_hyst;
+u8_time_100ms CAL_gsi_downshift_advisory_delay;
+u8_count CAL_gsi_recommended_gear_max_step;
+uint8_t CAL_gsi_front_wheel_accel_min;
+u8_speed_kph CAL_gsi_first_gear_speed_min;
+u16_mass_g[4] CAL_gsi_coldstart_rpm_offset_manual_X_air_mass;
+u16_rspeed_rpm[4] CAL_gsi_coldstart_rpm_offset_manual;
+u16_power_1/100kw[8] CAL_gsi_power_upshift_rpm_X_power;
+u16_rspeed_rpm[8] CAL_gsi_power_upshift_rpm;
+u16_rspeed_rpm gsi_coldstart_rpm_offset;
+u16_rspeed_rpm CAL_gsi_rpm_in_gear_max;
+u8_rspeed_5rpm CAL_gsi_downshift_idle_margin;
+u16_rspeed_rpm[6] gsi_rpm_in_gear;
+u8_rspeed_5rpm CAL_gsi_downshift_rpm_margin;
+u8_time_100ms gsi_pedal_applied_timer;
+enum_t6e_gear gsi_highest_gear_above_min_rpm;
+enum_t6e_gear gsi_highest_gear_above_power_rpm;
+u8_time_100ms[6] gsi_gear_qualify_timer;
 u8_time_100ms gsi_downshift_advisory_timer;
-u8_time_100ms slip_gear_change_holdoff_timer;
-u16_rspeed_rpm traction_power_based_rpm_threshold;
+u8_time_100ms gsi_recommended_gear_holdoff_timer;
+u16_rspeed_rpm gsi_power_upshift_rpm;
 u16_power_1/100kw engine_power_corrected;
-u8_time_100ms traction_timer_per_gear_intervention;
-u8_gear tc_gear_recommended;
-u8_factor_1/255 traction_steering_increase_factor;
-uint8_t tc_cornering_intensity;
-u16_factor_1/1023 CAL_slip_inhibit_accel_pedal_min;
-u16_angle_1/10deg CAL_slip_timer_reset_steering_angle;
-u8_speed_kph CAL_slip_threshold_car_speed;
-bool tc_is_moving;
-u8_temp_5/8-40c CAL_slip_coldstart_coolant_threshold;
-enum_t6e_gear tc_gear_tracker;
-u8_time_100ms CAL_slip_timer_per_gear_intervention;
-u8_factor_1/255 CAL_slip_inhibit_cornering_base;
-u8_factor_1/255 CAL_slip_inhibit_cornering_offset;
-u8_factor_1/255 CAL_slip_steering_angle_smooth_factor;
+u8_time_100ms gsi_upshift_advisory_timer;
+u8_gear gsi_recommended_gear;
+uint8_t gsi_steering_rate;
+uint8_t gsi_cornering_intensity;
+u16_factor_1/1023 CAL_gsi_pedal_applied_min;
+u16_angle_1/10deg CAL_gsi_steering_angle_max;
+u8_speed_kph CAL_gsi_speed_offset_manual;
+bool gsi_vehicle_moving;
+u8_temp_5/8-40c CAL_gsi_coldstart_coolant_max;
+enum_t6e_gear gsi_display_gear;
+u8_time_100ms CAL_gsi_gear_qualify_time;
+uint8_t CAL_gsi_cornering_limit;
+uint8_t CAL_gsi_cornering_limit_hyst;
+u8_factor_1/256 CAL_gsi_steering_rate_filter_weight;
 u16_angle_1/10deg steering_angle_abs_last;
-uint32_t steering_angle_smoothed;
+uint32_t gsi_steering_rate_filter_q8;
 u16_angle_1/10deg steering_angle_delta;
 byte EMIOS_CADR2;
 byte EMIOS_CBDR2;
@@ -7541,7 +7545,7 @@ u8_factor_1/255[8] CAL_dpm_slip_filter_coeff;
 u8_speed_kph[8] CAL_dpm_slip_filter_coeff_X_carspeed;
 u8_speed_kph CAL_dpm_max_vehicle_speed;
 u8_slip_1/8pct dpm_slip_target_base;
-uint8_t tc_slip_target_mode_state;
+uint8_t dpm_slip_target_mode;
 u8_slip_2pct[36] CAL_dpm_slip_target_from_pedal;
 u8_speed_kph[6] CAL_dpm_slip_target_from_pedal_X_carspeed;
 u8_factor_1/255[6] CAL_dpm_slip_target_from_pedal_Y_pps;
@@ -9684,7 +9688,7 @@ void interrupt_timer_2000hz(void)
       obd_ii_knock_threshold_per_cylinder_100ms();
       vvt_update_inlet_zero_timers_100ms();
       update_engine_speed_history_100ms();
-      slip_timers_and_steering_rate_100ms();
+      gsi_timers_and_steering_rate_100ms();
       fuel_usage_summary_100ms();
       task_end_timestamps[6] = etpu_mcr_addr[9];
     }
@@ -19466,17 +19470,17 @@ void cluster_data_send_100ms(void)
     cluster_indicator_flags = cluster_indicator_flags & 0x1f | ips_shift_light_flags;
   }
   if ((((obd_ii_mode2f_flags_enabled & 0x40000000) == 0) ||
-      ((obd_ii_mode2f_flags_state & 0x40000000) == 0)) && ((traction_flags & 4) == 0)) {
+      ((obd_ii_mode2f_flags_state & 0x40000000) == 0)) && ((gsi_flags & 4) == 0)) {
     cluster_flags = cluster_flags & 0xf7;
   }
   else {
     cluster_flags = cluster_flags | 8;
-    if (SLIP_DETECT_2 < CAL_slip_detect_mode) {
+    if (SLIP_DETECT_2 < CAL_gsi_mode) {
       cluster_indicator_flags = cluster_indicator_flags | 0x20;
     }
   }
   _cluster_flags = cluster_flags;
-  if (((traction_flags & 0x40) != 0) && (SLIP_DETECT_2 < CAL_slip_detect_mode)) {
+  if (((gsi_flags & 0x40) != 0) && (SLIP_DETECT_2 < CAL_gsi_mode)) {
     cluster_indicator_flags = cluster_indicator_flags | 0x80;
   }
   cluster_flags = cluster_flags & 0xef;
@@ -38676,7 +38680,7 @@ void obd_ii_mode2F_processing(void)
     break;
   case 0x12a:
                     // TC dash light
-    tc_enabled = get_slip_indicator_mode();
+    tc_enabled = gsi_enabled();
     if (tc_enabled) {
       uVar3 = obd_ii_mode2f_flags_state | 0x40000000;
       obd_ii_mode2f_flags_state = obd_ii_mode2f_flags_state & 0xbfffffff;
@@ -54923,7 +54927,7 @@ void init_gear_cal(void)
   }
   init_obd_ii_config();
   vin_flags();
-  init_slip_detection_limits();
+  init_gsi_gear_tables();
   return;
 }
 
@@ -56965,55 +56969,55 @@ void obd_ii_zero_perm_dtc(void)
 
 
 
-void init_slip_detection_limits(void)
+void init_gsi_gear_tables(void)
 
 {
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {
-    LEA_slip_gear_speed_ratios[0] = CAL_slip_gear_speed_ratios_ips;
-    LEA_slip_gear_speed_ratios[1] = CAL_slip_gear_speed_ratios_ips + 1;
-    LEA_slip_gear_speed_ratios[2] = CAL_slip_gear_speed_ratios_ips + 2;
-    LEA_slip_gear_speed_ratios[3] = CAL_slip_gear_speed_ratios_ips + 3;
-    LEA_slip_gear_speed_ratios[4] = CAL_slip_gear_speed_ratios_ips + 4;
-    LEA_slip_gear_speed_ratios[5] = CAL_slip_gear_speed_ratios_ips + 5;
-    LEA_slip_threshold_per_gear[1] = CAL_slip_slip_threshold_per_gear_ips;
-    LEA_slip_threshold_per_gear[2] = CAL_slip_slip_threshold_per_gear_ips + 1;
-    LEA_slip_threshold_per_gear[3] = CAL_slip_slip_threshold_per_gear_ips + 2;
-    LEA_slip_threshold_per_gear[4] = CAL_slip_slip_threshold_per_gear_ips + 3;
-    LEA_slip_threshold_per_gear[5] = CAL_slip_slip_threshold_per_gear_ips + 4;
+    gsi_gear_ratio_cal_ptr[0] = CAL_gsi_gear_ratio_ips;
+    gsi_gear_ratio_cal_ptr[1] = CAL_gsi_gear_ratio_ips + 1;
+    gsi_gear_ratio_cal_ptr[2] = CAL_gsi_gear_ratio_ips + 2;
+    gsi_gear_ratio_cal_ptr[3] = CAL_gsi_gear_ratio_ips + 3;
+    gsi_gear_ratio_cal_ptr[4] = CAL_gsi_gear_ratio_ips + 4;
+    gsi_gear_ratio_cal_ptr[5] = CAL_gsi_gear_ratio_ips + 5;
+    gsi_min_rpm_cal_ptr[1] = CAL_gsi_min_rpm_ips;
+    gsi_min_rpm_cal_ptr[2] = CAL_gsi_min_rpm_ips + 1;
+    gsi_min_rpm_cal_ptr[3] = CAL_gsi_min_rpm_ips + 2;
+    gsi_min_rpm_cal_ptr[4] = CAL_gsi_min_rpm_ips + 3;
+    gsi_min_rpm_cal_ptr[5] = CAL_gsi_min_rpm_ips + 4;
   }
   else if ((COD_base.COD[0] >> 0x10 & 1) == 0) {
-    LEA_slip_gear_speed_ratios[0] = CAL_slip_gear_speed_ratios_long;
-    LEA_slip_gear_speed_ratios[1] = CAL_slip_gear_speed_ratios_long + 1;
-    LEA_slip_gear_speed_ratios[2] = CAL_slip_gear_speed_ratios_long + 2;
-    LEA_slip_gear_speed_ratios[3] = CAL_slip_gear_speed_ratios_long + 3;
-    LEA_slip_gear_speed_ratios[4] = CAL_slip_gear_speed_ratios_long + 4;
-    LEA_slip_gear_speed_ratios[5] = CAL_slip_gear_speed_ratios_long + 5;
-    LEA_slip_threshold_per_gear[1] = CAL_slip_threshold_per_gear_manual;
-    LEA_slip_threshold_per_gear[2] = CAL_slip_threshold_per_gear_manual + 1;
-    LEA_slip_threshold_per_gear[3] = CAL_slip_threshold_per_gear_manual + 2;
-    LEA_slip_threshold_per_gear[4] = CAL_slip_threshold_per_gear_manual + 3;
-    LEA_slip_threshold_per_gear[5] = CAL_slip_threshold_per_gear_manual + 4;
+    gsi_gear_ratio_cal_ptr[0] = CAL_gsi_gear_ratio_long;
+    gsi_gear_ratio_cal_ptr[1] = CAL_gsi_gear_ratio_long + 1;
+    gsi_gear_ratio_cal_ptr[2] = CAL_gsi_gear_ratio_long + 2;
+    gsi_gear_ratio_cal_ptr[3] = CAL_gsi_gear_ratio_long + 3;
+    gsi_gear_ratio_cal_ptr[4] = CAL_gsi_gear_ratio_long + 4;
+    gsi_gear_ratio_cal_ptr[5] = CAL_gsi_gear_ratio_long + 5;
+    gsi_min_rpm_cal_ptr[1] = CAL_gsi_min_rpm_manual;
+    gsi_min_rpm_cal_ptr[2] = CAL_gsi_min_rpm_manual + 1;
+    gsi_min_rpm_cal_ptr[3] = CAL_gsi_min_rpm_manual + 2;
+    gsi_min_rpm_cal_ptr[4] = CAL_gsi_min_rpm_manual + 3;
+    gsi_min_rpm_cal_ptr[5] = CAL_gsi_min_rpm_manual + 4;
   }
   else {
-    LEA_slip_gear_speed_ratios[0] = CAL_slip_gear_speed_ratios_cr;
-    LEA_slip_gear_speed_ratios[1] = CAL_slip_gear_speed_ratios_cr + 1;
-    LEA_slip_gear_speed_ratios[2] = CAL_slip_gear_speed_ratios_cr + 2;
-    LEA_slip_gear_speed_ratios[3] = CAL_slip_gear_speed_ratios_cr + 3;
-    LEA_slip_gear_speed_ratios[4] = CAL_slip_gear_speed_ratios_cr + 4;
-    LEA_slip_gear_speed_ratios[5] = CAL_slip_gear_speed_ratios_cr + 5;
-    LEA_slip_threshold_per_gear[1] = CAL_slip_threshold_per_gear_manual;
-    LEA_slip_threshold_per_gear[2] = CAL_slip_threshold_per_gear_manual + 1;
-    LEA_slip_threshold_per_gear[3] = CAL_slip_threshold_per_gear_manual + 2;
-    LEA_slip_threshold_per_gear[4] = CAL_slip_threshold_per_gear_manual + 3;
-    LEA_slip_threshold_per_gear[5] = CAL_slip_threshold_per_gear_manual + 4;
+    gsi_gear_ratio_cal_ptr[0] = CAL_gsi_gear_ratio_close;
+    gsi_gear_ratio_cal_ptr[1] = CAL_gsi_gear_ratio_close + 1;
+    gsi_gear_ratio_cal_ptr[2] = CAL_gsi_gear_ratio_close + 2;
+    gsi_gear_ratio_cal_ptr[3] = CAL_gsi_gear_ratio_close + 3;
+    gsi_gear_ratio_cal_ptr[4] = CAL_gsi_gear_ratio_close + 4;
+    gsi_gear_ratio_cal_ptr[5] = CAL_gsi_gear_ratio_close + 5;
+    gsi_min_rpm_cal_ptr[1] = CAL_gsi_min_rpm_manual;
+    gsi_min_rpm_cal_ptr[2] = CAL_gsi_min_rpm_manual + 1;
+    gsi_min_rpm_cal_ptr[3] = CAL_gsi_min_rpm_manual + 2;
+    gsi_min_rpm_cal_ptr[4] = CAL_gsi_min_rpm_manual + 3;
+    gsi_min_rpm_cal_ptr[5] = CAL_gsi_min_rpm_manual + 4;
   }
-  LEA_slip_threshold_per_gear[0] = &CAL_slip_threshold_1st_Gear;
+  gsi_min_rpm_cal_ptr[0] = &CAL_gsi_min_rpm_gear1;
   return;
 }
 
 
 
-bool get_slip_indicator_mode(void)
+bool gsi_enabled(void)
 
 {
   bool rv;
@@ -57022,9 +57026,9 @@ bool get_slip_indicator_mode(void)
                     // Default value for CAL_slip_detect_mode is 0x2, ENABLED
                     // COD_VIN[9] is > 'F'
                     // 
-  if (((CAL_slip_detect_mode == SLIP_DETECT_DISABLED) ||
-      (((byte)COD_base.vin[9] < 'F' && (CAL_slip_detect_mode < SLIP_DETECT_3)))) ||
-     (((COD_base.COD[0] >> 0xd & 7) == 1 && (CAL_slip_detect_mode == SLIP_DETECT_1)))) {
+  if (((CAL_gsi_mode == SLIP_DETECT_DISABLED) ||
+      (((byte)COD_base.vin[9] < 'F' && (CAL_gsi_mode < SLIP_DETECT_3)))) ||
+     (((COD_base.COD[0] >> 0xd & 7) == 1 && (CAL_gsi_mode == SLIP_DETECT_1)))) {
     rv = false;
   }
   else {
@@ -57071,26 +57075,26 @@ void gear_shift_indicator_update(void)
   _carspeed3 = car_speed_x100;
   _carspeed2 = (uint)car_speed_x100;
   _carspeed_1 = (uint)car_speed_x100;
-  _slip_indicator_enabled = get_slip_indicator_mode();
+  _slip_indicator_enabled = gsi_enabled();
   if (_slip_indicator_enabled) {
     _traction_steering_increase_rate =
-         ((uint)traction_steering_increase_factor * (uint)CAL_slip_steering_rate_factor) / 100;
+         ((uint)gsi_steering_rate * (uint)CAL_gsi_steering_rate_gain) / 100;
     traction_factor_steering = (ulonglong)(int)_traction_steering_increase_rate;
-    if (CAL_slip_steering_increase_factor_min < _traction_steering_increase_rate) {
-      traction_factor_steering = (ulonglong)CAL_slip_steering_increase_factor_min;
+    if (CAL_gsi_steering_term_max < _traction_steering_increase_rate) {
+      traction_factor_steering = (ulonglong)CAL_gsi_steering_term_max;
     }
     _lat_accel_abs = libc_abs((longlong)lat_accel);
     _cornering_intensity = traction_factor_steering + (_lat_accel_abs & 0xffff) & 0xffff;
-    tc_cornering_intensity = (uint8_t)_cornering_intensity;
+    gsi_cornering_intensity = (uint8_t)_cornering_intensity;
     if (0xff < _cornering_intensity) {
-      tc_cornering_intensity = 0xff;
+      gsi_cornering_intensity = 0xff;
     }
-    if ((traction_flags & 4) == 0) {
-      tc_cornering_inhibit_limit = (uint)CAL_slip_inhibit_cornering_base;
+    if ((gsi_flags & 4) == 0) {
+      tc_cornering_inhibit_limit = (uint)CAL_gsi_cornering_limit;
     }
     else {
       tc_cornering_inhibit_limit =
-           (uint)CAL_slip_inhibit_cornering_base + (uint)CAL_slip_inhibit_cornering_offset;
+           (uint)CAL_gsi_cornering_limit + (uint)CAL_gsi_cornering_limit_hyst;
     }
     if ((short)torque_net_engine_combustion < 0) {
       _torque_net = 0;
@@ -57110,286 +57114,282 @@ void gear_shift_indicator_update(void)
                 (ulonglong)obd_ii_atmospheric_baro) *
            (longlong)(((int)((uint)temp_engine_air * 4 + (uint)temp_engine_air) >> 3) + 0xe9) &
           0xffffffffU) * 0xdbeb61ef >> 0x28);
-    if (((coolant_temp_engine_stopped < CAL_slip_coldstart_coolant_threshold) &&
+    if (((coolant_temp_engine_stopped < CAL_gsi_coldstart_coolant_max) &&
         (maf_accumulated_since_start_raw < 0xfff)) && ((COD_base.COD[0] >> 0xd & 7) == 0)) {
-      traction_relax_factor_starting =
+      gsi_coldstart_rpm_offset =
            lookup_2D_uint16_interpolated
-                     (4,maf_accumulated_since_start_raw,CAL_slip_comp_maf_accum_manual,
-                      CAL_slip_comp_maf_accum_manual_X_maf_accum);
+                     (4,maf_accumulated_since_start_raw,CAL_gsi_coldstart_rpm_offset_manual,
+                      CAL_gsi_coldstart_rpm_offset_manual_X_air_mass);
     }
     else {
-      traction_relax_factor_starting = 0;
+      gsi_coldstart_rpm_offset = 0;
     }
     if (((((byte)(car_current_gear - GEAR_1) < 6) && (_carspeed3 != 0)) &&
         (engine_state_failure_flags == 0)) &&
        ((((COD_base.COD[0] >> 0xd & 7) != 1 || (ips_shift_exec_state != '\0')) ||
-        (SLIP_DETECT_3 < CAL_slip_detect_mode)))) {
+        (SLIP_DETECT_3 < CAL_gsi_mode)))) {
       if ((COD_base.COD[0] >> 0xd & 7) == 1) {
         _tc_activate_speed = 0;
       }
       else {
-        _tc_activate_speed = (uint)CAL_slip_threshold_car_speed * 100;
-        if (_carspeed2 < (uint)CAL_slip_threshold_car_speed * 100) {
+        _tc_activate_speed = (uint)CAL_gsi_speed_offset_manual * 100;
+        if (_carspeed2 < (uint)CAL_gsi_speed_offset_manual * 100) {
           _tc_activate_speed = _carspeed_1;
         }
       }
-      traction_power_based_rpm_threshold =
+      gsi_power_upshift_rpm =
            lookup_2D_uint16_interpolated
-                     ('\b',engine_power_corrected,CAL_slip_power_based_rpm_thresholds,
-                      CAL_slip_power_based_rpm_thresholds_X_power);
+                     ('\b',engine_power_corrected,CAL_gsi_power_upshift_rpm,
+                      CAL_gsi_power_upshift_rpm_X_power);
       for (i = 0; i < 6; i = i + 1) {
         _expected_rpm_for_speed =
-             (int)((_carspeed3 - _tc_activate_speed) * (uint)*LEA_slip_gear_speed_ratios[i]) / 1000;
+             (int)((_carspeed3 - _tc_activate_speed) * (uint)*gsi_gear_ratio_cal_ptr[i]) / 1000;
         if (_expected_rpm_for_speed < 65536) {
-          slip_expected_engine_rpm_per_gear[i] = (u16_rspeed_rpm)_expected_rpm_for_speed;
+          gsi_rpm_in_gear[i] = (u16_rspeed_rpm)_expected_rpm_for_speed;
         }
         else {
-          slip_expected_engine_rpm_per_gear[i] = 0xffff;
+          gsi_rpm_in_gear[i] = 0xffff;
         }
       }
-      if (CAL_slip_inhibit_accel_pedal_min < accel_pedal_pos_16bit) {
-        traction_inhibit_accel_pedal_timer = CAL_slip_inhibit_accel_pedal_timer;
+      if (CAL_gsi_pedal_applied_min < accel_pedal_pos_16bit) {
+        gsi_pedal_applied_timer = CAL_gsi_pedal_applied_hold;
       }
-      else if ((traction_inhibit_accel_pedal_timer == '\0') ||
-              (((traction_flags & 4) == 0 && ((traction_flags & 0x40) == 0)))) {
-        traction_inhibit_accel_pedal_timer = '\0';
+      else if ((gsi_pedal_applied_timer == '\0') ||
+              (((gsi_flags & 4) == 0 && ((gsi_flags & 0x40) == 0)))) {
+        gsi_pedal_applied_timer = '\0';
       }
-      traction_slip_detected_gear = NO_GEAR;
-      traction_power_limit_gear = NO_GEAR;
+      gsi_highest_gear_above_min_rpm = NO_GEAR;
+      gsi_highest_gear_above_power_rpm = NO_GEAR;
       for (k = 0; k < 6; k = k + 1) {
-        if (((((uint)*LEA_slip_threshold_per_gear[k] * 4 + (uint)*LEA_slip_threshold_per_gear[k] +
-               (uint)traction_relax_factor_starting + 500 <
-               (uint)slip_expected_engine_rpm_per_gear[k]) ||
-             (((traction_flags & 0x20) != 0 &&
-              ((int)(((uint)*LEA_slip_threshold_per_gear[k] -
-                     (uint)CAL_slip_threshold_hysteresis_offset) * 5 + 500) <
-               (int)(uint)slip_expected_engine_rpm_per_gear[k])))) &&
-            (((int)(short)obd_ii_idle_speed_target_total <
-              (int)(uint)slip_expected_engine_rpm_per_gear[k] || ((COD_base.COD[0] >> 0xd & 7) == 1)
-             ))) && (slip_expected_engine_rpm_per_gear[k] < CAL_slip_expected_rpm_max)) {
-          traction_slip_detected_gear = k + GEAR_1;
+        if (((((uint)*gsi_min_rpm_cal_ptr[k] * 4 + (uint)*gsi_min_rpm_cal_ptr[k] +
+               (uint)gsi_coldstart_rpm_offset + 500 < (uint)gsi_rpm_in_gear[k]) ||
+             (((gsi_flags & 0x20) != 0 &&
+              ((int)(((uint)*gsi_min_rpm_cal_ptr[k] - (uint)CAL_gsi_min_rpm_hyst) * 5 + 500) <
+               (int)(uint)gsi_rpm_in_gear[k])))) &&
+            (((int)(short)obd_ii_idle_speed_target_total < (int)(uint)gsi_rpm_in_gear[k] ||
+             ((COD_base.COD[0] >> 0xd & 7) == 1)))) &&
+           (gsi_rpm_in_gear[k] < CAL_gsi_rpm_in_gear_max)) {
+          gsi_highest_gear_above_min_rpm = k + GEAR_1;
         }
-        if (traction_power_based_rpm_threshold < slip_expected_engine_rpm_per_gear[k]) {
-          traction_power_limit_gear = k + GEAR_1;
+        if (gsi_power_upshift_rpm < gsi_rpm_in_gear[k]) {
+          gsi_highest_gear_above_power_rpm = k + GEAR_1;
         }
-        if ((traction_slip_detected_gear != traction_power_limit_gear) ||
-           ((uint)traction_slip_detected_gear != k + 1)) {
-          traction_per_gear_timer100ms_intervention[k] = CAL_slip_timer_per_gear_intervention;
+        if ((gsi_highest_gear_above_min_rpm != gsi_highest_gear_above_power_rpm) ||
+           ((uint)gsi_highest_gear_above_min_rpm != k + 1)) {
+          gsi_gear_qualify_timer[k] = CAL_gsi_gear_qualify_time;
         }
       }
-      _tc_flag_prev = traction_flags & 0xfe;
-      if (car_current_gear < traction_slip_detected_gear) {
-        _tc_flag_prev = traction_flags | 1;
+      _tc_flag_prev = gsi_flags & 0xfe;
+      if (car_current_gear < gsi_highest_gear_above_min_rpm) {
+        _tc_flag_prev = gsi_flags | 1;
       }
       _cur_gear1 = car_current_gear;
       _gear_idx = car_current_gear;
       _tc_flag_prev2 = _tc_flag_prev & 0xfd;
-      if (car_current_gear < traction_power_limit_gear) {
+      if (car_current_gear < gsi_highest_gear_above_power_rpm) {
         _tc_flag_prev2 = _tc_flag_prev | 2;
       }
       for (; _gear_idx < GEAR_6; _gear_idx = _gear_idx + GEAR_1) {
-        if (traction_per_gear_timer100ms_intervention[_gear_idx] <
-            CAL_slip_timer_per_gear_intervention) {
+        if (gsi_gear_qualify_timer[_gear_idx] < CAL_gsi_gear_qualify_time) {
           _cur_gear1 = _gear_idx + GEAR_1;
         }
       }
       if (car_current_gear < GEAR_2) {
-        traction_flags = _tc_flag_prev2 & 199;
+        gsi_flags = _tc_flag_prev2 & 199;
       }
       else {
         uVar1 = (ulonglong)car_current_gear - 1 & 0xff;
         if ((accel_pedal_pos_16bit < 0x3cd) ||
            (((0 < accel_front_wheels || ((_tc_flag_prev2 & 0x40) != 0)) &&
-            (((short)(ushort)CAL_slip_wheelspeed_front_accel_threshold <= accel_front_wheels ||
+            (((short)(ushort)CAL_gsi_front_wheel_accel_min <= accel_front_wheels ||
              (((_tc_flag_prev2 & 0x40) == 0 || ((_tc_flag_prev2 & 8) == 0)))))))) {
-          traction_flags = _tc_flag_prev2 & 0xf7;
+          gsi_flags = _tc_flag_prev2 & 0xf7;
         }
         else {
-          traction_flags = _tc_flag_prev2 | 8;
+          gsi_flags = _tc_flag_prev2 | 8;
         }
-        if ((engine_speed_16bit < traction_power_based_rpm_threshold) &&
+        if ((engine_speed_16bit < gsi_power_upshift_rpm) &&
            (((((int)(uint)engine_speed_16bit <
-               (int)(((uint)**(byte **)((int)LEA_slip_threshold_per_gear + (int)(uVar1 << 2)) -
-                     (uint)CAL_slip_threshold_rpm_margin) * 5 + 500) &&
-              (accel_front_wheels < (short)(ushort)CAL_slip_wheelspeed_front_accel_threshold)) &&
-             ((traction_flags & 0x40) == 0)) ||
-            (((bVar3 = **(byte **)((int)LEA_slip_threshold_per_gear + (int)(uVar1 << 2)),
+               (int)(((uint)**(byte **)((int)gsi_min_rpm_cal_ptr + (int)(uVar1 << 2)) -
+                     (uint)CAL_gsi_downshift_rpm_margin) * 5 + 500) &&
+              (accel_front_wheels < (short)(ushort)CAL_gsi_front_wheel_accel_min)) &&
+             ((gsi_flags & 0x40) == 0)) ||
+            (((bVar3 = **(byte **)((int)gsi_min_rpm_cal_ptr + (int)(uVar1 << 2)),
               engine_speed_16bit < (ushort)((ushort)bVar3 * 4 + (ushort)bVar3 + 500) &&
-              ((traction_flags & 0x40) != 0)) && ((traction_flags & 0x10) != 0)))))) {
-          traction_flags = traction_flags | 0x10;
+              ((gsi_flags & 0x40) != 0)) && ((gsi_flags & 0x10) != 0)))))) {
+          gsi_flags = gsi_flags | 0x10;
         }
         else {
-          traction_flags = traction_flags & 0xef;
+          gsi_flags = gsi_flags & 0xef;
         }
         if ((COD_base.COD[0] >> 0xd & 7) == 0) {
           if ((((int)(uint)engine_speed_16bit <
-                (int)(((uint)**(byte **)((int)LEA_slip_threshold_per_gear + (int)(uVar1 << 2)) -
-                      (uint)CAL_slip_threshold_hysteresis_offset) * 5 + 500)) ||
+                (int)(((uint)**(byte **)((int)gsi_min_rpm_cal_ptr + (int)(uVar1 << 2)) -
+                      (uint)CAL_gsi_min_rpm_hyst) * 5 + 500)) ||
               (((int)(uint)engine_speed_16bit <
                 (int)((int)(short)obd_ii_idle_speed_target_total -
                      ((uint)CAL_gsi_downshift_idle_margin * 4 + (uint)CAL_gsi_downshift_idle_margin)
-                     ) && ((traction_flags & 0x40) == 0)))) ||
+                     ) && ((gsi_flags & 0x40) == 0)))) ||
              (((int)(uint)engine_speed_16bit < (int)(short)obd_ii_idle_speed_target_total &&
-              (((traction_flags & 0x40) != 0 && ((traction_flags & 0x20) != 0)))))) {
-            traction_flags = traction_flags | 0x20;
+              (((gsi_flags & 0x40) != 0 && ((gsi_flags & 0x20) != 0)))))) {
+            gsi_flags = gsi_flags | 0x20;
           }
           else {
-            traction_flags = traction_flags & 0xdf;
+            gsi_flags = gsi_flags & 0xdf;
           }
         }
         else {
-          traction_flags = traction_flags & 0xdf;
+          gsi_flags = gsi_flags & 0xdf;
         }
       }
       cVar4 = 0;
       for (kk = 0; (int)(uint)kk < (int)(car_current_gear - 1); kk = kk + 1) {
-        if (traction_per_gear_timer100ms_intervention[kk] < CAL_slip_timer_per_gear_intervention) {
+        if (gsi_gear_qualify_timer[kk] < CAL_gsi_gear_qualify_time) {
           cVar4 = kk + 1;
         }
       }
       if (((((COD_base.COD[1] >> 0x15 & 3) == 2) ||
-           ((int)(uint)CAL_slip_timer_reset_steering_angle <= (int)(short)steering_angle)) ||
-          ((int)(short)steering_angle <= (int)-(uint)CAL_slip_timer_reset_steering_angle)) ||
-         ((tc_cornering_inhibit_limit <= tc_cornering_intensity || ((abs_esp_flags & 7) != 0)))) {
-        traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-        gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
-        traction_flags = traction_flags & 0xbb;
+           ((int)(uint)CAL_gsi_steering_angle_max <= (int)(short)steering_angle)) ||
+          ((int)(short)steering_angle <= (int)-(uint)CAL_gsi_steering_angle_max)) ||
+         ((tc_cornering_inhibit_limit <= gsi_cornering_intensity || ((abs_esp_flags & 7) != 0)))) {
+        gsi_upshift_advisory_timer = CAL_gsi_gear_qualify_time;
+        gsi_downshift_advisory_timer = CAL_gsi_downshift_advisory_delay;
+        gsi_flags = gsi_flags & 0xbb;
       }
       else if (((((brake_switch & 0x11) == 0) &&
-                ((traction_inhibit_accel_pedal_timer != '\0' || ((cruise_status_flags & 2) != 0))))
-               && (car_current_gear < traction_slip_detected_gear)) &&
-              (((traction_flags & 2) != 0 && (car_current_gear < _cur_gear1)))) {
-        _tc_flags_unknown1 = traction_flags & 0xbf;
-        gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
-        if ((traction_timer_per_gear_intervention == '\0') ||
-           (bVar3 = traction_flags & 4, traction_flags = _tc_flags_unknown1, bVar3 != 0)) {
-          traction_flags = _tc_flags_unknown1 | 4;
+                ((gsi_pedal_applied_timer != '\0' || ((cruise_status_flags & 2) != 0)))) &&
+               (car_current_gear < gsi_highest_gear_above_min_rpm)) &&
+              (((gsi_flags & 2) != 0 && (car_current_gear < _cur_gear1)))) {
+        _tc_flags_unknown1 = gsi_flags & 0xbf;
+        gsi_downshift_advisory_timer = CAL_gsi_downshift_advisory_delay;
+        if ((gsi_upshift_advisory_timer == '\0') ||
+           (bVar3 = gsi_flags & 4, gsi_flags = _tc_flags_unknown1, bVar3 != 0)) {
+          gsi_flags = _tc_flags_unknown1 | 4;
         }
       }
-      else if ((((((traction_flags & 0x10) == 0) && ((traction_flags & 8) == 0)) ||
-                (((traction_inhibit_accel_pedal_timer == '\0' && ((cruise_status_flags & 2) == 0))
-                 || ((brake_switch & 0x11) != 0)))) && ((traction_flags & 0x20) == 0)) ||
-              (cVar4 == '\0')) {
-        traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-        gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
-        traction_flags = traction_flags & 0xbb;
+      else if ((((((gsi_flags & 0x10) == 0) && ((gsi_flags & 8) == 0)) ||
+                (((gsi_pedal_applied_timer == '\0' && ((cruise_status_flags & 2) == 0)) ||
+                 ((brake_switch & 0x11) != 0)))) && ((gsi_flags & 0x20) == 0)) || (cVar4 == '\0')) {
+        gsi_upshift_advisory_timer = CAL_gsi_gear_qualify_time;
+        gsi_downshift_advisory_timer = CAL_gsi_downshift_advisory_delay;
+        gsi_flags = gsi_flags & 0xbb;
       }
       else {
-        bVar3 = traction_flags & 0xfb;
-        traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
+        bVar3 = gsi_flags & 0xfb;
+        gsi_upshift_advisory_timer = CAL_gsi_gear_qualify_time;
         if ((gsi_downshift_advisory_timer == '\0') ||
-           (bVar2 = traction_flags & 0x40, traction_flags = bVar3, bVar2 != 0)) {
-          traction_flags = bVar3 | 0x40;
+           (bVar2 = gsi_flags & 0x40, gsi_flags = bVar3, bVar2 != 0)) {
+          gsi_flags = bVar3 | 0x40;
         }
       }
-      if (((traction_flags & 4) == 0) && ((traction_flags & 0x40) == 0)) {
-        tc_gear_recommended = '\x0f';
-        slip_gear_change_holdoff_timer = '\0';
+      if (((gsi_flags & 4) == 0) && ((gsi_flags & 0x40) == 0)) {
+        gsi_recommended_gear = '\x0f';
+        gsi_recommended_gear_holdoff_timer = '\0';
       }
       else {
         _tc_gear_unknown1 = 0;
         for (ii = 0; ii < 6; ii = ii + 1) {
-          if (traction_per_gear_timer100ms_intervention[ii] == '\0') {
+          if (gsi_gear_qualify_timer[ii] == '\0') {
             _tc_gear_unknown1 = ii + 1;
           }
         }
-        if ((traction_flags & 4) == 0) {
-          if ((int)(uint)CAL_slip_tc_gear_max_step <
+        if ((gsi_flags & 4) == 0) {
+          if ((int)(uint)CAL_gsi_recommended_gear_max_step <
               (int)((uint)car_current_gear - (uint)_tc_gear_unknown1)) {
-            _tc_gear_unknown1 = car_current_gear - CAL_slip_tc_gear_max_step;
+            _tc_gear_unknown1 = car_current_gear - CAL_gsi_recommended_gear_max_step;
           }
         }
-        else if ((int)(uint)CAL_slip_tc_gear_max_step <
+        else if ((int)(uint)CAL_gsi_recommended_gear_max_step <
                  (int)((uint)_tc_gear_unknown1 - (uint)car_current_gear)) {
-          _tc_gear_unknown1 = car_current_gear + CAL_slip_tc_gear_max_step;
+          _tc_gear_unknown1 = car_current_gear + CAL_gsi_recommended_gear_max_step;
         }
-        if ((tc_gear_recommended == '\x0f') ||
-           ((_tc_gear_unknown1 != tc_gear_recommended && (slip_gear_change_holdoff_timer == '\0'))))
-        {
-          tc_gear_recommended = _tc_gear_unknown1;
-          if ((traction_flags & 0x40) == 0) {
-            slip_gear_change_holdoff_timer = CAL_slip_timer_per_gear_intervention;
+        if ((gsi_recommended_gear == '\x0f') ||
+           ((_tc_gear_unknown1 != gsi_recommended_gear &&
+            (gsi_recommended_gear_holdoff_timer == '\0')))) {
+          gsi_recommended_gear = _tc_gear_unknown1;
+          if ((gsi_flags & 0x40) == 0) {
+            gsi_recommended_gear_holdoff_timer = CAL_gsi_gear_qualify_time;
           }
           else {
-            slip_gear_change_holdoff_timer = CAL_slip_timer_intervention2;
+            gsi_recommended_gear_holdoff_timer = CAL_gsi_downshift_advisory_delay;
           }
         }
       }
     }
     else {
       for (jj = 0; jj < 6; jj = jj + 1) {
-        slip_expected_engine_rpm_per_gear[jj] = 0;
-        traction_per_gear_timer100ms_intervention[jj] = CAL_slip_timer_per_gear_intervention;
+        gsi_rpm_in_gear[jj] = 0;
+        gsi_gear_qualify_timer[jj] = CAL_gsi_gear_qualify_time;
       }
-      traction_flags = '\0';
-      traction_power_based_rpm_threshold = 0;
-      traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-      gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
-      traction_inhibit_accel_pedal_timer = '\0';
-      slip_gear_change_holdoff_timer = '\0';
-      traction_slip_detected_gear = NO_GEAR;
-      traction_power_limit_gear = NO_GEAR;
-      tc_gear_recommended = '\x0f';
+      gsi_flags = '\0';
+      gsi_power_upshift_rpm = 0;
+      gsi_upshift_advisory_timer = CAL_gsi_gear_qualify_time;
+      gsi_downshift_advisory_timer = CAL_gsi_downshift_advisory_delay;
+      gsi_pedal_applied_timer = '\0';
+      gsi_recommended_gear_holdoff_timer = '\0';
+      gsi_highest_gear_above_min_rpm = NO_GEAR;
+      gsi_highest_gear_above_power_rpm = NO_GEAR;
+      gsi_recommended_gear = '\x0f';
     }
     if ((COD_base.COD[0] >> 0xd & 7) == 0) {
       if (car_speed_x100 == 0) {
-        tc_is_moving = false;
-        _slip_indicator_enabled = tc_is_moving;
+        gsi_vehicle_moving = false;
+        _slip_indicator_enabled = gsi_vehicle_moving;
       }
       else {
         _slip_indicator_enabled = true;
         if (4 < (byte)(car_current_gear - GEAR_2)) {
-          _slip_indicator_enabled = tc_is_moving;
+          _slip_indicator_enabled = gsi_vehicle_moving;
         }
       }
-      tc_is_moving = _slip_indicator_enabled;
+      gsi_vehicle_moving = _slip_indicator_enabled;
       if (((clutch_pos_sensor & 1) == 0) ||
          (((car_current_gear != GEAR_1 ||
-           (_carspeed3 < (ushort)((ushort)CAL_slip_enable_speed * 100))) && (tc_is_moving != true)))
-         ) {
-        if (((traction_flags & 4) == 0) && ((traction_flags & 0x40) == 0)) {
-          tc_gear_tracker = 0xf;
+           (_carspeed3 < (ushort)((ushort)CAL_gsi_first_gear_speed_min * 100))) &&
+          (gsi_vehicle_moving != true)))) {
+        if (((gsi_flags & 4) == 0) && ((gsi_flags & 0x40) == 0)) {
+          gsi_display_gear = 0xf;
         }
-        else if (tc_gear_tracker == 0xf) {
-          tc_gear_tracker = car_current_gear;
+        else if (gsi_display_gear == 0xf) {
+          gsi_display_gear = car_current_gear;
         }
       }
       else {
-        tc_gear_tracker = car_current_gear;
+        gsi_display_gear = car_current_gear;
       }
     }
     else {
-      tc_gear_tracker = car_current_gear;
+      gsi_display_gear = car_current_gear;
       if (5 < (byte)(car_current_gear - GEAR_1)) {
-        tc_gear_tracker = 0xf;
+        gsi_display_gear = 0xf;
       }
     }
   }
   else {
     for (j = 0; j < 6; j = j + 1) {
-      slip_expected_engine_rpm_per_gear[j] = 0;
-      traction_per_gear_timer100ms_intervention[j] = CAL_slip_timer_per_gear_intervention;
+      gsi_rpm_in_gear[j] = 0;
+      gsi_gear_qualify_timer[j] = CAL_gsi_gear_qualify_time;
     }
-    traction_flags = '\0';
+    gsi_flags = '\0';
     engine_power_corrected = 0;
-    tc_cornering_intensity = '\0';
-    traction_power_based_rpm_threshold = 0;
-    traction_relax_factor_starting = 0;
-    traction_timer_per_gear_intervention = CAL_slip_timer_per_gear_intervention;
-    gsi_downshift_advisory_timer = CAL_slip_timer_intervention2;
-    traction_inhibit_accel_pedal_timer = '\0';
-    slip_gear_change_holdoff_timer = '\0';
-    traction_slip_detected_gear = NO_GEAR;
-    traction_power_limit_gear = NO_GEAR;
-    tc_gear_recommended = '\x0f';
-    tc_gear_tracker = 0xf;
+    gsi_cornering_intensity = '\0';
+    gsi_power_upshift_rpm = 0;
+    gsi_coldstart_rpm_offset = 0;
+    gsi_upshift_advisory_timer = CAL_gsi_gear_qualify_time;
+    gsi_downshift_advisory_timer = CAL_gsi_downshift_advisory_delay;
+    gsi_pedal_applied_timer = '\0';
+    gsi_recommended_gear_holdoff_timer = '\0';
+    gsi_highest_gear_above_min_rpm = NO_GEAR;
+    gsi_highest_gear_above_power_rpm = NO_GEAR;
+    gsi_recommended_gear = '\x0f';
+    gsi_display_gear = 0xf;
   }
   return;
 }
 
 
 
-void slip_timers_and_steering_rate_100ms(void)
+void gsi_timers_and_steering_rate_100ms(void)
 
 {
   bool bVar1;
@@ -57399,31 +57399,30 @@ void slip_timers_and_steering_rate_100ms(void)
   bool intervention_unknown_timer_zero;
   bool inhibit_timer_zero;
   
-  inhibit_timer_zero = traction_inhibit_accel_pedal_timer == '\0';
-  traction_inhibit_accel_pedal_timer = traction_inhibit_accel_pedal_timer + 0xff;
+  inhibit_timer_zero = gsi_pedal_applied_timer == '\0';
+  gsi_pedal_applied_timer = gsi_pedal_applied_timer + 0xff;
   if (inhibit_timer_zero) {
-    traction_inhibit_accel_pedal_timer = 0;
+    gsi_pedal_applied_timer = 0;
   }
   for (i = 0; i < 6; i = i + 1) {
-    if (traction_per_gear_timer100ms_intervention[i] != '\0') {
-      traction_per_gear_timer100ms_intervention[i] =
-           traction_per_gear_timer100ms_intervention[i] + 0xff;
+    if (gsi_gear_qualify_timer[i] != '\0') {
+      gsi_gear_qualify_timer[i] = gsi_gear_qualify_timer[i] + 0xff;
     }
   }
-  intervention_per_gear_timer_zero = traction_timer_per_gear_intervention == '\0';
-  traction_timer_per_gear_intervention = traction_timer_per_gear_intervention + 0xff;
+  intervention_per_gear_timer_zero = gsi_upshift_advisory_timer == '\0';
+  gsi_upshift_advisory_timer = gsi_upshift_advisory_timer + 0xff;
   if (intervention_per_gear_timer_zero) {
-    traction_timer_per_gear_intervention = '\0';
+    gsi_upshift_advisory_timer = '\0';
   }
   intervention_unknown_timer_zero = gsi_downshift_advisory_timer == '\0';
   gsi_downshift_advisory_timer = gsi_downshift_advisory_timer + 0xff;
   if (intervention_unknown_timer_zero) {
     gsi_downshift_advisory_timer = '\0';
   }
-  bVar1 = slip_gear_change_holdoff_timer == '\0';
-  slip_gear_change_holdoff_timer = slip_gear_change_holdoff_timer + 0xff;
+  bVar1 = gsi_recommended_gear_holdoff_timer == '\0';
+  gsi_recommended_gear_holdoff_timer = gsi_recommended_gear_holdoff_timer + 0xff;
   if (bVar1) {
-    slip_gear_change_holdoff_timer = '\0';
+    gsi_recommended_gear_holdoff_timer = '\0';
   }
   _steering_angle_abs = libc_abs((longlong)(short)steering_angle);
   steering_angle_delta = 0;
@@ -57433,10 +57432,10 @@ void slip_timers_and_steering_rate_100ms(void)
   if (0xff < steering_angle_delta) {
     steering_angle_delta = 0xff;
   }
-  steering_angle_smoothed =
-       ((0x100 - (uint)CAL_slip_steering_angle_smooth_factor) * steering_angle_smoothed >> 8) +
-       (uint)CAL_slip_steering_angle_smooth_factor * (uint)steering_angle_delta;
-  traction_steering_increase_factor = (u8_factor_1_255)(steering_angle_smoothed >> 8);
+  gsi_steering_rate_filter_q8 =
+       ((0x100 - (uint)CAL_gsi_steering_rate_filter_weight) * gsi_steering_rate_filter_q8 >> 8) +
+       (uint)CAL_gsi_steering_rate_filter_weight * (uint)steering_angle_delta;
+  gsi_steering_rate = (uint8_t)(gsi_steering_rate_filter_q8 >> 8);
   steering_angle_abs_last = (u16_angle_1_10deg)_steering_angle_abs;
   return;
 }
@@ -58459,7 +58458,7 @@ void dpm_slip_calculator(void)
     if ((dpm_control_flags & 0x40) == 0) {
                     // This redundant variable is not needed.
       dpm_min_activation_speed = CAL_dpm_min_vehicle_speed;
-      tc_slip_target_mode_state = '\0';
+      dpm_slip_target_mode = '\0';
       dpm_slip_target_comp_pedal =
            lookup_3D_uint8_interpolated
                      (6,6,(ushort)dpm_vehicle_speed_kph,(short)accel_pedal_latched >> 2 & 0xff,
@@ -58476,7 +58475,7 @@ void dpm_slip_calculator(void)
              lookup_2D_uint8_interpolated
                        (16,dpm_mode_index,CAL_dpm_slip_target_base,
                         CAL_dpm_slip_target_base_X_dpm_level);
-        tc_slip_target_mode_state = '\x01';
+        dpm_slip_target_mode = '\x01';
         _dpm_slip_target_comp_pedal =
              lookup_3D_uint8_interpolated
                        (6,6,(ushort)dpm_vehicle_speed_kph,(short)accel_pedal_latched >> 2 & 0xff,
@@ -58487,14 +58486,14 @@ void dpm_slip_calculator(void)
         dpm_control_flags = dpm_control_flags | 8;
       }
       else {
-        tc_slip_target_mode_state = '\x02';
+        dpm_slip_target_mode = '\x02';
         dpm_control_flags = dpm_control_flags & 0xfff7;
         dpm_slip_target_base = 0xff;
       }
     }
   }
   else {
-    tc_slip_target_mode_state = '\x02';
+    dpm_slip_target_mode = '\x02';
     dpm_control_flags = dpm_control_flags & 0xfff7;
     dpm_slip_target_base = 0xff;
   }
