@@ -2120,8 +2120,8 @@ uint8_t CAL_ecu_learning_x_axis_stability_threshold;
 uint8_t CAL_ecu_learning_y_axis_stability_threshold;
 short DAT_40001884;
 enum_oil_pressure_sensor_mode CAL_oil_pressure_warning_light_mode;
-undefined1 sensor_temp_unk1_diag;
-undefined1 sensor_temp_unk2_diag;
+uint8_t sensor_temp_unk1_diag;
+uint8_t sensor_temp_unk2_diag;
 undefined2 sensor_temp_unk1_raw;
 undefined2 sensor_temp_unk2_raw;
 u16_pressure_mbar manifold_pressure_calculated;
@@ -3542,7 +3542,7 @@ bool ips_cooling;
 undefined u8_dutycycle_100/255_400014ac;
 u8_dutycycle_100/255 radiator_fan_dc_coolant_based;
 undefined DAT_000186a0;
-undefined1 radiator_fan_pwm_output;
+uint8_t radiator_fan_pwm_output;
 bool radiator_fan_pwm_initialized;
 u8_dutycycle_100/255 radiator_fan_dc_airtemp_based;
 bool ac_cooling_fan_required;
@@ -3751,7 +3751,6 @@ u16_distance_km cluster_range_to_empty_calculated;
 uint8_t CAL_cluster_fuel_range_remaining_smoothing_factor;
 bool fuel_usage_reset;
 u8_time_100ms CAL_cluster_fuel_usage_reset_request_timer;
-byte DAT_40001b6f;
 byte DAT_40001b70;
 u16_time_5ms CAL_dfco_recovery_enrich_cooldown_ticks;
 u8_load_4mg/stroke[16] CAL_injtip_comp_load1_X_load;
@@ -3759,7 +3758,7 @@ uint8_t[16] CAL_injtip_comp_load1;
 u8_temp_5/8-40c[4] CAL_injtip_dfco_manual_default_X_coolant_temp;
 u8_rspeed_10rpm[4] CAL_injtip_dfco_manual_default;
 uint8_t[18] CAL_injtip_dfco_recovery_enrich_by_duration;
-undefined1 injtip_out_load_scale;
+uint8_t injtip_out_load_scale;
 u8_temp_5/8-40c[4] CAL_injtip_dfco_enable_rpm_manual_alt_X_coolant_temp;
 undefined2 injtip_transient_magnitude;
 u8_rspeed_10rpm[4] CAL_injtip_dfco_enable_rpm_manual_alt;
@@ -3771,6 +3770,7 @@ u8_speed_kph CAL_injtip_dfco_enable_speed;
 u8_load_4mg/stroke[16] CAL_injtip_comp_negative_load_X_load;
 u8_speed_kph CAL_injtip_dfco_low_speed_threshold;
 uint8_t[16] CAL_injtip_comp_negative_load;
+uint8_t injtip_comp_load1;
 u8_rspeed_125/4+500rpm[16] CAL_injtip_in_rpm_scale_X_rpm;
 u8_factor_1/128[16] CAL_injtip_in_rpm_scale;
 u8_rspeed_125/4+500rpm[16] CAL_injtip_in_rpm_decay_X_rpm;
@@ -3797,10 +3797,10 @@ u8_temp_5/8-40c CAL_injtip_dfco_enable_temp;
 int8_t inj_tip_in_adj_gear_current;
 u16_rspeed_rpm dfco_enable_engine_speed;
 bool inj_tip_apply_adj;
-undefined1 injtip_in_rpm_scale;
-undefined1 injtip_in_coolant_scale;
-undefined1 injtip_out_rpm_scale;
-undefined1 injtip_out_coolant_scale;
+u8_factor_1/128 injtip_in_rpm_scale;
+u8_factor_1/64 injtip_in_coolant_scale;
+u8_factor_1/128 injtip_out_rpm_scale;
+u8_factor_1/64 injtip_out_coolant_scale;
 undefined4 injtip_in_enrichment_raw;
 undefined4 injtip_out_enleanment_raw;
 undefined2 dfco_disable_rpm_neutral;
@@ -3878,7 +3878,7 @@ u16_pressure_mbar[16] CAL_load_ve_for_speed_density_Y_map;
 u16_factor_1/10000[256] CAL_load_ve_for_speed_density;
 bool load_source_is_alphaN;
 u8_time_5ms CAL_load_alphaN_hold_time;
-undefined1 load_unused1;
+uint8_t load_unused1;
 u16_rspeed_rpm CAL_load_alphaN_max_rpm;
 u8_rspeed_125/4+500rpm[16] CAL_load_ve_for_map_synthesis_X_rpm;
 u8_load_4mg/stroke[16] CAL_load_ve_for_map_synthesis_Y_load;
@@ -3990,16 +3990,16 @@ ushort DAT_40001c42;
 ushort DAT_40001c40;
 ushort DAT_40001c14;
 ushort DAT_40001c18;
-byte DAT_40001c10;
 ushort DAT_40001c16;
 ushort DAT_40001c1a;
-byte DAT_40001c11;
 uint16_t cl_status_bank1;
 undefined2 obd_ii_cat_monitor_count_b1;
 undefined2 obd_ii_cat_monitor_threshold_current;
 u8_obd2level_t6 CAL_obd_ii_P0420;
 undefined2 obd_ii_o2_precat_sw_bank2;
 u8_obd2level_t6 CAL_obd_ii_P0430;
+u8_count obd_ii_p0420_health;
+u8_count obd_ii_p0430_health;
 u16_pressure_mbar CAL_obd_ii_cat_monitor_baro_min;
 uint16_t cl_status_bank2;
 u8_count CAL_obd_ii_P0420_debounce_count;
@@ -4027,8 +4027,6 @@ u16_time_5ms CAL_obd_ii_o2_tps_transient_settle_ticks;
 u8_factor_1/1023 CAL_obd_ii_o2_tps_transient_threshold;
 uint8_t CAL_obd_ii_cat_mon_post_dfco_holdoff_prescaler;
 u8_factor_1/2560 CAL_obd_ii_postcat_o2_mean_filter_gain;
-u8_count DAT_40001c10;
-u8_count DAT_40001c11;
 byte DAT_000d1098;
 undefined1 DAT_000d1099;
 u16_rspeed_rpm CAL_ecu_standing_start_threshold;
@@ -4304,11 +4302,8 @@ char DAT_40001cee;
 short DAT_400023a0;
 byte DAT_40001cec;
 u8_obd2level_t6 CAL_obd_ii_P0446;
-char DAT_40001e68;
 uint16_t DAT_40001e70;
-byte DAT_40001ce9;
 char DAT_40002180;
-byte DAT_40001cea;
 undefined4 evap_system_state_flags;
 undefined2 evap_purge_flags;
 undefined1 evap_vent_valve_closed;
@@ -4318,12 +4313,15 @@ u8_time_100ms CAL_obd_ii_P0441_runtime_min;
 u16_factor_1/255 CAL_obd_ii_commanded_evap_purge_threshold;
 u8_pressure_1/10mbar CAL_evap_vacuum_threshold;
 u8_time_100ms CAL_evap_purge_flow_state_timer_init;
+u8_count obd_ii_p0441_health;
 u8_time_100ms CAL_evap_purge_stuck_open_test_passes;
 i16_pressure_1/10mbar CAL_evap_tank_vacuum_flow_threshold;
+u8_count obd_ii_p0446_health;
 i16_pressure_1/10mbar CAL_evap_system_state_flags_param;
 i16_pressure_1/10mbar CAL_evap_purge_flow_vacuum_min;
 u8_time_100ms CAL_evap_canister_purge_solenoid_timer_init;
 u8_load_4mg/stroke CAL_evap_purge_min_load;
+u8_count obd_ii_p0455_health;
 u8_obd2level_t6 CAL_obd_ii_P0455;
 uint8_t siu_gpdo+0xc3;
 undefined1 obd_ii_system_leak_status;
@@ -4334,18 +4332,16 @@ undefined1 evap_purge_flow_state_timer;
 u8_count CAL_obd_ii_P0441_fail_count;
 u8_load_4mg/stroke CAL_evap_purge_min_load_active;
 u8_count CAL_obd_ii_P0446_fail_count;
-u8_count DAT_40001ce9;
-u8_count DAT_40001cea;
 u8_speed_kph u8_speed_kph_40001d04;
 u16_time_100ms DAT_40001d00;
 ushort DAT_40001d02;
 byte DAT_4000172e;
-byte DAT_40001cf8;
 byte DAT_40001720;
 u8_obd2level_t6 CAL_obd_ii_P0341;
 u8_obd2level_t6 CAL_obd_ii_P0346;
 u8_obd2level_t6 CAL_obd_ii_P0366;
 u8_obd2level_t6 CAL_obd_ii_P0391;
+u8_count obd_ii_p0335_health;
 u16_time_100ms CAL_obd_ii_P0500_test_time;
 u8_speed_kph CAL_obd_ii_P0500_car_speed_min;
 u8_obd2level_t6 CAL_obd_ii_P0500;
@@ -4362,37 +4358,14 @@ u8_obd2level_t6 CAL_obd_ii_P0335;
 u8_count CAL_obd_ii_P0335_debounce_count;
 u8_count CAL_obd_ii_P0500_debounce_count;
 undefined1 car_speed_flags_unknown;
-u8_count DAT_40001cf8;
 undefined2 stft_ramp_rate_bank2;
-char DAT_40002048;
 uint16_t o2_switch_counter_bank2;
-char DAT_4000207c;
-char DAT_4000206a;
-char DAT_4000206b;
 undefined1 cl_cross_bank_check_enabled;
-char DAT_4000206e;
 undefined2 cl_cross_bank_fault;
-char DAT_4000206f;
 u8_time_5ms stft_increment_timer_bank1;
-char DAT_40002072;
 u8_time_5ms stft_increment_timer_bank2;
-char DAT_40002073;
-char DAT_40002076;
-char DAT_40002078;
-char DAT_4000207a;
-char DAT_40002045;
-char DAT_4000207d;
-char DAT_4000206c;
-char DAT_4000206d;
-char DAT_40002070;
-char DAT_40002071;
 u8_rspeed_125/4+500rpm[8] CAL_closedloop_o2_switch_threshold_X_rpm;
-char DAT_40002074;
 uint8_t[8] CAL_closedloop_o2_switch_threshold;
-char DAT_40002075;
-char DAT_40002077;
-char DAT_40002079;
-char DAT_4000207b;
 undefined1 closed_loop_active_bank1;
 undefined1 closed_loop_active_bank2;
 uint8_t CAL_closedloop_jump_lean_scaling_ips;
@@ -4402,9 +4375,11 @@ u8_count obd_ii_p0151_health;
 u8_count obd_ii_p0152_health;
 u8_time_s[16] CAL_closedloop_activate_engine_timer;
 u8_rspeed_125/4+500rpm[8] CAL_closedloop_proportional_gain_rich_table_X_rpm;
+u8_count obd_ii_p0154_health;
 u8_load_4mg/stroke[8] CAL_closedloop_proportional_gain_rich_table_Y_load;
 u16_time_5ms CAL_closedloop_activate_timer_o2_check;
 u8_factor_1/255[64] CAL_closedloop_proportional_gain_rich_table;
+u8_count obd_ii_p0134_health;
 u8_rspeed_125/4+500rpm[8] CAL_closedloop_proportional_gain_lean_table_X_rpm;
 u8_load_4mg/stroke[8] CAL_closedloop_proportional_gain_lean_table_Y_load;
 u16_voltage_5/1023v CAL_closedloop_o2_sensor_voltage_switching_lean;
@@ -4416,11 +4391,31 @@ u8_factor_1/255[64] CAL_closedloop_integral_gain_table;
 u8_rspeed_125/4+500rpm[8] CAL_closedloop_derivative_gain_table_X_rpm;
 u8_load_4mg/stroke[8] CAL_closedloop_derivative_gain_table_Y_load;
 u8_factor_1/255[64] CAL_closedloop_derivative_gain_table;
+u8_count obd_ii_p0261_health;
+u8_count obd_ii_p0262_health;
+u8_count obd_ii_p0264_health;
+u8_count obd_ii_p0265_health;
+u8_count obd_ii_p0267_health;
+u8_count obd_ii_p0268_health;
 undefined2 stft_at_o2_rich_switch_bank1;
+u8_count obd_ii_p0270_health;
 undefined2 stft_at_o2_rich_switch_bank2;
+u8_count obd_ii_p0271_health;
+u8_count obd_ii_p0273_health;
 uint8_t CAL_closedloop_o2_switch_threshold_ips;
+u8_count obd_ii_p0274_health;
 uint8_t CAL_closedloop_o2_switch_timeout_engine_cycles_ips;
+u8_count obd_ii_p0276_health;
 u8_time_5ms CAL_closedloop_stft_ramp_interval_manual;
+u8_count obd_ii_p0277_health;
+u8_count obd_ii_p0351_health;
+u8_count obd_ii_p0352_health;
+u8_count obd_ii_p0353_health;
+u8_count obd_ii_p0354_health;
+u8_count obd_ii_p0355_health;
+u8_count obd_ii_p0356_health;
+u8_count obd_ii_p0135_health;
+u8_count obd_ii_p0155_health;
 u16_time_5ms closedloop_activate_time;
 undefined2 cl_proportional_gain_lean;
 i16_factor_1/20 cl_jump_lean;
@@ -4536,18 +4531,18 @@ i16_percent_1/10 CAL_obd_ii_P0171_ltft_limit;
 u8_count CAL_obd_ii_P2191_debounce_count;
 u8_time_10us CAL_obd_ii_P0171_learn_time_threshold;
 u8_count CAL_obd_ii_P2193_debounce_count;
-undefined1 obd_ii_P0171_debounce_counter;
+u8_count obd_ii_p0171_health;
 i16_percent_1/10 CAL_obd_ii_P0172_ltft_limit;
 u8_time_10us CAL_obd_ii_P0172_learn_time_threshold;
-undefined1 obd_ii_P0172_debounce_counter;
-undefined1 obd_ii_P0174_debounce_counter;
-undefined1 obd_ii_P0175_debounce_counter;
+u8_count obd_ii_p0172_health;
+u8_count obd_ii_p0174_health;
+u8_count obd_ii_p0175_health;
 u8_load_4mg/stroke CAL_obd_ii_high_load_monitor_load_min;
 u16_afr_1/100 CAL_obd_ii_high_load_monitor_afr_max;
 u8_time_100ms CAL_obd_ii_P2192_rich_confirm_time;
 u8_time_100ms CAL_obd_ii_P2191_lean_confirm_time;
-undefined1 obd_ii_P2191_debounce_counter;
-undefined1 obd_ii_P2193_debounce_counter;
+u8_count obd_ii_p2191_health;
+u8_count obd_ii_p2193_health;
 u8_obd2level_t6 CAL_obd_ii_P0171;
 u16_load_mg/stroke CAL_obd_ii_P219A_load_min;
 u8_obd2level_t6 CAL_obd_ii_P0172;
@@ -4696,7 +4691,7 @@ bool idle_air_fast_decay_flag;
 u8_factor_1/64[128] CAL_idle_air_warmup_factor_manual;
 u8_temp_5/8-40c[16] CAL_idle_air_warmup_factor_manual_X_coolant_temp;
 u8_mass_4g[8] CAL_idle_air_warmup_factor_manual_Y_maf_accumulated;
-undefined1 idle_air_warmup_factor;
+u8_factor_1/64 idle_air_warmup_factor;
 u8_factor_1/64[128] CAL_idle_air_warmup_factor_ips;
 u8_temp_5/8-40c[16] CAL_idle_air_warmup_factor_ips_X_coolant_temp;
 u8_mass_4g[8] CAL_idle_air_warmup_factor_ips_Y_maf_accum;
@@ -4774,14 +4769,14 @@ u8_rspeed_rpm CAL_idle_carspeed_comp_decay_step_ac;
 uint8_t CAL_idle_high_rpm_transient_air_decay_step;
 uint8_t CAL_idle_air_fast_decay_step;
 byte DAT_40001e25;
-byte DAT_40001e22;
 byte DAT_40001e23;
-byte DAT_40001e20;
 byte DAT_40001e24;
-byte DAT_40001e21;
 byte DAT_40001e26;
 byte DAT_40001e27;
 u8_obd2level_t6 CAL_obd_ii_P050A;
+u8_count obd_ii_p0506_health;
+u8_count obd_ii_p0507_health;
+u8_count obd_ii_p050a_health;
 u8_obd2level_t6 CAL_obd_ii_P0506;
 u8_obd2level_t6 CAL_obd_ii_P0507;
 u8_temp_5/8-40c CAL_coolant_temp_threshold;
@@ -4794,9 +4789,6 @@ u8_rspeed_2rpm CAL_obd_ii_P050A_idle_error_high;
 u8_rspeed_2rpm CAL_obd_ii_P050A_idle_error_low;
 u8_count CAL_obd_ii_P0506_debounce_count;
 u8_count CAL_obd_ii_P050A_debounce_count;
-u8_count DAT_40001e20;
-u8_count DAT_40001e21;
-u8_count DAT_40001e22;
 bool knock_agc_gain_select_bit1;
 uint8_t siu_gpdo+0xd3;
 uint8_t siu_gpdo+0xd4;
@@ -4805,7 +4797,7 @@ uint16_t[8][8][6] LEA_knock_baseline_3d;
 bool knock_sampling_active;
 u8_rspeed_125/4+500rpm[16] CAL_knock_sampling_window_X_rpm;
 u8_load_4mg/stroke[16] CAL_knock_sampling_window_Y_load;
-undefined1 knock_sampling_window_offset;
+uint8_t knock_sampling_window_offset;
 u16_angle_1/10deg[6] knock_window_offset_tdc;
 u16_angle_1/10deg[6] knock_window_center_angle;
 uint8_t[256] CAL_knock_sampling_window;
@@ -4889,10 +4881,7 @@ short DAT_40001e80;
 u8_time_100ms DAT_40001e85;
 u16_time_100ms DAT_40001e86;
 byte DAT_40001e78;
-byte DAT_40001e79;
 uint16_t DAT_40001e74;
-byte DAT_40001e91;
-byte DAT_40001e90;
 u8_volume_1/10gallon[16] CAL_evap_leak_test_P0442_decay_limit_X_fuel_level;
 uint8_t[16] CAL_evap_leak_test_P0442_decay_limit;
 uint8_t[8] CAL_evap_leak_test_pulldown_vacuum_X_pressure_swing;
@@ -4907,6 +4896,9 @@ u8_time_100ms CAL_evap_leak_test_settle_samples;
 undefined1 obd_ii_mode08_active_test_mask;
 undefined2 obd_ii_eval_leak_check_result;
 u8_obd2level_t6 CAL_obd_ii_P0442;
+uint8_t evap_leak_test_P0442_decay_limit;
+u8_count obd_ii_p0456_health;
+u8_count obd_ii_p0442_health;
 u8_obd2level_t6 CAL_obd_ii_P0456;
 uint8_t CAL_evap_leak_test_delay;
 u8_temp_5/8-40c CAL_evap_leak_test_coolant_min;
@@ -4922,9 +4914,6 @@ u16_time_100ms CAL_evap_leak_test_sample_count;
 u16_factor_1/255 CAL_obd_ii_commanded_evap_purge_limit;
 u16_factor_1/255 CAL_obd_ii_commanded_evap_purge_limit_0;
 u8_count CAL_obd_ii_P0456_debounce_count;
-u8_count DAT_40001e91;
-u8_count DAT_40001e68;
-u8_count DAT_40001e90;
 u8_count CAL_obd_ii_P0455_debounce_count;
 char DAT_40001ebd;
 u8_obd2level_t6 CAL_obd_ii_P0700;
@@ -4932,10 +4921,9 @@ u8_obd2level_t6 CAL_obd_ii_P0630;
 u8_obd2level_t6 CAL_obd_ii_P0601;
 u8_obd2level_t6 CAL_obd_ii_P0606;
 u8_obd2level_t6 CAL_obd_ii_P0610;
-byte DAT_40001ea4;
 ushort DAT_40001ebe;
-u8_obd2level_t6 CAL_obd_ii_P050B;
 byte DAT_40001ea5;
+u8_obd2level_t6 CAL_obd_ii_P050B;
 byte DAT_40001ea6;
 byte DAT_40001eb1;
 byte DAT_40001ea7;
@@ -4958,6 +4946,7 @@ byte DAT_40001eaf;
 byte DAT_40001eb0;
 byte DAT_40001ebb;
 byte DAT_40001ebc;
+u8_count obd_ii_p050b_health;
 undefined2 p050b_fail_cycle_counter;
 u8_count CAL_obd_ii_P2340_maturing_limit;
 u8_count CAL_obd_ii_P2341_maturing_limit;
@@ -4979,7 +4968,6 @@ undefined1 obd_ii_knock_monitor_counters;
 u8_count CAL_obd_ii_P2337_maturing_limit;
 u8_count CAL_obd_ii_P2338_maturing_limit;
 u8_count CAL_obd_ii_P2339_maturing_limit;
-u8_count DAT_40001ea4;
 u8_count DAT_40001ea6;
 u8_count DAT_40001eb4;
 u8_count DAT_40001ea8;
@@ -5063,29 +5051,29 @@ uint16_t[6] misfires_per_cyl;
 u16_mass_g[5] CAL_misfire_comp_maf_manual_Y_maf_accum;
 u16_time_5ms DAT_40001ece;
 uint16_t[20] CAL_misfire_comp_maf_manual;
-u8_count DAT_40001ec7;
-u16_temp_5/8-40c[4] CAL_misfire_comp_maf_ips_X_coolant_temp;
-u8_count DAT_40001ec8;
-u16_mass_g[5] CAL_misfire_comp_maf_ips_Y_maf_accum;
 ushort DAT_40001f1c;
 undefined2 DAT_40001f20;
-int16_t[20] CAL_misfire_comp_maf_ips;
+u16_temp_5/8-40c[4] CAL_misfire_comp_maf_ips_X_coolant_temp;
+u16_mass_g[5] CAL_misfire_comp_maf_ips_Y_maf_accum;
 undefined2 DAT_40001f22;
+int16_t[20] CAL_misfire_comp_maf_ips;
 undefined2 DAT_40001f18;
-u8_factor_1/1023 CAL_misfire_inhibit_tps_rate_declutched;
-u8_factor_1/1023 CAL_misfire_inhibit_tps_rate_pos;
 undefined2 DAT_40005d80;
-u8_factor_1/1023 CAL_misfire_inhibit_tps_rate_neg;
+u8_factor_1/1023 CAL_misfire_inhibit_tps_rate_declutched;
 undefined2 DAT_40005d8c;
+u8_factor_1/1023 CAL_misfire_inhibit_tps_rate_pos;
+u8_factor_1/1023 CAL_misfire_inhibit_tps_rate_neg;
 undefined2 misfire_threshold_current_window;
 undefined1 misfire_emissions_limit;
-undefined1 misfire_min_torque_threshold;
+u8_torque_nm misfire_min_torque_threshold;
 u16_rspeed_rpm[8] CAL_misfire_sensitivity_manual_X_rpm;
 u16_load_mg/stroke[8] CAL_misfire_sensitivity_manual_Y_load;
 uint16_t[64] CAL_misfire_sensitivity_manual;
 u16_rspeed_rpm[8] CAL_misfire_sensitivity_ips_X_rpm;
 u16_load_mg/stroke[8] CAL_misfire_sensitivity_ips_Y_load;
 uint16_t[64] CAL_misfire_sensitivity_ips;
+u8_count obd_ii_p1301_health;
+u8_count obd_ii_p1302_health;
 u16_time_5ms CAL_misfire_inhibit_tps_rate_hold;
 u16_time_5ms CAL_misfire_enable_conditions_hold;
 u8_rspeed_125/4+500rpm[8] CAL_misfire_detect_torque_threshold_X_rpm;
@@ -5118,31 +5106,29 @@ undefined2 misfire_p1302_pass_holdoff_timer;
 u16_temp_5/8-40c[4] CAL_misfire_comp_maf_manual_X_coolant_temp;
 byte DAT_40001ecc;
 ushort DAT_40005d8c;
-char DAT_40001ec7;
 ushort DAT_40005d80;
 short DAT_40000678;
-char DAT_40001ec8;
-byte DAT_40001ec1;
 ushort DAT_40005d8e;
 ushort DAT_40005d82;
 short DAT_4000067a;
-byte DAT_40001ec2;
 ushort DAT_40005d90;
 ushort DAT_40005d84;
 short DAT_4000067c;
-byte DAT_40001ec3;
 ushort DAT_40005d92;
 ushort DAT_40005d86;
 short DAT_4000067e;
-byte DAT_40001ec4;
 ushort DAT_40005d94;
 ushort DAT_40005d88;
 short DAT_40000680;
-byte DAT_40001ec5;
 ushort DAT_40005d96;
 ushort DAT_40005d8a;
 short DAT_40000682;
-byte DAT_40001ec6;
+u8_count obd_ii_p0301_health;
+u8_count obd_ii_p0302_health;
+u8_count obd_ii_p0303_health;
+u8_count obd_ii_p0304_health;
+u8_count obd_ii_p0305_health;
+u8_count obd_ii_p0306_health;
 u8_obd2level_t6 CAL_obd_ii_P0300;
 u8_obd2level_t6 CAL_obd_ii_P0301;
 u8_obd2level_t6 CAL_obd_ii_P0302;
@@ -5156,15 +5142,7 @@ u8_count CAL_obd_ii_P0303_debounce_count;
 u8_count CAL_obd_ii_P0304_debounce_count;
 u8_count CAL_obd_ii_P0305_debounce_count;
 u8_count CAL_obd_ii_P0306_debounce_count;
-u8_count DAT_40001ec0;
-u8_count DAT_40001ec1;
-u8_count DAT_40001ec2;
-u8_count DAT_40001ec3;
-u8_count DAT_40001ec4;
-u8_count DAT_40001ec5;
-u8_count DAT_40001ec6;
-undefined1 DAT_40001ec7;
-undefined1 DAT_40001ec8;
+u8_count obd_ii_p0300_health;
 u8_count CAL_obd_ii_P0300_debounce_count;
 short DAT_40001ece;
 uint DAT_40001efc;
@@ -5347,19 +5325,17 @@ byte DAT_40001fbe;
 u16_time_5ms CAL_obd_ii_o2_postcat_activity_min;
 byte DAT_40001fc1;
 byte DAT_40001fc0;
-byte DAT_40002048;
-byte DAT_40002045;
-byte DAT_40001fa8;
-byte DAT_40001fa9;
 undefined2 DAT_40001fb4;
 undefined2 DAT_40001fb6;
 undefined2 DAT_40001fb8;
 undefined2 DAT_40001fba;
 undefined1 DAT_40001fbc;
-u8_count CAL_obd_ii_P0154_debounce_count;
 undefined1 DAT_40001fbd;
+u8_count CAL_obd_ii_P0154_debounce_count;
 u8_count CAL_obd_ii_P0160_debounce_count;
 u16_time_5ms CAL_obd_ii_cat_monitor_min_engine_runtime;
+u8_count obd_ii_p0140_health;
+u8_count obd_ii_p0160_health;
 u8_obd2level_t6 CAL_obd_ii_P0134;
 u8_obd2level_t6 CAL_obd_ii_P0140;
 u8_obd2level_t6 CAL_obd_ii_P0154;
@@ -5392,12 +5368,10 @@ byte DAT_40002220;
 u16_time_5ms DAT_4000200c;
 u16_time_5ms DAT_4000200a;
 ushort DAT_4000202c;
-byte DAT_40002047;
 u16_time_5ms DAT_40002004;
 u16_voltage_5/1023v DAT_40002008;
 u16_time_5ms DAT_40001ffa;
 ushort DAT_4000202a;
-byte DAT_40002044;
 u16_time_5ms DAT_40002002;
 u16_voltage_5/1023v DAT_40002006;
 u16_time_5ms DAT_40001ff8;
@@ -5424,6 +5398,8 @@ u8_time_5ms CAL_obd_ii_o2_switch_time_min;
 u16_time_5ms CAL_obd_ii_o2_precat_diag_init_counter;
 u16_time_5ms CAL_cat_check_unknown4;
 u16_time_5ms CAL_obd_ii_o2_slow_response_arm_dwell;
+u8_count obd_ii_p0159_health;
+u8_count obd_ii_p0139_health;
 u8_obd2level_t6 CAL_obd_ii_P0153;
 u8_obd2level_t6 CAL_obd_ii_P0159;
 u16_voltage_5/1023v CAL_obd_ii_o2_min_voltage_init;
@@ -5499,12 +5475,6 @@ u8_time_5ms CAL_obd_ii_o2_period_consistency_tol;
 u8_time_5ms CAL_obd_ii_o2_period_excess_max;
 u8_time_5ms CAL_obd_ii_o2_imbalance_accum_cap;
 u8_count CAL_obd_ii_o2_transition_count;
-u8_count DAT_40002048;
-u8_count DAT_40002047;
-u8_count DAT_40001fa8;
-u8_count DAT_40002045;
-u8_count DAT_40002044;
-u8_count DAT_40001fa9;
 undefined2 DAT_40001fb0;
 undefined2 DAT_40001fae;
 undefined2 DAT_40001fac;
@@ -5538,123 +5508,38 @@ ushort DAT_40002050;
 ushort DAT_40002054;
 ushort DAT_40002056;
 ushort DAT_40002058;
-short DAT_40002082;
-byte DAT_40002060;
-short DAT_40002084;
-byte DAT_40002061;
-short DAT_40002086;
-byte DAT_40002062;
-short DAT_40002088;
-byte DAT_40002063;
-short DAT_4000208a;
-byte DAT_40002064;
-short DAT_4000208c;
-byte DAT_40002065;
-short DAT_4000208e;
-byte DAT_40002066;
-short DAT_40002090;
-byte DAT_40002067;
-short DAT_40002098;
-byte DAT_40002096;
-short DAT_40002094;
-byte DAT_40002092;
-short DAT_4000209c;
-byte DAT_4000209a;
-short DAT_400020a0;
-byte DAT_4000209e;
-short DAT_400020e0;
-byte DAT_400020de;
-short DAT_400020e4;
-byte DAT_400020e2;
-short DAT_400020a6;
-byte DAT_4000206a;
-short DAT_400020a8;
-byte DAT_4000206b;
-short DAT_400020aa;
-byte DAT_4000206c;
-short DAT_400020ac;
-byte DAT_4000206d;
-short DAT_400020ae;
-byte DAT_4000206e;
-short DAT_400020b0;
-byte DAT_4000206f;
-short DAT_400020b2;
-byte DAT_40002070;
-short DAT_400020b4;
-byte DAT_40002071;
-short DAT_400020b6;
-byte DAT_40002072;
-short DAT_400020b8;
-byte DAT_40002073;
-short DAT_400020ba;
-byte DAT_40002074;
-short DAT_400020bc;
-byte DAT_40002075;
-short DAT_400020f0;
-byte DAT_40002123;
-short DAT_400020f2;
-byte DAT_40002122;
+u16_count obd_ii_p2603_fail_ticks;
+u16_count obd_ii_p2754_fail_ticks;
+u16_count obd_ii_p2755_fail_ticks;
+u8_count obd_ii_p0616_health;
 byte DAT_40004ec5;
-short DAT_400020be;
-byte DAT_40002076;
+u16_count obd_ii_p0616_fail_ticks;
 byte DAT_40004ed1;
-short DAT_400020c0;
-byte DAT_40002077;
+u8_count obd_ii_p0617_health;
 byte DAT_40004edd;
-short DAT_400020c2;
-byte DAT_40002078;
+u16_count obd_ii_p0617_fail_ticks;
 byte DAT_40004ee9;
-short DAT_400020c4;
-byte DAT_40002079;
+u8_count obd_ii_p2612_health;
 byte DAT_40004ef5;
-short DAT_400020c6;
-byte DAT_4000207a;
+u16_count obd_ii_p2612_fail_ticks;
 byte DAT_40004f01;
-short DAT_400020c8;
-byte DAT_4000207b;
-short DAT_400020cc;
-byte DAT_400020ca;
-short DAT_400020a2;
-byte DAT_40002068;
-short DAT_400020a4;
-byte DAT_40002069;
-short DAT_400020d0;
-byte DAT_400020ce;
-short DAT_400020d4;
-byte DAT_400020d2;
+u8_count obd_ii_p2613_health;
+u16_count obd_ii_p2613_fail_ticks;
 byte DAT_40004e95;
-short DAT_400020d6;
-byte DAT_4000207c;
+u16_count obd_ii_p2170_fail_ticks;
 byte DAT_40004ea1;
-short DAT_400020d8;
-byte DAT_4000207d;
+u8_count obd_ii_p2171_health;
 byte DAT_40004ead;
-short DAT_400020da;
 byte DAT_4000207e;
+u16_count obd_ii_p2171_fail_ticks;
+u16_count obd_ii_p023b_fail_ticks;
 byte DAT_40004eb9;
-short DAT_400020dc;
-byte DAT_4000207f;
 byte DAT_400020ee;
-short DAT_400020e8;
-byte DAT_400020e6;
-short DAT_400020ec;
-byte DAT_400020ea;
-short DAT_400020fe;
-byte DAT_400020fc;
-short DAT_40002102;
-byte DAT_40002100;
-short DAT_400020f6;
-byte DAT_400020f4;
-short DAT_400020fa;
-byte DAT_400020f8;
-short DAT_40002106;
+u16_count obd_ii_p023c_fail_ticks;
 byte DAT_40002104;
-short DAT_4000210a;
-byte DAT_40002108;
-short DAT_4000210e;
-short DAT_40002112;
-char DAT_40001ce9;
+u8_count obd_ii_p0661_health;
 undefined DAT_00002ee0;
+u8_count obd_ii_p0662_health;
 u8_count CAL_obd_ii_P0351_debounce_count;
 u8_count CAL_obd_ii_P0352_debounce_count;
 u8_count CAL_obd_ii_P0353_debounce_count;
@@ -5762,9 +5647,73 @@ u8_obd2level_t6 CAL_obd_ii_P123C;
 u8_obd2level_t6 CAL_obd_ii_P2754;
 u8_obd2level_t6 CAL_obd_ii_P2755;
 u16_current_mA CAL_sensor_o2_heater_undercurrent_threshold;
-undefined1 cac_diag_P023B_pass_counter;
-undefined1 cac_diag_P023C_pass_counter;
+u8_count obd_ii_p0076_health;
+u8_count obd_ii_p0077_health;
+u8_count obd_ii_p0079_health;
+u8_count obd_ii_p0080_health;
+u8_count obd_ii_p0082_health;
+u8_count obd_ii_p0083_health;
+u8_count obd_ii_p0085_health;
+u8_count obd_ii_p0086_health;
+u8_count obd_ii_p0628_health;
+u8_count obd_ii_p0629_health;
+u8_count obd_ii_p023b_health;
+u8_count obd_ii_p023c_health;
 undefined2 cac_fault_code_latched;
+u8_count obd_ii_p0161_health;
+u16_count obd_ii_p0076_fail_ticks;
+u16_count obd_ii_p0077_fail_ticks;
+u16_count obd_ii_p0079_fail_ticks;
+u16_count obd_ii_p0080_fail_ticks;
+u16_count obd_ii_p0082_fail_ticks;
+u16_count obd_ii_p0083_fail_ticks;
+u16_count obd_ii_p0085_fail_ticks;
+u16_count obd_ii_p0086_fail_ticks;
+u8_count obd_ii_p0647_health;
+u16_count obd_ii_p0647_fail_ticks;
+u8_count obd_ii_p0646_health;
+u16_count obd_ii_p0646_fail_ticks;
+u8_count obd_ii_p0444_health;
+u16_count obd_ii_p0444_fail_ticks;
+u8_count obd_ii_p0445_health;
+u16_count obd_ii_p0445_fail_ticks;
+u16_count obd_ii_p025c_fail_ticks;
+u16_count obd_ii_p025d_fail_ticks;
+u16_count obd_ii_p0261_fail_ticks;
+u16_count obd_ii_p0262_fail_ticks;
+u16_count obd_ii_p0264_fail_ticks;
+u16_count obd_ii_p0265_fail_ticks;
+u16_count obd_ii_p0267_fail_ticks;
+u16_count obd_ii_p0268_fail_ticks;
+u16_count obd_ii_p0270_fail_ticks;
+u16_count obd_ii_p0271_fail_ticks;
+u16_count obd_ii_p0273_fail_ticks;
+u16_count obd_ii_p0274_fail_ticks;
+u16_count obd_ii_p0276_fail_ticks;
+u16_count obd_ii_p0277_fail_ticks;
+u16_count obd_ii_p0351_fail_ticks;
+u16_count obd_ii_p0352_fail_ticks;
+u16_count obd_ii_p0353_fail_ticks;
+u16_count obd_ii_p0354_fail_ticks;
+u16_count obd_ii_p0355_fail_ticks;
+u16_count obd_ii_p0356_fail_ticks;
+u8_count obd_ii_p0141_health;
+u16_count obd_ii_u0141_fail_ticks;
+u8_count obd_ii_p0480_health;
+u16_count obd_ii_p0480_fail_ticks;
+u8_count obd_ii_p0482_health;
+u16_count obd_ii_p0482_fail_ticks;
+u16_count obd_ii_p0135_fail_ticks;
+u16_count obd_ii_p0155_fail_ticks;
+u16_count obd_ii_p0141_fail_ticks;
+u16_count obd_ii_p0161_fail_ticks;
+u8_count obd_ii_p0447_health;
+u16_count obd_ii_p0447_fail_ticks;
+u8_count obd_ii_p0448_health;
+u16_count obd_ii_p0448_fail_ticks;
+u8_count obd_ii_p2602_health;
+u16_count obd_ii_p2602_fail_ticks;
+u8_count obd_ii_p2603_health;
 undefined2 cac_pwm_active_timer;
 undefined2 cac_response_timestamp;
 undefined1 cac_fault_debounce_counter;
@@ -5775,57 +5724,8 @@ undefined1 cac_diag_state_timeout_counter;
 u8_count CAL_cac_pwm_mismatch_threshold;
 undefined2 cac_diag_timer;
 undefined2 cac_response_time;
-u8_count DAT_40002060;
-u8_count DAT_40002061;
-u8_count DAT_40002062;
-u8_count DAT_40002063;
-u8_count DAT_40002064;
-u8_count DAT_40002065;
-u8_count DAT_40002066;
-u8_count DAT_40002067;
-u8_count DAT_40002092;
-u8_count DAT_40002096;
-u8_count DAT_4000209a;
-u8_count DAT_4000209e;
-u8_count DAT_400020de;
-u8_count DAT_400020e2;
-u8_count DAT_4000206a;
-u8_count DAT_4000206b;
-u8_count DAT_4000206c;
-u8_count DAT_4000206d;
-u8_count DAT_4000206e;
-u8_count DAT_4000206f;
-u8_count DAT_40002070;
-u8_count DAT_40002071;
-u8_count DAT_40002072;
-u8_count DAT_40002073;
-u8_count DAT_40002074;
-u8_count DAT_40002075;
-u8_count DAT_4000207c;
-u8_count DAT_4000207d;
 u8_count DAT_4000207e;
-u8_count DAT_4000207f;
-u8_count DAT_400020ca;
-u8_count DAT_40002068;
-u8_count DAT_40002069;
-u8_count DAT_400020ce;
-u8_count DAT_400020d2;
-u8_count DAT_400020e6;
-u8_count DAT_400020ea;
-u8_count DAT_40002076;
-u8_count DAT_40002077;
-u8_count DAT_40002078;
-u8_count DAT_40002079;
-u8_count DAT_4000207a;
-u8_count DAT_4000207b;
-u8_count DAT_400020fc;
-u8_count DAT_40002100;
-u8_count DAT_400020f4;
-u8_count DAT_400020f8;
 u8_count DAT_40002104;
-u8_count DAT_40002108;
-u8_count DAT_40002123;
-u8_count DAT_40002122;
 u8_factor_1/1023 CAL_cruise_tps_accelerating_threshold;
 uint8_t CAL_tps_brake_wheeldecel_tps_cut_threshold;
 u8_factor_1/1023 CAL_tps_brake_safety_floor;
@@ -5901,30 +5801,25 @@ undefined2 accel_pedal_e_zero_voltage;
 uint8_t CAL_sensor_pps_unknown1;
 u8_obd2level_t6 CAL_obd_ii_P2128;
 byte DAT_40002514;
-byte DAT_4000214b;
 undefined2 DAT_4000214c;
-byte DAT_4000214e;
 undefined2 DAT_40002150;
-byte DAT_40002152;
 undefined2 DAT_40002154;
-byte DAT_40002156;
 undefined2 DAT_40002158;
-byte DAT_4000215a;
 undefined2 DAT_4000215c;
 u8_count CAL_obd_ii_P2122_debounce_count;
 u8_count CAL_obd_ii_P2123_debounce_count;
 u8_count CAL_obd_ii_P2127_debounce_count;
+u8_count obd_ii_p2138_health;
 u8_count CAL_obd_ii_P2128_debounce_count;
+u8_count obd_ii_p2122_health;
+u8_count obd_ii_p2123_health;
+u8_count obd_ii_p2127_health;
+u8_count obd_ii_p2128_health;
 u8_count CAL_obd_ii_P2138_debounce_count;
 u8_obd2level_t6 CAL_obd_ii_P2138;
 u8_obd2level_t6 CAL_obd_ii_P2122;
 u8_obd2level_t6 CAL_obd_ii_P2123;
 u8_obd2level_t6 CAL_obd_ii_P2127;
-u8_count DAT_4000214b;
-u8_count DAT_4000214e;
-u8_count DAT_40002152;
-u8_count DAT_40002156;
-u8_count DAT_4000215a;
 uint16_t siu_pcr[141];
 u16_time_10us CAL_evap_purge_pwm_period;
 short DAT_400021ca;
@@ -5983,7 +5878,7 @@ uint8_t CAL_evap_purge_duty_ramp_down_monitor;
 undefined2 evap_purge_ramp_down_step;
 u8_time_8us CAL_evap_purge_min_inj_pulse_exit;
 u8_time_8us CAL_evap_purge_min_inj_pulse_enter;
-undefined1 evap_purge_duty_max_flow;
+u8_dutycycle_100/255 evap_purge_duty_max_flow;
 undefined1 evap_purge_duty_max_fuel;
 undefined2 evap_purge_inj_fuel_mass_min;
 undefined1 evap_purge_duty_max;
@@ -6055,7 +5950,6 @@ u8_tempdelta_5/8c CAL_obd_ii_cat_monitor_coolant_min_above_iat;
 u16_time_100ms CAL_obd_ii_cat_monitor_init_counter_2;
 u16_time_100ms CAL_obd_ii_cat_monitor_run_time_min;
 u16_time_100ms CAL_obd_ii_cat_monitor_window_time;
-char DAT_40001cf8;
 short DAT_40002226;
 short DAT_4000222a;
 short DAT_40002228;
@@ -6536,7 +6430,7 @@ u8_temp_5/8-40c CAL_obd_ii_P0128_start_coolant_min;
 u8_temp_5/8-40c CAL_obd_ii_P0128_iat_min;
 undefined1 obd_ii_P0128_iat_too_cold_latch;
 undefined4 obd_ii_P0128_lowspeed_seconds;
-undefined1 obd_ii_P0128_fail_countdown;
+u8_count obd_ii_p0128_health;
 u8_count CAL_obd_ii_P0128_fail_count;
 u8_obd2level_t6 CAL_obd_ii_P0128;
 u8_load_4mg/stroke[8] CAL_cooling_thermostat_warmup_load_factor_X_load;
@@ -6558,15 +6452,15 @@ u8_time_100ms DAT_400023be;
 short DAT_400023ae;
 short DAT_400023b0;
 u8_count DAT_400023bb;
-u8_obd2level_t6 CAL_obd_ii_P0461;
 u8_count DAT_400023ba;
+u8_obd2level_t6 CAL_obd_ii_P0461;
 u8_count DAT_400023bc;
-u8_count CAL_obd_ii_evap_stability_window_samples;
 u8_count DAT_400023bd;
-u8_volume_1/10gallon CAL_obd_ii_evap_refuel_level_rise_threshold;
-byte DAT_400023a7;
-u8_count CAL_obd_ii_evap_fuel_level_noise_count_limit;
+u8_count CAL_obd_ii_evap_stability_window_samples;
 byte DAT_400023a8;
+u8_volume_1/10gallon CAL_obd_ii_evap_refuel_level_rise_threshold;
+u8_count CAL_obd_ii_evap_fuel_level_noise_count_limit;
+u8_count obd_ii_p0461_health;
 u8_count CAL_obd_ii_evap_pressure_noise_count_limit;
 u8_volume_1/10gallon CAL_obd_ii_evap_fuel_level_noise_threshold;
 i16_pressure_1/10mbar CAL_obd_ii_evap_pressure_noise_threshold;
@@ -6586,7 +6480,6 @@ u8_pressure_1/10mbar CAL_evap_pressure_deviation_max;
 u8_count CAL_obd_ii_P0461_debounce_count;
 undefined2 DAT_400023a2;
 int DAT_40001828;
-u8_count DAT_400023a7;
 u8_count DAT_400023a8;
 undefined1 DAT_400023a6;
 undefined1 DAT_400023a5;
@@ -7344,8 +7237,8 @@ char DAT_400015a4;
 enum_t6e_gear DAT_40002646;
 char DAT_400015a5;
 u16_speed_1/100kph DAT_4000263e;
-uint8_t CAL_cruise_airflow_fast_slew_time;
 u16_speed_1/100kph DAT_4000262c;
+uint8_t CAL_cruise_airflow_fast_slew_time;
 short DAT_40002632;
 byte DAT_40002647;
 char DAT_40002648;
@@ -7613,10 +7506,6 @@ short DAT_400026e8;
 ushort DAT_40002730;
 uint DAT_4000272c;
 u8_factor_1/256 CAL_ac_compressor_speed_filter_coeff;
-short DAT_40002702;
-byte DAT_40002700;
-short DAT_40002706;
-byte DAT_40002704;
 ushort DAT_400026e8;
 undefined2 DAT_40002736;
 undefined2 DAT_40002732;
@@ -7625,6 +7514,10 @@ short DAT_40002708;
 u8_obd2level_t6 CAL_obd_ii_P0537;
 u8_obd2level_t6 CAL_obd_ii_P0538;
 u8_factor_1/100 CAL_obd_ii_ac_load_diag_tolerance_pct;
+u8_count obd_ii_p0537_health;
+u16_count obd_ii_p0537_fail_ticks;
+u8_count obd_ii_p0538_health;
+u16_count obd_ii_p0538_fail_ticks;
 u8_obd2level_t6 CAL_obd_ii_B1422;
 u8_rspeed_50rpm CAL_obd_ii_ac_load_diag_rpm_min;
 u8_count CAL_obd_ii_B1422_fail_threshold;
@@ -7632,8 +7525,6 @@ u16_voltage_5/1023v CAL_ac_evap_temp_voltage_low_threshold;
 u16_voltage_5/1023v CAL_ac_evap_temp_voltage_high_threshold;
 u8_count CAL_obd_ii_P0537_debounce_count;
 u8_count CAL_obd_ii_P0538_debounce_count;
-u8_count DAT_40002700;
-u8_count DAT_40002704;
 undefined1 DAT_4000276a;
 struct_tps_shaping_flags struct_tps_shaping_flags_40007f98;
 bool accel_pedal_track_d_selected;
@@ -7842,12 +7733,7 @@ undefined DAT_40002810;
 undefined DAT_40002814;
 enum_p0316_eval_tc_request_state p0316_eval_tc_request_state;
 byte DAT_40002826;
-byte DAT_4000282d;
-byte DAT_4000282e;
-byte DAT_4000282f;
 char DAT_4000281f;
-byte DAT_4000282b;
-byte DAT_4000282c;
 char DAT_40002556;
 char DAT_40002555;
 ushort DAT_40002828;
@@ -7858,6 +7744,11 @@ byte DAT_40002825;
 byte DAT_40002824;
 byte DAT_40002821;
 byte DAT_4000282a;
+u8_count obd_ii_u0302_health;
+u8_count obd_ii_u0316_health;
+u8_count obd_ii_u0123_health;
+u8_count obd_ii_u0513_health;
+u8_count obd_ii_u0127_health;
 bool tc_enable_condition_2;
 u8_count CAL_obd_ii_U0127_debounce_count;
 u8_count CAL_obd_ii_U0101_pass_counter_max;
@@ -7886,11 +7777,6 @@ undefined1 DAT_40001618;
 undefined1 DAT_40001619;
 undefined1 DAT_40002831;
 u8_count DAT_40002826;
-u8_count DAT_4000282d;
-u8_count DAT_4000282f;
-u8_count DAT_4000282b;
-u8_count DAT_4000282c;
-u8_count DAT_4000282e;
 undefined1 DAT_40001610;
 undefined1 DAT_4000161b;
 undefined1 DAT_4000282a;
@@ -7899,8 +7785,6 @@ char DAT_40002839;
 short DAT_40001626;
 char DAT_40001628;
 byte DAT_40002588;
-undefined2 DAT_40002842;
-uint16_t DAT_40002844;
 int DAT_4000283c;
 char DAT_4000162a;
 ushort DAT_40001624;
@@ -7908,6 +7792,8 @@ byte DAT_40001629;
 u16_rspeed_rpm[4] CAL_ips_revmatch_rpm_tolerance_X_rpm;
 uint16_t CAL_ips_speed_match_p_gain;
 i16_torque_nm CAL_torque_estimate_min_ips;
+uint16_t ips_revmatch_p_gain;
+u16_rspeed_rpm ips_revmatch_rpm_tolerance;
 u16_rspeed_rpm[4] CAL_ips_revmatch_rpm_tolerance;
 u16_rspeed_rpm[4] CAL_ips_revmatch_p_gain_X_rpm;
 uint16_t[4] CAL_ips_revmatch_p_gain;
@@ -8033,8 +7919,6 @@ u8_factor_1/100 CAL_fuel_pump_integral_gain;
 bool CAL_fuel_pump_integral_hold_on_dfco;
 bool CAL_fuel_pump_integral_enable;
 u8_volume_1/10gallon CAL_fuel_pump_integral_fuel_level_min;
-char DAT_40002068;
-char DAT_40002069;
 char DAT_4000288f;
 char DAT_40001632;
 char DAT_40002890;
@@ -8045,14 +7929,14 @@ char DAT_40002892;
 byte DAT_4000288e;
 uint8_t CAL_obd_ii_fuel_pump_monitor_runtime_min;
 byte DAT_40002893;
-byte DAT_40002895;
 byte DAT_40002894;
 uint8_t CAL_obd_ii_fuel_pressure_high_threshold;
-byte DAT_40002896;
 u8_obd2level_t6 CAL_obd_ii_P0627;
 u8_count CAL_obd_ii_P0087_debounce_count;
 u8_count CAL_obd_ii_P0088_debounce_count;
 u8_obd2level_t6 CAL_obd_ii_U0109;
+u8_count obd_ii_p0087_health;
+u8_count obd_ii_p0088_health;
 uint8_t CAL_obd_ii_fuel_pressure_low_threshold;
 u8_count CAL_obd_ii_fuel_pressure_high_debounce;
 u8_count CAL_obd_ii_fuel_pressure_low_debounce;
@@ -8062,8 +7946,6 @@ u8_obd2level_t6 CAL_obd_ii_P0088;
 u8_temp_5/8-40c CAL_obd_ii_fuel_pump_monitor_coolant_min;
 undefined1 DAT_40002893;
 undefined1 DAT_40002894;
-u8_count DAT_40002895;
-u8_count DAT_40002896;
 undefined1 DAT_4000288e;
 undefined1 DAT_40002890;
 undefined1 DAT_4000288f;
@@ -8082,11 +7964,8 @@ u8_temp_5/8-40c CAL_trans_pump_ect_off_max;
 u8_temp_5/8-40c CAL_trans_pump_ect_on_max;
 u8_temp_5/8-40c CAL_trans_pump_cool_off;
 u8_temp_5/8-40c CAL_trans_pump_no_cool_max;
-byte DAT_400028b2;
 ushort DAT_400028b4;
-byte DAT_400028b6;
 ushort DAT_400028b8;
-byte DAT_400028ba;
 u8_temp_5/8-40c CAL_obd_ii_trans_fluid_temp_high;
 u8_count CAL_obd_ii_P0897_debounce;
 uint16_t CAL_obd_ii_trans_fluid_pump_time_min;
@@ -8099,6 +7978,9 @@ u16_voltage_5/1023v[2] CAL_trans_temp_voltage_threshold;
 u8_temp_5/8-40c CAL_trans_fluid_P2797_threshold;
 u8_obd2level_t6 CAL_obd_ii_P0712;
 u8_obd2level_t6 CAL_obd_ii_P0713;
+u8_count obd_ii_p0712_health;
+u8_count obd_ii_p0713_health;
+u8_count obd_ii_p0897_health;
 uint16_t[2] trans_fluid_pump_timer;
 u8_temp_5/8-40c trans_fluid_last;
 undefined2 obd_ii_P0713_failure_count;
@@ -8106,10 +7988,7 @@ u8_obd2level_t6 CAL_obd_ii_P0897;
 u8_obd2level_t6 CAL_obd_ii_P2797;
 undefined2 DAT_400028bc;
 undefined2 DAT_400028b8;
-u8_count DAT_400028be;
-u8_count DAT_400028ba;
-u8_count DAT_400028b2;
-u8_count DAT_400028b6;
+u8_count obd_ii_p2797_health;
 u8_count CAL_obd_ii_P2797_debounce_count;
 u16_slip_1/8pct dpm_slip_target_from_pedal;
 u16_slip_1/8pct dpm_slip_error_raw;
@@ -21290,9 +21169,9 @@ void injtip(void)
        lookup_2D_uint8_interpolated
                  ('\x10',coolant_temp,CAL_injtip_in_coolant_scale,
                   CAL_injtip_in_coolant_scale_X_coolant_temp);
-  DAT_40001b6f = lookup_2D_uint8_interpolated
-                           ('\x10',load_mass_per_stroke,CAL_injtip_comp_load1,
-                            CAL_injtip_comp_load1_X_load);
+  injtip_comp_load1 =
+       lookup_2D_uint8_interpolated
+                 ('\x10',load_mass_per_stroke,CAL_injtip_comp_load1,CAL_injtip_comp_load1_X_load);
   injtip_out_rpm_decay =
        lookup_2D_uint8_interpolated
                  ('\x10',engine_speed_8bit,CAL_injtip_out_rpm_decay,CAL_injtip_out_rpm_decay_X_rpm);
@@ -21321,7 +21200,7 @@ void injtip(void)
          (uint)CAL_injtip_comp_base *
          ((int)(short)tps_transient_magnitude_decay *
           (int)((ulonglong)
-                ((longlong)(int)(uint)DAT_40001b6f *
+                ((longlong)(int)(uint)injtip_comp_load1 *
                 (longlong)
                 (int)((uint)(byte)inj_tip_in_adj_gear_current *
                      (uint)injtip_in_rpm_scale * (uint)injtip_in_coolant_scale)) >> 0x10) >> 0xb);
@@ -22866,37 +22745,38 @@ void obd_ii_cat_efficiency_eval(void)
 
 {
   byte bVar1;
-  uint uVar2;
-  ushort uVar4;
-  short sVar5;
-  int iVar3;
+  u8_count uVar2;
+  uint uVar3;
+  ushort uVar5;
+  short sVar6;
+  int iVar4;
   
   cat_monitor_min_maf_accum_thresh_ =
        lookup_2D_uint8_interpolated
                  (8,coolant_temp_engine_stopped,CAL_emissions_cat_efficiency_unknown1,
                   CAL_emissions_cat_efficiency_unknown1_X_coolant_temp);
   if ((COD_base.COD[0] >> 0xd & 7) == 1) {
-    uVar2 = lookup_2D_uint8_fixed
+    uVar3 = lookup_2D_uint8_fixed
                       (8,(uint8_t)(obd_ii_maf_flow / 100),
                        CAL_obd_ii_cat_monitor_threshold_ips_X_maf_flow);
   }
   else {
-    uVar2 = lookup_2D_uint8_fixed
+    uVar3 = lookup_2D_uint8_fixed
                       (8,(uint8_t)(obd_ii_maf_flow / 100),
                        CAL_obd_ii_cat_monitor_threshold_manual_X_maf_flow);
   }
-  obd_ii_cat_monitor_threshold_current = (ushort)((int)(uVar2 & 0xff) >> 1);
+  obd_ii_cat_monitor_threshold_current = (ushort)((int)(uVar3 & 0xff) >> 1);
   if (obd_ii_dyno_mode_active == false) {
-    obd_ii_cat_monitor_threshold_current = (ushort)(uVar2 & 0xff);
+    obd_ii_cat_monitor_threshold_current = (ushort)(uVar3 & 0xff);
   }
-  uVar4 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b1_precat);
-  obd_ii_cat_monitor_count_b1 = uVar4 & 0xff;
-  uVar4 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b1_postcat);
-  DAT_40001c3e = uVar4 & 0xff;
-  uVar4 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b2_precat);
-  obd_ii_o2_precat_sw_bank2 = uVar4 & 0xff;
-  uVar4 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b2_postcat);
-  DAT_40001c3c = uVar4 & 0xff;
+  uVar5 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b1_precat);
+  obd_ii_cat_monitor_count_b1 = uVar5 & 0xff;
+  uVar5 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b1_postcat);
+  DAT_40001c3e = uVar5 & 0xff;
+  uVar5 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b2_precat);
+  obd_ii_o2_precat_sw_bank2 = uVar5 & 0xff;
+  uVar5 = lookup_2D_uint8_fixed('\b',(uint8_t)(obd_ii_maf_flow / 100),LEA_cat_o2_accum_b2_postcat);
+  DAT_40001c3c = uVar5 & 0xff;
   DAT_40001c24 = LEA_cat_o2_accum_b1_precat;
   DAT_40001c28 = LEA_cat_o2_accum_b1_postcat;
   DAT_40001c2c = LEA_cat_o2_accum_b2_precat;
@@ -22937,37 +22817,37 @@ void obd_ii_cat_efficiency_eval(void)
             (CAL_obd_ii_cat_monitor_baro_min < obd_ii_atmospheric_baro)) {
       if (((LEA_obd_ii_P0420_dtc_state & 8) == 0) && ((CAL_obd_ii_P0420 & 7) != 0)) {
         if (obd_ii_cat_monitor_count_b1 < obd_ii_cat_monitor_threshold_current) {
-          uVar4 = DAT_40001c42 | 0x43;
-          for (sVar5 = 0;
-              ((uint)LEA_cat_o2_accum_b1_precat[sVar5] < obd_ii_maf_flow / 100 && (sVar5 < 7));
-              sVar5 = sVar5 + 1) {
+          uVar5 = DAT_40001c42 | 0x43;
+          for (sVar6 = 0;
+              ((uint)LEA_cat_o2_accum_b1_precat[sVar6] < obd_ii_maf_flow / 100 && (sVar6 < 7));
+              sVar6 = sVar6 + 1) {
           }
           if ((short)CAL_obd_ii_cat_precat_o2_rich_thresh < (short)obd_ii_o2_sensor1_voltage) {
             if (((DAT_40001c42 & 4) != 0) ||
                (LEA_obd_ii_P0420_dtc_state = bVar1, (DAT_40001c42 & 8) == 0)) {
-              DAT_40001c42 = uVar4;
+              DAT_40001c42 = uVar5;
               LEA_obd_ii_P0420_dtc_state = bVar1;
-              LEA_cat_o2_accum_b1_precat[sVar5 + 8] = LEA_cat_o2_accum_b1_precat[sVar5 + 8] + '\x01'
+              LEA_cat_o2_accum_b1_precat[sVar6 + 8] = LEA_cat_o2_accum_b1_precat[sVar6 + 8] + '\x01'
               ;
-              uVar4 = DAT_40001c42 & 0xfffb | 8;
+              uVar5 = DAT_40001c42 & 0xfffb | 8;
             }
           }
           else {
             LEA_obd_ii_P0420_dtc_state = bVar1;
             if (((short)obd_ii_o2_sensor1_voltage < (short)CAL_obd_ii_cat_precat_o2_lean_thresh) &&
                (((DAT_40001c42 & 8) != 0 || ((DAT_40001c42 & 4) == 0)))) {
-              DAT_40001c42 = uVar4;
-              LEA_cat_o2_accum_b1_precat[sVar5 + 8] = LEA_cat_o2_accum_b1_precat[sVar5 + 8] + '\x01'
+              DAT_40001c42 = uVar5;
+              LEA_cat_o2_accum_b1_precat[sVar6 + 8] = LEA_cat_o2_accum_b1_precat[sVar6 + 8] + '\x01'
               ;
-              uVar4 = DAT_40001c42 & 0xfff7 | 4;
+              uVar5 = DAT_40001c42 & 0xfff7 | 4;
             }
           }
-          DAT_40001c42 = uVar4;
+          DAT_40001c42 = uVar5;
           if (obd_ii_postcat_o2_mean_b1 / 0xa00 + (int)(short)CAL_obd_ii_postcat_o2_switch_band_rich
               < (int)(short)obd_ii_o2_sensor2_voltage) {
             if (((DAT_40001c42 & 0x10) != 0) || ((DAT_40001c42 & 0x20) == 0)) {
-              LEA_cat_o2_accum_b1_postcat[sVar5 + 8] =
-                   LEA_cat_o2_accum_b1_postcat[sVar5 + 8] + '\x01';
+              LEA_cat_o2_accum_b1_postcat[sVar6 + 8] =
+                   LEA_cat_o2_accum_b1_postcat[sVar6 + 8] + '\x01';
               DAT_40001c42 = DAT_40001c42 & 0xffef | 0x20;
             }
           }
@@ -22975,7 +22855,7 @@ void obd_ii_cat_efficiency_eval(void)
                     obd_ii_postcat_o2_mean_b1 / 0xa00 -
                     (int)(short)CAL_obd_ii_postcat_o2_switch_band_lean) &&
                   (((DAT_40001c42 & 0x20) != 0 || ((DAT_40001c42 & 0x10) == 0)))) {
-            LEA_cat_o2_accum_b1_postcat[sVar5 + 8] = LEA_cat_o2_accum_b1_postcat[sVar5 + 8] + '\x01'
+            LEA_cat_o2_accum_b1_postcat[sVar6 + 8] = LEA_cat_o2_accum_b1_postcat[sVar6 + 8] + '\x01'
             ;
             DAT_40001c42 = DAT_40001c42 & 0xffdf | 0x10;
           }
@@ -22988,12 +22868,12 @@ void obd_ii_cat_efficiency_eval(void)
         }
         else {
           DAT_40001c42 = DAT_40001c42 & 0xffbf | 3;
-          for (sVar5 = 0;
-              ((uint)LEA_cat_o2_accum_b1_precat[sVar5] < obd_ii_maf_flow / 100 && (sVar5 < 7));
-              sVar5 = sVar5 + 1) {
+          for (sVar6 = 0;
+              ((uint)LEA_cat_o2_accum_b1_precat[sVar6] < obd_ii_maf_flow / 100 && (sVar6 < 7));
+              sVar6 = sVar6 + 1) {
           }
           LEA_obd_ii_cat_b1_flow_bins_seen =
-               LEA_obd_ii_cat_b1_flow_bins_seen | (byte)(1 << ((int)sVar5 & 0x3fU));
+               LEA_obd_ii_cat_b1_flow_bins_seen | (byte)(1 << ((int)sVar6 & 0x3fU));
           LEA_obd_ii_P0420_dtc_state = bVar1;
         }
       }
@@ -23048,35 +22928,35 @@ void obd_ii_cat_efficiency_eval(void)
     }
     else if (((LEA_obd_ii_P0430_dtc_state & 8) == 0) && ((CAL_obd_ii_P0430 & 7) != 0)) {
       if (obd_ii_o2_precat_sw_bank2 < obd_ii_cat_monitor_threshold_current) {
-        uVar4 = DAT_40001c40 | 0x43;
-        for (sVar5 = 0;
-            ((uint)LEA_cat_o2_accum_b2_precat[sVar5] < obd_ii_maf_flow / 100 && (sVar5 < 7));
-            sVar5 = sVar5 + 1) {
+        uVar5 = DAT_40001c40 | 0x43;
+        for (sVar6 = 0;
+            ((uint)LEA_cat_o2_accum_b2_precat[sVar6] < obd_ii_maf_flow / 100 && (sVar6 < 7));
+            sVar6 = sVar6 + 1) {
         }
         if ((short)CAL_obd_ii_cat_precat_o2_rich_thresh < (short)obd_ii_o2_sensor5_voltage) {
           if (((DAT_40001c40 & 4) != 0) ||
              (LEA_obd_ii_P0430_dtc_state = bVar1, (DAT_40001c40 & 8) == 0)) {
-            DAT_40001c40 = uVar4;
+            DAT_40001c40 = uVar5;
             LEA_obd_ii_P0430_dtc_state = bVar1;
-            LEA_cat_o2_accum_b2_precat[sVar5 + 8] = LEA_cat_o2_accum_b2_precat[sVar5 + 8] + '\x01';
-            uVar4 = DAT_40001c40 & 0xfffb | 8;
+            LEA_cat_o2_accum_b2_precat[sVar6 + 8] = LEA_cat_o2_accum_b2_precat[sVar6 + 8] + '\x01';
+            uVar5 = DAT_40001c40 & 0xfffb | 8;
           }
         }
         else {
           LEA_obd_ii_P0430_dtc_state = bVar1;
           if (((short)obd_ii_o2_sensor5_voltage < (short)CAL_obd_ii_cat_precat_o2_lean_thresh) &&
              (((DAT_40001c40 & 8) != 0 || ((DAT_40001c40 & 4) == 0)))) {
-            DAT_40001c40 = uVar4;
-            LEA_cat_o2_accum_b2_precat[sVar5 + 8] = LEA_cat_o2_accum_b2_precat[sVar5 + 8] + '\x01';
-            uVar4 = DAT_40001c40 & 0xfff7 | 4;
+            DAT_40001c40 = uVar5;
+            LEA_cat_o2_accum_b2_precat[sVar6 + 8] = LEA_cat_o2_accum_b2_precat[sVar6 + 8] + '\x01';
+            uVar5 = DAT_40001c40 & 0xfff7 | 4;
           }
         }
-        DAT_40001c40 = uVar4;
+        DAT_40001c40 = uVar5;
         if ((int)obd_ii_postcat_o2_mean_b2 / 0xa00 +
             (int)(short)CAL_obd_ii_postcat_o2_switch_band_rich <
             (int)(short)obd_ii_o2_sensor6_voltage) {
           if (((DAT_40001c40 & 0x10) != 0) || ((DAT_40001c40 & 0x20) == 0)) {
-            LEA_cat_o2_accum_b2_postcat[sVar5 + 8] = LEA_cat_o2_accum_b2_postcat[sVar5 + 8] + '\x01'
+            LEA_cat_o2_accum_b2_postcat[sVar6 + 8] = LEA_cat_o2_accum_b2_postcat[sVar6 + 8] + '\x01'
             ;
             DAT_40001c40 = DAT_40001c40 & 0xffef | 0x20;
           }
@@ -23085,7 +22965,7 @@ void obd_ii_cat_efficiency_eval(void)
                   (int)obd_ii_postcat_o2_mean_b2 / 0xa00 -
                   (int)(short)CAL_obd_ii_postcat_o2_switch_band_lean) &&
                 (((DAT_40001c40 & 0x20) != 0 || ((DAT_40001c40 & 0x10) == 0)))) {
-          LEA_cat_o2_accum_b2_postcat[sVar5 + 8] = LEA_cat_o2_accum_b2_postcat[sVar5 + 8] + '\x01';
+          LEA_cat_o2_accum_b2_postcat[sVar6 + 8] = LEA_cat_o2_accum_b2_postcat[sVar6 + 8] + '\x01';
           DAT_40001c40 = DAT_40001c40 & 0xffdf | 0x10;
         }
         if ((int)obd_ii_postcat_o2_mean_b2 / 0xa00 < (int)(short)obd_ii_o2_sensor6_voltage) {
@@ -23096,12 +22976,12 @@ void obd_ii_cat_efficiency_eval(void)
         }
       }
       else {
-        for (sVar5 = 0;
-            ((uint)LEA_cat_o2_accum_b2_precat[sVar5] < obd_ii_maf_flow / 100 && (sVar5 < 7));
-            sVar5 = sVar5 + 1) {
+        for (sVar6 = 0;
+            ((uint)LEA_cat_o2_accum_b2_precat[sVar6] < obd_ii_maf_flow / 100 && (sVar6 < 7));
+            sVar6 = sVar6 + 1) {
         }
         LEA_obd_ii_cat_b2_flow_bins_seen =
-             LEA_obd_ii_cat_b2_flow_bins_seen | (byte)(1 << ((int)sVar5 & 0x3fU));
+             LEA_obd_ii_cat_b2_flow_bins_seen | (byte)(1 << ((int)sVar6 & 0x3fU));
         DAT_40001c40 = DAT_40001c40 & 0xffbf | 3;
         LEA_obd_ii_P0430_dtc_state = bVar1;
       }
@@ -23119,9 +22999,9 @@ void obd_ii_cat_efficiency_eval(void)
   if (LEA_obd_ii_cat_b1_flow_bins_seen == 0xff) {
     DAT_40001c14 = 0;
     DAT_40001c18 = 0;
-    for (iVar3 = 8; iVar3 < 0x10; iVar3 = iVar3 + 1) {
-      DAT_40001c14 = DAT_40001c14 + LEA_cat_o2_accum_b1_precat[iVar3];
-      DAT_40001c18 = DAT_40001c18 + LEA_cat_o2_accum_b1_postcat[iVar3];
+    for (iVar4 = 8; iVar4 < 0x10; iVar4 = iVar4 + 1) {
+      DAT_40001c14 = DAT_40001c14 + LEA_cat_o2_accum_b1_precat[iVar4];
+      DAT_40001c18 = DAT_40001c18 + LEA_cat_o2_accum_b1_postcat[iVar4];
     }
     LEA_obd_ii_cat_b1_switch_ratio =
          (u16_factor_1_1000)(((uint)DAT_40001c18 * 1000) / (uint)DAT_40001c14);
@@ -23131,18 +23011,18 @@ void obd_ii_cat_efficiency_eval(void)
     }
     if (LEA_obd_ii_cat_b1_switch_ratio < CAL_obd_ii_cat_switch_ratio_fail_threshold) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0420,&LEA_obd_ii_P0420_dtc_state);
-      if (DAT_40001c10 < CAL_obd_ii_P0420_debounce_count) {
-        DAT_40001c10 = DAT_40001c10 + 1;
+      if (obd_ii_p0420_health < CAL_obd_ii_P0420_debounce_count) {
+        obd_ii_p0420_health = obd_ii_p0420_health + '\x01';
       }
       LEA_obd_ii_cat_b1_flow_bins_seen = '\0';
     }
     else {
-      bVar1 = DAT_40001c10 - 1;
-      if (DAT_40001c10 == 0) {
-        bVar1 = DAT_40001c10;
+      uVar2 = obd_ii_p0420_health + 0xff;
+      if (obd_ii_p0420_health == '\0') {
+        uVar2 = obd_ii_p0420_health;
       }
-      DAT_40001c10 = bVar1;
-      if (bVar1 == 0) {
+      obd_ii_p0420_health = uVar2;
+      if (uVar2 == '\0') {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0420,&LEA_obd_ii_P0420_dtc_state,&LEA_obd_ii_P0420_fail_counter,
                    &LEA_obd_ii_P0420_pass_counter,0x420,0);
@@ -23153,9 +23033,9 @@ void obd_ii_cat_efficiency_eval(void)
   if (LEA_obd_ii_cat_b2_flow_bins_seen == 0xff) {
     DAT_40001c16 = 0;
     DAT_40001c1a = 0;
-    for (iVar3 = 8; iVar3 < 0x10; iVar3 = iVar3 + 1) {
-      DAT_40001c16 = DAT_40001c16 + LEA_cat_o2_accum_b2_precat[iVar3];
-      DAT_40001c1a = DAT_40001c1a + LEA_cat_o2_accum_b2_postcat[iVar3];
+    for (iVar4 = 8; iVar4 < 0x10; iVar4 = iVar4 + 1) {
+      DAT_40001c16 = DAT_40001c16 + LEA_cat_o2_accum_b2_precat[iVar4];
+      DAT_40001c1a = DAT_40001c1a + LEA_cat_o2_accum_b2_postcat[iVar4];
     }
     LEA_obd_ii_cat_b2_switch_ratio =
          (u16_factor_1_1000)(((uint)DAT_40001c1a * 1000) / (uint)DAT_40001c16);
@@ -23165,18 +23045,18 @@ void obd_ii_cat_efficiency_eval(void)
     }
     if (LEA_obd_ii_cat_b2_switch_ratio < CAL_obd_ii_cat_switch_ratio_fail_threshold) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0430,&LEA_obd_ii_P0430_dtc_state);
-      if (DAT_40001c11 < CAL_obd_ii_P0430_debounce_count) {
-        DAT_40001c11 = DAT_40001c11 + 1;
+      if (obd_ii_p0430_health < CAL_obd_ii_P0430_debounce_count) {
+        obd_ii_p0430_health = obd_ii_p0430_health + '\x01';
       }
       LEA_obd_ii_cat_b2_flow_bins_seen = '\0';
     }
     else {
-      bVar1 = DAT_40001c11 - 1;
-      if (DAT_40001c11 == 0) {
-        bVar1 = DAT_40001c11;
+      uVar2 = obd_ii_p0430_health + 0xff;
+      if (obd_ii_p0430_health == '\0') {
+        uVar2 = obd_ii_p0430_health;
       }
-      DAT_40001c11 = bVar1;
-      if (bVar1 == 0) {
+      obd_ii_p0430_health = uVar2;
+      if (uVar2 == '\0') {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0430,&LEA_obd_ii_P0430_dtc_state,&LEA_obd_ii_P0430_fail_counter,
                    &LEA_obd_ii_P0430_pass_counter,0x430,0);
@@ -23193,16 +23073,16 @@ void obd_ii_cat_efficiency_eval(void)
   }
   if (((LEA_obd_ii_P0420_dtc_state & 8) != 0) && ((CAL_obd_ii_P0420 & 8) != 0)) {
     LEA_obd_ii_P0420_dtc_state = LEA_obd_ii_P0420_dtc_state & 0xf7;
-    for (iVar3 = 8; iVar3 < 0x10; iVar3 = iVar3 + 1) {
-      LEA_cat_o2_accum_b1_postcat[iVar3] = '\0';
-      LEA_cat_o2_accum_b1_precat[iVar3] = '\0';
+    for (iVar4 = 8; iVar4 < 0x10; iVar4 = iVar4 + 1) {
+      LEA_cat_o2_accum_b1_postcat[iVar4] = '\0';
+      LEA_cat_o2_accum_b1_precat[iVar4] = '\0';
     }
   }
   if (((LEA_obd_ii_P0430_dtc_state & 8) != 0) && ((CAL_obd_ii_P0430 & 8) != 0)) {
     LEA_obd_ii_P0430_dtc_state = LEA_obd_ii_P0430_dtc_state & 0xf7;
-    for (iVar3 = 8; iVar3 < 0x10; iVar3 = iVar3 + 1) {
-      LEA_cat_o2_accum_b2_postcat[iVar3] = '\0';
-      LEA_cat_o2_accum_b2_precat[iVar3] = '\0';
+    for (iVar4 = 8; iVar4 < 0x10; iVar4 = iVar4 + 1) {
+      LEA_cat_o2_accum_b2_postcat[iVar4] = '\0';
+      LEA_cat_o2_accum_b2_precat[iVar4] = '\0';
     }
   }
   return;
@@ -23278,8 +23158,8 @@ void obd_ii_catalyst_monitor_init(void)
            LEA_obd_ii_cat_b2_flow_bins_seen | (byte)(1 << ((uVar1 & 0xff) - 8 & 0x3f));
     }
   }
-  DAT_40001c10 = CAL_obd_ii_P0420_debounce_count;
-  DAT_40001c11 = CAL_obd_ii_P0430_debounce_count;
+  obd_ii_p0420_health = CAL_obd_ii_P0420_debounce_count;
+  obd_ii_p0430_health = CAL_obd_ii_P0430_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0420,&LEA_obd_ii_P0420_dtc_state,0x420,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0430,&LEA_obd_ii_P0430_dtc_state,0x430,0);
   return;
@@ -25675,8 +25555,8 @@ void obd_ii_evap_leak_detection_monitor(void)
         uVar1 = evap_system_state_flags;
         if ((evap_system_state_flags & 0x2000) != 0) {
           LEA_obd_ii_evap_leak_test_result = '\x01';
-          if ((((CAL_obd_ii_P0455 & 7) != 0) && (DAT_40001e68 != '\0')) &&
-             (DAT_40001e68 = DAT_40001e68 + -1, DAT_40001e68 == '\0')) {
+          if ((((CAL_obd_ii_P0455 & 7) != 0) && (obd_ii_p0455_health != '\0')) &&
+             (obd_ii_p0455_health = obd_ii_p0455_health + 0xff, obd_ii_p0455_health == '\0')) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0455,&LEA_obd_ii_P0455_dtc_state,&LEA_obd_ii_P0455_fail_counter,
                        &LEA_obd_ii_P0455_pass_counter,0x455,0);
@@ -25700,7 +25580,8 @@ void obd_ii_evap_leak_detection_monitor(void)
   if ((CAL_obd_ii_P0441 & 7) != 0) {
     if ((((int)(short)DAT_40001e70 < -(int)CAL_evap_system_state_flags_param) ||
         ((evap_system_state_flags & 0x100) != 0)) || ((evap_system_state_flags & 0x10000) != 0)) {
-      if ((DAT_40001ce9 != 0) && (DAT_40001ce9 = DAT_40001ce9 - 1, DAT_40001ce9 == 0)) {
+      if ((obd_ii_p0441_health != '\0') &&
+         (obd_ii_p0441_health = obd_ii_p0441_health + 0xff, obd_ii_p0441_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0441,&LEA_obd_ii_P0441_dtc_state,&LEA_obd_ii_P0441_fail_counter,
                    &LEA_obd_ii_P0441_pass_counter,0x441,0);
@@ -25708,8 +25589,8 @@ void obd_ii_evap_leak_detection_monitor(void)
       }
     }
     else {
-      if (DAT_40001ce9 < CAL_obd_ii_P0441_fail_count) {
-        DAT_40001ce9 = DAT_40001ce9 + 1;
+      if (obd_ii_p0441_health < CAL_obd_ii_P0441_fail_count) {
+        obd_ii_p0441_health = obd_ii_p0441_health + '\x01';
       }
       if (obd_ii_system_leak_status == '\x05') {
         obd_ii_monitor_pass(&CAL_obd_ii_P0441,&LEA_obd_ii_P0441_dtc_state);
@@ -25722,8 +25603,8 @@ void obd_ii_evap_leak_detection_monitor(void)
   if ((CAL_obd_ii_P0446 & 7) != 0) {
     if ((((int)DAT_400023a0 < -(int)CAL_evap_tank_vacuum_flow_threshold) && (DAT_40002180 == '\x01')
         ) && ((evap_purge_flags & 0x2000) == 0)) {
-      if (((evap_vent_control_timer == '\0') && (DAT_40001cea != 0)) &&
-         (DAT_40001cea = DAT_40001cea - 1, DAT_40001cea == 0)) {
+      if (((evap_vent_control_timer == '\0') && (obd_ii_p0446_health != '\0')) &&
+         (obd_ii_p0446_health = obd_ii_p0446_health + 0xff, obd_ii_p0446_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state,&LEA_obd_ii_P0446_fail_counter,
                    &LEA_obd_ii_P0446_pass_counter,0x446,0);
@@ -25733,8 +25614,8 @@ void obd_ii_evap_leak_detection_monitor(void)
     else {
       evap_vent_control_timer = CAL_evap_purge_flow_state_timer_init;
       if ((evap_system_state_flags & 0x200) == 0) {
-        if (DAT_40001cea < CAL_obd_ii_P0446_fail_count) {
-          DAT_40001cea = DAT_40001cea + 1;
+        if (obd_ii_p0446_health < CAL_obd_ii_P0446_fail_count) {
+          obd_ii_p0446_health = obd_ii_p0446_health + '\x01';
         }
         if (((((evap_system_state_flags & 0x80) != 0) || (obd_ii_system_leak_status == '\x05')) ||
             ((short)CAL_evap_fuel_learn_purge_duty_min >> 1 < obd_ii_commanded_evap_purge)) &&
@@ -25742,7 +25623,8 @@ void obd_ii_evap_leak_detection_monitor(void)
           obd_ii_monitor_pass(&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state);
         }
       }
-      else if ((DAT_40001cea != 0) && (DAT_40001cea = DAT_40001cea - 1, DAT_40001cea == 0)) {
+      else if ((obd_ii_p0446_health != '\0') &&
+              (obd_ii_p0446_health = obd_ii_p0446_health + 0xff, obd_ii_p0446_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state,&LEA_obd_ii_P0446_fail_counter,
                    &LEA_obd_ii_P0446_pass_counter,0x446,0);
@@ -25784,8 +25666,8 @@ void obd_ii_init_evap_purge_diagnostics(void)
 
 {
   DAT_40001cf1 = CAL_evap_purge_stuck_open_test_passes;
-  DAT_40001ce9 = CAL_obd_ii_P0441_fail_count;
-  DAT_40001cea = CAL_obd_ii_P0446_fail_count;
+  obd_ii_p0441_health = CAL_obd_ii_P0441_fail_count;
+  obd_ii_p0446_health = CAL_obd_ii_P0446_fail_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0441,&LEA_obd_ii_P0441_dtc_state,0x441,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0446,&LEA_obd_ii_P0446_dtc_state,0x446,0);
   return;
@@ -25885,7 +25767,8 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
         ((int)((uint)CAL_obd_ii_crank_cam_error_count_max * 4 -
               (uint)CAL_obd_ii_crank_cam_error_count_max) <
          (int)(uint)cam_exhaust_b2_edges_per_cycle)))) {
-      if ((DAT_40001cf8 != 0) && (DAT_40001cf8 = DAT_40001cf8 - 1, DAT_40001cf8 == 0)) {
+      if ((obd_ii_p0335_health != '\0') &&
+         (obd_ii_p0335_health = obd_ii_p0335_health + 0xff, obd_ii_p0335_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0335,&LEA_obd_ii_P0335_dtc_state,&LEA_obd_ii_P0335_fail_counter,
                    &LEA_obd_ii_P0335_pass_counter,0x335,0);
@@ -25893,8 +25776,8 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
     }
     else {
       obd_ii_monitor_pass(&CAL_obd_ii_P0335,&LEA_obd_ii_P0335_dtc_state);
-      if (DAT_40001cf8 < CAL_obd_ii_P0335_debounce_count) {
-        DAT_40001cf8 = DAT_40001cf8 + 1;
+      if (obd_ii_p0335_health < CAL_obd_ii_P0335_debounce_count) {
+        obd_ii_p0335_health = obd_ii_p0335_health + '\x01';
       }
     }
   }
@@ -25975,7 +25858,7 @@ void obd_ii_update_speed_and_timing_sensor_monitors(void)
 void obd_ii_set_crank_cam_vss_dtcs(void)
 
 {
-  DAT_40001cf8 = CAL_obd_ii_P0335_debounce_count;
+  obd_ii_p0335_health = CAL_obd_ii_P0335_debounce_count;
   obd_ii_p0500_health = CAL_obd_ii_P0500_debounce_count;
   obd_ii_p0341_health = CAL_obd_ii_P0341_debounce_count;
   obd_ii_p0346_health = CAL_obd_ii_P0346_debounce_count;
@@ -26147,12 +26030,14 @@ void closedloop(void)
   }
   else {
     if ((((((obd_ii_p0131_health == '\0') || (obd_ii_p0132_health == '\0')) ||
-          ((DAT_40002048 == '\0' || ((DAT_4000207c == '\0' || (DAT_4000206a == '\0')))))) ||
-         (DAT_4000206b == '\0')) ||
-        ((((DAT_4000206e == '\0' || (DAT_4000206f == '\0')) || (DAT_40002072 == '\0')) ||
-         ((DAT_40002073 == '\0' || (DAT_40002076 == '\0')))))) ||
-       (((DAT_40002078 == '\0' ||
-         ((DAT_4000207a == '\0' || ((misfire_condition_flags & 0x1000) != 0)))) ||
+          ((obd_ii_p0134_health == '\0' ||
+           ((obd_ii_p0135_health == '\0' || (obd_ii_p0261_health == '\0')))))) ||
+         (obd_ii_p0262_health == '\0')) ||
+        ((((obd_ii_p0267_health == '\0' || (obd_ii_p0268_health == '\0')) ||
+          (obd_ii_p0273_health == '\0')) ||
+         ((obd_ii_p0274_health == '\0' || (obd_ii_p0351_health == '\0')))))) ||
+       (((obd_ii_p0353_health == '\0' ||
+         ((obd_ii_p0355_health == '\0' || ((misfire_condition_flags & 0x1000) != 0)))) ||
         ((misfire_condition_flags & 0x800) != 0)))) {
       cl_status_bank1 = 8;
       stft_at_o2_rich_switch_bank1 = 0;
@@ -26191,12 +26076,15 @@ void closedloop(void)
       cl_state_flags_bank1 = cl_state_flags_bank1 & 0x3f3f | 0x20;
       o2_switch_counter_bank1 = o2_switch_count_threshold;
     }
-    if (((((obd_ii_p0151_health == '\0') || (obd_ii_p0152_health == '\0')) || (DAT_40002045 == '\0')
-         ) || (((DAT_4000207d == '\0' || (DAT_4000206c == '\0')) ||
-               ((DAT_4000206d == '\0' || ((DAT_40002070 == '\0' || (DAT_40002071 == '\0')))))))) ||
-       ((DAT_40002074 == '\0' ||
-        (((((DAT_40002075 == '\0' || (DAT_40002077 == '\0')) || (DAT_40002079 == '\0')) ||
-          ((DAT_4000207b == '\0' || ((misfire_condition_flags & 0x2000) != 0)))) ||
+    if (((((obd_ii_p0151_health == '\0') || (obd_ii_p0152_health == '\0')) ||
+         (obd_ii_p0154_health == '\0')) ||
+        (((obd_ii_p0155_health == '\0' || (obd_ii_p0264_health == '\0')) ||
+         ((obd_ii_p0265_health == '\0' ||
+          ((obd_ii_p0270_health == '\0' || (obd_ii_p0271_health == '\0')))))))) ||
+       ((obd_ii_p0276_health == '\0' ||
+        (((((obd_ii_p0277_health == '\0' || (obd_ii_p0352_health == '\0')) ||
+           (obd_ii_p0354_health == '\0')) ||
+          ((obd_ii_p0356_health == '\0' || ((misfire_condition_flags & 0x2000) != 0)))) ||
          ((misfire_condition_flags & 0x800) != 0)))))) {
       cl_status_bank2 = 8;
       stft_at_o2_rich_switch_bank2 = 0;
@@ -27088,9 +26976,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
            (((int)((uint)CAL_obd_ii_P0171_learn_time_threshold * 10) <
              (int)LEA_inj_offset_learn_idle_bank1 && ((DAT_40001d6e & 2) != 0)))) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 1;
-          if ((obd_ii_P0171_debounce_counter != 0) &&
-             (obd_ii_P0171_debounce_counter = obd_ii_P0171_debounce_counter - 1,
-             obd_ii_P0171_debounce_counter == 0)) {
+          if ((obd_ii_p0171_health != '\0') &&
+             (obd_ii_p0171_health = obd_ii_p0171_health + 0xff, obd_ii_p0171_health == '\0')) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0171,&LEA_obd_ii_P0171_dtc_state,&LEA_obd_ii_P0171_fail_counter,
                        &LEA_obd_ii_P0171_pass_counter,0x171,0);
@@ -27100,8 +26987,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 4) != 0)) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 1;
           obd_ii_monitor_pass(&CAL_obd_ii_P0171,&LEA_obd_ii_P0171_dtc_state);
-          if (obd_ii_P0171_debounce_counter < CAL_obd_ii_P0171_debounce_count) {
-            obd_ii_P0171_debounce_counter = obd_ii_P0171_debounce_counter + 1;
+          if (obd_ii_p0171_health < CAL_obd_ii_P0171_debounce_count) {
+            obd_ii_p0171_health = obd_ii_p0171_health + '\x01';
           }
         }
       }
@@ -27113,9 +27000,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                     (int)((uint)CAL_obd_ii_P0172_learn_time_threshold * -10) &&
                    ((DAT_40001d6e & 2) != 0)))) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 1;
-          if ((obd_ii_P0172_debounce_counter != 0) &&
-             (obd_ii_P0172_debounce_counter = obd_ii_P0172_debounce_counter - 1,
-             obd_ii_P0172_debounce_counter == 0)) {
+          if ((obd_ii_p0172_health != '\0') &&
+             (obd_ii_p0172_health = obd_ii_p0172_health + 0xff, obd_ii_p0172_health == '\0')) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0172,&LEA_obd_ii_P0172_dtc_state,&LEA_obd_ii_P0172_fail_counter,
                        &LEA_obd_ii_P0172_pass_counter,0x172,0);
@@ -27125,8 +27011,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 4) != 0)) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 1;
           obd_ii_monitor_pass(&CAL_obd_ii_P0172,&LEA_obd_ii_P0172_dtc_state);
-          if (obd_ii_P0172_debounce_counter < CAL_obd_ii_P0172_debounce_count) {
-            obd_ii_P0172_debounce_counter = obd_ii_P0172_debounce_counter + 1;
+          if (obd_ii_p0172_health < CAL_obd_ii_P0172_debounce_count) {
+            obd_ii_p0172_health = obd_ii_p0172_health + '\x01';
           }
         }
       }
@@ -27144,9 +27030,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
             (((int)((uint)CAL_obd_ii_P0171_learn_time_threshold * 10) <
               (int)LEA_inj_offset_learn_idle_bank2 && ((DAT_40001d6e & 0x10) != 0)))))) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 2;
-          if ((obd_ii_P0174_debounce_counter != 0) &&
-             (obd_ii_P0174_debounce_counter = obd_ii_P0174_debounce_counter - 1,
-             obd_ii_P0174_debounce_counter == 0)) {
+          if ((obd_ii_p0174_health != '\0') &&
+             (obd_ii_p0174_health = obd_ii_p0174_health + 0xff, obd_ii_p0174_health == '\0')) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0174,&LEA_obd_ii_P0174_dtc_state,&LEA_obd_ii_P0174_fail_counter,
                        &LEA_obd_ii_P0174_pass_counter,0x174,0);
@@ -27156,8 +27041,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 0x20) != 0)) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 2;
           obd_ii_monitor_pass(&CAL_obd_ii_P0174,&LEA_obd_ii_P0174_dtc_state);
-          if (obd_ii_P0174_debounce_counter < CAL_obd_ii_P0174_debounce_count) {
-            obd_ii_P0174_debounce_counter = obd_ii_P0174_debounce_counter + 1;
+          if (obd_ii_p0174_health < CAL_obd_ii_P0174_debounce_count) {
+            obd_ii_p0174_health = obd_ii_p0174_health + '\x01';
           }
         }
       }
@@ -27170,9 +27055,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
              (int)((uint)CAL_obd_ii_P0172_learn_time_threshold * -10) &&
             ((DAT_40001d6e & 0x10) != 0)))) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 2;
-          if ((obd_ii_P0175_debounce_counter != 0) &&
-             (obd_ii_P0175_debounce_counter = obd_ii_P0175_debounce_counter - 1,
-             obd_ii_P0175_debounce_counter == 0)) {
+          if ((obd_ii_p0175_health != '\0') &&
+             (obd_ii_p0175_health = obd_ii_p0175_health + 0xff, obd_ii_p0175_health == '\0')) {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0175,&LEA_obd_ii_P0175_dtc_state,&LEA_obd_ii_P0175_fail_counter,
                        &LEA_obd_ii_P0175_pass_counter,0x175,0);
@@ -27182,8 +27066,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
                 ((DAT_40001d6e & 0x20) != 0)) {
           LEA_obd_ii_fuel_trim_mode06_flags = LEA_obd_ii_fuel_trim_mode06_flags | 2;
           obd_ii_monitor_pass(&CAL_obd_ii_P0175,&LEA_obd_ii_P0175_dtc_state);
-          if (obd_ii_P0175_debounce_counter < CAL_obd_ii_P0175_debounce_count) {
-            obd_ii_P0175_debounce_counter = obd_ii_P0175_debounce_counter + 1;
+          if (obd_ii_p0175_health < CAL_obd_ii_P0175_debounce_count) {
+            obd_ii_p0175_health = obd_ii_p0175_health + '\x01';
           }
         }
       }
@@ -27210,9 +27094,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
           DAT_40001d93 = CAL_obd_ii_P2192_rich_confirm_time;
           if (DAT_40001d95 == '\0') {
             DAT_40001d95 = CAL_obd_ii_P2191_lean_confirm_time;
-            if ((obd_ii_P2191_debounce_counter != 0) &&
-               (obd_ii_P2191_debounce_counter = obd_ii_P2191_debounce_counter - 1,
-               obd_ii_P2191_debounce_counter == 0)) {
+            if ((obd_ii_p2191_health != '\0') &&
+               (obd_ii_p2191_health = obd_ii_p2191_health + 0xff, obd_ii_p2191_health == '\0')) {
               obd_ii_monitor_fail_transition
                         (&CAL_obd_ii_P2191,&LEA_obd_ii_P2191_dtc_state,
                          &LEA_obd_ii_P2191_fail_counter,&LEA_obd_ii_P2191_pass_counter,0x2191,0);
@@ -27226,8 +27109,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
           DAT_40001d95 = CAL_obd_ii_P2191_lean_confirm_time;
           if (DAT_40001d93 == '\0') {
             DAT_40001d93 = CAL_obd_ii_P2192_rich_confirm_time;
-            if (obd_ii_P2191_debounce_counter < CAL_obd_ii_P2191_debounce_count) {
-              obd_ii_P2191_debounce_counter = obd_ii_P2191_debounce_counter + 1;
+            if (obd_ii_p2191_health < CAL_obd_ii_P2191_debounce_count) {
+              obd_ii_p2191_health = obd_ii_p2191_health + '\x01';
             }
             else {
               obd_ii_monitor_pass(&CAL_obd_ii_P2191,&LEA_obd_ii_P2191_dtc_state);
@@ -27257,9 +27140,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
           DAT_40001d92 = CAL_obd_ii_P2192_rich_confirm_time;
           if (DAT_40001d94 == '\0') {
             DAT_40001d94 = CAL_obd_ii_P2191_lean_confirm_time;
-            if ((obd_ii_P2193_debounce_counter != 0) &&
-               (obd_ii_P2193_debounce_counter = obd_ii_P2193_debounce_counter - 1,
-               obd_ii_P2193_debounce_counter == 0)) {
+            if ((obd_ii_p2193_health != '\0') &&
+               (obd_ii_p2193_health = obd_ii_p2193_health + 0xff, obd_ii_p2193_health == '\0')) {
               obd_ii_monitor_fail_transition
                         (&CAL_obd_ii_P2193,&LEA_obd_ii_P2193_dtc_state,
                          &LEA_obd_ii_P2193_fail_counter,&LEA_obd_ii_P2193_pass_counter,0x2193,0);
@@ -27273,8 +27155,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
           DAT_40001d94 = CAL_obd_ii_P2191_lean_confirm_time;
           if (DAT_40001d92 == '\0') {
             DAT_40001d92 = CAL_obd_ii_P2192_rich_confirm_time;
-            if (obd_ii_P2193_debounce_counter < CAL_obd_ii_P2193_debounce_count) {
-              obd_ii_P2193_debounce_counter = obd_ii_P2193_debounce_counter + 1;
+            if (obd_ii_p2193_health < CAL_obd_ii_P2193_debounce_count) {
+              obd_ii_p2193_health = obd_ii_p2193_health + '\x01';
             }
             else {
               obd_ii_monitor_pass(&CAL_obd_ii_P2193,&LEA_obd_ii_P2193_dtc_state);
@@ -27390,8 +27272,8 @@ void obd_ii_evaluate_fuel_trim_monitors(void)
       DAT_40001d7b = 0;
     }
   }
-  if ((((obd_ii_P0171_debounce_counter == 0) || (obd_ii_P0174_debounce_counter == 0)) ||
-      (obd_ii_P2191_debounce_counter == 0)) || (obd_ii_P2193_debounce_counter == 0)) {
+  if ((((obd_ii_p0171_health == '\0') || (obd_ii_p0174_health == '\0')) ||
+      (obd_ii_p2191_health == '\0')) || (obd_ii_p2193_health == '\0')) {
     engine_state_failure_flags = engine_state_failure_flags | 0x80000;
   }
   else {
@@ -27507,12 +27389,12 @@ void o2_imbalance_window_update
 void obd_ii_init_fuel_trim_diagnostics(void)
 
 {
-  obd_ii_P0171_debounce_counter = CAL_obd_ii_P0171_debounce_count;
-  obd_ii_P0172_debounce_counter = CAL_obd_ii_P0172_debounce_count;
-  obd_ii_P0174_debounce_counter = CAL_obd_ii_P0174_debounce_count;
-  obd_ii_P0175_debounce_counter = CAL_obd_ii_P0175_debounce_count;
-  obd_ii_P2191_debounce_counter = CAL_obd_ii_P2191_debounce_count;
-  obd_ii_P2193_debounce_counter = CAL_obd_ii_P2193_debounce_count;
+  obd_ii_p0171_health = CAL_obd_ii_P0171_debounce_count;
+  obd_ii_p0172_health = CAL_obd_ii_P0172_debounce_count;
+  obd_ii_p0174_health = CAL_obd_ii_P0174_debounce_count;
+  obd_ii_p0175_health = CAL_obd_ii_P0175_debounce_count;
+  obd_ii_p2191_health = CAL_obd_ii_P2191_debounce_count;
+  obd_ii_p2193_health = CAL_obd_ii_P2193_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0171,&LEA_obd_ii_P0171_dtc_state,0x171,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0172,&LEA_obd_ii_P0172_dtc_state,0x172,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0174,&LEA_obd_ii_P0174_dtc_state,0x174,0);
@@ -28586,8 +28468,8 @@ void obd_ii_idle_speed_control_monitor(void)
       if ((short)(ushort)CAL_idle_unknown2 < obd_ii_idle_speed_error) {
         DAT_40001e26 = DAT_40001e26 + 1;
         if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e26) &&
-            (DAT_40001e26 = 0, DAT_40001e22 != 0)) &&
-           (DAT_40001e22 = DAT_40001e22 - 1, DAT_40001e22 == 0)) {
+            (DAT_40001e26 = 0, obd_ii_p050a_health != '\0')) &&
+           (obd_ii_p050a_health = obd_ii_p050a_health + 0xff, obd_ii_p050a_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state,&LEA_obd_ii_P050A_fail_counter,
                      &LEA_obd_ii_P050A_pass_counter,0x50a,0);
@@ -28596,16 +28478,16 @@ void obd_ii_idle_speed_control_monitor(void)
       else {
         DAT_40001e26 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state);
-        if (DAT_40001e22 < CAL_obd_ii_P050A_debounce_count) {
-          DAT_40001e22 = DAT_40001e22 + 1;
+        if (obd_ii_p050a_health < CAL_obd_ii_P050A_debounce_count) {
+          obd_ii_p050a_health = obd_ii_p050a_health + '\x01';
         }
       }
     }
     else if ((short)(ushort)CAL_idle_unknown2 < obd_ii_idle_speed_error) {
       DAT_40001e27 = DAT_40001e27 + 1;
       if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e27) &&
-          (DAT_40001e27 = 0, DAT_40001e21 != 0)) &&
-         (DAT_40001e21 = DAT_40001e21 - 1, DAT_40001e21 == 0)) {
+          (DAT_40001e27 = 0, obd_ii_p0507_health != '\0')) &&
+         (obd_ii_p0507_health = obd_ii_p0507_health + 0xff, obd_ii_p0507_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state,&LEA_obd_ii_P0507_fail_counter,
                    &LEA_obd_ii_P0507_pass_counter,0x507,0);
@@ -28614,8 +28496,8 @@ void obd_ii_idle_speed_control_monitor(void)
     else {
       DAT_40001e27 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state);
-      if (DAT_40001e21 < CAL_obd_ii_P0507_debounce_count) {
-        DAT_40001e21 = DAT_40001e21 + 1;
+      if (obd_ii_p0507_health < CAL_obd_ii_P0507_debounce_count) {
+        obd_ii_p0507_health = obd_ii_p0507_health + '\x01';
       }
     }
   }
@@ -28645,8 +28527,8 @@ void obd_ii_idle_speed_control_monitor(void)
           ((int)((uint)CAL_obd_ii_P050A_idle_error_high << 1) < (int)obd_ii_idle_speed_error)))) {
         DAT_40001e25 = DAT_40001e25 + 1;
         if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e25) &&
-            (DAT_40001e25 = 0, DAT_40001e22 != 0)) &&
-           (DAT_40001e22 = DAT_40001e22 - 1, DAT_40001e22 == 0)) {
+            (DAT_40001e25 = 0, obd_ii_p050a_health != '\0')) &&
+           (obd_ii_p050a_health = obd_ii_p050a_health + 0xff, obd_ii_p050a_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state,&LEA_obd_ii_P050A_fail_counter,
                      &LEA_obd_ii_P050A_pass_counter,0x50a,0);
@@ -28655,8 +28537,8 @@ void obd_ii_idle_speed_control_monitor(void)
       else {
         DAT_40001e25 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state);
-        if (DAT_40001e22 < CAL_obd_ii_P050A_debounce_count) {
-          DAT_40001e22 = DAT_40001e22 + 1;
+        if (obd_ii_p050a_health < CAL_obd_ii_P050A_debounce_count) {
+          obd_ii_p050a_health = obd_ii_p050a_health + '\x01';
         }
       }
     }
@@ -28674,15 +28556,15 @@ void obd_ii_idle_speed_control_monitor(void)
          ((int)((uint)CAL_obd_ii_P050A_idle_error_low * -2) <= (int)obd_ii_idle_speed_error)) {
         DAT_40001e23 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0506,&LEA_obd_ii_P0506_dtc_state);
-        if (DAT_40001e20 < CAL_obd_ii_P0506_debounce_count) {
-          DAT_40001e20 = DAT_40001e20 + 1;
+        if (obd_ii_p0506_health < CAL_obd_ii_P0506_debounce_count) {
+          obd_ii_p0506_health = obd_ii_p0506_health + '\x01';
         }
       }
       else {
         DAT_40001e23 = DAT_40001e23 + 1;
         if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e23) &&
-            (DAT_40001e23 = 0, DAT_40001e20 != 0)) &&
-           (DAT_40001e20 = DAT_40001e20 - 1, DAT_40001e20 == 0)) {
+            (DAT_40001e23 = 0, obd_ii_p0506_health != '\0')) &&
+           (obd_ii_p0506_health = obd_ii_p0506_health + 0xff, obd_ii_p0506_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0506,&LEA_obd_ii_P0506_dtc_state,&LEA_obd_ii_P0506_fail_counter,
                      &LEA_obd_ii_P0506_pass_counter,0x506,0);
@@ -28702,15 +28584,15 @@ void obd_ii_idle_speed_control_monitor(void)
          || ((int)obd_ii_idle_speed_error <= (int)((uint)CAL_obd_ii_P050A_idle_error_high << 1))) {
         DAT_40001e24 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state);
-        if (DAT_40001e21 < CAL_obd_ii_P0507_debounce_count) {
-          DAT_40001e21 = DAT_40001e21 + 1;
+        if (obd_ii_p0507_health < CAL_obd_ii_P0507_debounce_count) {
+          obd_ii_p0507_health = obd_ii_p0507_health + '\x01';
         }
       }
       else {
         DAT_40001e24 = DAT_40001e24 + 1;
         if (((CAL_obd_ii_idle_error_fail_count <= DAT_40001e24) &&
-            (DAT_40001e24 = 0, DAT_40001e21 != 0)) &&
-           (DAT_40001e21 = DAT_40001e21 - 1, DAT_40001e21 == 0)) {
+            (DAT_40001e24 = 0, obd_ii_p0507_health != '\0')) &&
+           (obd_ii_p0507_health = obd_ii_p0507_health + 0xff, obd_ii_p0507_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state,&LEA_obd_ii_P0507_fail_counter,
                      &LEA_obd_ii_P0507_pass_counter,0x507,0);
@@ -28726,9 +28608,9 @@ void obd_ii_idle_speed_control_monitor(void)
 void obd_ii_init_idle_control_diagnostics(void)
 
 {
-  DAT_40001e20 = CAL_obd_ii_P0506_debounce_count;
-  DAT_40001e21 = CAL_obd_ii_P0507_debounce_count;
-  DAT_40001e22 = CAL_obd_ii_P050A_debounce_count;
+  obd_ii_p0506_health = CAL_obd_ii_P0506_debounce_count;
+  obd_ii_p0507_health = CAL_obd_ii_P0507_debounce_count;
+  obd_ii_p050a_health = CAL_obd_ii_P050A_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0506,&LEA_obd_ii_P0506_dtc_state,0x506,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0507,&LEA_obd_ii_P0507_dtc_state,0x507,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P050A,&LEA_obd_ii_P050A_dtc_state,0x50a,0);
@@ -29298,10 +29180,10 @@ void obd_ii_evap_leak_detection_monitor(void)
   if ((LEA_obd_ii_P0500_dtc_state & 4) == 0) {
     DAT_40001e8c = uVar4;
   }
-  if ((obd_ii_P0171_debounce_counter == '\0') || (obd_ii_P0174_debounce_counter == '\0')) {
+  if ((obd_ii_p0171_health == '\0') || (obd_ii_p0174_health == '\0')) {
     DAT_40001e8c = DAT_40001e8c | 0x8000;
   }
-  if ((obd_ii_P0172_debounce_counter == '\0') || (obd_ii_P0175_debounce_counter == '\0')) {
+  if ((obd_ii_p0172_health == '\0') || (obd_ii_p0175_health == '\0')) {
     DAT_40001e8c = DAT_40001e8c | 0x10000;
   }
   uVar3 = DAT_40001e8c;
@@ -29520,9 +29402,10 @@ void obd_ii_evap_leak_detection_monitor(void)
                                     CAL_evap_leak_test_P0456_decay_limit,
                                     CAL_evap_leak_test_P0456_decay_limit_X_ambient_temp,
                                     CAL_evap_leak_test_P0456_decay_limit_Y_fuel_level);
-          DAT_40001e79 = lookup_2D_uint8_interpolated
-                                   (16,fuel_level,CAL_evap_leak_test_P0442_decay_limit,
-                                    CAL_evap_leak_test_P0442_decay_limit_X_fuel_level);
+          evap_leak_test_P0442_decay_limit =
+               lookup_2D_uint8_interpolated
+                         (16,fuel_level,CAL_evap_leak_test_P0442_decay_limit,
+                          CAL_evap_leak_test_P0442_decay_limit_X_fuel_level);
           obd_ii_system_leak_status = obd_ii_system_leak_status + 1;
           uVar3 = evap_system_state_flags;
         }
@@ -29544,13 +29427,13 @@ void obd_ii_evap_leak_detection_monitor(void)
       if (DAT_40001e85 == '\0') {
         evap_system_state_flags = uVar3;
         obd_ii_monitor_pass(&CAL_obd_ii_P0442,&LEA_obd_ii_P0442_dtc_state);
-        if (DAT_40001e91 < CAL_obd_ii_P0442_debounce_count) {
-          DAT_40001e91 = DAT_40001e91 + 1;
+        if (obd_ii_p0442_health < CAL_obd_ii_P0442_debounce_count) {
+          obd_ii_p0442_health = obd_ii_p0442_health + '\x01';
         }
         if (DAT_40001e86 == 0) {
           obd_ii_monitor_pass(&CAL_obd_ii_P0456,&LEA_obd_ii_P0456_dtc_state);
-          if (DAT_40001e90 < CAL_obd_ii_P0456_debounce_count) {
-            DAT_40001e90 = DAT_40001e90 + 1;
+          if (obd_ii_p0456_health < CAL_obd_ii_P0456_debounce_count) {
+            obd_ii_p0456_health = obd_ii_p0456_health + '\x01';
           }
           if (((int)(uint)LEA_obd_ii_P0456_decay_top10[0] < (int)(short)DAT_40001e74) &&
              (0 < (short)DAT_40001e74)) {
@@ -29561,7 +29444,8 @@ void obd_ii_evap_leak_detection_monitor(void)
         }
         else if (((((short)(ushort)DAT_40001e78 < (short)DAT_40001e74) &&
                   ((CAL_evap_leak_test_force_enable == false || (DAT_40001e86 == 0)))) &&
-                 (DAT_40001e90 != 0)) && (DAT_40001e90 = DAT_40001e90 - 1, DAT_40001e90 == 0)) {
+                 (obd_ii_p0456_health != '\0')) &&
+                (obd_ii_p0456_health = obd_ii_p0456_health + 0xff, obd_ii_p0456_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0456,&LEA_obd_ii_P0456_dtc_state,&LEA_obd_ii_P0456_fail_counter,
                      &LEA_obd_ii_P0456_pass_counter,0x456,0);
@@ -29572,9 +29456,10 @@ void obd_ii_evap_leak_detection_monitor(void)
         DAT_40001e85 = DAT_40001e85 + 0xff;
         evap_system_state_flags = uVar3;
         obd_ii_eval_leak_check_result = DAT_40001e74;
-        if ((((short)(ushort)DAT_40001e79 < (short)DAT_40001e74) &&
-            (((!CAL_evap_leak_test_force_enable || (DAT_40001e85 == '\0')) && (DAT_40001e91 != 0))))
-           && (DAT_40001e91 = DAT_40001e91 - 1, DAT_40001e91 == 0)) {
+        if ((((short)(ushort)evap_leak_test_P0442_decay_limit < (short)DAT_40001e74) &&
+            (((!CAL_evap_leak_test_force_enable || (DAT_40001e85 == '\0')) &&
+             (obd_ii_p0442_health != '\0')))) &&
+           (obd_ii_p0442_health = obd_ii_p0442_health + 0xff, obd_ii_p0442_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0442,&LEA_obd_ii_P0442_dtc_state,&LEA_obd_ii_P0442_fail_counter,
                      &LEA_obd_ii_P0442_pass_counter,0x442,0);
@@ -29583,7 +29468,7 @@ void obd_ii_evap_leak_detection_monitor(void)
       }
       if ((LEA_obd_ii_P0442_dtc_state & 8) != 0) {
         LEA_obd_ii_evap_leak_check_result = obd_ii_eval_leak_check_result;
-        LEA_obd_ii_evap_P0442_decay_limit = DAT_40001e79;
+        LEA_obd_ii_evap_P0442_decay_limit = evap_leak_test_P0442_decay_limit;
       }
       uVar3 = evap_system_state_flags;
       if ((LEA_obd_ii_P0456_dtc_state & 8) != 0) {
@@ -29616,9 +29501,9 @@ void obd_ii_evap_leak_detection_monitor(void)
 void obd_ii_init_evap_leak_diagnostics(void)
 
 {
-  DAT_40001e91 = CAL_obd_ii_P0442_debounce_count;
-  DAT_40001e68 = CAL_obd_ii_P0455_debounce_count;
-  DAT_40001e90 = CAL_obd_ii_P0456_debounce_count;
+  obd_ii_p0442_health = CAL_obd_ii_P0442_debounce_count;
+  obd_ii_p0455_health = CAL_obd_ii_P0455_debounce_count;
+  obd_ii_p0456_health = CAL_obd_ii_P0456_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0442,&LEA_obd_ii_P0442_dtc_state,0x442,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0455,&LEA_obd_ii_P0455_dtc_state,0x455,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0456,&LEA_obd_ii_P0456_dtc_state,0x456,0);
@@ -29740,15 +29625,15 @@ void obd_ii_knock_threshold_per_cylinder_100ms(void)
          (obd_ii_ign_adv_per_cylinder[5] <= ign_adv_target_rate_limited)))))) {
       p050b_fail_cycle_counter = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P050B,&LEA_obd_ii_P050B_dtc_state);
-      if (DAT_40001ea4 < CAL_obd_ii_P050B_maturing_limit) {
-        DAT_40001ea4 = DAT_40001ea4 + 1;
+      if (obd_ii_p050b_health < CAL_obd_ii_P050B_maturing_limit) {
+        obd_ii_p050b_health = obd_ii_p050b_health + '\x01';
       }
     }
     else {
       p050b_fail_cycle_counter = p050b_fail_cycle_counter + 1;
       if (((CAL_obd_ii_monitor_debounce_cycles < p050b_fail_cycle_counter) &&
-          (p050b_fail_cycle_counter = 0, DAT_40001ea4 != 0)) &&
-         (DAT_40001ea4 = DAT_40001ea4 - 1, DAT_40001ea4 == 0)) {
+          (p050b_fail_cycle_counter = 0, obd_ii_p050b_health != '\0')) &&
+         (obd_ii_p050b_health = obd_ii_p050b_health + 0xff, obd_ii_p050b_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P050B,&LEA_obd_ii_P050B_dtc_state,&LEA_obd_ii_P050B_fail_counter,
                    &LEA_obd_ii_P050B_pass_counter,0x50b,0);
@@ -30089,7 +29974,7 @@ void obd_ii_init_ecu_diagnostics(void)
   obd_ii_update_dtc_state(&CAL_obd_ii_P2339,&LEA_obd_ii_P2339_dtc_state,0x2339,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P2340,&LEA_obd_ii_P2340_dtc_state,0x2340,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P2341,&LEA_obd_ii_P2341_dtc_state,0x2341,0);
-  DAT_40001ea4 = CAL_obd_ii_P050B_maturing_limit;
+  obd_ii_p050b_health = CAL_obd_ii_P050B_maturing_limit;
   obd_ii_knock_monitor_counters = CAL_obd_ii_P2336_maturing_limit;
   DAT_40001ea6 = CAL_obd_ii_P2336_maturing_limit;
   DAT_40001eb4 = CAL_obd_ii_P2337_maturing_limit;
@@ -30612,8 +30497,8 @@ void misfire_detection_update(void)
     misfire_condition_flags = misfire_condition_flags & 0xfffffffd;
   }
   if (engine_is_running == false) {
-    DAT_40001ec7 = '\x01';
-    DAT_40001ec8 = '\x01';
+    obd_ii_p1301_health = '\x01';
+    obd_ii_p1302_health = '\x01';
     misfire_condition_flags = misfire_condition_flags & 0xfffffe7f;
   }
   if ((misfire_condition_flags & 0x200) != 0) {
@@ -30658,11 +30543,11 @@ void misfire_detection_update(void)
     if ((CAL_obd_ii_P1302 & 7) != 0) {
       if ((misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[0]) ||
          (misfire_threshold_current_window < obd_ii_misfires_unknown_cat_damage[1])) {
-        uVar2 = DAT_40001ec8 + 0xff;
-        if (DAT_40001ec8 == '\0') {
-          uVar2 = DAT_40001ec8;
+        uVar2 = obd_ii_p1302_health + 0xff;
+        if (obd_ii_p1302_health == '\0') {
+          uVar2 = obd_ii_p1302_health;
         }
-        DAT_40001ec8 = uVar2;
+        obd_ii_p1302_health = uVar2;
         if (uVar2 == '\0') {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P1302,&LEA_obd_ii_P1302_dtc_state,&LEA_obd_ii_P1302_fail_counter,
@@ -30697,7 +30582,7 @@ void misfire_detection_update(void)
       else {
         obd_ii_monitor_pass(&CAL_obd_ii_P1302,&LEA_obd_ii_P1302_dtc_state);
         if ((misfire_condition_flags & 0x100) == 0) {
-          DAT_40001ec8 = CAL_obd_ii_P1302_debounce_count;
+          obd_ii_p1302_health = CAL_obd_ii_P1302_debounce_count;
           misfire_condition_flags = misfire_condition_flags | 0x100;
         }
       }
@@ -30737,7 +30622,8 @@ void misfire_detection_update(void)
     }
     if ((CAL_obd_ii_P1301 & 7) != 0) {
       if (misfire_emissions_limit < obd_ii_max_misfire_results_emissions) {
-        if ((DAT_40001ec7 != '\0') && (DAT_40001ec7 = DAT_40001ec7 + 0xff, DAT_40001ec7 == '\0')) {
+        if ((obd_ii_p1301_health != '\0') &&
+           (obd_ii_p1301_health = obd_ii_p1301_health + 0xff, obd_ii_p1301_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P1301,&LEA_obd_ii_P1301_dtc_state,&LEA_obd_ii_P1301_fail_counter,
                      &LEA_obd_ii_P1301_pass_counter,0x1301,0);
@@ -30746,7 +30632,7 @@ void misfire_detection_update(void)
       else {
         obd_ii_monitor_pass(&CAL_obd_ii_P1301,&LEA_obd_ii_P1301_dtc_state);
         if ((misfire_condition_flags & 0x80) == 0) {
-          DAT_40001ec7 = CAL_obd_ii_P1301_debounce_count;
+          obd_ii_p1301_health = CAL_obd_ii_P1301_debounce_count;
           misfire_condition_flags = misfire_condition_flags | 0x80;
         }
       }
@@ -30800,20 +30686,21 @@ void obd_ii_set_misfire_codes(int param_1)
   DAT_40001ecc = 0;
   bVar1 = DAT_40001ecc;
   if ((CAL_obd_ii_P0301 & 7) != 0) {
-    if ((((DAT_40005d8c < 0x65) || (DAT_40001ec7 != '\0')) || (param_1 != 0x400)) &&
+    if ((((DAT_40005d8c < 0x65) || (obd_ii_p1301_health != '\0')) || (param_1 != 0x400)) &&
        (((DAT_40005d80 < 0x65 && (DAT_40000678 != 0)) ||
-        ((DAT_40001ec8 != '\0' || (param_1 != 0x200)))))) {
+        ((obd_ii_p1302_health != '\0' || (param_1 != 0x200)))))) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0301,&LEA_obd_ii_P0301_dtc_state);
       bVar1 = DAT_40001ecc;
-      if (DAT_40001ec1 < CAL_obd_ii_P0301_debounce_count) {
-        DAT_40001ec1 = DAT_40001ec1 + 1;
+      if (obd_ii_p0301_health < CAL_obd_ii_P0301_debounce_count) {
+        obd_ii_p0301_health = obd_ii_p0301_health + '\x01';
       }
     }
     else {
       DAT_40001ecc = 1;
       bVar1 = 1;
-      if ((DAT_40001ec1 != 0) &&
-         (DAT_40001ec1 = DAT_40001ec1 - 1, bVar1 = DAT_40001ecc, DAT_40001ec1 == 0)) {
+      if ((obd_ii_p0301_health != '\0') &&
+         (obd_ii_p0301_health = obd_ii_p0301_health + 0xff, bVar1 = DAT_40001ecc,
+         obd_ii_p0301_health == '\0')) {
         DAT_40001ecc = 1;
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0301,&LEA_obd_ii_P0301_dtc_state,&LEA_obd_ii_P0301_fail_counter,
@@ -30824,17 +30711,18 @@ void obd_ii_set_misfire_codes(int param_1)
   }
   DAT_40001ecc = bVar1;
   if ((CAL_obd_ii_P0302 & 7) != 0) {
-    if ((((DAT_40005d8e < 0x65) || (DAT_40001ec7 != '\0')) || (param_1 != 0x400)) &&
+    if ((((DAT_40005d8e < 0x65) || (obd_ii_p1301_health != '\0')) || (param_1 != 0x400)) &&
        (((DAT_40005d82 < 0x65 && (DAT_4000067a != 0)) ||
-        ((DAT_40001ec8 != '\0' || (param_1 != 0x200)))))) {
+        ((obd_ii_p1302_health != '\0' || (param_1 != 0x200)))))) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0302,&LEA_obd_ii_P0302_dtc_state);
-      if (DAT_40001ec2 < CAL_obd_ii_P0302_debounce_count) {
-        DAT_40001ec2 = DAT_40001ec2 + 1;
+      if (obd_ii_p0302_health < CAL_obd_ii_P0302_debounce_count) {
+        obd_ii_p0302_health = obd_ii_p0302_health + '\x01';
       }
     }
     else {
       DAT_40001ecc = DAT_40001ecc + 1;
-      if ((DAT_40001ec2 != 0) && (DAT_40001ec2 = DAT_40001ec2 - 1, DAT_40001ec2 == 0)) {
+      if ((obd_ii_p0302_health != '\0') &&
+         (obd_ii_p0302_health = obd_ii_p0302_health + 0xff, obd_ii_p0302_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0302,&LEA_obd_ii_P0302_dtc_state,&LEA_obd_ii_P0302_fail_counter,
                    &LEA_obd_ii_P0302_pass_counter,0x302,0);
@@ -30842,17 +30730,18 @@ void obd_ii_set_misfire_codes(int param_1)
     }
   }
   if ((CAL_obd_ii_P0303 & 7) != 0) {
-    if ((((DAT_40005d90 < 0x65) || (DAT_40001ec7 != '\0')) || (param_1 != 0x400)) &&
+    if ((((DAT_40005d90 < 0x65) || (obd_ii_p1301_health != '\0')) || (param_1 != 0x400)) &&
        (((DAT_40005d84 < 0x65 && (DAT_4000067c != 0)) ||
-        ((DAT_40001ec8 != '\0' || (param_1 != 0x200)))))) {
+        ((obd_ii_p1302_health != '\0' || (param_1 != 0x200)))))) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0303,&LEA_obd_ii_P0303_dtc_state);
-      if (DAT_40001ec3 < CAL_obd_ii_P0303_debounce_count) {
-        DAT_40001ec3 = DAT_40001ec3 + 1;
+      if (obd_ii_p0303_health < CAL_obd_ii_P0303_debounce_count) {
+        obd_ii_p0303_health = obd_ii_p0303_health + '\x01';
       }
     }
     else {
       DAT_40001ecc = DAT_40001ecc + 1;
-      if ((DAT_40001ec3 != 0) && (DAT_40001ec3 = DAT_40001ec3 - 1, DAT_40001ec3 == 0)) {
+      if ((obd_ii_p0303_health != '\0') &&
+         (obd_ii_p0303_health = obd_ii_p0303_health + 0xff, obd_ii_p0303_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0303,&LEA_obd_ii_P0303_dtc_state,&LEA_obd_ii_P0303_fail_counter,
                    &LEA_obd_ii_P0303_pass_counter,0x303,0);
@@ -30860,17 +30749,18 @@ void obd_ii_set_misfire_codes(int param_1)
     }
   }
   if ((CAL_obd_ii_P0304 & 7) != 0) {
-    if ((((DAT_40005d92 < 0x65) || (DAT_40001ec7 != '\0')) || (param_1 != 0x400)) &&
+    if ((((DAT_40005d92 < 0x65) || (obd_ii_p1301_health != '\0')) || (param_1 != 0x400)) &&
        (((DAT_40005d86 < 0x65 && (DAT_4000067e != 0)) ||
-        ((DAT_40001ec8 != '\0' || (param_1 != 0x200)))))) {
+        ((obd_ii_p1302_health != '\0' || (param_1 != 0x200)))))) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0304,&LEA_obd_ii_P0304_dtc_state);
-      if (DAT_40001ec4 < CAL_obd_ii_P0304_debounce_count) {
-        DAT_40001ec4 = DAT_40001ec4 + 1;
+      if (obd_ii_p0304_health < CAL_obd_ii_P0304_debounce_count) {
+        obd_ii_p0304_health = obd_ii_p0304_health + '\x01';
       }
     }
     else {
       DAT_40001ecc = DAT_40001ecc + 1;
-      if ((DAT_40001ec4 != 0) && (DAT_40001ec4 = DAT_40001ec4 - 1, DAT_40001ec4 == 0)) {
+      if ((obd_ii_p0304_health != '\0') &&
+         (obd_ii_p0304_health = obd_ii_p0304_health + 0xff, obd_ii_p0304_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0304,&LEA_obd_ii_P0304_dtc_state,&LEA_obd_ii_P0304_fail_counter,
                    &LEA_obd_ii_P0304_pass_counter,0x304,0);
@@ -30878,17 +30768,18 @@ void obd_ii_set_misfire_codes(int param_1)
     }
   }
   if ((CAL_obd_ii_P0305 & 7) != 0) {
-    if ((((DAT_40005d94 < 0x65) || (DAT_40001ec7 != '\0')) || (param_1 != 0x400)) &&
+    if ((((DAT_40005d94 < 0x65) || (obd_ii_p1301_health != '\0')) || (param_1 != 0x400)) &&
        (((DAT_40005d88 < 0x65 && (DAT_40000680 != 0)) ||
-        ((DAT_40001ec8 != '\0' || (param_1 != 0x200)))))) {
+        ((obd_ii_p1302_health != '\0' || (param_1 != 0x200)))))) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0305,&LEA_obd_ii_P0305_dtc_state);
-      if (DAT_40001ec5 < CAL_obd_ii_P0305_debounce_count) {
-        DAT_40001ec5 = DAT_40001ec5 + 1;
+      if (obd_ii_p0305_health < CAL_obd_ii_P0305_debounce_count) {
+        obd_ii_p0305_health = obd_ii_p0305_health + '\x01';
       }
     }
     else {
       DAT_40001ecc = DAT_40001ecc + 1;
-      if ((DAT_40001ec5 != 0) && (DAT_40001ec5 = DAT_40001ec5 - 1, DAT_40001ec5 == 0)) {
+      if ((obd_ii_p0305_health != '\0') &&
+         (obd_ii_p0305_health = obd_ii_p0305_health + 0xff, obd_ii_p0305_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0305,&LEA_obd_ii_P0305_dtc_state,&LEA_obd_ii_P0305_fail_counter,
                    &LEA_obd_ii_P0305_pass_counter,0x305,0);
@@ -30896,17 +30787,18 @@ void obd_ii_set_misfire_codes(int param_1)
     }
   }
   if ((CAL_obd_ii_P0306 & 7) != 0) {
-    if ((((DAT_40005d96 < 0x65) || (DAT_40001ec7 != '\0')) || (param_1 != 0x400)) &&
+    if ((((DAT_40005d96 < 0x65) || (obd_ii_p1301_health != '\0')) || (param_1 != 0x400)) &&
        (((DAT_40005d8a < 0x65 && (DAT_40000682 != 0)) ||
-        ((DAT_40001ec8 != '\0' || (param_1 != 0x200)))))) {
+        ((obd_ii_p1302_health != '\0' || (param_1 != 0x200)))))) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0306,&LEA_obd_ii_P0306_dtc_state);
-      if (DAT_40001ec6 < CAL_obd_ii_P0306_debounce_count) {
-        DAT_40001ec6 = DAT_40001ec6 + 1;
+      if (obd_ii_p0306_health < CAL_obd_ii_P0306_debounce_count) {
+        obd_ii_p0306_health = obd_ii_p0306_health + '\x01';
       }
     }
     else {
       DAT_40001ecc = DAT_40001ecc + 1;
-      if ((DAT_40001ec6 != 0) && (DAT_40001ec6 = DAT_40001ec6 - 1, DAT_40001ec6 == 0)) {
+      if ((obd_ii_p0306_health != '\0') &&
+         (obd_ii_p0306_health = obd_ii_p0306_health + 0xff, obd_ii_p0306_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0306,&LEA_obd_ii_P0306_dtc_state,&LEA_obd_ii_P0306_fail_counter,
                    &LEA_obd_ii_P0306_pass_counter,0x306,0);
@@ -30931,15 +30823,15 @@ void obd_ii_set_misfire_codes(int param_1)
 void obd_ii_init_misfire_diagnostics(void)
 
 {
-  DAT_40001ec0 = CAL_obd_ii_P0300_debounce_count;
-  DAT_40001ec1 = CAL_obd_ii_P0301_debounce_count;
-  DAT_40001ec2 = CAL_obd_ii_P0302_debounce_count;
-  DAT_40001ec3 = CAL_obd_ii_P0303_debounce_count;
-  DAT_40001ec4 = CAL_obd_ii_P0304_debounce_count;
-  DAT_40001ec5 = CAL_obd_ii_P0305_debounce_count;
-  DAT_40001ec6 = CAL_obd_ii_P0306_debounce_count;
-  DAT_40001ec7 = 1;
-  DAT_40001ec8 = 1;
+  obd_ii_p0300_health = CAL_obd_ii_P0300_debounce_count;
+  obd_ii_p0301_health = CAL_obd_ii_P0301_debounce_count;
+  obd_ii_p0302_health = CAL_obd_ii_P0302_debounce_count;
+  obd_ii_p0303_health = CAL_obd_ii_P0303_debounce_count;
+  obd_ii_p0304_health = CAL_obd_ii_P0304_debounce_count;
+  obd_ii_p0305_health = CAL_obd_ii_P0305_debounce_count;
+  obd_ii_p0306_health = CAL_obd_ii_P0306_debounce_count;
+  obd_ii_p1301_health = '\x01';
+  obd_ii_p1302_health = '\x01';
   obd_ii_update_dtc_state(&CAL_obd_ii_P0300,&LEA_obd_ii_P0300_dtc_state,0x300,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0301,&LEA_obd_ii_P0301_dtc_state,0x301,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0302,&LEA_obd_ii_P0302_dtc_state,0x302,0);
@@ -34032,9 +33924,9 @@ void obd_ii_o2_no_activity_monitor(void)
          ((DAT_40001fca & 4) != 0)) {
         DAT_40001fbe = DAT_40001fbe + 1;
         if ((CAL_obd_ii_monitor_debounce_cycles <= DAT_40001fbe) &&
-           (DAT_40001fbe = 0, DAT_40002048 != 0)) {
-          DAT_40002048 = DAT_40002048 - 1;
-          if (DAT_40002048 == 0) {
+           (DAT_40001fbe = 0, obd_ii_p0134_health != '\0')) {
+          obd_ii_p0134_health = obd_ii_p0134_health + 0xff;
+          if (obd_ii_p0134_health == '\0') {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0134,&LEA_obd_ii_P0134_dtc_state,&LEA_obd_ii_P0134_fail_counter,
                        &LEA_obd_ii_P0134_pass_counter,0x134,0);
@@ -34046,8 +33938,8 @@ void obd_ii_o2_no_activity_monitor(void)
       else {
         DAT_40001fbe = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0134,&LEA_obd_ii_P0134_dtc_state);
-        if (DAT_40002048 < CAL_obd_ii_P0134_debounce_count) {
-          DAT_40002048 = DAT_40002048 + 1;
+        if (obd_ii_p0134_health < CAL_obd_ii_P0134_debounce_count) {
+          obd_ii_p0134_health = obd_ii_p0134_health + '\x01';
         }
       }
     }
@@ -34070,9 +33962,9 @@ void obd_ii_o2_no_activity_monitor(void)
          ((DAT_40001fcb & 4) != 0)) {
         DAT_40001fbf = DAT_40001fbf + 1;
         if ((CAL_obd_ii_monitor_debounce_cycles <= DAT_40001fbf) &&
-           (DAT_40001fbf = 0, DAT_40002045 != 0)) {
-          DAT_40002045 = DAT_40002045 - 1;
-          if (DAT_40002045 == 0) {
+           (DAT_40001fbf = 0, obd_ii_p0154_health != '\0')) {
+          obd_ii_p0154_health = obd_ii_p0154_health + 0xff;
+          if (obd_ii_p0154_health == '\0') {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_P0154,&LEA_obd_ii_P0154_dtc_state,&LEA_obd_ii_P0154_fail_counter,
                        &LEA_obd_ii_P0154_pass_counter,0x154,0);
@@ -34084,8 +33976,8 @@ void obd_ii_o2_no_activity_monitor(void)
       else {
         DAT_40001fbf = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0154,&LEA_obd_ii_P0154_dtc_state);
-        if (DAT_40002045 < CAL_obd_ii_P0154_debounce_count) {
-          DAT_40002045 = DAT_40002045 + 1;
+        if (obd_ii_p0154_health < CAL_obd_ii_P0154_debounce_count) {
+          obd_ii_p0154_health = obd_ii_p0154_health + '\x01';
         }
       }
     }
@@ -34098,8 +33990,8 @@ void obd_ii_o2_no_activity_monitor(void)
       if ((cl_state_flags_bank1 & 8) == 0) {
         DAT_40001fc0 = DAT_40001fc0 + 1;
         if (((CAL_obd_ii_monitor_debounce_cycles <= DAT_40001fc0) &&
-            (DAT_40001fc0 = 0, DAT_40001fa8 != 0)) &&
-           (DAT_40001fa8 = DAT_40001fa8 - 1, DAT_40001fa8 == 0)) {
+            (DAT_40001fc0 = 0, obd_ii_p0140_health != '\0')) &&
+           (obd_ii_p0140_health = obd_ii_p0140_health + 0xff, obd_ii_p0140_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0140,&LEA_obd_ii_P0140_dtc_state,&LEA_obd_ii_P0140_fail_counter,
                      &LEA_obd_ii_P0140_pass_counter,0x140,0);
@@ -34108,8 +34000,8 @@ void obd_ii_o2_no_activity_monitor(void)
       else {
         DAT_40001fc0 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0140,&LEA_obd_ii_P0140_dtc_state);
-        if (DAT_40001fa8 < CAL_obd_ii_P0140_debounce_count) {
-          DAT_40001fa8 = DAT_40001fa8 + 1;
+        if (obd_ii_p0140_health < CAL_obd_ii_P0140_debounce_count) {
+          obd_ii_p0140_health = obd_ii_p0140_health + '\x01';
         }
       }
     }
@@ -34122,8 +34014,8 @@ void obd_ii_o2_no_activity_monitor(void)
       if ((cl_state_flags_bank2 & 8) == 0) {
         DAT_40001fc1 = DAT_40001fc1 + 1;
         if (((CAL_obd_ii_monitor_debounce_cycles <= DAT_40001fc1) &&
-            (DAT_40001fc1 = 0, DAT_40001fa9 != 0)) &&
-           (DAT_40001fa9 = DAT_40001fa9 - 1, DAT_40001fa9 == 0)) {
+            (DAT_40001fc1 = 0, obd_ii_p0160_health != '\0')) &&
+           (obd_ii_p0160_health = obd_ii_p0160_health + 0xff, obd_ii_p0160_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0160,&LEA_obd_ii_P0160_dtc_state,&LEA_obd_ii_P0160_fail_counter,
                      &LEA_obd_ii_P0160_pass_counter,0x160,0);
@@ -34132,8 +34024,8 @@ void obd_ii_o2_no_activity_monitor(void)
       else {
         DAT_40001fc1 = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0160,&LEA_obd_ii_P0160_dtc_state);
-        if (DAT_40001fa9 < CAL_obd_ii_P0160_debounce_count) {
-          DAT_40001fa9 = DAT_40001fa9 + 1;
+        if (obd_ii_p0160_health < CAL_obd_ii_P0160_debounce_count) {
+          obd_ii_p0160_health = obd_ii_p0160_health + '\x01';
         }
       }
     }
@@ -34485,8 +34377,8 @@ void obd_ii_o2_slow_response_monitor(void)
              (((DAT_4000202c & 0x40) != 0 && ((DAT_4000202c & 0x80) != 0)))) {
             DAT_4000202c = uVar3;
             obd_ii_monitor_pass(&CAL_obd_ii_P0139,&LEA_obd_ii_P0139_dtc_state);
-            if (DAT_40002047 < CAL_obd_ii_P0139_debounce_count) {
-              DAT_40002047 = DAT_40002047 + 1;
+            if (obd_ii_p0139_health < CAL_obd_ii_P0139_debounce_count) {
+              obd_ii_p0139_health = obd_ii_p0139_health + '\x01';
             }
             DAT_40002004 = CAL_cat_check_unknown4;
             DAT_40002008 = CAL_obd_ii_o2_min_voltage_init;
@@ -34496,15 +34388,15 @@ void obd_ii_o2_slow_response_monitor(void)
         else {
           DAT_4000202c = uVar3;
           LEA_obd_ii_P0139_dtc_state = bVar4;
-          if (DAT_40002047 != 0) {
-            DAT_40002047 = DAT_40002047 - 1;
-            if (DAT_40002047 == 0) {
+          if (obd_ii_p0139_health != '\0') {
+            obd_ii_p0139_health = obd_ii_p0139_health + 0xff;
+            if (obd_ii_p0139_health == '\0') {
               obd_ii_monitor_fail_transition
                         (&CAL_obd_ii_P0139,&LEA_obd_ii_P0139_dtc_state,
                          &LEA_obd_ii_P0139_fail_counter,&LEA_obd_ii_P0139_pass_counter,0x139,0);
             }
-            if (DAT_40002047 < LEA_obd_ii_P0139_P0159_debounce_min) {
-              LEA_obd_ii_P0139_P0159_debounce_min = DAT_40002047;
+            if (obd_ii_p0139_health < LEA_obd_ii_P0139_P0159_debounce_min) {
+              LEA_obd_ii_P0139_P0159_debounce_min = obd_ii_p0139_health;
             }
           }
           DAT_40002004 = CAL_cat_check_unknown4;
@@ -34547,8 +34439,8 @@ void obd_ii_o2_slow_response_monitor(void)
              (((DAT_4000202a & 0x40) != 0 && ((DAT_4000202a & 0x80) != 0)))) {
             DAT_4000202a = uVar3;
             obd_ii_monitor_pass(&CAL_obd_ii_P0159,&LEA_obd_ii_P0159_dtc_state);
-            if (DAT_40002044 < CAL_obd_ii_P0159_debounce_count) {
-              DAT_40002044 = DAT_40002044 + 1;
+            if (obd_ii_p0159_health < CAL_obd_ii_P0159_debounce_count) {
+              obd_ii_p0159_health = obd_ii_p0159_health + '\x01';
             }
             DAT_40002002 = CAL_cat_check_unknown4;
             DAT_40002006 = CAL_obd_ii_o2_min_voltage_init;
@@ -34558,15 +34450,15 @@ void obd_ii_o2_slow_response_monitor(void)
         else {
           DAT_4000202a = uVar3;
           LEA_obd_ii_P0159_dtc_state = bVar4;
-          if (DAT_40002044 != 0) {
-            DAT_40002044 = DAT_40002044 - 1;
-            if (DAT_40002044 == 0) {
+          if (obd_ii_p0159_health != '\0') {
+            obd_ii_p0159_health = obd_ii_p0159_health + 0xff;
+            if (obd_ii_p0159_health == '\0') {
               obd_ii_monitor_fail_transition
                         (&CAL_obd_ii_P0159,&LEA_obd_ii_P0159_dtc_state,
                          &LEA_obd_ii_P0159_fail_counter,&LEA_obd_ii_P0159_pass_counter,0x159,0);
             }
-            if (DAT_40002044 < LEA_obd_ii_P0139_P0159_debounce_min) {
-              LEA_obd_ii_P0139_P0159_debounce_min = DAT_40002044;
+            if (obd_ii_p0159_health < LEA_obd_ii_P0139_P0159_debounce_min) {
+              LEA_obd_ii_P0139_P0159_debounce_min = obd_ii_p0159_health;
             }
           }
           DAT_40002002 = CAL_cat_check_unknown4;
@@ -35324,13 +35216,13 @@ void obd_ii_init_o2_sensor_diagnostics(void)
 
 {
   obd_ii_p0133_health = CAL_obd_ii_P0133_debounce_count;
-  DAT_40002048 = CAL_obd_ii_P0134_debounce_count;
-  DAT_40002047 = CAL_obd_ii_P0139_debounce_count;
-  DAT_40001fa8 = CAL_obd_ii_P0140_debounce_count;
+  obd_ii_p0134_health = CAL_obd_ii_P0134_debounce_count;
+  obd_ii_p0139_health = CAL_obd_ii_P0139_debounce_count;
+  obd_ii_p0140_health = CAL_obd_ii_P0140_debounce_count;
   obd_ii_p0153_health = CAL_obd_ii_P0153_debounce_count;
-  DAT_40002045 = CAL_obd_ii_P0154_debounce_count;
-  DAT_40002044 = CAL_obd_ii_P0159_debounce_count;
-  DAT_40001fa9 = CAL_obd_ii_P0160_debounce_count;
+  obd_ii_p0154_health = CAL_obd_ii_P0154_debounce_count;
+  obd_ii_p0159_health = CAL_obd_ii_P0159_debounce_count;
+  obd_ii_p0160_health = CAL_obd_ii_P0160_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0133,&LEA_obd_ii_P0133_dtc_state,0x133,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0134,&LEA_obd_ii_P0134_dtc_state,0x134,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0139,&LEA_obd_ii_P0139_dtc_state,0x139,0);
@@ -35471,40 +35363,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   uVar1 = DAT_40002054 & 0x300;
   if ((((CAL_obd_ii_P0076 & 7) != 0) && (engine_is_running)) && ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 0x200) || (uVar1 == 0x300)) {
-      DAT_40002082 = DAT_40002082 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_40002082) &&
-         ((DAT_40002082 = 0, DAT_40002060 != 0 &&
-          (DAT_40002060 = DAT_40002060 - 1, DAT_40002060 == 0)))) {
+      obd_ii_p0076_fail_ticks = obd_ii_p0076_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0076_fail_ticks) &&
+         ((obd_ii_p0076_fail_ticks = 0, obd_ii_p0076_health != '\0' &&
+          (obd_ii_p0076_health = obd_ii_p0076_health + 0xff, obd_ii_p0076_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0076,&LEA_obd_ii_P0076_dtc_state,&LEA_obd_ii_P0076_fail_counter,
                    &LEA_obd_ii_P0076_pass_counter,0x76,0);
       }
     }
     else {
-      DAT_40002082 = 0;
+      obd_ii_p0076_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0076,&LEA_obd_ii_P0076_dtc_state);
-      if (DAT_40002060 < CAL_obd_ii_P0076_debounce_count) {
-        DAT_40002060 = DAT_40002060 + 1;
+      if (obd_ii_p0076_health < CAL_obd_ii_P0076_debounce_count) {
+        obd_ii_p0076_health = obd_ii_p0076_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P0077 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x100) {
-      DAT_40002084 = DAT_40002084 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002084) &&
-          (DAT_40002084 = 0, DAT_40002061 != 0)) &&
-         (DAT_40002061 = DAT_40002061 - 1, DAT_40002061 == 0)) {
+      obd_ii_p0077_fail_ticks = obd_ii_p0077_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0077_fail_ticks) &&
+          (obd_ii_p0077_fail_ticks = 0, obd_ii_p0077_health != '\0')) &&
+         (obd_ii_p0077_health = obd_ii_p0077_health + 0xff, obd_ii_p0077_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0077,&LEA_obd_ii_P0077_dtc_state,&LEA_obd_ii_P0077_fail_counter,
                    &LEA_obd_ii_P0077_pass_counter,0x77,0);
       }
     }
     else {
-      DAT_40002084 = 0;
+      obd_ii_p0077_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0077,&LEA_obd_ii_P0077_dtc_state);
-      if (DAT_40002061 < CAL_obd_ii_P0077_debounce_count) {
-        DAT_40002061 = DAT_40002061 + 1;
+      if (obd_ii_p0077_health < CAL_obd_ii_P0077_debounce_count) {
+        obd_ii_p0077_health = obd_ii_p0077_health + '\x01';
       }
     }
   }
@@ -35514,40 +35406,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0079 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 8) || (uVar1 == 0xc)) {
-      DAT_40002086 = DAT_40002086 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_40002086) &&
-         ((DAT_40002086 = 0, DAT_40002062 != 0 &&
-          (DAT_40002062 = DAT_40002062 - 1, DAT_40002062 == 0)))) {
+      obd_ii_p0079_fail_ticks = obd_ii_p0079_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0079_fail_ticks) &&
+         ((obd_ii_p0079_fail_ticks = 0, obd_ii_p0079_health != '\0' &&
+          (obd_ii_p0079_health = obd_ii_p0079_health + 0xff, obd_ii_p0079_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0079,&LEA_obd_ii_P0079_dtc_state,&LEA_obd_ii_P0079_fail_counter,
                    &LEA_obd_ii_P0079_pass_counter,0x79,0);
       }
     }
     else {
-      DAT_40002086 = 0;
+      obd_ii_p0079_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0079,&LEA_obd_ii_P0079_dtc_state);
-      if (DAT_40002062 < CAL_obd_ii_P0079_debounce_count) {
-        DAT_40002062 = DAT_40002062 + 1;
+      if (obd_ii_p0079_health < CAL_obd_ii_P0079_debounce_count) {
+        obd_ii_p0079_health = obd_ii_p0079_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P0080 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 4) {
-      DAT_40002088 = DAT_40002088 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002088) &&
-          (DAT_40002088 = 0, DAT_40002063 != 0)) &&
-         (DAT_40002063 = DAT_40002063 - 1, DAT_40002063 == 0)) {
+      obd_ii_p0080_fail_ticks = obd_ii_p0080_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0080_fail_ticks) &&
+          (obd_ii_p0080_fail_ticks = 0, obd_ii_p0080_health != '\0')) &&
+         (obd_ii_p0080_health = obd_ii_p0080_health + 0xff, obd_ii_p0080_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0080,&LEA_obd_ii_P0080_dtc_state,&LEA_obd_ii_P0080_fail_counter,
                    &LEA_obd_ii_P0080_pass_counter,0x80,0);
       }
     }
     else {
-      DAT_40002088 = 0;
+      obd_ii_p0080_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0080,&LEA_obd_ii_P0080_dtc_state);
-      if (DAT_40002063 < CAL_obd_ii_P0080_debounce_count) {
-        DAT_40002063 = DAT_40002063 + 1;
+      if (obd_ii_p0080_health < CAL_obd_ii_P0080_debounce_count) {
+        obd_ii_p0080_health = obd_ii_p0080_health + '\x01';
       }
     }
   }
@@ -35557,40 +35449,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0082 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 0x800) || (uVar1 == 0xc00)) {
-      DAT_4000208a = DAT_4000208a + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_4000208a) &&
-         ((DAT_4000208a = 0, DAT_40002064 != 0 &&
-          (DAT_40002064 = DAT_40002064 - 1, DAT_40002064 == 0)))) {
+      obd_ii_p0082_fail_ticks = obd_ii_p0082_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0082_fail_ticks) &&
+         ((obd_ii_p0082_fail_ticks = 0, obd_ii_p0082_health != '\0' &&
+          (obd_ii_p0082_health = obd_ii_p0082_health + 0xff, obd_ii_p0082_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0082,&LEA_obd_ii_P0082_dtc_state,&LEA_obd_ii_P0082_fail_counter,
                    &LEA_obd_ii_P0082_pass_counter,0x82,0);
       }
     }
     else {
-      DAT_4000208a = 0;
+      obd_ii_p0082_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0082,&LEA_obd_ii_P0082_dtc_state);
-      if (DAT_40002064 < CAL_obd_ii_P0082_debounce_count) {
-        DAT_40002064 = DAT_40002064 + 1;
+      if (obd_ii_p0082_health < CAL_obd_ii_P0082_debounce_count) {
+        obd_ii_p0082_health = obd_ii_p0082_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P0083 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x400) {
-      DAT_4000208c = DAT_4000208c + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_4000208c) &&
-          (DAT_4000208c = 0, DAT_40002065 != 0)) &&
-         (DAT_40002065 = DAT_40002065 - 1, DAT_40002065 == 0)) {
+      obd_ii_p0083_fail_ticks = obd_ii_p0083_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0083_fail_ticks) &&
+          (obd_ii_p0083_fail_ticks = 0, obd_ii_p0083_health != '\0')) &&
+         (obd_ii_p0083_health = obd_ii_p0083_health + 0xff, obd_ii_p0083_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0083,&LEA_obd_ii_P0083_dtc_state,&LEA_obd_ii_P0083_fail_counter,
                    &LEA_obd_ii_P0083_pass_counter,0x83,0);
       }
     }
     else {
-      DAT_4000208c = 0;
+      obd_ii_p0083_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0083,&LEA_obd_ii_P0083_dtc_state);
-      if (DAT_40002065 < CAL_obd_ii_P0083_debounce_count) {
-        DAT_40002065 = DAT_40002065 + 1;
+      if (obd_ii_p0083_health < CAL_obd_ii_P0083_debounce_count) {
+        obd_ii_p0083_health = obd_ii_p0083_health + '\x01';
       }
     }
   }
@@ -35600,40 +35492,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0085 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 0x2000) || (uVar1 == 0x3000)) {
-      DAT_4000208e = DAT_4000208e + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_4000208e) &&
-         ((DAT_4000208e = 0, DAT_40002066 != 0 &&
-          (DAT_40002066 = DAT_40002066 - 1, DAT_40002066 == 0)))) {
+      obd_ii_p0085_fail_ticks = obd_ii_p0085_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0085_fail_ticks) &&
+         ((obd_ii_p0085_fail_ticks = 0, obd_ii_p0085_health != '\0' &&
+          (obd_ii_p0085_health = obd_ii_p0085_health + 0xff, obd_ii_p0085_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0085,&LEA_obd_ii_P0085_dtc_state,&LEA_obd_ii_P0085_fail_counter,
                    &LEA_obd_ii_P0085_pass_counter,0x85,0);
       }
     }
     else {
-      DAT_4000208e = 0;
+      obd_ii_p0085_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0085,&LEA_obd_ii_P0085_dtc_state);
-      if (DAT_40002066 < CAL_obd_ii_P0085_debounce_count) {
-        DAT_40002066 = DAT_40002066 + 1;
+      if (obd_ii_p0085_health < CAL_obd_ii_P0085_debounce_count) {
+        obd_ii_p0085_health = obd_ii_p0085_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P0086 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x1000) {
-      DAT_40002090 = DAT_40002090 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002090) &&
-          (DAT_40002090 = 0, DAT_40002067 != 0)) &&
-         (DAT_40002067 = DAT_40002067 - 1, DAT_40002067 == 0)) {
+      obd_ii_p0086_fail_ticks = obd_ii_p0086_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0086_fail_ticks) &&
+          (obd_ii_p0086_fail_ticks = 0, obd_ii_p0086_health != '\0')) &&
+         (obd_ii_p0086_health = obd_ii_p0086_health + 0xff, obd_ii_p0086_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0086,&LEA_obd_ii_P0086_dtc_state,&LEA_obd_ii_P0086_fail_counter,
                    &LEA_obd_ii_P0086_pass_counter,0x86,0);
       }
     }
     else {
-      DAT_40002090 = 0;
+      obd_ii_p0086_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0086,&LEA_obd_ii_P0086_dtc_state);
-      if (DAT_40002067 < CAL_obd_ii_P0086_debounce_count) {
-        DAT_40002067 = DAT_40002067 + 1;
+      if (obd_ii_p0086_health < CAL_obd_ii_P0086_debounce_count) {
+        obd_ii_p0086_health = obd_ii_p0086_health + '\x01';
       }
     }
   }
@@ -35642,40 +35534,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if (((1 < (COD_base.COD[0] >> 0x1c & 7)) && ((CAL_obd_ii_P0646 & 7) != 0)) &&
      ((engine_is_running != false && ((ignition_on_flags & 1) != 0)))) {
     if ((uVar1 == 0x800) || (uVar1 == 0xc00)) {
-      DAT_40002098 = DAT_40002098 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_40002098) &&
-         ((DAT_40002098 = 0, DAT_40002096 != 0 &&
-          (DAT_40002096 = DAT_40002096 - 1, DAT_40002096 == 0)))) {
+      obd_ii_p0646_fail_ticks = obd_ii_p0646_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0646_fail_ticks) &&
+         ((obd_ii_p0646_fail_ticks = 0, obd_ii_p0646_health != '\0' &&
+          (obd_ii_p0646_health = obd_ii_p0646_health + 0xff, obd_ii_p0646_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0646,&LEA_obd_ii_P0646_dtc_state,&LEA_obd_ii_P0646_fail_counter,
                    &LEA_obd_ii_P0646_pass_counter,0x646,0);
       }
     }
     else {
-      DAT_40002098 = 0;
+      obd_ii_p0646_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0646,&LEA_obd_ii_P0646_dtc_state);
-      if (DAT_40002096 < CAL_obd_ii_P0646_debounce_count) {
-        DAT_40002096 = DAT_40002096 + 1;
+      if (obd_ii_p0646_health < CAL_obd_ii_P0646_debounce_count) {
+        obd_ii_p0646_health = obd_ii_p0646_health + '\x01';
       }
     }
   }
   if ((((1 < (COD_base.COD[0] >> 0x1c & 7)) && ((CAL_obd_ii_P0647 & 7) != 0)) &&
       (engine_is_running != false)) && ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x400) {
-      DAT_40002094 = DAT_40002094 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002094) &&
-          (DAT_40002094 = 0, DAT_40002092 != 0)) &&
-         (DAT_40002092 = DAT_40002092 - 1, DAT_40002092 == 0)) {
+      obd_ii_p0647_fail_ticks = obd_ii_p0647_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0647_fail_ticks) &&
+          (obd_ii_p0647_fail_ticks = 0, obd_ii_p0647_health != '\0')) &&
+         (obd_ii_p0647_health = obd_ii_p0647_health + 0xff, obd_ii_p0647_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0647,&LEA_obd_ii_P0647_dtc_state,&LEA_obd_ii_P0647_fail_counter,
                    &LEA_obd_ii_P0647_pass_counter,0x647,0);
       }
     }
     else {
-      DAT_40002094 = 0;
+      obd_ii_p0647_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0647,&LEA_obd_ii_P0647_dtc_state);
-      if (DAT_40002092 < CAL_obd_ii_P0647_debounce_count) {
-        DAT_40002092 = DAT_40002092 + 1;
+      if (obd_ii_p0647_health < CAL_obd_ii_P0647_debounce_count) {
+        obd_ii_p0647_health = obd_ii_p0647_health + '\x01';
       }
     }
   }
@@ -35684,40 +35576,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0444 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 0x80) || (uVar1 == 0xc0)) {
-      DAT_4000209c = DAT_4000209c + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_4000209c) &&
-         ((DAT_4000209c = 0, DAT_4000209a != 0 &&
-          (DAT_4000209a = DAT_4000209a - 1, DAT_4000209a == 0)))) {
+      obd_ii_p0444_fail_ticks = obd_ii_p0444_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0444_fail_ticks) &&
+         ((obd_ii_p0444_fail_ticks = 0, obd_ii_p0444_health != '\0' &&
+          (obd_ii_p0444_health = obd_ii_p0444_health + 0xff, obd_ii_p0444_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0444,&LEA_obd_ii_P0444_dtc_state,&LEA_obd_ii_P0444_fail_counter,
                    &LEA_obd_ii_P0444_pass_counter,0x444,0);
       }
     }
     else {
-      DAT_4000209c = 0;
+      obd_ii_p0444_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0444,&LEA_obd_ii_P0444_dtc_state);
-      if (DAT_4000209a < CAL_obd_ii_P0444_debounce_count) {
-        DAT_4000209a = DAT_4000209a + 1;
+      if (obd_ii_p0444_health < CAL_obd_ii_P0444_debounce_count) {
+        obd_ii_p0444_health = obd_ii_p0444_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P0445 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x40) {
-      DAT_400020a0 = DAT_400020a0 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020a0) &&
-          (DAT_400020a0 = 0, DAT_4000209e != 0)) &&
-         (DAT_4000209e = DAT_4000209e - 1, DAT_4000209e == 0)) {
+      obd_ii_p0445_fail_ticks = obd_ii_p0445_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0445_fail_ticks) &&
+          (obd_ii_p0445_fail_ticks = 0, obd_ii_p0445_health != '\0')) &&
+         (obd_ii_p0445_health = obd_ii_p0445_health + 0xff, obd_ii_p0445_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0445,&LEA_obd_ii_P0445_dtc_state,&LEA_obd_ii_P0445_fail_counter,
                    &LEA_obd_ii_P0445_pass_counter,0x445,0);
       }
     }
     else {
-      DAT_400020a0 = 0;
+      obd_ii_p0445_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0445,&LEA_obd_ii_P0445_dtc_state);
-      if (DAT_4000209e < CAL_obd_ii_P0445_debounce_count) {
-        DAT_4000209e = DAT_4000209e + 1;
+      if (obd_ii_p0445_health < CAL_obd_ii_P0445_debounce_count) {
+        obd_ii_p0445_health = obd_ii_p0445_health + '\x01';
       }
     }
   }
@@ -35727,40 +35619,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0447 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 0x20) || (uVar1 == 0x30)) {
-      DAT_400020e0 = DAT_400020e0 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_400020e0) &&
-         ((DAT_400020e0 = 0, DAT_400020de != 0 &&
-          (DAT_400020de = DAT_400020de - 1, DAT_400020de == 0)))) {
+      obd_ii_p0447_fail_ticks = obd_ii_p0447_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0447_fail_ticks) &&
+         ((obd_ii_p0447_fail_ticks = 0, obd_ii_p0447_health != '\0' &&
+          (obd_ii_p0447_health = obd_ii_p0447_health + 0xff, obd_ii_p0447_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0447,&LEA_obd_ii_P0447_dtc_state,&LEA_obd_ii_P0447_fail_counter,
                    &LEA_obd_ii_P0447_pass_counter,0x447,0);
       }
     }
     else {
-      DAT_400020e0 = 0;
+      obd_ii_p0447_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0447,&LEA_obd_ii_P0447_dtc_state);
-      if (DAT_400020de < CAL_obd_ii_P0447_debounce_count) {
-        DAT_400020de = DAT_400020de + 1;
+      if (obd_ii_p0447_health < CAL_obd_ii_P0447_debounce_count) {
+        obd_ii_p0447_health = obd_ii_p0447_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P0448 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x10) {
-      DAT_400020e4 = DAT_400020e4 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020e4) &&
-          (DAT_400020e4 = 0, DAT_400020e2 != 0)) &&
-         (DAT_400020e2 = DAT_400020e2 - 1, DAT_400020e2 == 0)) {
+      obd_ii_p0448_fail_ticks = obd_ii_p0448_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0448_fail_ticks) &&
+          (obd_ii_p0448_fail_ticks = 0, obd_ii_p0448_health != '\0')) &&
+         (obd_ii_p0448_health = obd_ii_p0448_health + 0xff, obd_ii_p0448_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0448,&LEA_obd_ii_P0448_dtc_state,&LEA_obd_ii_P0448_fail_counter,
                    &LEA_obd_ii_P0448_pass_counter,0x448,0);
       }
     }
     else {
-      DAT_400020e4 = 0;
+      obd_ii_p0448_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0448,&LEA_obd_ii_P0448_dtc_state);
-      if (DAT_400020e2 < CAL_obd_ii_P0448_debounce_count) {
-        DAT_400020e2 = DAT_400020e2 + 1;
+      if (obd_ii_p0448_health < CAL_obd_ii_P0448_debounce_count) {
+        obd_ii_p0448_health = obd_ii_p0448_health + '\x01';
       }
     }
   }
@@ -35770,16 +35662,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0261 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((DAT_40002050 & 3) == 0) {
-      DAT_400020a6 = 0;
+      obd_ii_p0261_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0261,&LEA_obd_ii_P0261_dtc_state);
-      if (DAT_4000206a < CAL_obd_ii_P0261_debounce_count) {
-        DAT_4000206a = DAT_4000206a + 1;
+      if (obd_ii_p0261_health < CAL_obd_ii_P0261_debounce_count) {
+        obd_ii_p0261_health = obd_ii_p0261_health + '\x01';
       }
     }
     else if (((((ushort)(uVar1 - 2) < 2) &&
-              (DAT_400020a6 = DAT_400020a6 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020a6
-              )) && (DAT_400020a6 = 0, DAT_4000206a != 0)) &&
-            (DAT_4000206a = DAT_4000206a - 1, DAT_4000206a == 0)) {
+              (obd_ii_p0261_fail_ticks = obd_ii_p0261_fail_ticks + 1,
+              (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0261_fail_ticks)) &&
+             (obd_ii_p0261_fail_ticks = 0, obd_ii_p0261_health != '\0')) &&
+            (obd_ii_p0261_health = obd_ii_p0261_health + 0xff, obd_ii_p0261_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0261,&LEA_obd_ii_P0261_dtc_state,&LEA_obd_ii_P0261_fail_counter,
                  &LEA_obd_ii_P0261_pass_counter,0x261,0);
@@ -35788,16 +35681,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0262 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar4 == 0) {
-      DAT_400020a8 = 0;
+      obd_ii_p0262_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0262,&LEA_obd_ii_P0262_dtc_state);
-      if (DAT_4000206b < CAL_obd_ii_P0262_debounce_count) {
-        DAT_4000206b = DAT_4000206b + 1;
+      if (obd_ii_p0262_health < CAL_obd_ii_P0262_debounce_count) {
+        obd_ii_p0262_health = obd_ii_p0262_health + '\x01';
       }
     }
     else if (((uVar1 == 1) &&
-             (DAT_400020a8 = DAT_400020a8 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020a8)
-             ) && ((DAT_400020a8 = 0, DAT_4000206b != 0 &&
-                   (DAT_4000206b = DAT_4000206b - 1, DAT_4000206b == 0)))) {
+             (obd_ii_p0262_fail_ticks = obd_ii_p0262_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0262_fail_ticks)) &&
+            ((obd_ii_p0262_fail_ticks = 0, obd_ii_p0262_health != '\0' &&
+             (obd_ii_p0262_health = obd_ii_p0262_health + 0xff, obd_ii_p0262_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0262,&LEA_obd_ii_P0262_dtc_state,&LEA_obd_ii_P0262_fail_counter,
                  &LEA_obd_ii_P0262_pass_counter,0x262,0);
@@ -35811,16 +35705,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0264 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar4 == 0) {
-      DAT_400020aa = 0;
+      obd_ii_p0264_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0264,&LEA_obd_ii_P0264_dtc_state);
-      if (DAT_4000206c < CAL_obd_ii_P0264_debounce_count) {
-        DAT_4000206c = DAT_4000206c + 1;
+      if (obd_ii_p0264_health < CAL_obd_ii_P0264_debounce_count) {
+        obd_ii_p0264_health = obd_ii_p0264_health + '\x01';
       }
     }
     else if (((uVar1 == 8) || (uVar1 == 0xc)) &&
-            ((DAT_400020aa = DAT_400020aa + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020aa
-             && ((DAT_400020aa = 0, DAT_4000206c != 0 &&
-                 (DAT_4000206c = DAT_4000206c - 1, DAT_4000206c == 0)))))) {
+            ((obd_ii_p0264_fail_ticks = obd_ii_p0264_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0264_fail_ticks &&
+             ((obd_ii_p0264_fail_ticks = 0, obd_ii_p0264_health != '\0' &&
+              (obd_ii_p0264_health = obd_ii_p0264_health + 0xff, obd_ii_p0264_health == '\0')))))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0264,&LEA_obd_ii_P0264_dtc_state,&LEA_obd_ii_P0264_fail_counter,
                  &LEA_obd_ii_P0264_pass_counter,0x264,0);
@@ -35829,16 +35724,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0265 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar2 == 0) {
-      DAT_400020ac = 0;
+      obd_ii_p0265_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0265,&LEA_obd_ii_P0265_dtc_state);
-      if (DAT_4000206d < CAL_obd_ii_P0265_debounce_count) {
-        DAT_4000206d = DAT_4000206d + 1;
+      if (obd_ii_p0265_health < CAL_obd_ii_P0265_debounce_count) {
+        obd_ii_p0265_health = obd_ii_p0265_health + '\x01';
       }
     }
     else if (((uVar1 == 4) &&
-             (DAT_400020ac = DAT_400020ac + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020ac)
-             ) && ((DAT_400020ac = 0, DAT_4000206d != 0 &&
-                   (DAT_4000206d = DAT_4000206d - 1, DAT_4000206d == 0)))) {
+             (obd_ii_p0265_fail_ticks = obd_ii_p0265_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0265_fail_ticks)) &&
+            ((obd_ii_p0265_fail_ticks = 0, obd_ii_p0265_health != '\0' &&
+             (obd_ii_p0265_health = obd_ii_p0265_health + 0xff, obd_ii_p0265_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0265,&LEA_obd_ii_P0265_dtc_state,&LEA_obd_ii_P0265_fail_counter,
                  &LEA_obd_ii_P0265_pass_counter,0x265,0);
@@ -35852,16 +35748,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0267 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar4 == 0) {
-      DAT_400020ae = 0;
+      obd_ii_p0267_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0267,&LEA_obd_ii_P0267_dtc_state);
-      if (DAT_4000206e < CAL_obd_ii_P0267_debounce_count) {
-        DAT_4000206e = DAT_4000206e + 1;
+      if (obd_ii_p0267_health < CAL_obd_ii_P0267_debounce_count) {
+        obd_ii_p0267_health = obd_ii_p0267_health + '\x01';
       }
     }
     else if ((((uVar1 == 0x2000) || (uVar1 == 0x3000)) &&
-             (DAT_400020ae = DAT_400020ae + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020ae)
-             ) && ((DAT_400020ae = 0, DAT_4000206e != 0 &&
-                   (DAT_4000206e = DAT_4000206e - 1, DAT_4000206e == 0)))) {
+             (obd_ii_p0267_fail_ticks = obd_ii_p0267_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0267_fail_ticks)) &&
+            ((obd_ii_p0267_fail_ticks = 0, obd_ii_p0267_health != '\0' &&
+             (obd_ii_p0267_health = obd_ii_p0267_health + 0xff, obd_ii_p0267_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0267,&LEA_obd_ii_P0267_dtc_state,&LEA_obd_ii_P0267_fail_counter,
                  &LEA_obd_ii_P0267_pass_counter,0x267,0);
@@ -35870,16 +35767,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0268 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar2 == 0) {
-      DAT_400020b0 = 0;
+      obd_ii_p0268_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0268,&LEA_obd_ii_P0268_dtc_state);
-      if (DAT_4000206f < CAL_obd_ii_P0268_debounce_count) {
-        DAT_4000206f = DAT_4000206f + 1;
+      if (obd_ii_p0268_health < CAL_obd_ii_P0268_debounce_count) {
+        obd_ii_p0268_health = obd_ii_p0268_health + '\x01';
       }
     }
     else if ((((uVar1 == 0x1000) &&
-              (DAT_400020b0 = DAT_400020b0 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020b0
-              )) && (DAT_400020b0 = 0, DAT_4000206f != 0)) &&
-            (DAT_4000206f = DAT_4000206f - 1, DAT_4000206f == 0)) {
+              (obd_ii_p0268_fail_ticks = obd_ii_p0268_fail_ticks + 1,
+              (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0268_fail_ticks)) &&
+             (obd_ii_p0268_fail_ticks = 0, obd_ii_p0268_health != '\0')) &&
+            (obd_ii_p0268_health = obd_ii_p0268_health + 0xff, obd_ii_p0268_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0268,&LEA_obd_ii_P0268_dtc_state,&LEA_obd_ii_P0268_fail_counter,
                  &LEA_obd_ii_P0268_pass_counter,0x268,0);
@@ -35893,16 +35791,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0270 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar4 == 0) {
-      DAT_400020b2 = 0;
+      obd_ii_p0270_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0270,&LEA_obd_ii_P0270_dtc_state);
-      if (DAT_40002070 < CAL_obd_ii_P0270_debounce_count) {
-        DAT_40002070 = DAT_40002070 + 1;
+      if (obd_ii_p0270_health < CAL_obd_ii_P0270_debounce_count) {
+        obd_ii_p0270_health = obd_ii_p0270_health + '\x01';
       }
     }
     else if (((uVar1 == 0x8000) || (uVar1 == 0xc000)) &&
-            ((DAT_400020b2 = DAT_400020b2 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020b2
-             && ((DAT_400020b2 = 0, DAT_40002070 != 0 &&
-                 (DAT_40002070 = DAT_40002070 - 1, DAT_40002070 == 0)))))) {
+            ((obd_ii_p0270_fail_ticks = obd_ii_p0270_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0270_fail_ticks &&
+             ((obd_ii_p0270_fail_ticks = 0, obd_ii_p0270_health != '\0' &&
+              (obd_ii_p0270_health = obd_ii_p0270_health + 0xff, obd_ii_p0270_health == '\0')))))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0270,&LEA_obd_ii_P0270_dtc_state,&LEA_obd_ii_P0270_fail_counter,
                  &LEA_obd_ii_P0270_pass_counter,0x270,0);
@@ -35911,16 +35810,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0271 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar2 == 0) {
-      DAT_400020b4 = 0;
+      obd_ii_p0271_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0271,&LEA_obd_ii_P0271_dtc_state);
-      if (DAT_40002071 < CAL_obd_ii_P0271_debounce_count) {
-        DAT_40002071 = DAT_40002071 + 1;
+      if (obd_ii_p0271_health < CAL_obd_ii_P0271_debounce_count) {
+        obd_ii_p0271_health = obd_ii_p0271_health + '\x01';
       }
     }
     else if (((uVar1 == 0x4000) &&
-             (DAT_400020b4 = DAT_400020b4 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020b4)
-             ) && ((DAT_400020b4 = 0, DAT_40002071 != 0 &&
-                   (DAT_40002071 = DAT_40002071 - 1, DAT_40002071 == 0)))) {
+             (obd_ii_p0271_fail_ticks = obd_ii_p0271_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0271_fail_ticks)) &&
+            ((obd_ii_p0271_fail_ticks = 0, obd_ii_p0271_health != '\0' &&
+             (obd_ii_p0271_health = obd_ii_p0271_health + 0xff, obd_ii_p0271_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0271,&LEA_obd_ii_P0271_dtc_state,&LEA_obd_ii_P0271_fail_counter,
                  &LEA_obd_ii_P0271_pass_counter,0x271,0);
@@ -35934,16 +35834,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0273 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar4 == 0) {
-      DAT_400020b6 = 0;
+      obd_ii_p0273_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0273,&LEA_obd_ii_P0273_dtc_state);
-      if (DAT_40002072 < CAL_obd_ii_P0273_debounce_count) {
-        DAT_40002072 = DAT_40002072 + 1;
+      if (obd_ii_p0273_health < CAL_obd_ii_P0273_debounce_count) {
+        obd_ii_p0273_health = obd_ii_p0273_health + '\x01';
       }
     }
     else if ((((uVar1 == 0x200) || (uVar1 == 0x300)) &&
-             (DAT_400020b6 = DAT_400020b6 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020b6)
-             ) && ((DAT_400020b6 = 0, DAT_40002072 != 0 &&
-                   (DAT_40002072 = DAT_40002072 - 1, DAT_40002072 == 0)))) {
+             (obd_ii_p0273_fail_ticks = obd_ii_p0273_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0273_fail_ticks)) &&
+            ((obd_ii_p0273_fail_ticks = 0, obd_ii_p0273_health != '\0' &&
+             (obd_ii_p0273_health = obd_ii_p0273_health + 0xff, obd_ii_p0273_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0273,&LEA_obd_ii_P0273_dtc_state,&LEA_obd_ii_P0273_fail_counter,
                  &LEA_obd_ii_P0273_pass_counter,0x273,0);
@@ -35952,16 +35853,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0274 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar2 == 0) {
-      DAT_400020b8 = 0;
+      obd_ii_p0274_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0274,&LEA_obd_ii_P0274_dtc_state);
-      if (DAT_40002073 < CAL_obd_ii_P0274_debounce_count) {
-        DAT_40002073 = DAT_40002073 + 1;
+      if (obd_ii_p0274_health < CAL_obd_ii_P0274_debounce_count) {
+        obd_ii_p0274_health = obd_ii_p0274_health + '\x01';
       }
     }
     else if ((((uVar1 == 0x100) &&
-              (DAT_400020b8 = DAT_400020b8 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020b8
-              )) && (DAT_400020b8 = 0, DAT_40002073 != 0)) &&
-            (DAT_40002073 = DAT_40002073 - 1, DAT_40002073 == 0)) {
+              (obd_ii_p0274_fail_ticks = obd_ii_p0274_fail_ticks + 1,
+              (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0274_fail_ticks)) &&
+             (obd_ii_p0274_fail_ticks = 0, obd_ii_p0274_health != '\0')) &&
+            (obd_ii_p0274_health = obd_ii_p0274_health + 0xff, obd_ii_p0274_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0274,&LEA_obd_ii_P0274_dtc_state,&LEA_obd_ii_P0274_fail_counter,
                  &LEA_obd_ii_P0274_pass_counter,0x274,0);
@@ -35975,16 +35877,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0276 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar4 == 0) {
-      DAT_400020ba = 0;
+      obd_ii_p0276_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0276,&LEA_obd_ii_P0276_dtc_state);
-      if (DAT_40002074 < CAL_obd_ii_P0276_debounce_count) {
-        DAT_40002074 = DAT_40002074 + 1;
+      if (obd_ii_p0276_health < CAL_obd_ii_P0276_debounce_count) {
+        obd_ii_p0276_health = obd_ii_p0276_health + '\x01';
       }
     }
     else if (((uVar1 == 0x800) || (uVar1 == 0xc00)) &&
-            ((DAT_400020ba = DAT_400020ba + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020ba
-             && ((DAT_400020ba = 0, DAT_40002074 != 0 &&
-                 (DAT_40002074 = DAT_40002074 - 1, DAT_40002074 == 0)))))) {
+            ((obd_ii_p0276_fail_ticks = obd_ii_p0276_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0276_fail_ticks &&
+             ((obd_ii_p0276_fail_ticks = 0, obd_ii_p0276_health != '\0' &&
+              (obd_ii_p0276_health = obd_ii_p0276_health + 0xff, obd_ii_p0276_health == '\0')))))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0276,&LEA_obd_ii_P0276_dtc_state,&LEA_obd_ii_P0276_fail_counter,
                  &LEA_obd_ii_P0276_pass_counter,0x276,0);
@@ -35993,16 +35896,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0277 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar2 == 0) {
-      DAT_400020bc = 0;
+      obd_ii_p0277_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0277,&LEA_obd_ii_P0277_dtc_state);
-      if (DAT_40002075 < CAL_obd_ii_P0277_debounce_count) {
-        DAT_40002075 = DAT_40002075 + 1;
+      if (obd_ii_p0277_health < CAL_obd_ii_P0277_debounce_count) {
+        obd_ii_p0277_health = obd_ii_p0277_health + '\x01';
       }
     }
     else if (((uVar1 == 0x400) &&
-             (DAT_400020bc = DAT_400020bc + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020bc)
-             ) && ((DAT_400020bc = 0, DAT_40002075 != 0 &&
-                   (DAT_40002075 = DAT_40002075 - 1, DAT_40002075 == 0)))) {
+             (obd_ii_p0277_fail_ticks = obd_ii_p0277_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0277_fail_ticks)) &&
+            ((obd_ii_p0277_fail_ticks = 0, obd_ii_p0277_health != '\0' &&
+             (obd_ii_p0277_health = obd_ii_p0277_health + 0xff, obd_ii_p0277_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0277,&LEA_obd_ii_P0277_dtc_state,&LEA_obd_ii_P0277_fail_counter,
                  &LEA_obd_ii_P0277_pass_counter,0x277,0);
@@ -36016,16 +35920,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P2754 & 7) != 0) && (engine_is_running != false)) &&
      (((ignition_on_flags & 1) != 0 && ((COD_base.COD[1] >> 0x13 & 1) == 1)))) {
     if (uVar4 == 0) {
-      DAT_400020f0 = 0;
+      obd_ii_p2754_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2754,&LEA_obd_ii_P2754_dtc_state);
-      if (DAT_40002123 < CAL_obd_ii_P0662_debounce_count) {
-        DAT_40002123 = DAT_40002123 + 1;
+      if (obd_ii_p0662_health < CAL_obd_ii_P0662_debounce_count) {
+        obd_ii_p0662_health = obd_ii_p0662_health + '\x01';
       }
     }
     else if ((((uVar1 == 0x20) || (uVar1 == 0x30)) &&
-             (DAT_400020f0 = DAT_400020f0 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020f0)
-             ) && ((DAT_400020f0 = 0, DAT_40002123 != 0 &&
-                   (DAT_40002123 = DAT_40002123 - 1, DAT_40002123 == 0)))) {
+             (obd_ii_p2754_fail_ticks = obd_ii_p2754_fail_ticks + 1,
+             (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2754_fail_ticks)) &&
+            ((obd_ii_p2754_fail_ticks = 0, obd_ii_p0662_health != '\0' &&
+             (obd_ii_p0662_health = obd_ii_p0662_health + 0xff, obd_ii_p0662_health == '\0')))) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2754,&LEA_obd_ii_P2754_dtc_state,&LEA_obd_ii_P2754_fail_counter,
                  &LEA_obd_ii_P2754_pass_counter,0x2754,0);
@@ -36034,16 +35939,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P2755 & 7) != 0) && (engine_is_running != false)) &&
      (((ignition_on_flags & 1) != 0 && ((COD_base.COD[1] >> 0x13 & 1) == 1)))) {
     if (uVar2 == 0) {
-      DAT_400020f2 = 0;
+      obd_ii_p2755_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2755,&LEA_obd_ii_P2755_dtc_state);
-      if (DAT_40002122 < CAL_obd_ii_P0661_debounce_count) {
-        DAT_40002122 = DAT_40002122 + 1;
+      if (obd_ii_p0661_health < CAL_obd_ii_P0661_debounce_count) {
+        obd_ii_p0661_health = obd_ii_p0661_health + '\x01';
       }
     }
     else if ((((uVar1 == 0x10) &&
-              (DAT_400020f2 = DAT_400020f2 + 1, (short)obd_ii_monitor_debounce_ticks <= DAT_400020f2
-              )) && (DAT_400020f2 = 0, DAT_40002122 != 0)) &&
-            (DAT_40002122 = DAT_40002122 - 1, DAT_40002122 == 0)) {
+              (obd_ii_p2755_fail_ticks = obd_ii_p2755_fail_ticks + 1,
+              (short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2755_fail_ticks)) &&
+             (obd_ii_p2755_fail_ticks = 0, obd_ii_p0661_health != '\0')) &&
+            (obd_ii_p0661_health = obd_ii_p0661_health + 0xff, obd_ii_p0661_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2755,&LEA_obd_ii_P2755_dtc_state,&LEA_obd_ii_P2755_fail_counter,
                  &LEA_obd_ii_P2755_pass_counter,0x2755,0);
@@ -36053,17 +35959,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0351 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004ec5 < 2) {
-      DAT_400020be = 0;
+      obd_ii_p0351_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0351,&LEA_obd_ii_P0351_dtc_state);
-      if (DAT_40002076 < CAL_obd_ii_P0351_debounce_count) {
-        DAT_40002076 = DAT_40002076 + 1;
+      if (obd_ii_p0351_health < CAL_obd_ii_P0351_debounce_count) {
+        obd_ii_p0351_health = obd_ii_p0351_health + '\x01';
       }
     }
     else {
-      DAT_400020be = DAT_400020be + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020be) &&
-          (DAT_400020be = 0, DAT_40002076 != 0)) &&
-         (DAT_40002076 = DAT_40002076 - 1, DAT_40002076 == 0)) {
+      obd_ii_p0351_fail_ticks = obd_ii_p0351_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0351_fail_ticks) &&
+          (obd_ii_p0351_fail_ticks = 0, obd_ii_p0351_health != '\0')) &&
+         (obd_ii_p0351_health = obd_ii_p0351_health + 0xff, obd_ii_p0351_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0351,&LEA_obd_ii_P0351_dtc_state,&LEA_obd_ii_P0351_fail_counter,
                    &LEA_obd_ii_P0351_pass_counter,0x351,0);
@@ -36074,17 +35980,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0352 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004ed1 < 2) {
-      DAT_400020c0 = 0;
+      obd_ii_p0352_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0352,&LEA_obd_ii_P0352_dtc_state);
-      if (DAT_40002077 < CAL_obd_ii_P0352_debounce_count) {
-        DAT_40002077 = DAT_40002077 + 1;
+      if (obd_ii_p0352_health < CAL_obd_ii_P0352_debounce_count) {
+        obd_ii_p0352_health = obd_ii_p0352_health + '\x01';
       }
     }
     else {
-      DAT_400020c0 = DAT_400020c0 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020c0) &&
-          (DAT_400020c0 = 0, DAT_40002077 != 0)) &&
-         (DAT_40002077 = DAT_40002077 - 1, DAT_40002077 == 0)) {
+      obd_ii_p0352_fail_ticks = obd_ii_p0352_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0352_fail_ticks) &&
+          (obd_ii_p0352_fail_ticks = 0, obd_ii_p0352_health != '\0')) &&
+         (obd_ii_p0352_health = obd_ii_p0352_health + 0xff, obd_ii_p0352_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0352,&LEA_obd_ii_P0352_dtc_state,&LEA_obd_ii_P0352_fail_counter,
                    &LEA_obd_ii_P0352_pass_counter,0x352,0);
@@ -36095,17 +36001,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0353 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004edd < 2) {
-      DAT_400020c2 = 0;
+      obd_ii_p0353_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0353,&LEA_obd_ii_P0353_dtc_state);
-      if (DAT_40002078 < CAL_obd_ii_P0353_debounce_count) {
-        DAT_40002078 = DAT_40002078 + 1;
+      if (obd_ii_p0353_health < CAL_obd_ii_P0353_debounce_count) {
+        obd_ii_p0353_health = obd_ii_p0353_health + '\x01';
       }
     }
     else {
-      DAT_400020c2 = DAT_400020c2 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020c2) &&
-          (DAT_400020c2 = 0, DAT_40002078 != 0)) &&
-         (DAT_40002078 = DAT_40002078 - 1, DAT_40002078 == 0)) {
+      obd_ii_p0353_fail_ticks = obd_ii_p0353_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0353_fail_ticks) &&
+          (obd_ii_p0353_fail_ticks = 0, obd_ii_p0353_health != '\0')) &&
+         (obd_ii_p0353_health = obd_ii_p0353_health + 0xff, obd_ii_p0353_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0353,&LEA_obd_ii_P0353_dtc_state,&LEA_obd_ii_P0353_fail_counter,
                    &LEA_obd_ii_P0353_pass_counter,0x353,0);
@@ -36116,17 +36022,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0354 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004ee9 < 2) {
-      DAT_400020c4 = 0;
+      obd_ii_p0354_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0354,&LEA_obd_ii_P0354_dtc_state);
-      if (DAT_40002079 < CAL_obd_ii_P0354_debounce_count) {
-        DAT_40002079 = DAT_40002079 + 1;
+      if (obd_ii_p0354_health < CAL_obd_ii_P0354_debounce_count) {
+        obd_ii_p0354_health = obd_ii_p0354_health + '\x01';
       }
     }
     else {
-      DAT_400020c4 = DAT_400020c4 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020c4) &&
-          (DAT_400020c4 = 0, DAT_40002079 != 0)) &&
-         (DAT_40002079 = DAT_40002079 - 1, DAT_40002079 == 0)) {
+      obd_ii_p0354_fail_ticks = obd_ii_p0354_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0354_fail_ticks) &&
+          (obd_ii_p0354_fail_ticks = 0, obd_ii_p0354_health != '\0')) &&
+         (obd_ii_p0354_health = obd_ii_p0354_health + 0xff, obd_ii_p0354_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0354,&LEA_obd_ii_P0354_dtc_state,&LEA_obd_ii_P0354_fail_counter,
                    &LEA_obd_ii_P0354_pass_counter,0x354,0);
@@ -36137,17 +36043,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0355 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004ef5 < 2) {
-      DAT_400020c6 = 0;
+      obd_ii_p0355_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0355,&LEA_obd_ii_P0355_dtc_state);
-      if (DAT_4000207a < CAL_obd_ii_P0355_debounce_count) {
-        DAT_4000207a = DAT_4000207a + 1;
+      if (obd_ii_p0355_health < CAL_obd_ii_P0355_debounce_count) {
+        obd_ii_p0355_health = obd_ii_p0355_health + '\x01';
       }
     }
     else {
-      DAT_400020c6 = DAT_400020c6 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020c6) &&
-          (DAT_400020c6 = 0, DAT_4000207a != 0)) &&
-         (DAT_4000207a = DAT_4000207a - 1, DAT_4000207a == 0)) {
+      obd_ii_p0355_fail_ticks = obd_ii_p0355_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0355_fail_ticks) &&
+          (obd_ii_p0355_fail_ticks = 0, obd_ii_p0355_health != '\0')) &&
+         (obd_ii_p0355_health = obd_ii_p0355_health + 0xff, obd_ii_p0355_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0355,&LEA_obd_ii_P0355_dtc_state,&LEA_obd_ii_P0355_fail_counter,
                    &LEA_obd_ii_P0355_pass_counter,0x355,0);
@@ -36158,17 +36064,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0356 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004f01 < 2) {
-      DAT_400020c8 = 0;
+      obd_ii_p0356_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0356,&LEA_obd_ii_P0356_dtc_state);
-      if (DAT_4000207b < CAL_obd_ii_P0356_debounce_count) {
-        DAT_4000207b = DAT_4000207b + 1;
+      if (obd_ii_p0356_health < CAL_obd_ii_P0356_debounce_count) {
+        obd_ii_p0356_health = obd_ii_p0356_health + '\x01';
       }
     }
     else {
-      DAT_400020c8 = DAT_400020c8 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020c8) &&
-          (DAT_400020c8 = 0, DAT_4000207b != 0)) &&
-         (DAT_4000207b = DAT_4000207b - 1, DAT_4000207b == 0)) {
+      obd_ii_p0356_fail_ticks = obd_ii_p0356_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0356_fail_ticks) &&
+          (obd_ii_p0356_fail_ticks = 0, obd_ii_p0356_health != '\0')) &&
+         (obd_ii_p0356_health = obd_ii_p0356_health + 0xff, obd_ii_p0356_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0356,&LEA_obd_ii_P0356_dtc_state,&LEA_obd_ii_P0356_fail_counter,
                    &LEA_obd_ii_P0356_pass_counter,0x356,0);
@@ -36179,17 +36085,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_U0141 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((DAT_40002058 & 3) == 0) {
-      DAT_400020cc = 0;
+      obd_ii_u0141_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_U0141,&LEA_obd_ii_U0141_dtc_state);
-      if (DAT_400020ca < CAL_obd_ii_P0141_debounce_count) {
-        DAT_400020ca = DAT_400020ca + 1;
+      if (obd_ii_p0141_health < CAL_obd_ii_P0141_debounce_count) {
+        obd_ii_p0141_health = obd_ii_p0141_health + '\x01';
       }
     }
     else {
-      DAT_400020cc = DAT_400020cc + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020cc) &&
-          (DAT_400020cc = 0, DAT_400020ca != 0)) &&
-         (DAT_400020ca = DAT_400020ca - 1, DAT_400020ca == 0)) {
+      obd_ii_u0141_fail_ticks = obd_ii_u0141_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_u0141_fail_ticks) &&
+          (obd_ii_u0141_fail_ticks = 0, obd_ii_p0141_health != '\0')) &&
+         (obd_ii_p0141_health = obd_ii_p0141_health + 0xff, obd_ii_p0141_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_U0141,&LEA_obd_ii_U0141_dtc_state,&LEA_obd_ii_U0141_fail_counter,
                    &LEA_obd_ii_U0141_pass_counter,0x141,3);
@@ -36202,39 +36108,39 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if (((((CAL_obd_ii_P025C & 7) != 0) && ((ignition_on_flags & 1) != 0)) &&
       ((ignition_on_flags & 0x20) == 0)) && ((ignition_on_flags & 0x40) != 0)) {
     if ((uVar1 == 0x80) || (uVar1 == 0xc0)) {
-      DAT_400020a2 = DAT_400020a2 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_400020a2) &&
-         ((DAT_400020a2 = 0, DAT_40002068 != 0 &&
-          (DAT_40002068 = DAT_40002068 - 1, DAT_40002068 == 0)))) {
+      obd_ii_p025c_fail_ticks = obd_ii_p025c_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p025c_fail_ticks) &&
+         ((obd_ii_p025c_fail_ticks = 0, obd_ii_p0628_health != '\0' &&
+          (obd_ii_p0628_health = obd_ii_p0628_health + 0xff, obd_ii_p0628_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P025C,&LEA_obd_ii_P025C_dtc_state,&LEA_obd_ii_P025C_fail_counter,
                    &LEA_obd_ii_P025C_pass_counter,0x25c,0);
       }
     }
     else {
-      DAT_400020a2 = 0;
+      obd_ii_p025c_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P025C,&LEA_obd_ii_P025C_dtc_state);
-      if (DAT_40002068 < CAL_obd_ii_P0628_debounce_count) {
-        DAT_40002068 = DAT_40002068 + 1;
+      if (obd_ii_p0628_health < CAL_obd_ii_P0628_debounce_count) {
+        obd_ii_p0628_health = obd_ii_p0628_health + '\x01';
       }
     }
   }
   if (((CAL_obd_ii_P025D & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x40) {
-      DAT_400020a4 = DAT_400020a4 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020a4) &&
-          (DAT_400020a4 = 0, DAT_40002069 != 0)) &&
-         (DAT_40002069 = DAT_40002069 - 1, DAT_40002069 == 0)) {
+      obd_ii_p025d_fail_ticks = obd_ii_p025d_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p025d_fail_ticks) &&
+          (obd_ii_p025d_fail_ticks = 0, obd_ii_p0629_health != '\0')) &&
+         (obd_ii_p0629_health = obd_ii_p0629_health + 0xff, obd_ii_p0629_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P025D,&LEA_obd_ii_P025D_dtc_state,&LEA_obd_ii_P025D_fail_counter,
                    &LEA_obd_ii_P025D_pass_counter,0x25d,0);
       }
     }
     else {
-      DAT_400020a4 = 0;
+      obd_ii_p025d_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P025D,&LEA_obd_ii_P025D_dtc_state);
-      if (DAT_40002069 < CAL_obd_ii_P0629_debounce_count) {
-        DAT_40002069 = DAT_40002069 + 1;
+      if (obd_ii_p0629_health < CAL_obd_ii_P0629_debounce_count) {
+        obd_ii_p0629_health = obd_ii_p0629_health + '\x01';
       }
     }
   }
@@ -36242,17 +36148,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P0480 & 7) != 0) && (engine_is_running != false)) &&
      (((ignition_on_flags & 1) != 0 && (car_speed_u8 < CAL_cooling_fan_speed_disable_speed)))) {
     if ((DAT_40002056 & 3) == 0) {
-      DAT_400020d0 = 0;
+      obd_ii_p0480_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0480,&LEA_obd_ii_P0480_dtc_state);
-      if (DAT_400020ce < CAL_obd_ii_P0480_debounce_count) {
-        DAT_400020ce = DAT_400020ce + 1;
+      if (obd_ii_p0480_health < CAL_obd_ii_P0480_debounce_count) {
+        obd_ii_p0480_health = obd_ii_p0480_health + '\x01';
       }
     }
     else {
-      DAT_400020d0 = DAT_400020d0 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020d0) &&
-          (DAT_400020d0 = 0, DAT_400020ce != 0)) &&
-         (DAT_400020ce = DAT_400020ce - 1, DAT_400020ce == 0)) {
+      obd_ii_p0480_fail_ticks = obd_ii_p0480_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0480_fail_ticks) &&
+          (obd_ii_p0480_fail_ticks = 0, obd_ii_p0480_health != '\0')) &&
+         (obd_ii_p0480_health = obd_ii_p0480_health + 0xff, obd_ii_p0480_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0480,&LEA_obd_ii_P0480_dtc_state,&LEA_obd_ii_P0480_fail_counter,
                    &LEA_obd_ii_P0480_pass_counter,0x480,0);
@@ -36264,17 +36170,17 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
     if ((((CAL_obd_ii_P0482 & 7) != 0) && (engine_is_running != false)) &&
        ((ignition_on_flags & 1) != 0)) {
       if ((DAT_40002058 & 0x3000) == 0) {
-        DAT_400020d4 = 0;
+        obd_ii_p0482_fail_ticks = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0482,&LEA_obd_ii_P0482_dtc_state);
-        if (DAT_400020d2 < CAL_obd_ii_P0482_debounce_count) {
-          DAT_400020d2 = DAT_400020d2 + 1;
+        if (obd_ii_p0482_health < CAL_obd_ii_P0482_debounce_count) {
+          obd_ii_p0482_health = obd_ii_p0482_health + '\x01';
         }
       }
       else {
-        DAT_400020d4 = DAT_400020d4 + 1;
-        if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020d4) &&
-            (DAT_400020d4 = 0, DAT_400020d2 != 0)) &&
-           (DAT_400020d2 = DAT_400020d2 - 1, DAT_400020d2 == 0)) {
+        obd_ii_p0482_fail_ticks = obd_ii_p0482_fail_ticks + 1;
+        if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0482_fail_ticks) &&
+            (obd_ii_p0482_fail_ticks = 0, obd_ii_p0482_health != '\0')) &&
+           (obd_ii_p0482_health = obd_ii_p0482_health + 0xff, obd_ii_p0482_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0482,&LEA_obd_ii_P0482_dtc_state,&LEA_obd_ii_P0482_fail_counter,
                      &LEA_obd_ii_P0482_pass_counter,0x482,0);
@@ -36287,20 +36193,20 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004e95 < 2) {
       if (o2_sensor1_heater_current_scaled < CAL_sensor_o2_heater_undercurrent_threshold) {
-        DAT_400020d6 = DAT_400020d6 + 1;
-        if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020d6) &&
-            (DAT_400020d6 = 0, DAT_4000207c != 0)) &&
-           (DAT_4000207c = DAT_4000207c - 1, DAT_4000207c == 0)) {
+        obd_ii_p0135_fail_ticks = obd_ii_p0135_fail_ticks + 1;
+        if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0135_fail_ticks) &&
+            (obd_ii_p0135_fail_ticks = 0, obd_ii_p0135_health != '\0')) &&
+           (obd_ii_p0135_health = obd_ii_p0135_health + 0xff, obd_ii_p0135_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0135,&LEA_obd_ii_P0135_dtc_state,&LEA_obd_ii_P0135_fail_counter,
                      &LEA_obd_ii_P0135_pass_counter,0x135,0);
         }
       }
       else {
-        DAT_400020d6 = 0;
+        obd_ii_p0135_fail_ticks = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0135,&LEA_obd_ii_P0135_dtc_state);
-        if (DAT_4000207c < CAL_obd_ii_P0135_debounce_count) {
-          DAT_4000207c = DAT_4000207c + 1;
+        if (obd_ii_p0135_health < CAL_obd_ii_P0135_debounce_count) {
+          obd_ii_p0135_health = obd_ii_p0135_health + '\x01';
         }
       }
     }
@@ -36314,20 +36220,20 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004ea1 < 2) {
       if (o2_sensor2_heater_current_scaled < CAL_sensor_o2_heater_undercurrent_threshold) {
-        DAT_400020d8 = DAT_400020d8 + 1;
-        if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020d8) &&
-            (DAT_400020d8 = 0, DAT_4000207d != 0)) &&
-           (DAT_4000207d = DAT_4000207d - 1, DAT_4000207d == 0)) {
+        obd_ii_p0155_fail_ticks = obd_ii_p0155_fail_ticks + 1;
+        if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0155_fail_ticks) &&
+            (obd_ii_p0155_fail_ticks = 0, obd_ii_p0155_health != '\0')) &&
+           (obd_ii_p0155_health = obd_ii_p0155_health + 0xff, obd_ii_p0155_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0155,&LEA_obd_ii_P0155_dtc_state,&LEA_obd_ii_P0155_fail_counter,
                      &LEA_obd_ii_P0155_pass_counter,0x155,0);
         }
       }
       else {
-        DAT_400020d8 = 0;
+        obd_ii_p0155_fail_ticks = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0155,&LEA_obd_ii_P0155_dtc_state);
-        if (DAT_4000207d < CAL_obd_ii_P0155_debounce_count) {
-          DAT_4000207d = DAT_4000207d + 1;
+        if (obd_ii_p0155_health < CAL_obd_ii_P0155_debounce_count) {
+          obd_ii_p0155_health = obd_ii_p0155_health + '\x01';
         }
       }
     }
@@ -36341,9 +36247,9 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004ead < 2) {
       if (o2_sensor5_heater_current_scaled < CAL_sensor_o2_heater_undercurrent_threshold) {
-        DAT_400020da = DAT_400020da + 1;
-        if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020da) &&
-            (DAT_400020da = 0, DAT_4000207e != 0)) &&
+        obd_ii_p0141_fail_ticks = obd_ii_p0141_fail_ticks + 1;
+        if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0141_fail_ticks) &&
+            (obd_ii_p0141_fail_ticks = 0, DAT_4000207e != 0)) &&
            (DAT_4000207e = DAT_4000207e - 1, DAT_4000207e == 0)) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0141,&LEA_obd_ii_P0141_dtc_state,&LEA_obd_ii_P0141_fail_counter,
@@ -36351,7 +36257,7 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
         }
       }
       else {
-        DAT_400020da = 0;
+        obd_ii_p0141_fail_ticks = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0141,&LEA_obd_ii_P0141_dtc_state);
         if (DAT_4000207e < CAL_obd_ii_P0141_heater_current_debounce_count) {
           DAT_4000207e = DAT_4000207e + 1;
@@ -36368,20 +36274,20 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      ((ignition_on_flags & 1) != 0)) {
     if (DAT_40004eb9 < 2) {
       if (o2_sensor6_heater_current_scaled < CAL_sensor_o2_heater_undercurrent_threshold) {
-        DAT_400020dc = DAT_400020dc + 1;
-        if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020dc) &&
-            (DAT_400020dc = 0, DAT_4000207f != 0)) &&
-           (DAT_4000207f = DAT_4000207f - 1, DAT_4000207f == 0)) {
+        obd_ii_p0161_fail_ticks = obd_ii_p0161_fail_ticks + 1;
+        if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0161_fail_ticks) &&
+            (obd_ii_p0161_fail_ticks = 0, obd_ii_p0161_health != '\0')) &&
+           (obd_ii_p0161_health = obd_ii_p0161_health + 0xff, obd_ii_p0161_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0161,&LEA_obd_ii_P0161_dtc_state,&LEA_obd_ii_P0161_fail_counter,
                      &LEA_obd_ii_P0161_pass_counter,0x161,0);
         }
       }
       else {
-        DAT_400020dc = 0;
+        obd_ii_p0161_fail_ticks = 0;
         obd_ii_monitor_pass(&CAL_obd_ii_P0161,&LEA_obd_ii_P0161_dtc_state);
-        if (DAT_4000207f < CAL_obd_ii_P0161_debounce_count) {
-          DAT_4000207f = DAT_4000207f + 1;
+        if (obd_ii_p0161_health < CAL_obd_ii_P0161_debounce_count) {
+          obd_ii_p0161_health = obd_ii_p0161_health + '\x01';
         }
       }
     }
@@ -36414,40 +36320,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   uVar1 = DAT_40002056 & 0xc;
   if ((CAL_obd_ii_P2602 & 7) != 0) {
     if ((uVar1 == 8) || (uVar1 == 0xc)) {
-      DAT_400020e8 = DAT_400020e8 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_400020e8) &&
-         ((DAT_400020e8 = 0, DAT_400020e6 != 0 &&
-          (DAT_400020e6 = DAT_400020e6 - 1, DAT_400020e6 == 0)))) {
+      obd_ii_p2602_fail_ticks = obd_ii_p2602_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2602_fail_ticks) &&
+         ((obd_ii_p2602_fail_ticks = 0, obd_ii_p2602_health != '\0' &&
+          (obd_ii_p2602_health = obd_ii_p2602_health + 0xff, obd_ii_p2602_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2602,&LEA_obd_ii_P2602_dtc_state,&LEA_obd_ii_P2602_fail_counter,
                    &LEA_obd_ii_P2602_pass_counter,0x2602,0);
       }
     }
     else {
-      DAT_400020e8 = 0;
+      obd_ii_p2602_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2602,&LEA_obd_ii_P2602_dtc_state);
-      if (DAT_400020e6 < CAL_obd_ii_P2602_debounce_count) {
-        DAT_400020e6 = DAT_400020e6 + 1;
+      if (obd_ii_p2602_health < CAL_obd_ii_P2602_debounce_count) {
+        obd_ii_p2602_health = obd_ii_p2602_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P2603 & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 4) {
-      DAT_400020ec = DAT_400020ec + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020ec) &&
-          (DAT_400020ec = 0, DAT_400020ea != 0)) &&
-         (DAT_400020ea = DAT_400020ea - 1, DAT_400020ea == 0)) {
+      obd_ii_p2603_fail_ticks = obd_ii_p2603_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2603_fail_ticks) &&
+          (obd_ii_p2603_fail_ticks = 0, obd_ii_p2603_health != '\0')) &&
+         (obd_ii_p2603_health = obd_ii_p2603_health + 0xff, obd_ii_p2603_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2603,&LEA_obd_ii_P2603_dtc_state,&LEA_obd_ii_P2603_fail_counter,
                    &LEA_obd_ii_P2603_pass_counter,0x2603,0);
       }
     }
     else {
-      DAT_400020ec = 0;
+      obd_ii_p2603_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2603,&LEA_obd_ii_P2603_dtc_state);
-      if (DAT_400020ea < CAL_obd_ii_P2603_debounce_count) {
-        DAT_400020ea = DAT_400020ea + 1;
+      if (obd_ii_p2603_health < CAL_obd_ii_P2603_debounce_count) {
+        obd_ii_p2603_health = obd_ii_p2603_health + '\x01';
       }
     }
   }
@@ -36457,40 +36363,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if (((1 < (COD_base.COD[0] >> 0x1c & 7)) && ((CAL_obd_ii_P2612 & 7) != 0)) &&
      ((engine_is_running != false && ((ignition_on_flags & 1) != 0)))) {
     if ((uVar1 == 0x80) || (uVar1 == 0xc0)) {
-      DAT_400020fe = DAT_400020fe + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_400020fe) &&
-         ((DAT_400020fe = 0, DAT_400020fc != 0 &&
-          (DAT_400020fc = DAT_400020fc - 1, DAT_400020fc == 0)))) {
+      obd_ii_p2612_fail_ticks = obd_ii_p2612_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2612_fail_ticks) &&
+         ((obd_ii_p2612_fail_ticks = 0, obd_ii_p2612_health != '\0' &&
+          (obd_ii_p2612_health = obd_ii_p2612_health + 0xff, obd_ii_p2612_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2612,&LEA_obd_ii_P2612_dtc_state,&LEA_obd_ii_P2612_fail_counter,
                    &LEA_obd_ii_P2612_pass_counter,0x2612,0);
       }
     }
     else {
-      DAT_400020fe = 0;
+      obd_ii_p2612_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2612,&LEA_obd_ii_P2612_dtc_state);
-      if (DAT_400020fc < CAL_obd_ii_P2612_debounce_count) {
-        DAT_400020fc = DAT_400020fc + 1;
+      if (obd_ii_p2612_health < CAL_obd_ii_P2612_debounce_count) {
+        obd_ii_p2612_health = obd_ii_p2612_health + '\x01';
       }
     }
   }
   if ((((1 < (COD_base.COD[0] >> 0x1c & 7)) && ((CAL_obd_ii_P2613 & 7) != 0)) &&
       (engine_is_running != false)) && ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x40) {
-      DAT_40002102 = DAT_40002102 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002102) &&
-          (DAT_40002102 = 0, DAT_40002100 != 0)) &&
-         (DAT_40002100 = DAT_40002100 - 1, DAT_40002100 == 0)) {
+      obd_ii_p2613_fail_ticks = obd_ii_p2613_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2613_fail_ticks) &&
+          (obd_ii_p2613_fail_ticks = 0, obd_ii_p2613_health != '\0')) &&
+         (obd_ii_p2613_health = obd_ii_p2613_health + 0xff, obd_ii_p2613_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2613,&LEA_obd_ii_P2613_dtc_state,&LEA_obd_ii_P2613_fail_counter,
                    &LEA_obd_ii_P2613_pass_counter,0x2613,0);
       }
     }
     else {
-      DAT_40002102 = 0;
+      obd_ii_p2613_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2613,&LEA_obd_ii_P2613_dtc_state);
-      if (DAT_40002100 < CAL_obd_ii_P2613_debounce_count) {
-        DAT_40002100 = DAT_40002100 + 1;
+      if (obd_ii_p2613_health < CAL_obd_ii_P2613_debounce_count) {
+        obd_ii_p2613_health = obd_ii_p2613_health + '\x01';
       }
     }
   }
@@ -36502,25 +36408,25 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      ((((CAL_obd_ii_P0616 & 7) != 0 && (engine_is_running != false)) &&
       ((ignition_on_flags & 1) != 0)))) {
     if ((uVar1 == 0x200) || (uVar1 == 0x300)) {
-      DAT_400020f6 = DAT_400020f6 + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_400020f6) &&
-         ((DAT_400020f6 = 0, DAT_400020f4 != 0 &&
-          (DAT_400020f4 = DAT_400020f4 - 1, DAT_400020f4 == 0)))) {
+      obd_ii_p0616_fail_ticks = obd_ii_p0616_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0616_fail_ticks) &&
+         ((obd_ii_p0616_fail_ticks = 0, obd_ii_p0616_health != '\0' &&
+          (obd_ii_p0616_health = obd_ii_p0616_health + 0xff, obd_ii_p0616_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0616,&LEA_obd_ii_P0616_dtc_state,&LEA_obd_ii_P0616_fail_counter,
                    &LEA_obd_ii_P0616_pass_counter,0x616,0);
       }
     }
     else {
-      DAT_400020f6 = 0;
+      obd_ii_p0616_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0616,&LEA_obd_ii_P0616_dtc_state);
-      if (DAT_400020f4 < CAL_obd_ii_P0616_debounce_count) {
-        DAT_400020f4 = DAT_400020f4 + 1;
+      if (obd_ii_p0616_health < CAL_obd_ii_P0616_debounce_count) {
+        obd_ii_p0616_health = obd_ii_p0616_health + '\x01';
       }
     }
   }
   else {
-    DAT_400020f6 = 0;
+    obd_ii_p0616_fail_ticks = 0;
   }
   if ((uVar1 == 0x200) &&
      (((COD_base.COD[0] >> 0xd & 7) == 0 ||
@@ -36534,20 +36440,20 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   }
   if (((CAL_obd_ii_P0617 & 7) != 0) && ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x100) {
-      DAT_400020fa = DAT_400020fa + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_400020fa) &&
-          (DAT_400020fa = 0, DAT_400020f8 != 0)) &&
-         (DAT_400020f8 = DAT_400020f8 - 1, DAT_400020f8 == 0)) {
+      obd_ii_p0617_fail_ticks = obd_ii_p0617_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0617_fail_ticks) &&
+          (obd_ii_p0617_fail_ticks = 0, obd_ii_p0617_health != '\0')) &&
+         (obd_ii_p0617_health = obd_ii_p0617_health + 0xff, obd_ii_p0617_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0617,&LEA_obd_ii_P0617_dtc_state,&LEA_obd_ii_P0617_fail_counter,
                    &LEA_obd_ii_P0617_pass_counter,0x617,0);
       }
     }
     else {
-      DAT_400020fa = 0;
+      obd_ii_p0617_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0617,&LEA_obd_ii_P0617_dtc_state);
-      if (DAT_400020f8 < CAL_obd_ii_P0617_debounce_count) {
-        DAT_400020f8 = DAT_400020f8 + 1;
+      if (obd_ii_p0617_health < CAL_obd_ii_P0617_debounce_count) {
+        obd_ii_p0617_health = obd_ii_p0617_health + '\x01';
       }
     }
   }
@@ -36559,16 +36465,16 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      (((ignition_on_flags & 1) != 0 && ((COD_base.COD[1] >> 0x1b & 1) != 0)))) {
     if ((((byte)COD_base.vin[9] < 0x48) || (((main_diagnostic_flags & 4) != 0 || (uVar4 != 2)))) &&
        ((uVar4 != 3 && (uVar1 != 0xc000)))) {
-      DAT_40002106 = 0;
+      obd_ii_p2170_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2170,&LEA_obd_ii_P2170_dtc_state);
       if (DAT_40002104 < CAL_obd_ii_P2170_pass_counter_max) {
         DAT_40002104 = DAT_40002104 + 1;
       }
     }
     else {
-      DAT_40002106 = DAT_40002106 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002106) &&
-          (DAT_40002106 = 0, DAT_40002104 != 0)) &&
+      obd_ii_p2170_fail_ticks = obd_ii_p2170_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2170_fail_ticks) &&
+          (obd_ii_p2170_fail_ticks = 0, DAT_40002104 != 0)) &&
          (DAT_40002104 = DAT_40002104 - 1, DAT_40002104 == 0)) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2170,&LEA_obd_ii_P2170_dtc_state,&LEA_obd_ii_P2170_fail_counter,
@@ -36580,20 +36486,20 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
      ((engine_is_running != false &&
       (((ignition_on_flags & 1) != 0 && ((COD_base.COD[1] >> 0x1b & 1) != 0)))))) {
     if ((uVar1 == 0x4000) || (uVar4 == 1)) {
-      DAT_4000210a = DAT_4000210a + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_4000210a) &&
-          (DAT_4000210a = 0, DAT_40002108 != 0)) &&
-         (DAT_40002108 = DAT_40002108 - 1, DAT_40002108 == 0)) {
+      obd_ii_p2171_fail_ticks = obd_ii_p2171_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p2171_fail_ticks) &&
+          (obd_ii_p2171_fail_ticks = 0, obd_ii_p2171_health != '\0')) &&
+         (obd_ii_p2171_health = obd_ii_p2171_health + 0xff, obd_ii_p2171_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P2171,&LEA_obd_ii_P2171_dtc_state,&LEA_obd_ii_P2171_fail_counter,
                    &LEA_obd_ii_P2171_pass_counter,0x2171,0);
       }
     }
     else {
-      DAT_4000210a = 0;
+      obd_ii_p2171_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2171,&LEA_obd_ii_P2171_dtc_state);
-      if (DAT_40002108 < CAL_obd_ii_P2171_debounce_count) {
-        DAT_40002108 = DAT_40002108 + 1;
+      if (obd_ii_p2171_health < CAL_obd_ii_P2171_debounce_count) {
+        obd_ii_p2171_health = obd_ii_p2171_health + '\x01';
       }
     }
   }
@@ -36602,42 +36508,40 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
   if ((((CAL_obd_ii_P023B & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if ((uVar1 == 0x20) || (uVar1 == 0x30)) {
-      DAT_4000210e = DAT_4000210e + 1;
-      if (((short)obd_ii_monitor_debounce_ticks <= DAT_4000210e) &&
-         ((DAT_4000210e = 0, cac_diag_P023B_pass_counter != 0 &&
-          (cac_diag_P023B_pass_counter = cac_diag_P023B_pass_counter - 1,
-          cac_diag_P023B_pass_counter == 0)))) {
+      obd_ii_p023b_fail_ticks = obd_ii_p023b_fail_ticks + 1;
+      if (((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p023b_fail_ticks) &&
+         ((obd_ii_p023b_fail_ticks = 0, obd_ii_p023b_health != '\0' &&
+          (obd_ii_p023b_health = obd_ii_p023b_health + 0xff, obd_ii_p023b_health == '\0')))) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P023B,&LEA_obd_ii_P023B_dtc_state,&LEA_obd_ii_P023B_fail_counter,
                    &LEA_obd_ii_P023B_pass_counter,0x23b,0);
       }
     }
     else {
-      DAT_4000210e = 0;
+      obd_ii_p023b_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P023B,&LEA_obd_ii_P023B_dtc_state);
-      if (cac_diag_P023B_pass_counter < CAL_obd_ii_P023B_debounce_count) {
-        cac_diag_P023B_pass_counter = cac_diag_P023B_pass_counter + 1;
+      if (obd_ii_p023b_health < CAL_obd_ii_P023B_debounce_count) {
+        obd_ii_p023b_health = obd_ii_p023b_health + '\x01';
       }
     }
   }
   if ((((CAL_obd_ii_P023C & 7) != 0) && (engine_is_running != false)) &&
      ((ignition_on_flags & 1) != 0)) {
     if (uVar1 == 0x10) {
-      DAT_40002112 = DAT_40002112 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002112) &&
-          (DAT_40002112 = 0, cac_diag_P023C_pass_counter != 0)) &&
-         (cac_diag_P023C_pass_counter = cac_diag_P023C_pass_counter - 1,
-         cac_diag_P023C_pass_counter == 0)) {
+      obd_ii_p023c_fail_ticks = obd_ii_p023c_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p023c_fail_ticks) &&
+          (obd_ii_p023c_fail_ticks = 0, obd_ii_p023c_health != '\0')) &&
+         (obd_ii_p023c_health = obd_ii_p023c_health + 0xff, obd_ii_p023c_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P023C,&LEA_obd_ii_P023C_dtc_state,&LEA_obd_ii_P023C_fail_counter,
                    &LEA_obd_ii_P023C_pass_counter,0x23c,0);
       }
     }
     else {
-      DAT_40002112 = 0;
+      obd_ii_p023c_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P023C,&LEA_obd_ii_P023C_dtc_state);
-      if (cac_diag_P023C_pass_counter < CAL_obd_ii_P023C_debounce_count) {
-        cac_diag_P023C_pass_counter = cac_diag_P023C_pass_counter + 1;
+      if (obd_ii_p023c_health < CAL_obd_ii_P023C_debounce_count) {
+        obd_ii_p023c_health = obd_ii_p023c_health + '\x01';
       }
     }
   }
@@ -36675,53 +36579,62 @@ void obd_ii_evaluate_electrical_circuit_monitors(void)
       LEA_circuit_fault_history_bits = LEA_circuit_fault_history_bits | cac_fault_code_latched;
     }
   }
-  if (((((((DAT_4000206a == 0) || (DAT_4000206b == 0)) || (DAT_4000206c == 0)) ||
-        ((DAT_4000206d == 0 || (DAT_4000206e == 0)))) || (DAT_4000206f == 0)) ||
-      ((DAT_40002070 == 0 || (DAT_40002071 == 0)))) ||
-     ((DAT_40002072 == 0 || (((DAT_40002073 == 0 || (DAT_40002074 == 0)) || (DAT_40002075 == 0))))))
-  {
+  if (((((((obd_ii_p0261_health == '\0') || (obd_ii_p0262_health == '\0')) ||
+         (obd_ii_p0264_health == '\0')) ||
+        ((obd_ii_p0265_health == '\0' || (obd_ii_p0267_health == '\0')))) ||
+       (obd_ii_p0268_health == '\0')) ||
+      ((obd_ii_p0270_health == '\0' || (obd_ii_p0271_health == '\0')))) ||
+     ((obd_ii_p0273_health == '\0' ||
+      (((obd_ii_p0274_health == '\0' || (obd_ii_p0276_health == '\0')) ||
+       (obd_ii_p0277_health == '\0')))))) {
     engine_state_failure_flags = engine_state_failure_flags | 0x2000;
   }
   else {
     engine_state_failure_flags = engine_state_failure_flags & 0xffffdfff;
   }
-  if ((((DAT_40002076 == 0) || (DAT_40002077 == 0)) ||
-      ((DAT_40002078 == 0 || ((DAT_40002079 == 0 || (DAT_4000207a == 0)))))) || (DAT_4000207b == 0))
-  {
+  if ((((obd_ii_p0351_health == '\0') || (obd_ii_p0352_health == '\0')) ||
+      ((obd_ii_p0353_health == '\0' ||
+       ((obd_ii_p0354_health == '\0' || (obd_ii_p0355_health == '\0')))))) ||
+     (obd_ii_p0356_health == '\0')) {
     engine_state_failure_flags = engine_state_failure_flags | 0x4000;
   }
   else {
     engine_state_failure_flags = engine_state_failure_flags & 0xffffbfff;
   }
   if (((((obd_ii_p0011_health == '\0') || (obd_ii_p0012_health == '\0')) ||
-       (obd_ii_p0021_health == '\0')) || ((obd_ii_p0022_health == '\0' || (DAT_40002060 == 0)))) ||
-     ((DAT_40002061 == 0 || ((DAT_40002064 == 0 || (DAT_40002065 == 0)))))) {
+       (obd_ii_p0021_health == '\0')) ||
+      ((obd_ii_p0022_health == '\0' || (obd_ii_p0076_health == '\0')))) ||
+     ((obd_ii_p0077_health == '\0' ||
+      ((obd_ii_p0082_health == '\0' || (obd_ii_p0083_health == '\0')))))) {
     engine_state_failure_flags = engine_state_failure_flags | 0x80;
   }
   else {
     engine_state_failure_flags = engine_state_failure_flags & 0xffffff7f;
   }
   if (((((obd_ii_p0014_health == '\0') || (obd_ii_p0015_health == '\0')) ||
-       (obd_ii_p0024_health == '\0')) || ((obd_ii_p0025_health == '\0' || (DAT_40002062 == 0)))) ||
-     ((DAT_40002063 == 0 || ((DAT_40002066 == 0 || (DAT_40002067 == 0)))))) {
+       (obd_ii_p0024_health == '\0')) ||
+      ((obd_ii_p0025_health == '\0' || (obd_ii_p0079_health == '\0')))) ||
+     ((obd_ii_p0080_health == '\0' ||
+      ((obd_ii_p0085_health == '\0' || (obd_ii_p0086_health == '\0')))))) {
     engine_state_failure_flags = engine_state_failure_flags | 0x100;
   }
   else {
     engine_state_failure_flags = engine_state_failure_flags & 0xfffffeff;
   }
-  if ((DAT_40002104 == 0) || (DAT_40002108 == 0)) {
+  if ((DAT_40002104 == 0) || (obd_ii_p2171_health == '\0')) {
     engine_state_failure_flags = engine_state_failure_flags | 0x40000;
   }
   else {
     engine_state_failure_flags = engine_state_failure_flags & 0xfffbffff;
   }
-  if (((DAT_40001ce9 == '\0') || (DAT_4000209a == 0)) || (DAT_4000209e == 0)) {
+  if (((obd_ii_p0441_health == '\0') || (obd_ii_p0444_health == '\0')) ||
+     (obd_ii_p0445_health == '\0')) {
     engine_state_failure_flags = engine_state_failure_flags | 0x200000;
   }
   else {
     engine_state_failure_flags = engine_state_failure_flags & 0xffdfffff;
   }
-  if (((cac_diag_P023B_pass_counter == 0) || (cac_diag_P023C_pass_counter == 0)) ||
+  if (((obd_ii_p023b_health == '\0') || (obd_ii_p023c_health == '\0')) ||
      (((CAL_obd_ii_P123C & 7) != 0 && ((aux_coolant_pump_state_and_diag_ & 0x1f2) != 0)))) {
     uVar3 = engine_state_failure_flags | 0x8000000;
   }
@@ -36744,7 +36657,7 @@ void cac_diagnostic_1000hz(void)
   ushort uVar2;
   longlong _cac_dc_error;
   
-  if (((cac_diag_P023B_pass_counter == '\0') || (cac_diag_P023C_pass_counter == '\0')) ||
+  if (((obd_ii_p023b_health == '\0') || (obd_ii_p023c_health == '\0')) ||
      (sensor_adc_ecu_voltage <= CAL_ecu_system_voltage_threshold[1])) {
     cac_diag_reset();
   }
@@ -36941,59 +36854,59 @@ void cac_diag_reset(void)
 void obd_ii_set_actuator_circuit_dtc(void)
 
 {
-  DAT_40002060 = CAL_obd_ii_P0076_debounce_count;
-  DAT_40002061 = CAL_obd_ii_P0077_debounce_count;
-  DAT_40002062 = CAL_obd_ii_P0079_debounce_count;
-  DAT_40002063 = CAL_obd_ii_P0080_debounce_count;
-  DAT_40002064 = CAL_obd_ii_P0082_debounce_count;
-  DAT_40002065 = CAL_obd_ii_P0083_debounce_count;
-  DAT_40002066 = CAL_obd_ii_P0085_debounce_count;
-  DAT_40002067 = CAL_obd_ii_P0086_debounce_count;
-  DAT_40002092 = CAL_obd_ii_P0647_debounce_count;
-  DAT_40002096 = CAL_obd_ii_P0646_debounce_count;
-  DAT_4000209a = CAL_obd_ii_P0444_debounce_count;
-  DAT_4000209e = CAL_obd_ii_P0445_debounce_count;
-  DAT_400020de = CAL_obd_ii_P0447_debounce_count;
-  DAT_400020e2 = CAL_obd_ii_P0448_debounce_count;
-  DAT_4000206a = CAL_obd_ii_P0261_debounce_count;
-  DAT_4000206b = CAL_obd_ii_P0262_debounce_count;
-  DAT_4000206c = CAL_obd_ii_P0264_debounce_count;
-  DAT_4000206d = CAL_obd_ii_P0265_debounce_count;
-  DAT_4000206e = CAL_obd_ii_P0267_debounce_count;
-  DAT_4000206f = CAL_obd_ii_P0268_debounce_count;
-  DAT_40002070 = CAL_obd_ii_P0270_debounce_count;
-  DAT_40002071 = CAL_obd_ii_P0271_debounce_count;
-  DAT_40002072 = CAL_obd_ii_P0273_debounce_count;
-  DAT_40002073 = CAL_obd_ii_P0274_debounce_count;
-  DAT_40002074 = CAL_obd_ii_P0276_debounce_count;
-  DAT_40002075 = CAL_obd_ii_P0277_debounce_count;
-  DAT_4000207c = CAL_obd_ii_P0135_debounce_count;
-  DAT_4000207d = CAL_obd_ii_P0155_debounce_count;
+  obd_ii_p0076_health = CAL_obd_ii_P0076_debounce_count;
+  obd_ii_p0077_health = CAL_obd_ii_P0077_debounce_count;
+  obd_ii_p0079_health = CAL_obd_ii_P0079_debounce_count;
+  obd_ii_p0080_health = CAL_obd_ii_P0080_debounce_count;
+  obd_ii_p0082_health = CAL_obd_ii_P0082_debounce_count;
+  obd_ii_p0083_health = CAL_obd_ii_P0083_debounce_count;
+  obd_ii_p0085_health = CAL_obd_ii_P0085_debounce_count;
+  obd_ii_p0086_health = CAL_obd_ii_P0086_debounce_count;
+  obd_ii_p0647_health = CAL_obd_ii_P0647_debounce_count;
+  obd_ii_p0646_health = CAL_obd_ii_P0646_debounce_count;
+  obd_ii_p0444_health = CAL_obd_ii_P0444_debounce_count;
+  obd_ii_p0445_health = CAL_obd_ii_P0445_debounce_count;
+  obd_ii_p0447_health = CAL_obd_ii_P0447_debounce_count;
+  obd_ii_p0448_health = CAL_obd_ii_P0448_debounce_count;
+  obd_ii_p0261_health = CAL_obd_ii_P0261_debounce_count;
+  obd_ii_p0262_health = CAL_obd_ii_P0262_debounce_count;
+  obd_ii_p0264_health = CAL_obd_ii_P0264_debounce_count;
+  obd_ii_p0265_health = CAL_obd_ii_P0265_debounce_count;
+  obd_ii_p0267_health = CAL_obd_ii_P0267_debounce_count;
+  obd_ii_p0268_health = CAL_obd_ii_P0268_debounce_count;
+  obd_ii_p0270_health = CAL_obd_ii_P0270_debounce_count;
+  obd_ii_p0271_health = CAL_obd_ii_P0271_debounce_count;
+  obd_ii_p0273_health = CAL_obd_ii_P0273_debounce_count;
+  obd_ii_p0274_health = CAL_obd_ii_P0274_debounce_count;
+  obd_ii_p0276_health = CAL_obd_ii_P0276_debounce_count;
+  obd_ii_p0277_health = CAL_obd_ii_P0277_debounce_count;
+  obd_ii_p0135_health = CAL_obd_ii_P0135_debounce_count;
+  obd_ii_p0155_health = CAL_obd_ii_P0155_debounce_count;
   DAT_4000207e = CAL_obd_ii_P0141_heater_current_debounce_count;
-  DAT_4000207f = CAL_obd_ii_P0161_debounce_count;
-  DAT_400020ca = CAL_obd_ii_P0141_debounce_count;
-  DAT_40002068 = CAL_obd_ii_P0628_debounce_count;
-  DAT_40002069 = CAL_obd_ii_P0629_debounce_count;
-  DAT_400020ce = CAL_obd_ii_P0480_debounce_count;
-  DAT_400020d2 = CAL_obd_ii_P0482_debounce_count;
-  DAT_400020e6 = CAL_obd_ii_P2602_debounce_count;
-  DAT_400020ea = CAL_obd_ii_P2603_debounce_count;
-  DAT_40002076 = CAL_obd_ii_P0351_debounce_count;
-  DAT_40002077 = CAL_obd_ii_P0352_debounce_count;
-  DAT_40002078 = CAL_obd_ii_P0353_debounce_count;
-  DAT_40002079 = CAL_obd_ii_P0354_debounce_count;
-  DAT_4000207a = CAL_obd_ii_P0355_debounce_count;
-  DAT_4000207b = CAL_obd_ii_P0356_debounce_count;
-  DAT_400020fc = CAL_obd_ii_P2612_debounce_count;
-  DAT_40002100 = CAL_obd_ii_P2613_debounce_count;
-  DAT_400020f4 = CAL_obd_ii_P0616_debounce_count;
-  DAT_400020f8 = CAL_obd_ii_P0617_debounce_count;
+  obd_ii_p0161_health = CAL_obd_ii_P0161_debounce_count;
+  obd_ii_p0141_health = CAL_obd_ii_P0141_debounce_count;
+  obd_ii_p0628_health = CAL_obd_ii_P0628_debounce_count;
+  obd_ii_p0629_health = CAL_obd_ii_P0629_debounce_count;
+  obd_ii_p0480_health = CAL_obd_ii_P0480_debounce_count;
+  obd_ii_p0482_health = CAL_obd_ii_P0482_debounce_count;
+  obd_ii_p2602_health = CAL_obd_ii_P2602_debounce_count;
+  obd_ii_p2603_health = CAL_obd_ii_P2603_debounce_count;
+  obd_ii_p0351_health = CAL_obd_ii_P0351_debounce_count;
+  obd_ii_p0352_health = CAL_obd_ii_P0352_debounce_count;
+  obd_ii_p0353_health = CAL_obd_ii_P0353_debounce_count;
+  obd_ii_p0354_health = CAL_obd_ii_P0354_debounce_count;
+  obd_ii_p0355_health = CAL_obd_ii_P0355_debounce_count;
+  obd_ii_p0356_health = CAL_obd_ii_P0356_debounce_count;
+  obd_ii_p2612_health = CAL_obd_ii_P2612_debounce_count;
+  obd_ii_p2613_health = CAL_obd_ii_P2613_debounce_count;
+  obd_ii_p0616_health = CAL_obd_ii_P0616_debounce_count;
+  obd_ii_p0617_health = CAL_obd_ii_P0617_debounce_count;
   DAT_40002104 = CAL_obd_ii_P2170_pass_counter_max;
-  DAT_40002108 = CAL_obd_ii_P2171_debounce_count;
-  cac_diag_P023B_pass_counter = CAL_obd_ii_P023B_debounce_count;
-  cac_diag_P023C_pass_counter = CAL_obd_ii_P023C_debounce_count;
-  DAT_40002123 = CAL_obd_ii_P0662_debounce_count;
-  DAT_40002122 = CAL_obd_ii_P0661_debounce_count;
+  obd_ii_p2171_health = CAL_obd_ii_P2171_debounce_count;
+  obd_ii_p023b_health = CAL_obd_ii_P023B_debounce_count;
+  obd_ii_p023c_health = CAL_obd_ii_P023C_debounce_count;
+  obd_ii_p0662_health = CAL_obd_ii_P0662_debounce_count;
+  obd_ii_p0661_health = CAL_obd_ii_P0661_debounce_count;
   cac_fault_code_latched = 0;
   cac_diag_reset();
   obd_ii_update_dtc_state(&CAL_obd_ii_P0076,&LEA_obd_ii_P0076_dtc_state,0x76,0);
@@ -37795,79 +37708,80 @@ void obd_ii_accel_pedal_monitors(void)
     if (((DAT_40002514 & 0x10) == 0) && ((DAT_40002514 & 0x80) == 0)) {
       DAT_4000214c = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2138,&LEA_obd_ii_P2138_dtc_state);
-      if (DAT_4000214b < CAL_obd_ii_P2138_debounce_count) {
-        DAT_4000214b = DAT_4000214b + 1;
+      if (obd_ii_p2138_health < CAL_obd_ii_P2138_debounce_count) {
+        obd_ii_p2138_health = obd_ii_p2138_health + '\x01';
       }
     }
     else {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2138,&LEA_obd_ii_P2138_dtc_state,&LEA_obd_ii_P2138_fail_counter,
                  &LEA_obd_ii_P2138_pass_counter,0x2138,0);
-      DAT_4000214b = 0;
+      obd_ii_p2138_health = '\0';
     }
   }
   if ((CAL_obd_ii_P2122 & 7) != 0) {
     if (((DAT_40002514 & 2) == 0) && ((DAT_40002514 & 0x40) == 0)) {
       DAT_40002150 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2122,&LEA_obd_ii_P2122_dtc_state);
-      if (DAT_4000214e < CAL_obd_ii_P2122_debounce_count) {
-        DAT_4000214e = DAT_4000214e + 1;
+      if (obd_ii_p2122_health < CAL_obd_ii_P2122_debounce_count) {
+        obd_ii_p2122_health = obd_ii_p2122_health + '\x01';
       }
     }
     else {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2122,&LEA_obd_ii_P2122_dtc_state,&LEA_obd_ii_P2122_fail_counter,
                  &LEA_obd_ii_P2122_pass_counter,0x2122,0);
-      DAT_4000214e = 0;
+      obd_ii_p2122_health = '\0';
     }
   }
   if ((CAL_obd_ii_P2123 & 7) != 0) {
     if (((DAT_40002514 & 1) == 0) && ((DAT_40002514 & 0x20) == 0)) {
       DAT_40002154 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2123,&LEA_obd_ii_P2123_dtc_state);
-      if (DAT_40002152 < CAL_obd_ii_P2123_debounce_count) {
-        DAT_40002152 = DAT_40002152 + 1;
+      if (obd_ii_p2123_health < CAL_obd_ii_P2123_debounce_count) {
+        obd_ii_p2123_health = obd_ii_p2123_health + '\x01';
       }
     }
     else {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2123,&LEA_obd_ii_P2123_dtc_state,&LEA_obd_ii_P2123_fail_counter,
                  &LEA_obd_ii_P2123_pass_counter,0x2123,0);
-      DAT_40002152 = 0;
+      obd_ii_p2123_health = '\0';
     }
   }
   if ((CAL_obd_ii_P2127 & 7) != 0) {
     if (((DAT_40002514 & 8) == 0) && ((DAT_40002514 & 0x40) == 0)) {
       DAT_40002158 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2127,&LEA_obd_ii_P2127_dtc_state);
-      if (DAT_40002156 < CAL_obd_ii_P2127_debounce_count) {
-        DAT_40002156 = DAT_40002156 + 1;
+      if (obd_ii_p2127_health < CAL_obd_ii_P2127_debounce_count) {
+        obd_ii_p2127_health = obd_ii_p2127_health + '\x01';
       }
     }
     else {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2127,&LEA_obd_ii_P2127_dtc_state,&LEA_obd_ii_P2127_fail_counter,
                  &LEA_obd_ii_P2127_pass_counter,0x2127,0);
-      DAT_40002156 = 0;
+      obd_ii_p2127_health = '\0';
     }
   }
   if ((CAL_obd_ii_P2128 & 7) != 0) {
     if (((DAT_40002514 & 4) == 0) && ((DAT_40002514 & 0x20) == 0)) {
       DAT_4000215c = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P2128,&LEA_obd_ii_P2128_dtc_state);
-      if (DAT_4000215a < CAL_obd_ii_P2128_debounce_count) {
-        DAT_4000215a = DAT_4000215a + 1;
+      if (obd_ii_p2128_health < CAL_obd_ii_P2128_debounce_count) {
+        obd_ii_p2128_health = obd_ii_p2128_health + '\x01';
       }
     }
     else {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P2128,&LEA_obd_ii_P2128_dtc_state,&LEA_obd_ii_P2128_fail_counter,
                  &LEA_obd_ii_P2128_pass_counter,0x2128,0);
-      DAT_4000215a = 0;
+      obd_ii_p2128_health = '\0';
     }
   }
-  if ((((DAT_4000214b == 0) || (DAT_4000214e == 0)) || (DAT_40002152 == 0)) ||
-     ((DAT_40002156 == 0 || (DAT_4000215a == 0)))) {
+  if ((((obd_ii_p2138_health == '\0') || (obd_ii_p2122_health == '\0')) ||
+      (obd_ii_p2123_health == '\0')) ||
+     ((obd_ii_p2127_health == '\0' || (obd_ii_p2128_health == '\0')))) {
     engine_state_failure_flags = engine_state_failure_flags | 0x8000;
   }
   return;
@@ -37878,11 +37792,11 @@ void obd_ii_accel_pedal_monitors(void)
 void obd_ii_init_pedal_throttle_diagnostics(void)
 
 {
-  DAT_4000214b = CAL_obd_ii_P2138_debounce_count;
-  DAT_4000214e = CAL_obd_ii_P2122_debounce_count;
-  DAT_40002152 = CAL_obd_ii_P2123_debounce_count;
-  DAT_40002156 = CAL_obd_ii_P2127_debounce_count;
-  DAT_4000215a = CAL_obd_ii_P2128_debounce_count;
+  obd_ii_p2138_health = CAL_obd_ii_P2138_debounce_count;
+  obd_ii_p2122_health = CAL_obd_ii_P2122_debounce_count;
+  obd_ii_p2123_health = CAL_obd_ii_P2123_debounce_count;
+  obd_ii_p2127_health = CAL_obd_ii_P2127_debounce_count;
+  obd_ii_p2128_health = CAL_obd_ii_P2128_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P2138,&LEA_obd_ii_P2138_dtc_state,0x2138,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P2122,&LEA_obd_ii_P2122_dtc_state,0x2122,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P2123,&LEA_obd_ii_P2123_dtc_state,0x2123,0);
@@ -39842,10 +39756,10 @@ void obd_ii_catalyst_o2_monitors_main(void)
   byte bVar3;
   ushort uVar4;
   
-  if (((((DAT_40002220 & 1) == 0) && (DAT_40001cf8 != '\0')) && (obd_ii_p0341_health != '\0')) &&
-     (((obd_ii_p0346_health != '\0' && (obd_ii_p0366_health != '\0')) &&
-      ((obd_ii_p0391_health != '\0' && (CAL_obd_ii_cat_monitor_runtime_min <= runtime_since_start)))
-      ))) {
+  if (((((DAT_40002220 & 1) == 0) && (obd_ii_p0335_health != '\0')) && (obd_ii_p0341_health != '\0')
+      ) && (((obd_ii_p0346_health != '\0' && (obd_ii_p0366_health != '\0')) &&
+            ((obd_ii_p0391_health != '\0' &&
+             (CAL_obd_ii_cat_monitor_runtime_min <= runtime_since_start)))))) {
     if (LEA_obd_ii_J1979_IGN_CNTR < 0xffff) {
       LEA_obd_ii_J1979_IGN_CNTR = LEA_obd_ii_J1979_IGN_CNTR + 1;
     }
@@ -43154,7 +43068,7 @@ void obd_ii_thermostat_check(void)
 {
   uint uVar1;
   char cVar2;
-  byte bVar3;
+  u8_count uVar3;
   ulonglong unaff_r31;
   
   if (((engine_operating_state_flags & 8) == 0) || (car_speed_u8 != '\0')) {
@@ -43194,12 +43108,12 @@ void obd_ii_thermostat_check(void)
         }
       }
       if ((ulonglong)CAL_obd_ii_P0128_runtime_to_lowspeed_ratio_min < (unaff_r31 & 0xff)) {
-        bVar3 = obd_ii_P0128_fail_countdown - 1;
-        if (obd_ii_P0128_fail_countdown == 0) {
-          bVar3 = obd_ii_P0128_fail_countdown;
+        uVar3 = obd_ii_p0128_health + 0xff;
+        if (obd_ii_p0128_health == '\0') {
+          uVar3 = obd_ii_p0128_health;
         }
-        obd_ii_P0128_fail_countdown = bVar3;
-        if (bVar3 == 0) {
+        obd_ii_p0128_health = uVar3;
+        if (uVar3 == '\0') {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0128,&LEA_obd_ii_P0128_dtc_state,&LEA_obd_ii_P0128_fail_counter,
                      &LEA_obd_ii_P0128_pass_counter,0x128,0);
@@ -43208,8 +43122,8 @@ void obd_ii_thermostat_check(void)
     }
     else if (CAL_cooling_thermostat_open <= coolant_temp) {
       obd_ii_monitor_pass(&CAL_obd_ii_P0128,&LEA_obd_ii_P0128_dtc_state);
-      if (obd_ii_P0128_fail_countdown < CAL_obd_ii_P0128_fail_count) {
-        obd_ii_P0128_fail_countdown = obd_ii_P0128_fail_countdown + 1;
+      if (obd_ii_p0128_health < CAL_obd_ii_P0128_fail_count) {
+        obd_ii_p0128_health = obd_ii_p0128_health + '\x01';
       }
     }
   }
@@ -43221,7 +43135,7 @@ void obd_ii_thermostat_check(void)
 void obd_ii_init_thermostat_diagnostics(void)
 
 {
-  obd_ii_P0128_fail_countdown = CAL_obd_ii_P0128_fail_count;
+  obd_ii_p0128_health = CAL_obd_ii_P0128_fail_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0128,&LEA_obd_ii_P0128_dtc_state,0x128,0);
   return;
 }
@@ -43408,7 +43322,7 @@ void obd_ii_evap_monitor(void)
     }
     if (((DAT_400023bf == '\0') && (DAT_400023be == '\0')) && ((DAT_400023a2 & 0x80) == 0)) {
       uVar2 = DAT_400023a2 | 0x40;
-      if (DAT_40001e68 == '\0') {
+      if (obd_ii_p0455_health == '\0') {
         uVar2 = DAT_400023a2;
       }
       DAT_400023a2 = uVar2 | 0x80;
@@ -43513,12 +43427,13 @@ void obd_ii_evap_monitor(void)
       if ((((DAT_400023a2 & 0x4000) != 0) && ((DAT_400023a2 & 0x2000) == 0)) &&
          ((DAT_400023a2 & 1) != 0)) {
         obd_ii_monitor_pass(&CAL_obd_ii_P0461,&LEA_obd_ii_P0461_dtc_state);
-        if (DAT_400023a7 < CAL_obd_ii_P0461_debounce_count) {
-          DAT_400023a7 = DAT_400023a7 + 1;
+        if (obd_ii_p0461_health < CAL_obd_ii_P0461_debounce_count) {
+          obd_ii_p0461_health = obd_ii_p0461_health + '\x01';
         }
       }
     }
-    else if ((DAT_400023a7 != 0) && (DAT_400023a7 = DAT_400023a7 - 1, DAT_400023a7 == 0)) {
+    else if ((obd_ii_p0461_health != '\0') &&
+            (obd_ii_p0461_health = obd_ii_p0461_health + 0xff, obd_ii_p0461_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_P0461,&LEA_obd_ii_P0461_dtc_state,&LEA_obd_ii_P0461_fail_counter,
                  &LEA_obd_ii_P0461_pass_counter,0x461,0);
@@ -43590,7 +43505,7 @@ void obd_ii_init_fuel_evap_diagnostics(void)
   fuel_level_filtered_x40000 = (uint)fuel_level_raw * 40000;
   fuel_level = fuel_level_raw;
   DAT_40001828 = (int)obd_ii_evap_purge_pressure << 8;
-  DAT_400023a7 = CAL_obd_ii_P0461_debounce_count;
+  obd_ii_p0461_health = CAL_obd_ii_P0461_debounce_count;
   DAT_400023a8 = CAL_obd_ii_P0451_fail_debounce_count;
   obd_ii_update_dtc_state(&CAL_obd_ii_P0461,&LEA_obd_ii_P0461_dtc_state,0x461,0);
   obd_ii_update_dtc_state(&CAL_obd_ii_P0451,&LEA_obd_ii_P0451_dtc_state,0x451,0);
@@ -51552,7 +51467,7 @@ void cruise2_200hz(void)
        ((((((engine_state_failure_flags & 0x8000) == 0 && ((engine_state_failure_flags & 0x10) == 0)
            ) && ((engine_state_failure_flags & 0x400) == 0)) &&
          (((engine_state_failure_flags & 0x800000) == 0 &&
-          ((engine_state_failure_flags & 0x100000) == 0)))) && (DAT_40001cf8 != '\0')))))) &&
+          ((engine_state_failure_flags & 0x100000) == 0)))) && (obd_ii_p0335_health != '\0')))))) &&
      ((((COD_base.COD[0] >> 0xd & 7) != 0 || ((COD_base.COD[1] >> 0x15 & 3) == 2)) &&
       ((((COD_base.COD[1] >> 9 & 1) != 0 &&
         (((((brake_switch & 0x22) == 0 && ((clutch_pos_sensor & 8) == 0)) &&
@@ -54233,39 +54148,39 @@ void ac_compressor_fault_check(void)
   
   if (((CAL_obd_ii_P0537 & 7) != 0) && (engine_is_running)) {
     if (ac_evap_temp_voltage < CAL_ac_evap_temp_voltage_low_threshold) {
-      DAT_40002702 = DAT_40002702 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002702) &&
-          (DAT_40002702 = 0, DAT_40002700 != 0)) &&
-         (DAT_40002700 = DAT_40002700 - 1, DAT_40002700 == 0)) {
+      obd_ii_p0537_fail_ticks = obd_ii_p0537_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0537_fail_ticks) &&
+          (obd_ii_p0537_fail_ticks = 0, obd_ii_p0537_health != '\0')) &&
+         (obd_ii_p0537_health = obd_ii_p0537_health + 0xff, obd_ii_p0537_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0537,&LEA_obd_ii_P0537_dtc_state,&LEA_obd_ii_P0537_fail_counter,
                    &LEA_obd_ii_P0537_pass_counter,0x537,0);
       }
     }
     else {
-      DAT_40002702 = 0;
+      obd_ii_p0537_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0537,&LEA_obd_ii_P0537_dtc_state);
-      if (DAT_40002700 < CAL_obd_ii_P0537_debounce_count) {
-        DAT_40002700 = DAT_40002700 + 1;
+      if (obd_ii_p0537_health < CAL_obd_ii_P0537_debounce_count) {
+        obd_ii_p0537_health = obd_ii_p0537_health + '\x01';
       }
     }
   }
   if (((CAL_obd_ii_P0538 & 7) != 0) && (engine_is_running != false)) {
     if (CAL_ac_evap_temp_voltage_high_threshold < ac_evap_temp_voltage) {
-      DAT_40002706 = DAT_40002706 + 1;
-      if ((((short)obd_ii_monitor_debounce_ticks <= DAT_40002706) &&
-          (DAT_40002706 = 0, DAT_40002704 != 0)) &&
-         (DAT_40002704 = DAT_40002704 - 1, DAT_40002704 == 0)) {
+      obd_ii_p0538_fail_ticks = obd_ii_p0538_fail_ticks + 1;
+      if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0538_fail_ticks) &&
+          (obd_ii_p0538_fail_ticks = 0, obd_ii_p0538_health != '\0')) &&
+         (obd_ii_p0538_health = obd_ii_p0538_health + 0xff, obd_ii_p0538_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0538,&LEA_obd_ii_P0538_dtc_state,&LEA_obd_ii_P0538_fail_counter,
                    &LEA_obd_ii_P0538_pass_counter,0x538,0);
       }
     }
     else {
-      DAT_40002706 = 0;
+      obd_ii_p0538_fail_ticks = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0538,&LEA_obd_ii_P0538_dtc_state);
-      if (DAT_40002704 < CAL_obd_ii_P0538_debounce_count) {
-        DAT_40002704 = DAT_40002704 + 1;
+      if (obd_ii_p0538_health < CAL_obd_ii_P0538_debounce_count) {
+        obd_ii_p0538_health = obd_ii_p0538_health + '\x01';
       }
     }
   }
@@ -54332,8 +54247,8 @@ void ac_compressor_fault_check(void)
 void obd_ii_init_ac_diagnostics(void)
 
 {
-  DAT_40002700 = CAL_obd_ii_P0537_debounce_count;
-  DAT_40002704 = CAL_obd_ii_P0538_debounce_count;
+  obd_ii_p0537_health = CAL_obd_ii_P0537_debounce_count;
+  obd_ii_p0538_health = CAL_obd_ii_P0538_debounce_count;
   if (ac_compressor_state == (AC_FAIL|AC_START)) {
     ac_compressor_state = AC_OFF;
   }
@@ -56379,7 +56294,8 @@ void obd_ii_monitors_misc1(void)
   if (((((COD_base.COD[1] >> 0xb & 1) != 0) && ((CAL_obd_ii_U0123 & 7) != 0)) &&
       (CAL_can_yaw_monitor_startup_delay < ign_on_time_100ms)) && ((ignition_on_flags & 1) != 0)) {
     if ((DAT_40001610 & 2) == 0) {
-      if ((DAT_4000282d != 0) && (DAT_4000282d = DAT_4000282d - 1, DAT_4000282d == 0)) {
+      if ((obd_ii_u0123_health != '\0') &&
+         (obd_ii_u0123_health = obd_ii_u0123_health + 0xff, obd_ii_u0123_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_U0123,&LEA_obd_ii_U0123_dtc_state,&LEA_obd_ii_U0123_fail_counter,
                    &LEA_obd_ii_U0123_pass_counter,0x123,3);
@@ -56387,25 +56303,26 @@ void obd_ii_monitors_misc1(void)
     }
     else {
       obd_ii_monitor_pass(&CAL_obd_ii_U0123,&LEA_obd_ii_U0123_dtc_state);
-      if (DAT_4000282d < CAL_obd_ii_U0123_debounce_count) {
-        DAT_4000282d = DAT_4000282d + 1;
+      if (obd_ii_u0123_health < CAL_obd_ii_U0123_debounce_count) {
+        obd_ii_u0123_health = obd_ii_u0123_health + '\x01';
       }
     }
   }
   if (((COD_base.COD[1] >> 0xb & 1) != 0) && ((CAL_obd_ii_U0513 & 7) != 0)) {
     if (((DAT_40001610 & 8) == 0) && ((DAT_40001610 & 0x10) == 0)) {
       obd_ii_monitor_pass(&CAL_obd_ii_U0513,&LEA_obd_ii_U0513_dtc_state);
-      if (DAT_4000282e < CAL_obd_ii_U0513_debounce_count) {
-        DAT_4000282e = DAT_4000282e + 1;
+      if (obd_ii_u0513_health < CAL_obd_ii_U0513_debounce_count) {
+        obd_ii_u0513_health = obd_ii_u0513_health + '\x01';
       }
     }
-    else if ((DAT_4000282e != 0) && (DAT_4000282e = DAT_4000282e - 1, DAT_4000282e == 0)) {
+    else if ((obd_ii_u0513_health != '\0') &&
+            (obd_ii_u0513_health = obd_ii_u0513_health + 0xff, obd_ii_u0513_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_U0513,&LEA_obd_ii_U0513_dtc_state,&LEA_obd_ii_U0513_fail_counter,
                  &LEA_obd_ii_U0513_pass_counter,0x513,3);
     }
   }
-  if ((DAT_4000282e == 0) || (DAT_4000282d == 0)) {
+  if ((obd_ii_u0513_health == '\0') || (obd_ii_u0123_health == '\0')) {
     DAT_40001610 = DAT_40001610 | 0x20;
   }
   else {
@@ -56414,7 +56331,8 @@ void obd_ii_monitors_misc1(void)
   if (((((COD_base.COD[1] >> 10 & 1) != 0) && ((CAL_obd_ii_U0155 & 7) != 0)) &&
       ((ignition_on_flags & 1) != 0)) && (engine_is_running != false)) {
     if ((ambient_temp_can_status & 2) == 0) {
-      if ((DAT_4000282f != 0) && (DAT_4000282f = DAT_4000282f - 1, DAT_4000282f == 0)) {
+      if ((obd_ii_u0127_health != '\0') &&
+         (obd_ii_u0127_health = obd_ii_u0127_health + 0xff, obd_ii_u0127_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_U0155,&LEA_obd_ii_U0155_dtc_state,&LEA_obd_ii_U0155_fail_counter,
                    &LEA_obd_ii_U0155_pass_counter,0x155,3);
@@ -56422,8 +56340,8 @@ void obd_ii_monitors_misc1(void)
     }
     else {
       obd_ii_monitor_pass(&CAL_obd_ii_U0155,&LEA_obd_ii_U0155_dtc_state);
-      if (DAT_4000282f < CAL_obd_ii_U0127_debounce_count) {
-        DAT_4000282f = DAT_4000282f + 1;
+      if (obd_ii_u0127_health < CAL_obd_ii_U0127_debounce_count) {
+        obd_ii_u0127_health = obd_ii_u0127_health + '\x01';
       }
     }
   }
@@ -56433,12 +56351,13 @@ void obd_ii_monitors_misc1(void)
        (ips_cal_version_received == (byte)(CAL_ecu_ips_calibration_version << 4 | 6))) {
       if (ips_cal_version_received == (byte)(CAL_ecu_ips_calibration_version << 4 | 6)) {
         obd_ii_monitor_pass(&CAL_obd_ii_U0302,&LEA_obd_ii_U0302_dtc_state);
-        if (DAT_4000282b < CAL_obd_ii_U0302_debounce_count) {
-          DAT_4000282b = DAT_4000282b + 1;
+        if (obd_ii_u0302_health < CAL_obd_ii_U0302_debounce_count) {
+          obd_ii_u0302_health = obd_ii_u0302_health + '\x01';
         }
       }
     }
-    else if ((DAT_4000282b != 0) && (DAT_4000282b = DAT_4000282b - 1, DAT_4000282b == 0)) {
+    else if ((obd_ii_u0302_health != '\0') &&
+            (obd_ii_u0302_health = obd_ii_u0302_health + 0xff, obd_ii_u0302_health == '\0')) {
       obd_ii_monitor_fail_transition
                 (&CAL_obd_ii_U0302,&LEA_obd_ii_U0302_dtc_state,&LEA_obd_ii_U0302_fail_counter,
                  &LEA_obd_ii_U0302_pass_counter,0x302,3);
@@ -56447,15 +56366,15 @@ void obd_ii_monitors_misc1(void)
   if (((COD_base.COD[1] >> 9 & 1) != 0) && ((CAL_obd_ii_U0316 & 7) != 0)) {
     if ((ignition_on_flags & 1) == 0) {
       p0316_eval_tc_request_state = P0316_TC_STATE_INIT;
-      DAT_4000282c = CAL_obd_ii_U0316_debounce_count;
+      obd_ii_u0316_health = CAL_obd_ii_U0316_debounce_count;
     }
     else if ((((p0316_eval_tc_request_state == P0316_TC_STATE_INIT) && (engine_speed_16bit == 0)) &&
              (car_speed_u8 == '\0')) || (bVar3 = can_a4_has_extended_data(), bVar3)) {
       p0316_eval_tc_request_state();
       if (p0316_eval_tc_request_state == P0316_TC_STATE_FAIL) {
-        if (DAT_4000282c != 0) {
-          DAT_4000282c = DAT_4000282c - 1;
-          if (DAT_4000282c == 0) {
+        if (obd_ii_u0316_health != '\0') {
+          obd_ii_u0316_health = obd_ii_u0316_health + 0xff;
+          if (obd_ii_u0316_health == '\0') {
             obd_ii_monitor_fail_transition
                       (&CAL_obd_ii_U0316,&LEA_obd_ii_U0316_dtc_state,&LEA_obd_ii_U0316_fail_counter,
                        &LEA_obd_ii_U0316_pass_counter,0x316,3);
@@ -56470,8 +56389,8 @@ void obd_ii_monitors_misc1(void)
       }
       else if ((p0316_eval_tc_request_state == P0316_TC_STATE_PASS) &&
               (obd_ii_monitor_pass(&CAL_obd_ii_U0316,&LEA_obd_ii_U0316_dtc_state),
-              DAT_4000282c < CAL_obd_ii_U0316_debounce_count)) {
-        DAT_4000282c = DAT_4000282c + 1;
+              obd_ii_u0316_health < CAL_obd_ii_U0316_debounce_count)) {
+        obd_ii_u0316_health = obd_ii_u0316_health + '\x01';
       }
     }
   }
@@ -56545,7 +56464,7 @@ void obd_ii_monitors_misc1(void)
     }
   }
   uVar2 = engine_state_failure_flags & 0xdfffffff;
-  if (DAT_4000282f == 0) {
+  if (obd_ii_u0127_health == '\0') {
     uVar2 = engine_state_failure_flags | 0x20000000;
   }
   engine_state_failure_flags = uVar2;
@@ -56677,12 +56596,12 @@ void obd_ii_init_can_bus_diagnostics(void)
 {
   DAT_40002826 = CAL_obd_ii_U0101_pass_counter_max;
   tc_enable_condition_1 = (bool)CAL_obd_ii_U0122_pass_counter_max;
-  DAT_4000282d = CAL_obd_ii_U0123_debounce_count;
-  DAT_4000282f = CAL_obd_ii_U0127_debounce_count;
-  DAT_4000282b = CAL_obd_ii_U0302_debounce_count;
-  DAT_4000282c = CAL_obd_ii_U0316_debounce_count;
+  obd_ii_u0123_health = CAL_obd_ii_U0123_debounce_count;
+  obd_ii_u0127_health = CAL_obd_ii_U0127_debounce_count;
+  obd_ii_u0302_health = CAL_obd_ii_U0302_debounce_count;
+  obd_ii_u0316_health = CAL_obd_ii_U0316_debounce_count;
   tc_enable_condition_2 = (bool)CAL_obd_ii_U0416_debounce_count;
-  DAT_4000282e = CAL_obd_ii_U0513_debounce_count;
+  obd_ii_u0513_health = CAL_obd_ii_U0513_debounce_count;
   ips_cal_version_received = 0;
   DAT_4000281f = 0;
   DAT_40001610 = 2;
@@ -56827,10 +56746,11 @@ void ips_shift_state_mgmt_1000hz(undefined4 *_ips_rev_match_control_state)
       if ((DAT_40002588 & 1) != 0) {
         *(u16_rspeed_rpm *)(_ips_rev_match_control_state + 0xd) = engine_speed_16bit;
         *(u16_rspeed_rpm *)((int)_ips_rev_match_control_state + 0x32) = engine_speed_16bit;
-        DAT_40002842 = lookup_2D_uint16_interpolated
-                                 ('\x04',_engine_speed_req,CAL_ips_revmatch_p_gain,
-                                  CAL_ips_revmatch_p_gain_X_rpm);
-        *_ips_rev_match_control_state = &DAT_40002842;
+        ips_revmatch_p_gain =
+             lookup_2D_uint16_interpolated
+                       ('\x04',_engine_speed_req,CAL_ips_revmatch_p_gain,
+                        CAL_ips_revmatch_p_gain_X_rpm);
+        *_ips_rev_match_control_state = &ips_revmatch_p_gain;
         ips_shift_state_handler(&ips_shift_state);
         DAT_40002839 = '\x02';
       }
@@ -56838,11 +56758,13 @@ void ips_shift_state_mgmt_1000hz(undefined4 *_ips_rev_match_control_state)
     else if (cVar3 == '\x02') {
       *(ushort *)((int)_ips_rev_match_control_state + 0x32) = _engine_speed_req;
       *(u16_rspeed_rpm *)(_ips_rev_match_control_state + 0xd) = engine_speed_16bit;
-      DAT_40002844 = lookup_2D_uint16_interpolated
-                               ('\x04',_engine_speed_req,CAL_ips_revmatch_rpm_tolerance,
-                                CAL_ips_revmatch_rpm_tolerance_X_rpm);
-      if ((int)((uint)_engine_speed_req - (uint)engine_speed_16bit) <= (int)(uint)DAT_40002844) {
-        if (*(uint16_t *)*_ips_rev_match_control_state == DAT_40002842) {
+      ips_revmatch_rpm_tolerance =
+           lookup_2D_uint16_interpolated
+                     ('\x04',_engine_speed_req,CAL_ips_revmatch_rpm_tolerance,
+                      CAL_ips_revmatch_rpm_tolerance_X_rpm);
+      if ((int)((uint)_engine_speed_req - (uint)engine_speed_16bit) <=
+          (int)(uint)ips_revmatch_rpm_tolerance) {
+        if (*(uint16_t *)*_ips_rev_match_control_state == ips_revmatch_p_gain) {
           ips_shift_state_handler(&ips_shift_state);
         }
         *_ips_rev_match_control_state = &CAL_ips_speed_match_p_gain;
@@ -58127,8 +58049,8 @@ void fuel_pump_state_machine_update(void)
   
   bVar1 = false;
   if (((((CAL_ecu_system_voltage_threshold[1] < sensor_adc_ecu_voltage) &&
-        ((driver_input_flags[1] & 1) == 0)) && (DAT_40002068 != '\0')) &&
-      ((DAT_40002069 != '\0' && ((ignition_on_flags & 1) != 0)))) &&
+        ((driver_input_flags[1] & 1) == 0)) && (obd_ii_p0628_health != '\0')) &&
+      ((obd_ii_p0629_health != '\0' && ((ignition_on_flags & 1) != 0)))) &&
      (((ignition_on_flags & 0x20) == 0 && ((ignition_on_flags & 0x40) != 0)))) {
     if (digital_input_debounced[1] == '\0') {
       if (DAT_40002890 != -1) {
@@ -58252,16 +58174,16 @@ void fuel_pump_obd_monitors_update(void)
           (int)(short)fuel_pressure_lookup_relative) {
         DAT_40002893 = DAT_40002893 + 1;
         if (((CAL_obd_ii_fuel_pressure_high_debounce <= DAT_40002893) &&
-            (DAT_40002893 = 0, DAT_40002895 != 0)) &&
-           (DAT_40002895 = DAT_40002895 - 1, DAT_40002895 == 0)) {
+            (DAT_40002893 = 0, obd_ii_p0087_health != '\0')) &&
+           (obd_ii_p0087_health = obd_ii_p0087_health + 0xff, obd_ii_p0087_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0087,&LEA_obd_ii_P0087_dtc_state,&LEA_obd_ii_P0087_fail_counter,
                      &LEA_obd_ii_P0087_pass_counter,0x87,0);
         }
       }
       else if (DAT_40002893 == 0) {
-        if (DAT_40002895 < CAL_obd_ii_P0087_debounce_count) {
-          DAT_40002895 = DAT_40002895 + 1;
+        if (obd_ii_p0087_health < CAL_obd_ii_P0087_debounce_count) {
+          obd_ii_p0087_health = obd_ii_p0087_health + '\x01';
           DAT_40002893 = CAL_obd_ii_fuel_pressure_high_debounce;
         }
         else {
@@ -58277,16 +58199,16 @@ void fuel_pump_obd_monitors_update(void)
           (int)((uint)CAL_obd_ii_fuel_pressure_low_threshold * -0x10)) {
         DAT_40002894 = DAT_40002894 + 1;
         if (((CAL_obd_ii_fuel_pressure_low_debounce <= DAT_40002894) &&
-            (DAT_40002894 = 0, DAT_40002896 != 0)) &&
-           (DAT_40002896 = DAT_40002896 - 1, DAT_40002896 == 0)) {
+            (DAT_40002894 = 0, obd_ii_p0088_health != '\0')) &&
+           (obd_ii_p0088_health = obd_ii_p0088_health + 0xff, obd_ii_p0088_health == '\0')) {
           obd_ii_monitor_fail_transition
                     (&CAL_obd_ii_P0088,&LEA_obd_ii_P0088_dtc_state,&LEA_obd_ii_P0088_fail_counter,
                      &LEA_obd_ii_P0088_pass_counter,0x88,0);
         }
       }
       else if (DAT_40002894 == 0) {
-        if (DAT_40002896 < CAL_obd_ii_P0088_debounce_count) {
-          DAT_40002896 = DAT_40002896 + 1;
+        if (obd_ii_p0088_health < CAL_obd_ii_P0088_debounce_count) {
+          obd_ii_p0088_health = obd_ii_p0088_health + '\x01';
           DAT_40002894 = CAL_obd_ii_fuel_pressure_low_debounce;
         }
         else {
@@ -58312,8 +58234,8 @@ void obd_ii_init_fuel_pump_diagnostics(void)
   obd_ii_update_dtc_state(&CAL_obd_ii_U0109,&LEA_obd_ii_U0109_dtc_state,0x109,3);
   DAT_40002893 = 0;
   DAT_40002894 = 0;
-  DAT_40002895 = CAL_obd_ii_P0087_debounce_count;
-  DAT_40002896 = CAL_obd_ii_P0088_debounce_count;
+  obd_ii_p0087_health = CAL_obd_ii_P0087_debounce_count;
+  obd_ii_p0088_health = CAL_obd_ii_P0088_debounce_count;
   DAT_4000288e = 0;
   DAT_40002890 = 0;
   DAT_4000288f = 0;
@@ -58478,8 +58400,8 @@ void obd_ii_trans_fluid_diagnostic(void)
     if (trans_temp_voltage < CAL_trans_temp_voltage_threshold[1]) {
       obd_ii_P0713_failure_count = obd_ii_P0713_failure_count + 1;
       if ((((int)(short)obd_ii_monitor_debounce_ticks <= (int)(uint)obd_ii_P0713_failure_count) &&
-          (obd_ii_P0713_failure_count = 0, DAT_400028b2 != 0)) &&
-         (DAT_400028b2 = DAT_400028b2 - 1, DAT_400028b2 == 0)) {
+          (obd_ii_P0713_failure_count = 0, obd_ii_p0712_health != '\0')) &&
+         (obd_ii_p0712_health = obd_ii_p0712_health + 0xff, obd_ii_p0712_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0712,&LEA_obd_ii_P0712_dtc_state,&LEA_obd_ii_P0712_fail_counter,
                    &LEA_obd_ii_P0712_pass_counter,0x712,0);
@@ -58488,8 +58410,8 @@ void obd_ii_trans_fluid_diagnostic(void)
     else {
       obd_ii_P0713_failure_count = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0712,&LEA_obd_ii_P0712_dtc_state);
-      if (DAT_400028b2 < CAL_obd_ii_P0712_debounce_count) {
-        DAT_400028b2 = DAT_400028b2 + 1;
+      if (obd_ii_p0712_health < CAL_obd_ii_P0712_debounce_count) {
+        obd_ii_p0712_health = obd_ii_p0712_health + '\x01';
       }
     }
   }
@@ -58497,8 +58419,8 @@ void obd_ii_trans_fluid_diagnostic(void)
     if (CAL_trans_temp_voltage_threshold[0] < trans_temp_voltage) {
       DAT_400028b4 = DAT_400028b4 + 1;
       if ((((int)(short)obd_ii_monitor_debounce_ticks <= (int)(uint)DAT_400028b4) &&
-          (DAT_400028b4 = 0, DAT_400028b6 != 0)) &&
-         (DAT_400028b6 = DAT_400028b6 - 1, DAT_400028b6 == 0)) {
+          (DAT_400028b4 = 0, obd_ii_p0713_health != '\0')) &&
+         (obd_ii_p0713_health = obd_ii_p0713_health + 0xff, obd_ii_p0713_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0713,&LEA_obd_ii_P0713_dtc_state,&LEA_obd_ii_P0713_fail_counter,
                    &LEA_obd_ii_P0713_pass_counter,0x713,0);
@@ -58507,8 +58429,8 @@ void obd_ii_trans_fluid_diagnostic(void)
     else {
       DAT_400028b4 = 0;
       obd_ii_monitor_pass(&CAL_obd_ii_P0713,&LEA_obd_ii_P0713_dtc_state);
-      if (DAT_400028b6 < CAL_obd_ii_P0713_debounce_count) {
-        DAT_400028b6 = DAT_400028b6 + 1;
+      if (obd_ii_p0713_health < CAL_obd_ii_P0713_debounce_count) {
+        obd_ii_p0713_health = obd_ii_p0713_health + '\x01';
       }
     }
   }
@@ -58535,16 +58457,17 @@ void obd_ii_trans_fluid_diagnostic(void)
     if (((CAL_obd_ii_trans_fluid_temp_high < trans_fluid_temp_u8) &&
         ((LEA_obd_ii_P0713_dtc_state & 4) == 0)) && ((LEA_obd_ii_P0713_dtc_state & 4) == 0)) {
       DAT_400028b8 = DAT_400028b8 + 1;
-      if (((CAL_obd_ii_P0897_debounce <= DAT_400028b8) && (DAT_400028b8 = 0, DAT_400028ba != 0)) &&
-         (DAT_400028ba = DAT_400028ba - 1, DAT_400028ba == 0)) {
+      if (((CAL_obd_ii_P0897_debounce <= DAT_400028b8) &&
+          (DAT_400028b8 = 0, obd_ii_p0897_health != '\0')) &&
+         (obd_ii_p0897_health = obd_ii_p0897_health + 0xff, obd_ii_p0897_health == '\0')) {
         obd_ii_monitor_fail_transition
                   (&CAL_obd_ii_P0897,&LEA_obd_ii_P0897_dtc_state,&LEA_obd_ii_P0897_fail_counter,
                    &LEA_obd_ii_P0897_pass_counter,0x897,0);
       }
     }
     else if (DAT_400028b8 == 0) {
-      if (DAT_400028ba < CAL_obd_ii_P0897_debounce_count) {
-        DAT_400028ba = DAT_400028ba + 1;
+      if (obd_ii_p0897_health < CAL_obd_ii_P0897_debounce_count) {
+        obd_ii_p0897_health = obd_ii_p0897_health + '\x01';
         DAT_400028b8 = (ushort)CAL_obd_ii_P0897_debounce;
       }
       else {
@@ -58569,10 +58492,10 @@ void obd_ii_setup_trans_fluid_pump(void)
   obd_ii_update_dtc_state(&CAL_obd_ii_P0713,&LEA_obd_ii_P0713_dtc_state,0x713,0);
   DAT_400028bc = 0;
   DAT_400028b8 = 0;
-  DAT_400028be = CAL_obd_ii_P2797_debounce_count;
-  DAT_400028ba = CAL_obd_ii_P0897_debounce_count;
-  DAT_400028b2 = CAL_obd_ii_P0712_debounce_count;
-  DAT_400028b6 = CAL_obd_ii_P0713_debounce_count;
+  obd_ii_p2797_health = CAL_obd_ii_P2797_debounce_count;
+  obd_ii_p0897_health = CAL_obd_ii_P0897_debounce_count;
+  obd_ii_p0712_health = CAL_obd_ii_P0712_debounce_count;
+  obd_ii_p0713_health = CAL_obd_ii_P0713_debounce_count;
   trans_pump_condition_flags = 0;
   trans_fluid_pump_timer[1] = 0;
   return;
