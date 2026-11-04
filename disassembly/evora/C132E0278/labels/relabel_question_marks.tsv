@@ -1,0 +1,14 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): replace ?-suffixed labels with names from usage.
+D	40002080	cac_pump_diag_flags	-	Charge-air-cooler pump diagnostic word (cac_diagnostic_1000hz; Mode 22 PID 0x2C2). Bits 0-3 = pump feedback response-time band, 0x80 = PWM stuck active > 10 s, 0x200 = response measurement running, 0x400 = driver SPI fault; mask 0x1f2 -> P123C. Was aux_coolant_pump_state_and_diag?.
+D	40003044	brake_pedal_switch_input	-	digital_input_debounced[4]: debounced brake pedal switch (written by the debounce loop via index); sets brake_switch bit 0x10, used by left-foot braking. Was brake_pedal_switch_state_always_zero?.
+D	40002552	ips_shift_exec_state	-	CAN 0x202 byte 2 bits 5-6 from the IPS TCU: 0x40 while the TCU shift-execution supervisor is in state 1 (C132F0395 can_tx_202). Gates DCA and TC slip activation. Was ips_flags_faults?.
+D	4000284a	tc_cornering_intensity	uint8_t	Steering-rate factor (traction_factor_steering) + |lat_accel|, capped at 255; TC inhibited when >= tc_cornering_inhibit_limit. Sum of two terms, not a /255 fraction. Was tc_cornering_intensity???.
+D	4000286b	tc_gear_recommended	-	TC recommended gear (0xf = none); takes the candidate gear (highest gear without intervention, limited to CAL_slip_tc_gear_max_step from car_current_gear) once slip_gear_change_holdoff_timer expires. Was traction_control_gear_recommended??.
+D	0004607c	crank_tooth_event_process	-	Per crank-tooth event (from the eTPU crank ISR): reads crank eTPU state, engine period, misfire segment timing, per-cylinder spark enables. Was crank_trigger_process???.
+D	00040538	init_data_section_copy	-	Startup .data copy: 5704 bytes from flash 0xd38c8 to RAM 0x40000000. Was data_segment_setup???.
+D	00049174	engine_period_history_seed	-	Fills engine_period_history_accel / _roughness with one period (called while crank sync is lost). Was engine_speed_period_update_robust?.
+D	000af938	chlog_build_and_queue_frame	-	Packs a logger group's channels (1/2/4-byte values via the group pointer list) behind an ID byte and queues the frame (telemetry_queue_push). Was flexcan_build_telemetry_message2???.
+D	000af4e4	telemetry_queue_push	-	Pushes an 8-byte frame into the 120-entry CAN 0x351 TX queue; returns false when full. Was flexcan_build_telemetry_message???.
+D	000b53f4	get_cluster_0x407_b1_bits01	-	Returns dash_values[0] = cluster CAN 0x407 byte 1 bits 0-1; non-zero keeps the ECU awake in shutdown. Was get_dash_value0???.
+D	000c73d4	ips_engine_speed_matching_pid	-	IPS rev-match PID: error = target - engine speed, P/I/D terms clipped via the controller struct (ips_shift_state). Was ips_engine_speed_matching_pid_ctrl???.
+D	000401dc	fmpll_wait_for_lock	-	Polls FMPLL_SYNCSR LOCK (bit 3); after 6000 tries forces a system reset via SIU_SRCR. Was poll_until_ready??.
