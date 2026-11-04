@@ -2105,18 +2105,17 @@ u16_voltage_5/1023v knock_sensor2_voltage;
 u16_voltage_5/1023v o2_sensor5_heater_current;
 u16_voltage_5/1023v o2_sensor6_heater_current;
 u16_voltage_5/1023v sensor_adc_ign_voltage;
-char DAT_400018db;
-char DAT_400018dc;
-undefined1 DAT_4000188c;
 u8_speed_kph CAL_cluster_brake_switch_max_speed_ips_unknown;
 u16_speed_1/100kph car_speed_x100;
+bool starter_request_active;
+bool start_input_debounced;
+u8_time_10ms start_input_hold_timer;
 undefined1 brake_clutch_debounce_timer???;
 u8_time_5ms CAL_ecu_brake_or_clutch_inactive_timer;
 bool throttle_actuator_activity;
 u16_time_5ms CAL_ecu_starter_max_engage_after_run;
 uint8_t CAL_ecu_learning_x_axis_stability_threshold;
 uint8_t CAL_ecu_learning_y_axis_stability_threshold;
-short DAT_4000185a;
 short DAT_40001884;
 enum_oil_pressure_sensor_mode CAL_oil_pressure_warning_light_mode;
 undefined1 sensor_temp_unk1_diag;
@@ -2134,6 +2133,7 @@ u16_pressure_mbar fuel_pressure_abs;
 u16_pressure_mbar obd_ii_manifold_pressure;
 u8_factor_1/256 CAL_sensor_map_filter_alpha;
 u8_factor_1/256 CAL_sensor_fuel_pressure_filter_alpha;
+u16_voltage_5/1023v clutch_pos_voltage_filtered;
 u16_ratio_mbar/5v CAL_sensor_evap_purge_pressure_scaling;
 i16_pressure_mbar CAL_evap_purge_pressure_offset;
 u16_ratio_mbar/5v CAL_sensor_manifold_pressure_sensor_scaling;
@@ -2171,7 +2171,7 @@ undefined4 iat2;
 undefined4 chargecooler_temp2;
 undefined4 fuel_pressure_abs_scaled;
 undefined4 intake_manifold_pressure2;
-undefined4 clutch_position_raw2;
+undefined4 clutch_pos_voltage_filter_q8;
 undefined4 coolant_temp_derived2;
 u16_pressure_mbar fuel_pressure_atmo_relative;
 u8_pressure_50mbar fuel_pressure_target_clamped;
@@ -3478,29 +3478,27 @@ u16_count LEA_tps_calib_pass_first_attempt;
 u16_count LEA_tps_calib_pass_after_retry;
 u16_count LEA_tps_both_sensors_invalid_count;
 undefined2 diag_lea_reset_trigger;
-undefined1 DAT_40001a74;
-undefined4 DAT_40001a40;
-int DAT_400005ec;
-int DAT_40001a64;
-int DAT_40001a60;
-pointer PTR_FLASH_MCR_400005e8;
-undefined DAT_40001a44;
-undefined DAT_40001a50;
-undefined DAT_40001a58;
 undefined UNK_ffff801c;
+uint32_t flash_ssd_config_main_array_base;
+uint32_t flash_lock_state;
 undefined UNK_ffff8020;
+uint32_t flash_lock_enabled;
 undefined UNK_ffff802c;
 undefined UNK_ffff8030;
-undefined4 flash_saved_lml_hbl_hi_mask;
-undefined4 flash_saved_lml_hbl_lo_mask;
-pointer flash_driver_init;
-undefined4 flash_saved_sll_slms_mask;
-undefined4 DAT_40001a60;
-undefined4 DAT_40001a64;
-undefined4 DAT_40001a5c;
-undefined *PTR_flash_program_driver_c90fl_4000291c;
-undefined DAT_40001a48;
+ulonglong flash_fail_data;
+uint32_t flash_fail_address;
+uint32_t flash_op_size;
+uint32_t flash_op_dest;
+uint32_t flash_erase_shadow_flag;
+uint32_t flash_erase_mid_blocks;
+uint32_t flash_erase_low_blocks;
+pointer flash_ssd_flash_init;
+uint32_t flash_erase_high_blocks;
+pointer flash_ssd_config;
 undefined UNK_ffff8028;
+ulonglong flash_verify_fail_source;
+uint32_t flash_program_source;
+pointer flash_ssd_flash_program;
 undefined4 FLASH_LMLR;
 undefined4 FLASH_HLR;
 undefined4 FLASH_SLMLR;
@@ -14511,23 +14509,23 @@ void set_driver_input_brake_clutch_100hz(void)
   }
   brake_clutch_debounce_timer___ = cVar3;
   if ((digital_input_debounced[5] == '\0') || (brake_clutch_debounce_timer___ != '\0')) {
-    DAT_400018db = '\n';
-    DAT_400018dc = '\0';
+    start_input_hold_timer = '\n';
+    start_input_debounced = false;
   }
-  else if (DAT_400018db == '\0') {
-    DAT_400018dc = '\x01';
+  else if (start_input_hold_timer == '\0') {
+    start_input_debounced = true;
   }
   else {
-    DAT_400018db = DAT_400018db + -1;
+    start_input_hold_timer = start_input_hold_timer + 0xff;
   }
   if (((((ignition_on_flags & 1) == 0) ||
-       (CAL_ecu_starter_max_engage_after_run <= runtime_since_start)) || (DAT_400018dc == '\0')) ||
-     (throttle_actuator_activity)) {
-    DAT_4000188c = 0;
+       (CAL_ecu_starter_max_engage_after_run <= runtime_since_start)) ||
+      (start_input_debounced == false)) || (throttle_actuator_activity)) {
+    starter_request_active = false;
     bVar1 = false;
   }
   else {
-    DAT_4000188c = 1;
+    starter_request_active = true;
     bVar1 = true;
   }
   if (((!prog_version_mismatch) && (calibration_verification_number == CAL_ecu_cvn)) ||
@@ -14547,7 +14545,7 @@ void set_driver_input_brake_clutch_100hz(void)
           }
         }
         else if (((((COD_base.COD[1] >> 0x15 & 3) == 0) || ((clutch_pos_sensor & 4) != 0)) &&
-                 (bVar1)) && (DAT_400018db == '\0')) {
+                 (bVar1)) && (start_input_hold_timer == '\0')) {
           obd_ii_relay_status = obd_ii_relay_status | 0x10;
           driver_input_flags[1] = driver_input_flags[1] | 1;
           bVar2 = true;
@@ -14557,7 +14555,7 @@ void set_driver_input_brake_clutch_100hz(void)
           driver_input_flags[1] = driver_input_flags[1] & 0xfe;
           bVar2 = false;
           if (bVar1) {
-            DAT_400018db = '\n';
+            start_input_hold_timer = '\n';
           }
         }
       }
@@ -14783,7 +14781,7 @@ void adc_convert(void)
     chargecooler_temp2 = (uint)chargecooler_temp_div_160 * 0xa00;
     fuel_pressure_abs_scaled = (uint)fuel_pressure_abs << 8;
     intake_manifold_pressure2 = (uint)obd_ii_manifold_pressure << 8;
-    clutch_position_raw2 = (uint)clutch_pos_voltage << 8;
+    clutch_pos_voltage_filter_q8 = (uint)clutch_pos_voltage << 8;
     ignition_on_flags = ignition_on_flags | 0x10;
     coolant_temp_derived2 = coolant_temp_derived1;
   }
@@ -14828,15 +14826,17 @@ void adc_convert(void)
        (char)(trans_fluid_temp_u32 >> 8) +
        ((int)trans_fluid_temp_u32 < 0 && (trans_fluid_temp_u32 & 0xff) != 0);
   if ((clutch_pos_sensor & 8) == 0) {
-    uVar3 = (0x100 - (uint)CAL_sensor_clutch_position_filter_alpha) * clutch_position_raw2;
-    clutch_position_raw2 =
+    uVar3 = (0x100 - (uint)CAL_sensor_clutch_position_filter_alpha) * clutch_pos_voltage_filter_q8;
+    clutch_pos_voltage_filter_q8 =
          ((int)uVar3 >> 8) + (uint)((int)uVar3 < 0 && (uVar3 & 0xff) != 0) +
          (uint)CAL_sensor_clutch_position_filter_alpha * (uint)clutch_pos_voltage;
-    DAT_4000185a = (short)(clutch_position_raw2 >> 8) +
-                   (ushort)((int)clutch_position_raw2 < 0 && (clutch_position_raw2 & 0xff) != 0);
+    clutch_pos_voltage_filtered =
+         (short)(clutch_pos_voltage_filter_q8 >> 8) +
+         (ushort)((int)clutch_pos_voltage_filter_q8 < 0 &&
+                 (clutch_pos_voltage_filter_q8 & 0xff) != 0);
   }
   else {
-    DAT_4000185a = 0;
+    clutch_pos_voltage_filtered = 0;
   }
   if ((engine_state_failure_flags & 0x800000) == 0) {
     if (iat_voltage_valid) {
@@ -18797,150 +18797,146 @@ undefined8 flash_erase(uint param_1,uint param_2,enum_flash_erase_segment seg)
   undefined8 uVar2;
   
   iVar1 = 0x4000a8f8;
-  flash_saved_lml_hbl_lo_mask = (uint)(char)seg;
-  DAT_40001a74 = 0;
-  flash_saved_sll_slms_mask = param_1;
-  flash_saved_lml_hbl_hi_mask = param_2;
-  uVar2 = (*(code *)flash_driver_init)(&PTR_FLASH_MCR_400005e8);
+  flash_erase_low_blocks = (uint32_t)(char)seg;
+  flash_erase_shadow_flag._0_1_ = 0;
+  flash_erase_high_blocks = param_1;
+  flash_erase_mid_blocks = param_2;
+  uVar2 = (*(code *)flash_ssd_flash_init)(&flash_ssd_config);
   if ((int)uVar2 == 0) {
-    if ((flash_saved_sll_slms_mask == 0) || (flash_saved_lml_hbl_hi_mask == 0)) {
-      if (flash_saved_lml_hbl_lo_mask == 0) {
-        if (flash_saved_lml_hbl_hi_mask == 1) {
+    if ((flash_erase_high_blocks == 0) || (flash_erase_mid_blocks == 0)) {
+      if (flash_erase_low_blocks == 0) {
+        if (flash_erase_mid_blocks == 1) {
           uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,4,&DAT_40001a44,&DAT_40001a40);
+                            (&flash_ssd_config,4,&flash_lock_enabled,&flash_lock_state);
           if ((int)uVar2 != 0) {
             return uVar2;
           }
-          if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+          if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
              (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                                (&PTR_FLASH_MCR_400005e8,4,
-                                 DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,0xffffffffa1a11111),
-             (int)uVar2 != 0)) {
+                                (&flash_ssd_config,4,flash_lock_state & ~flash_erase_mid_blocks,
+                                 0xffffffffa1a11111), (int)uVar2 != 0)) {
             return uVar2;
           }
           uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,5,&DAT_40001a44,&DAT_40001a40);
+                            (&flash_ssd_config,5,&flash_lock_enabled,&flash_lock_state);
           if ((int)uVar2 != 0) {
             return uVar2;
           }
-          if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+          if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
              (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                                (&PTR_FLASH_MCR_400005e8,5,
-                                 DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,0xffffffffc3c33333),
-             (int)uVar2 != 0)) {
+                                (&flash_ssd_config,5,flash_lock_state & ~flash_erase_mid_blocks,
+                                 0xffffffffc3c33333), (int)uVar2 != 0)) {
             return uVar2;
           }
-          DAT_40001a64 = DAT_400005ec + 0x40000;
-          DAT_40001a60 = 0;
+          flash_op_dest = flash_ssd_config_main_array_base + 0x40000;
+          flash_op_size = 0;
         }
       }
       else {
-        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,0,1,0xffffffffa1a11111)
-        ;
+        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,0,1,0xffffffffa1a11111);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
-        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,1,1,0xffffffffc3c33333)
-        ;
+        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,1,1,0xffffffffc3c33333);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
         uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                          (&PTR_FLASH_MCR_400005e8,2,&DAT_40001a44,&DAT_40001a40);
+                          (&flash_ssd_config,2,&flash_lock_enabled,&flash_lock_state);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
-        if ((flash_saved_lml_hbl_lo_mask == (flash_saved_lml_hbl_lo_mask & DAT_40001a40)) &&
+        if ((flash_erase_low_blocks == (flash_erase_low_blocks & flash_lock_state)) &&
            (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                              (&PTR_FLASH_MCR_400005e8,2,DAT_40001a40 & ~flash_saved_lml_hbl_lo_mask
-                               ,0xffffffffa1a11111), (int)uVar2 != 0)) {
+                              (&flash_ssd_config,2,flash_lock_state & ~flash_erase_low_blocks,
+                               0xffffffffa1a11111), (int)uVar2 != 0)) {
           return uVar2;
         }
         uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                          (&PTR_FLASH_MCR_400005e8,3,&DAT_40001a44,&DAT_40001a40);
+                          (&flash_ssd_config,3,&flash_lock_enabled,&flash_lock_state);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
-        if ((flash_saved_lml_hbl_lo_mask == (flash_saved_lml_hbl_lo_mask & DAT_40001a40)) &&
+        if ((flash_erase_low_blocks == (flash_erase_low_blocks & flash_lock_state)) &&
            (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                              (&PTR_FLASH_MCR_400005e8,3,DAT_40001a40 & ~flash_saved_lml_hbl_lo_mask
-                               ,0xffffffffc3c33333), (int)uVar2 != 0)) {
+                              (&flash_ssd_config,3,flash_lock_state & ~flash_erase_low_blocks,
+                               0xffffffffc3c33333), (int)uVar2 != 0)) {
           return uVar2;
         }
-        if (flash_saved_lml_hbl_lo_mask == 0x10) {
-          DAT_40001a64 = DAT_400005ec + 0x20000;
-          DAT_40001a60 = 0x10000;
+        if (flash_erase_low_blocks == 0x10) {
+          flash_op_dest = flash_ssd_config_main_array_base + 0x20000;
+          flash_op_size = 0x10000;
         }
-        else if (flash_saved_lml_hbl_lo_mask == 8) {
-          DAT_40001a64 = DAT_400005ec + 0x1c000;
-          DAT_40001a60 = 0x4000;
+        else if (flash_erase_low_blocks == 8) {
+          flash_op_dest = flash_ssd_config_main_array_base + 0x1c000;
+          flash_op_size = 0x4000;
         }
-        else if (flash_saved_lml_hbl_lo_mask == 4) {
-          DAT_40001a64 = DAT_400005ec + 0x10000;
-          DAT_40001a60 = 0xc000;
+        else if (flash_erase_low_blocks == 4) {
+          flash_op_dest = flash_ssd_config_main_array_base + 0x10000;
+          flash_op_size = 0xc000;
         }
         else {
-          DAT_40001a64 = 0;
-          DAT_40001a60 = 0;
+          flash_op_dest = 0;
+          flash_op_size = 0;
         }
       }
     }
     else {
-      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,0,1,0xffffffffa1a11111);
+      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,0,1,0xffffffffa1a11111);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,1,1,0xffffffffc3c33333);
+      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,1,1,0xffffffffc3c33333);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
       uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,6,&DAT_40001a44,&DAT_40001a40);
+                        (&flash_ssd_config,6,&flash_lock_enabled,&flash_lock_state);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      if ((flash_saved_sll_slms_mask == (flash_saved_sll_slms_mask & DAT_40001a40)) &&
+      if ((flash_erase_high_blocks == (flash_erase_high_blocks & flash_lock_state)) &&
          (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,6,DAT_40001a40 & ~flash_saved_sll_slms_mask,
+                            (&flash_ssd_config,6,flash_lock_state & ~flash_erase_high_blocks,
                              0xffffffffb2b22222), (int)uVar2 != 0)) {
         return uVar2;
       }
       uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,4,&DAT_40001a44,&DAT_40001a40);
+                        (&flash_ssd_config,4,&flash_lock_enabled,&flash_lock_state);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+      if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
          (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,4,DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,
+                            (&flash_ssd_config,4,flash_lock_state & ~flash_erase_mid_blocks,
                              0xffffffffa1a11111), (int)uVar2 != 0)) {
         return uVar2;
       }
       uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,5,&DAT_40001a44,&DAT_40001a40);
+                        (&flash_ssd_config,5,&flash_lock_enabled,&flash_lock_state);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+      if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
          (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,5,DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,
+                            (&flash_ssd_config,5,flash_lock_state & ~flash_erase_mid_blocks,
                              0xffffffffc3c33333), (int)uVar2 != 0)) {
         return uVar2;
       }
-      DAT_40001a64 = DAT_400005ec + 0x40000;
-      DAT_40001a60 = 0x40000;
+      flash_op_dest = flash_ssd_config_main_array_base + 0x40000;
+      flash_op_size = 0x40000;
     }
-    if (DAT_40001a60 == 0) {
+    if (flash_op_size == 0) {
       uVar2 = 0;
     }
     else {
       uVar2 = (**(code **)(&UNK_ffff801c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,DAT_40001a74,flash_saved_lml_hbl_lo_mask,
-                         flash_saved_lml_hbl_hi_mask,flash_saved_sll_slms_mask,0xffffffffffffffff);
+                        (&flash_ssd_config,flash_erase_shadow_flag._0_1_,flash_erase_low_blocks,
+                         flash_erase_mid_blocks,flash_erase_high_blocks,0xffffffffffffffff);
       if (((int)uVar2 == 0) &&
          (uVar2 = (**(code **)(&UNK_ffff8020 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,DAT_40001a64,DAT_40001a60,&DAT_40001a58,
-                             &DAT_40001a50,0xffffffffffffffff), (int)uVar2 == 0)) {
+                            (&flash_ssd_config,flash_op_dest,flash_op_size,&flash_fail_address,
+                             &flash_fail_data,0xffffffffffffffff), (int)uVar2 == 0)) {
         uVar2 = 0;
       }
     }
@@ -18957,138 +18953,134 @@ undefined8 flash_unlock_sectors(uint hi_addr_mask,uint med_addr_mask,uint low_ad
   undefined8 uVar2;
   
   iVar1 = 0x4000a8f8;
-  DAT_40001a74 = 0;
-  flash_saved_sll_slms_mask = hi_addr_mask;
-  flash_saved_lml_hbl_hi_mask = med_addr_mask;
-  flash_saved_lml_hbl_lo_mask = low_addr_mask;
-  uVar2 = (*(code *)flash_driver_init)(&PTR_FLASH_MCR_400005e8);
+  flash_erase_shadow_flag._0_1_ = 0;
+  flash_erase_high_blocks = hi_addr_mask;
+  flash_erase_mid_blocks = med_addr_mask;
+  flash_erase_low_blocks = low_addr_mask;
+  uVar2 = (*(code *)flash_ssd_flash_init)(&flash_ssd_config);
   if ((int)uVar2 == 0) {
-    if ((flash_saved_sll_slms_mask == 0) || (flash_saved_lml_hbl_hi_mask == 0)) {
-      if (flash_saved_lml_hbl_lo_mask == 0) {
-        if (flash_saved_lml_hbl_hi_mask == 1) {
+    if ((flash_erase_high_blocks == 0) || (flash_erase_mid_blocks == 0)) {
+      if (flash_erase_low_blocks == 0) {
+        if (flash_erase_mid_blocks == 1) {
           uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,4,&DAT_40001a44,&DAT_40001a40);
+                            (&flash_ssd_config,4,&flash_lock_enabled,&flash_lock_state);
           if ((int)uVar2 != 0) {
             return uVar2;
           }
-          if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+          if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
              (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                                (&PTR_FLASH_MCR_400005e8,4,
-                                 DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,0xffffffffa1a11111),
-             (int)uVar2 != 0)) {
+                                (&flash_ssd_config,4,flash_lock_state & ~flash_erase_mid_blocks,
+                                 0xffffffffa1a11111), (int)uVar2 != 0)) {
             return uVar2;
           }
           uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,5,&DAT_40001a44,&DAT_40001a40);
+                            (&flash_ssd_config,5,&flash_lock_enabled,&flash_lock_state);
           if ((int)uVar2 != 0) {
             return uVar2;
           }
-          if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+          if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
              (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                                (&PTR_FLASH_MCR_400005e8,5,
-                                 DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,0xffffffffc3c33333),
-             (int)uVar2 != 0)) {
+                                (&flash_ssd_config,5,flash_lock_state & ~flash_erase_mid_blocks,
+                                 0xffffffffc3c33333), (int)uVar2 != 0)) {
             return uVar2;
           }
-          DAT_40001a64 = DAT_400005ec + 0x40000;
-          DAT_40001a60 = 0;
+          flash_op_dest = flash_ssd_config_main_array_base + 0x40000;
+          flash_op_size = 0;
         }
       }
       else {
-        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,0,1,0xffffffffa1a11111)
-        ;
+        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,0,1,0xffffffffa1a11111);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
-        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,1,1,0xffffffffc3c33333)
-        ;
+        uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,1,1,0xffffffffc3c33333);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
         uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                          (&PTR_FLASH_MCR_400005e8,2,&DAT_40001a44,&DAT_40001a40);
+                          (&flash_ssd_config,2,&flash_lock_enabled,&flash_lock_state);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
-        if ((flash_saved_lml_hbl_lo_mask == (flash_saved_lml_hbl_lo_mask & DAT_40001a40)) &&
+        if ((flash_erase_low_blocks == (flash_erase_low_blocks & flash_lock_state)) &&
            (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                              (&PTR_FLASH_MCR_400005e8,2,DAT_40001a40 & ~flash_saved_lml_hbl_lo_mask
-                               ,0xffffffffa1a11111), (int)uVar2 != 0)) {
+                              (&flash_ssd_config,2,flash_lock_state & ~flash_erase_low_blocks,
+                               0xffffffffa1a11111), (int)uVar2 != 0)) {
           return uVar2;
         }
         uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                          (&PTR_FLASH_MCR_400005e8,3,&DAT_40001a44,&DAT_40001a40);
+                          (&flash_ssd_config,3,&flash_lock_enabled,&flash_lock_state);
         if ((int)uVar2 != 0) {
           return uVar2;
         }
-        if ((flash_saved_lml_hbl_lo_mask == (flash_saved_lml_hbl_lo_mask & DAT_40001a40)) &&
+        if ((flash_erase_low_blocks == (flash_erase_low_blocks & flash_lock_state)) &&
            (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                              (&PTR_FLASH_MCR_400005e8,3,DAT_40001a40 & ~flash_saved_lml_hbl_lo_mask
-                               ,0xffffffffc3c33333), (int)uVar2 != 0)) {
+                              (&flash_ssd_config,3,flash_lock_state & ~flash_erase_low_blocks,
+                               0xffffffffc3c33333), (int)uVar2 != 0)) {
           return uVar2;
         }
-        if (flash_saved_lml_hbl_lo_mask == 0x10) {
-          DAT_40001a64 = DAT_400005ec + 0x20000;
-          DAT_40001a60 = 0x10000;
+        if (flash_erase_low_blocks == 0x10) {
+          flash_op_dest = flash_ssd_config_main_array_base + 0x20000;
+          flash_op_size = 0x10000;
         }
-        else if (flash_saved_lml_hbl_lo_mask == 8) {
-          DAT_40001a64 = DAT_400005ec + 0x1c000;
-          DAT_40001a60 = 0x4000;
+        else if (flash_erase_low_blocks == 8) {
+          flash_op_dest = flash_ssd_config_main_array_base + 0x1c000;
+          flash_op_size = 0x4000;
         }
-        else if (flash_saved_lml_hbl_lo_mask == 4) {
-          DAT_40001a64 = DAT_400005ec + 0x10000;
-          DAT_40001a60 = 0xc000;
+        else if (flash_erase_low_blocks == 4) {
+          flash_op_dest = flash_ssd_config_main_array_base + 0x10000;
+          flash_op_size = 0xc000;
         }
         else {
-          DAT_40001a64 = 0;
-          DAT_40001a60 = 0;
+          flash_op_dest = 0;
+          flash_op_size = 0;
         }
       }
     }
     else {
-      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,0,1,0xffffffffa1a11111);
+      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,0,1,0xffffffffa1a11111);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&PTR_FLASH_MCR_400005e8,1,1,0xffffffffc3c33333);
+      uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))(&flash_ssd_config,1,1,0xffffffffc3c33333);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
       uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,6,&DAT_40001a44,&DAT_40001a40);
+                        (&flash_ssd_config,6,&flash_lock_enabled,&flash_lock_state);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      if ((flash_saved_sll_slms_mask == (flash_saved_sll_slms_mask & DAT_40001a40)) &&
+      if ((flash_erase_high_blocks == (flash_erase_high_blocks & flash_lock_state)) &&
          (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,6,DAT_40001a40 & ~flash_saved_sll_slms_mask,
+                            (&flash_ssd_config,6,flash_lock_state & ~flash_erase_high_blocks,
                              0xffffffffb2b22222), (int)uVar2 != 0)) {
         return uVar2;
       }
       uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,4,&DAT_40001a44,&DAT_40001a40);
+                        (&flash_ssd_config,4,&flash_lock_enabled,&flash_lock_state);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+      if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
          (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,4,DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,
+                            (&flash_ssd_config,4,flash_lock_state & ~flash_erase_mid_blocks,
                              0xffffffffa1a11111), (int)uVar2 != 0)) {
         return uVar2;
       }
       uVar2 = (**(code **)(&UNK_ffff802c + iVar1))
-                        (&PTR_FLASH_MCR_400005e8,5,&DAT_40001a44,&DAT_40001a40);
+                        (&flash_ssd_config,5,&flash_lock_enabled,&flash_lock_state);
       if ((int)uVar2 != 0) {
         return uVar2;
       }
-      if ((flash_saved_lml_hbl_hi_mask == (flash_saved_lml_hbl_hi_mask & DAT_40001a40)) &&
+      if ((flash_erase_mid_blocks == (flash_erase_mid_blocks & flash_lock_state)) &&
          (uVar2 = (**(code **)(&UNK_ffff8030 + iVar1))
-                            (&PTR_FLASH_MCR_400005e8,5,DAT_40001a40 & ~flash_saved_lml_hbl_hi_mask,
+                            (&flash_ssd_config,5,flash_lock_state & ~flash_erase_mid_blocks,
                              0xffffffffc3c33333), (int)uVar2 != 0)) {
         return uVar2;
       }
-      DAT_40001a64 = DAT_400005ec + 0x40000;
-      DAT_40001a60 = 0x40000;
+      flash_op_dest = flash_ssd_config_main_array_base + 0x40000;
+      flash_op_size = 0x40000;
     }
     uVar2 = 0;
   }
@@ -19097,22 +19089,22 @@ undefined8 flash_unlock_sectors(uint hi_addr_mask,uint med_addr_mask,uint low_ad
 
 
 
-void flash_write(undefined4 param_1,undefined4 param_2,undefined4 param_3)
+void flash_write(uint32_t param_1,uint32_t param_2,uint32_t param_3)
 
 {
   int iVar1;
   int iVar2;
   
   iVar1 = 0x4000a8f8;
-  DAT_40001a5c = param_2;
-  DAT_40001a60 = param_3;
-  DAT_40001a64 = param_1;
-  iVar2 = (*(code *)PTR_flash_program_driver_c90fl_4000291c)
-                    (&PTR_FLASH_MCR_400005e8,param_1,param_3,param_2,0xffffffffffffffff);
+  flash_program_source = param_2;
+  flash_op_size = param_3;
+  flash_op_dest = param_1;
+  iVar2 = (*(code *)flash_ssd_flash_program)
+                    (&flash_ssd_config,param_1,param_3,param_2,0xffffffffffffffff);
   if (iVar2 == 0) {
     (**(code **)(&UNK_ffff8028 + iVar1))
-              (&PTR_FLASH_MCR_400005e8,DAT_40001a64,DAT_40001a60,DAT_40001a5c,&DAT_40001a58,
-               &DAT_40001a50,&DAT_40001a48,0xffffffffffffffff);
+              (&flash_ssd_config,flash_op_dest,flash_op_size,flash_program_source,
+               &flash_fail_address,&flash_fail_data,&flash_verify_fail_source,0xffffffffffffffff);
   }
   return;
 }
@@ -19125,37 +19117,35 @@ undefined8 init_flash_cr(void)
   uint uVar1;
   uint uVar2;
   
-  if (flash_saved_sll_slms_mask != 0) {
+  if (flash_erase_high_blocks != 0) {
     uVar1 = FLASH_HSR;
     uVar2 = FLASH_HSR;
-    FLASH_HSR = uVar1 & 0xfffffff & ~flash_saved_sll_slms_mask | uVar2 & 0xf0000000;
+    FLASH_HSR = uVar1 & 0xfffffff & ~flash_erase_high_blocks | uVar2 & 0xf0000000;
     uVar1 = FLASH_HLR;
     uVar2 = FLASH_HLR;
-    FLASH_HLR = uVar1 & 0xfffffff | flash_saved_sll_slms_mask & 0xfffffff | uVar2 & 0xf0000000;
+    FLASH_HLR = uVar1 & 0xfffffff | flash_erase_high_blocks & 0xfffffff | uVar2 & 0xf0000000;
   }
-  if (flash_saved_lml_hbl_lo_mask != 0) {
+  if (flash_erase_low_blocks != 0) {
     uVar1 = FLASH_LMSR;
     uVar2 = FLASH_LMSR;
-    FLASH_LMSR = uVar1 & 0xffff & ~flash_saved_lml_hbl_lo_mask | uVar2 & 0xffff0000;
+    FLASH_LMSR = uVar1 & 0xffff & ~flash_erase_low_blocks | uVar2 & 0xffff0000;
     uVar1 = FLASH_LMLR;
     uVar2 = FLASH_LMLR;
-    FLASH_LMLR = uVar1 & 0xffff | flash_saved_lml_hbl_lo_mask & 0xffff | uVar2 & 0xffff0000;
+    FLASH_LMLR = uVar1 & 0xffff | flash_erase_low_blocks & 0xffff | uVar2 & 0xffff0000;
     uVar1 = FLASH_SLMLR;
     uVar2 = FLASH_SLMLR;
-    FLASH_SLMLR = uVar1 & 0xffff | flash_saved_lml_hbl_lo_mask & 0xffff | uVar2 & 0xffff0000;
+    FLASH_SLMLR = uVar1 & 0xffff | flash_erase_low_blocks & 0xffff | uVar2 & 0xffff0000;
   }
-  if (flash_saved_lml_hbl_hi_mask != 0) {
+  if (flash_erase_mid_blocks != 0) {
     uVar1 = FLASH_LMSR;
     uVar2 = FLASH_LMSR;
-    FLASH_LMSR = (uVar1 >> 0x10 & 0xf & ~flash_saved_lml_hbl_hi_mask) << 0x10 | uVar2 & 0xfff0ffff;
+    FLASH_LMSR = (uVar1 >> 0x10 & 0xf & ~flash_erase_mid_blocks) << 0x10 | uVar2 & 0xfff0ffff;
     uVar1 = FLASH_LMLR;
     uVar2 = FLASH_LMLR;
-    FLASH_LMLR = (uVar1 >> 0x10 & 0xf | flash_saved_lml_hbl_hi_mask & 0xf) << 0x10 |
-                 uVar2 & 0xfff0ffff;
+    FLASH_LMLR = (uVar1 >> 0x10 & 0xf | flash_erase_mid_blocks & 0xf) << 0x10 | uVar2 & 0xfff0ffff;
     uVar1 = FLASH_SLMLR;
     uVar2 = FLASH_SLMLR;
-    FLASH_SLMLR = (uVar1 >> 0x10 & 0xf | flash_saved_lml_hbl_hi_mask & 0xf) << 0x10 |
-                  uVar2 & 0xfff0ffff;
+    FLASH_SLMLR = (uVar1 >> 0x10 & 0xf | flash_erase_mid_blocks & 0xf) << 0x10 | uVar2 & 0xfff0ffff;
   }
   return 0;
 }

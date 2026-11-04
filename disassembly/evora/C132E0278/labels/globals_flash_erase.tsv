@@ -1,0 +1,34 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-03): globals of flash_erase() and the
+# Freescale C90FL Standard Software Driver (SSD) it calls. The driver is called through a function-pointer
+# table at 0x40002910 (SSD order: FlashInit, FlashErase, BlankCheck, FlashProgram, ProgramVerify, GetLock,
+# SetLock; reached via the r13 small-data base 0x4000a8f8 - 0x8000 + offset). Every call takes the SSD_CONFIG
+# struct at 0x400005e8. Lock indices: 0/1 shadow, 2/3 low primary/secondary, 4/5 mid, 6 high; passwords
+# 0xA1A11111 (LML), 0xC3C33333 (HBL/SLL secondary), 0xB2B22222 (SLL). The 0x40001a40.. block holds the
+# arguments/results shared by flash_erase / flash_unlock_sectors / flash_write.
+#
+# ---- SSD function-pointer table ----
+D	40002910	flash_ssd_flash_init	-	C90FL SSD FlashInit(pSSDConfig). Was flash_driver_init.
+D	40002914	flash_ssd_flash_erase	pointer	C90FL SSD FlashErase(pSSDConfig, shadowFlag, lowEnabledBlocks, midEnabledBlocks, highEnabledBlocks, CallBack).
+D	40002918	flash_ssd_blank_check	pointer	C90FL SSD BlankCheck(pSSDConfig, dest, size, &failAddress, &failData, CallBack).
+D	4000291c	flash_ssd_flash_program	pointer	C90FL SSD FlashProgram(pSSDConfig, dest, size, source, CallBack). Points at flash_program_driver_c90fl.
+D	40002920	flash_ssd_program_verify	pointer	C90FL SSD ProgramVerify(pSSDConfig, dest, size, source, &failAddress, &failData, &failSource, CallBack).
+D	40002924	flash_ssd_get_lock	pointer	C90FL SSD GetLock(pSSDConfig, blkLockIndicator, &blkLockEnabled, &blkLockState).
+D	40002928	flash_ssd_set_lock	pointer	C90FL SSD SetLock(pSSDConfig, blkLockIndicator, blkLockState, password).
+#
+# ---- SSD_CONFIG (first two fields) ----
+D	400005e8	flash_ssd_config	pointer	SSD_CONFIG.c90flRegBase = FLASH_MCR register base; &flash_ssd_config is the pSSDConfig passed to every SSD call.
+D	400005ec	flash_ssd_config_main_array_base	uint32_t	SSD_CONFIG.mainArrayBase: flash main array base address (blank-check ranges are offsets from it).
+#
+# ---- shared SSD call arguments / results ----
+D	40001a40	flash_lock_state	uint32_t	GetLock result blkLockState (bit set = block locked); written back without the target blocks via SetLock to unlock them.
+D	40001a44	flash_lock_enabled	uint32_t	GetLock result blkLockEnabled (lock register writable).
+D	40001a48	flash_verify_fail_source	ulonglong	ProgramVerify failSource (source data at the first mismatch).
+D	40001a50	flash_fail_data	ulonglong	BlankCheck / ProgramVerify failData (flash contents at the first failure).
+D	40001a58	flash_fail_address	uint32_t	BlankCheck / ProgramVerify failAddress (first failing address).
+D	40001a5c	flash_program_source	uint32_t	flash_write: RAM source address of the data being programmed.
+D	40001a60	flash_op_size	uint32_t	Bytes to program/verify (flash_write) or blank-check after erase (flash_erase); 0 = skip the erase.
+D	40001a64	flash_op_dest	uint32_t	Flash address to program/verify or to start the post-erase blank check.
+D	40001a68	flash_erase_high_blocks	uint32_t	FlashErase highEnabledBlocks mask (flash_erase arg 1); unlocked via lock index 6. Was flash_saved_sll_slms_mask.
+D	40001a6c	flash_erase_mid_blocks	uint32_t	FlashErase midEnabledBlocks mask (flash_erase arg 2); unlocked via lock indices 4/5. Was flash_saved_lml_hbl_hi_mask.
+D	40001a70	flash_erase_low_blocks	uint32_t	FlashErase lowEnabledBlocks mask (flash_erase seg): 4 = 48 KB @ +0x10000, 8 = 16 KB @ +0x1C000, 0x10 = 64 KB @ +0x20000; unlocked via lock indices 2/3. Was flash_saved_lml_hbl_lo_mask.
+D	40001a74	flash_erase_shadow_flag	uint32_t	FlashErase shadowFlag (always 0 = main array).
