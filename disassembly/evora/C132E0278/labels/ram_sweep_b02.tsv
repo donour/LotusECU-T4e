@@ -1,0 +1,114 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 2 (0x40001631-0x40001a32).
+D	40001631	fuel_pump_cl_50ms_divider	u8_count	Divider inside the fuel-pump 10 ms slot, reload 10.
+D	40001632	fuel_pump_sm_first_pass	uint8_t	1 on the first fuel-pump state-machine pass after a reset.
+D	40001638	-	uint16_t	DPM / drive-mode control bits (bit4/6 set together, bit5 cluster indication).
+D	40001650	intc_sw_irq4_count	uint32_t	Count of INTC software IRQ 4 events (intc_sw_irq4_isr).
+D	40001658	eqadc3_cal_word_a	uint32_t	eQADC calibration result word (gain<<16 | offset) from init_eqADC3.
+D	4000165c	eqadc3_cal_word_b	uint32_t	eQADC calibration result word (gain<<16 | offset) from init_eqADC3.
+D	40001660	eqadc2_cal_offset_copy	short	Copy of eqadc2_cal_offset.
+D	40001662	eqadc2_cal_gain_copy	short	Copy of eqadc2_cal_gain.
+D	40001664	eqadc2_cal_offset	uint32_t	eQADC offset-calibration constant (14-bit) written to the ADC calibration register.
+D	40001668	eqadc2_cal_gain	uint32_t	eQADC gain-calibration constant (15-bit) written to the ADC calibration register.
+D	40001670	-	uint8_t	bit0 flash erase pending (checked in init_flash_ctrl), bit1 CAL copy in progress.
+D	40001674	-	uint16_t	-
+D	40001684	-	uint32_t	Free (0x55-filled) RAM found by freeram_counter, in 16-byte blocks.
+D	40001688	-	pointer	Scan pointer for the free-RAM 0x55 pattern check.
+D	4000168c	cal_copy_status	uint32_t	Cleared at start of copyCAL2RAM.
+D	4000168f	-	char	RAM-only dev trim (init 0): adds 0.02 AFR per count to afr_target_base.
+D	40001691	-	u8_raw-128	RAM-only dev trim (init 0x80): fuel pump duty offset (x-128)*5000.
+D	40001698	-	uint32_t	main() super-loop pass counter.
+D	40001720	crank_sync_partial_rev_count	u8_count	Revolutions spent with crank_sync_level == 3 (partial sync), saturating; reset at full sync.
+D	4000172e	crank_sync_lost_rev_count	u8_count	Revolutions with crank_sync_level < 3 after having synced.
+D	40001732	-	u16_count	Write index into maf_voltage_buffer[32].
+D	40001734	-	u16_count	Write index into map_voltage_buffer[32].
+D	40001736	-	uint8_t	Set by etpu_ch0_crank_isr when the program/CAL verification fails; blocks crank/cam monitors.
+D	40001737	-	u8_count	Divider (0..3) for the 16-deep roughness period history shift.
+D	40001738	crank_isr_startup_delay	u8_count	Set to 200 at the start-of-crank eTPU setup.
+D	4000173a	-	u8_count	Count of engine_sync_reset_etpu_init calls (sync losses).
+D	4000173c	crank_tooth_time_prev	uint32_t	eTPU TCR1 timestamp of the previous crank tooth (24-bit); engine_speed_period_1 = now - this.
+D	40001740	crank_tooth_period_prev	uint32_t	Previous tooth period kept by crank_trigger_process___.
+D	40001744	maf_map_sample_toggle	uint8_t	Alternates between the MAF and MAP sample halves in sensor_interrupt_maf_map.
+D	40001745	maf_map_sample_table_index	u8_count	Index (step 2, wraps at 32) into the ROM sample-angle table at 0xcc3a8.
+D	40001747	-	u8_count	Cylinders still to cut for the current torque cut level.
+D	40001748	-	uint8_t	coilpack_failure_flags & 0x3f snapshot used when choosing cut cylinders.
+D	40001749	-	u8_count	failed_ignition_cyl_count at the previous update.
+D	4000174a	-	u8_count	Cylinder index the torque-cut pattern is anchored to (next_firing_cyl_index at cut start).
+D	4000174b	ign_cyl_fire_inhibited_flags	uint8_t	Per-cylinder bits set in ign_isr_cylinderN when the spark is inhibited (ignition off, cut, misfire or coil failure).
+D	4000174c	-	u8_count	Previous cylinder index used by update_cylinder_seq_sync_flags.
+D	40001750	inj_prime_pulse_us	u32_time_us	Prime pulse width actually fired at crank sync (inj_prime_pulse_time, min 160 us).
+D	40001754	inj_prime_pulse_pending	uint8_t	1 after a sync reset until the prime pulse has been fired.
+D	40001757	-	uint8_t	Per-cylinder bits: cylinder spark cut (fuel cut, coil or misfire protection) in this cycle.
+D	40001758	-	u8_count	Index (0..5) of the next cylinder to fire.
+D	4000176c	-	uint32_t	Crank tooth period (eTPU TCR1 ticks, 24-bit); 0xffffffff when stopped.
+D	40001774	engine_speed_period_avg	u16_time_us	Average of the last CAL_engine_speed_avg_samples engine_period_90deg_us values. Was engine_speeed_period_avg.
+D	4000177e	-	u16_time_5ms	DFCO cut duration (saturates at 1023); axis for CAL_injtip_dfco_recovery_enrich_by_duration.
+D	400017db	crank_etpu_status	uint8_t	eTPU crank channel status byte (etpu_sdm_read_u8(0)); < 2 forces a sync reset.
+D	400017e0	crank_etpu_param_3d	uint32_t	eTPU crank channel parameter 0x3d.
+D	400017e4	crank_etpu_param_35	uint32_t	eTPU crank channel parameter 0x35.
+D	400017ec	-	u8_count	-
+D	400017ed	maf_map_isr_count	u8_count	sensor_interrupt_maf_map call counter.
+D	400017ee	ign_isr_cyl6_count	u8_count	ign_isr_cylinder6 call counter. Was cyl_fire_counter_unknown.
+D	400017ef	ign_isr_cyl5_count	u8_count	ign_isr_cylinder5 call counter.
+D	400017f0	ign_isr_cyl4_count	u8_count	ign_isr_cylinder4 call counter.
+D	400017f1	ign_isr_cyl3_count	u8_count	ign_isr_cylinder3 call counter.
+D	400017f2	ign_isr_cyl2_count	u8_count	ign_isr_cylinder2 call counter.
+D	400017f3	ign_isr_cyl1_count	u8_count	ign_isr_cylinder1 call counter.
+D	400017f4	-	u8_count	-
+D	400017f8	ign_cyl_fire_request	uint8_t[6]	Per-cylinder fire request set at the tooth in ign_update_cyl_enable_by_tooth; non-zero inhibits the next ign ISR spark.
+D	40001808	etb_driver_diag_byte	uint8_t	Last ETB H-bridge diagnostic byte read over DSPI-C.
+D	40001809	etb_driver_diag_state	uint8_t	ETB driver diag read state machine (0 send cmd, 1 read).
+D	40001810	diag_base_ptr	pointer	Base pointer set by diag_set_base_ptr, used by the channel logger.
+D	40001818	emios_etb_pwm_isr_count	u8_count	ETB PWM eMIOS ISR counter.
+D	40001819	-	uint8_t	-
+D	4000181a	nonabs_wheel_speed_pulse_seen	uint8_t	Set by the wheel-speed eMIOS ISR, cleared by the 333 ms watchdog (no pulse -> period = 0xffffffff).
+D	4000181c	-	u32_time_us	-
+D	40001820	-	uint32_t	-
+D	40001824	-	uint8_t	Relay driver output bits written via relay_driver_write (bit4 starter, bit7 ...).
+D	40001828	evap_pressure_filter_q8	int	IIR accumulator (<<8) for the evap pressure low-pass (CAL_evap_pressure_filter_coeff).
+D	4000182c	-	uint32_t	Filtered fuel level x40000 (fuel_level_lookup_filtered).
+D	40001840	-	short	A/C evaporator temperature (raw - 400).
+D	40001848	-	short	Evap purge/tank pressure (signed).
+D	4000186e	adc_ch35_voltage	u16_voltage_5/1023v	ADC DMA channel 0x35 sample (>>4).
+D	40001884	evap_purge_pressure_zero_offset	short	Learned evap pressure zero offset subtracted in adc_convert.
+D	40001894	-	short	Oil pressure switch/sensor raw (0x7fff when invalid).
+D	40001896	lookup_last_index	u8_count	Last bracket index used by lookup_2D_uint8_fixed.
+D	40001898	iat_filter_q2560	uint32_t	Engine air temp filter accumulator (x0xa00); temp_engine_air = this/0xa00. Was iat2.
+D	4000189c	trans_fluid_temp_filter_q8	uint32_t	Trans fluid temp IIR accumulator (<<8). Was trans_fluid_temp_u32.
+D	400018a0	coolant_temp_filter1_q2560	uint32_t	Coolant temp filter stage 1 accumulator (x0xa00). Was coolant_temp_derived1.
+D	400018a4	coolant_temp_filter2_q2560	uint32_t	Coolant temp filter stage 2 accumulator (x0xa00); /0xa00 -> coolant_temp_derived3. Was coolant_temp_derived2.
+D	400018a8	ac_evap_temp_filter_q8	int	A/C evaporator temp IIR accumulator (<<8). Was ac_evap_temp_raw.
+D	400018ac	chargecooler_temp_filter_q2560	uint32_t	Charge-cooler / manifold temp filter accumulator (x0xa00); /0xa00 -> obd_ii_manifold_temp. Was chargecooler_temp2.
+D	400018b0	fuel_pressure_abs_filter_q8	uint32_t	Fuel pressure IIR accumulator (<<8). Was fuel_pressure_abs_scaled.
+D	400018b4	map_filter_q8	uint32_t	MAP IIR accumulator (<<8); >>8 gives map_filtered. Was intake_manifold_pressure2.
+D	400018b8	-	uint32_t	-
+D	400018cc	-	u8_time_10ms	Driver-input hold countdown (reload 25 = 250 ms).
+D	400018cd	-	uint8_t	-
+D	400018d0	-	u8_time_10ms	Driver-input mode countdown.
+D	400018d1	sport_button_press_count	u8_count	Sport button press duration counter (100 Hz, saturating); > 20 = long press. Was sport_button_press_timer_unknown1.
+D	400018d2	sport_button_release_time	u16_time_10ms	Time since sport button release (100 Hz, saturating).
+D	400018d4	race_button_press_count	u8_count	Race button press duration counter (100 Hz, saturating); > 20 = long press. Was race_button_press_timer_unknown1.
+D	400018d6	race_button_release_time	u16_time_10ms	Time since race button release (100 Hz, saturating).
+D	400018d8	-	uint8_t	bit0 sport button, bit1 race button pending press.
+D	400018d9	vehicle_mode_change_holdoff	u8_time_10ms	Countdown after a drive-mode change.
+D	400018de	sqrt_iteration_count	u16_count	Iteration counter in sqrt_integer. Was _tmp_val1.
+D	400018e0	sqrt_input	uint32_t	Input copy in sqrt_integer. Was _tmp_val2.
+D	400018f0	adc_sample_status	uint32_t	Cleared in adc_sample.
+D	400018f4	sensor_aux_temp2_raw	uint16_t	Aux temperature sensor 2 ADC (>>2 into CAL_sensor_aux_temp). Was sensor_temp_unk2_raw.
+D	400018f6	sensor_aux_temp1_raw	uint16_t	Aux temperature sensor 1 ADC (>>2 into CAL_sensor_aux_temp). Was sensor_temp_unk1_raw.
+D	40001970	-	u32_angle_1/10deg	Injection start angle actually used; slews +-2 deg per 200 Hz tick toward inj_start_angle_target.
+D	400019a2	-	uint16_t	Per-cylinder coil failure bits (bit n = cylinder n+1).
+D	400019e8	etpu_ch3_period_us	u16_time_us	eTPU ch3 measured period / 10 (us); 0xffff if none or too long.
+D	400019ec	etpu_param_alloc_ptr	pointer	Next free eTPU parameter-RAM address (etpu_param_alloc).
+D	400019f0	-	pointer	eTPU shared data memory base (0xc3fcc000).
+D	400019f4	etpu_param_ram_end	pointer	End of eTPU parameter RAM (0xc3fc89fc).
+D	400019f8	etpu_param_ram_base	pointer	eTPU parameter RAM base used for channel parameter access.
+D	400019fc	etpu_code_ram_base	pointer	eTPU code RAM base (0xc3fd0000); microcode copied here by etpu_init.
+D	40001a08	etpu_ch3_frequency_hz	uint32_t	eTPU ch3 measured frequency = 1e7 / period (Hz); 0 if none.
+D	40001a0c	etpu_ch3_read_a	uint32_t	eTPU ch3 batch read output a.
+D	40001a10	etpu_ch3_period	u32_time_100ns	eTPU ch3 measured period (TCR1, 0.1 us).
+D	40001a14	etpu_ch3_read_g	uint32_t	eTPU ch3 batch read output g.
+D	40001a18	etpu_ch3_read_f	uint32_t	eTPU ch3 batch read output f.
+D	40001a1c	etpu_ch3_read_e	uint32_t	eTPU ch3 batch read output e.
+D	40001a20	etpu_ch3_read_d	uint32_t	eTPU ch3 batch read output d.
+D	40001a24	etpu_ch3_read_status	uint8_t	eTPU ch3 batch read status (0 = valid).
+D	40001a30	-	uint16_t	LEA init stamp low word (0x1795).

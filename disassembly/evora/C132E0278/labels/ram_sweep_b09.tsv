@@ -1,0 +1,107 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 9 (0x4000256e-0x400026c8)
+# plus the cruise2_200hz cluster 0x400015a0-0x400015b0 deferred from batch 1.
+D	4000256e	can_a4_ext_byte2	uint8_t	CAN 0xA4 extended data byte (DLC 8).
+D	4000256f	can_a4_ext_byte0	uint8_t	CAN 0xA4 extended data byte (DLC 8).
+D	40002570	can_a2_rolling_counter	u8_count	CAN 0xA2 rolling counter (4-bit).
+D	40002571	can_a4_rolling_counter	u8_count	CAN 0xA4 rolling counter (4-bit).
+D	40002580	dm_tx_ptr	pointer	Dev-mode CAN response data pointer.
+D	40002584	dm_rx_ptr	pointer	Dev-mode CAN request data pointer.
+D	40002588	ips_can_199_flags	uint8_t	CAN 0x199 status bits (bit0, bit1 used by the IPS shift state machine).
+D	4000258a	-	short	Yaw rate from CAN 0x303 ((12-bit - 0x800) x8).
+D	4000258c	imu_lat_accel_raw	short	Lateral acceleration from CAN 0x303 (scaled /100000).
+D	40002590	imu_status_byte	uint8_t	CAN 0x303 status byte.
+D	40002591	-	uint8_t	Steering angle sensor status (bit0 valid).
+D	40002592	steering_angle_rate	uint8_t	Steering angle rate from CAN 0x85 byte 2. Was steering_angle_rate___.
+D	400025b4	can_310_raw_0	uint16_t	CAN 0x310 value 0 (big-endian raw).
+D	4000259c	can_310_value_0	uint16_t	CAN 0x310 value 0 scaled x10/4 (or CAN 0x311 raw when that frame is used).
+D	400025ac	can_310_value_0_copy	uint16_t	Copy of can_310_value_0.
+D	400025a4	can_311_raw_0	uint16_t	CAN 0x311 value 0 (big-endian raw).
+D	400025b2	can_310_raw_1	uint16_t	CAN 0x310 value 1 (big-endian raw).
+D	4000259a	can_310_value_1	uint16_t	CAN 0x310 value 1 scaled x10/4 (or CAN 0x311 raw when that frame is used).
+D	400025aa	can_310_value_1_copy	uint16_t	Copy of can_310_value_1.
+D	400025a2	can_311_raw_1	uint16_t	CAN 0x311 value 1 (big-endian raw).
+D	400025b0	can_310_raw_2	uint16_t	CAN 0x310 value 2 (big-endian raw).
+D	40002598	can_310_value_2	uint16_t	CAN 0x310 value 2 scaled x10/4 (or CAN 0x311 raw when that frame is used).
+D	400025a8	can_310_value_2_copy	uint16_t	Copy of can_310_value_2.
+D	400025a0	can_311_raw_2	uint16_t	CAN 0x311 value 2 (big-endian raw).
+D	400025ae	can_310_raw_3	uint16_t	CAN 0x310 value 3 (big-endian raw).
+D	40002596	can_310_value_3	uint16_t	CAN 0x310 value 3 scaled x10/4 (or CAN 0x311 raw when that frame is used).
+D	400025a6	can_310_value_3_copy	uint16_t	Copy of can_310_value_3.
+D	4000259e	can_311_raw_3	uint16_t	CAN 0x311 value 3 (big-endian raw).
+D	400025b8	ccp_rx_word	uint16_t	CAN-C 0x350 (CCP CRO) first word.
+D	400025c0	ccp_cro_buffer	uint8_t[8]	CAN-C 0x350 CCP command (CRO) bytes, passed to chlog_command_dispatch.
+D	400025d8	obd_ii_mode02_supported_pids	uint8_t[16]	Mode 02 (freeze frame) supported-PID bitmaps, 4 groups x 4 bytes (obd_ii_set_mode02_supported_pids).
+D	400025e8	-	uint8_t	Mode 01 PID 01 byte A: DTC count | 0x80 when the MIL is on.
+D	400025e9	-	u8_count	Number of current DTCs (mode 03).
+D	400025f0	esci_rx_checksum	uint8_t	Running checksum of the HC08 frame being received (complement byte must match).
+D	400025f1	esci_rx_byte_index	u8_count	Byte index in the HC08 frame being received (< 23).
+D	400025f2	-	u8_count	HC08 frame sequence number (incremented per transmitted frame).
+D	400025f3	esci_tx_length	u8_count	Length of the eSCI frame being transmitted.
+D	400025f4	esci_tx_index	u8_count	Next byte index transmitted from the eSCI TX buffer (0x40007f58).
+D	400025f5	esci_rx_count	u8_count	Bytes waiting in the eSCI RX ring buffer (max 32).
+D	400025f6	esci_rx_tail	u8_count	eSCI RX ring read index (0..31).
+D	400025f7	esci_rx_head	u8_count	eSCI RX ring write index (0..31) into 0x40007f78.
+D	400025f8	hc08_tx_rx_delta	short	throttle_tx_counter - hc08_rx_frame_count (frames sent without reply).
+D	400025fc	hc08_rx_frame_count	uint32_t	Valid HC08 frames received.
+D	40002608	cruise_switch_voltage	u16_voltage_5/1023v	Cruise stalk resistor-ladder voltage (ADC ch 0x10). Was cruise_switch_unknown_voltage.
+D	40002614	-	short	Cruise PI integral term (+-CAL_cruise_integral_term_limit*100).
+D	40002616	-	short	Cruise derivative term (+-CAL_cruise_derivative_term_limit*100).
+D	40002618	cruise_maf_flow_ref	u16_flow_10mg/s	MAF flow latched when cruise engages (feed-forward reference).
+D	4000261a	cruise_load_axis	uint8_t	Cruise load axis (load*255/1173).
+D	40002622	cruise_control_flags	uint16_t	Cruise control internal state bits. Was cruise_flags_unknown.
+D	40002628	-	u8_count	Cancel button hold count (> 3 = pressed).
+D	40002629	-	u8_count	Resume button hold count.
+D	4000262a	-	u8_count	Set button hold count.
+D	4000262c	cruise_speed_error_prev	short	cruise_speed_error at the previous update (derivative).
+D	40002630	cruise_speed_error_rate	short	Cruise speed error rate (derivative input).
+D	40002632	cruise_override_timer	u16_time_5ms	Accelerator override countdown (CAL_cruise_override_timeout*4).
+D	40002634	-	u8_count	Coast switch override cancel countdown (CAL_cruise_override_coast_cancel_time).
+D	40002638	cruise_switch_voltage_ref	u16_voltage_5/1023v	Cruise switch voltage latched for the P0578 stuck check (+-10). Was cruise_switch_unknown_voltage2.
+D	4000263a	obd_ii_p0578_stable_timer	u16_count	P0578 switch-stable countdown (CAL_obd_ii_switch_voltage_debounce*10).
+D	4000263c	cruise_engage_settle	u8_count	Cruise engage settle countdown (reset 20).
+D	4000263e	cruise_speed_target_prev	u16_speed_1/100kph	cruise_speed_target at the previous update.
+D	40002640	-	u16_count	Cruise state-transition lockout countdown.
+D	40002642	cruise_unused_2642	uint16_t	Cleared in cruise2_200hz, never read.
+D	40002644	cruise_resume_timer	u16_time_5ms	Resume countdown (CAL_cruise_resume_timer*2).
+D	40002646	cruise_gear_prev	enum_t6e_gear	Gear at the previous update (IPS integral gain lookup).
+D	40002647	cruise_switch_state	uint8_t	Cruise switch state bits (3 = both).
+D	40002648	cruise_switch_change_count	u8_count	Cruise switch transitions (P0579).
+D	40002649	obd_ii_p0579_switch_changes	u8_count	Switch changes counted for P0579 (vs CAL_obd_ii_P0579_switch_changes_max).
+D	4000264a	-	uint8_t	Cruise integral gain in use.
+D	4000264b	-	u8_time_5ms	Cruise stalk idle debounce (reload 100).
+D	4000264d	-	uint8_t	Normalised cruise speed error (feed-forward blend axis).
+D	40002652	-	short	Estimated actual engine torque from load.
+D	40002671	-	u8_factor_1/255	Torque efficiency factor.
+D	40002678	-	uint8_t	Torque fraction per cut cylinder (42 = 1/6 of 255).
+D	4000267a	-	short	Spark retard from MBT (avg of firing cylinders), clamped 0..255.
+D	40002681	abs_wheelspeed_valid	uint8_t	Set when a valid wheel-speed frame is received.
+D	40002687	-	uint8_t	bit0 = IPS shift torque request active.
+D	40002688	torque_limit_hysteresis_timer	u8_time_10ms	Torque-limit hysteresis countdown.
+D	4000268c	torque_limit_ips_shift_latched	uint8_t	Set while an IPS shift torque limit is applied.
+D	4000268e	-	uint8_t	Set when the slow (TC) torque-limit path is active.
+D	40002692	-	u16_time_5ms	Cruise brake cancel countdown (CAL_cruise_brake_cancel_time).
+D	4000269a	-	short	Ignition retard requested by the torque limiter (>= 0).
+D	400026a4	-	u8_count	Number of non-firing cylinders.
+D	400026a5	-	uint8_t	Torque-limit output clamp bits.
+D	400026a6	-	u8_time_5ms	Torque TPS-limit delay (50 = 250 ms).
+D	400026a7	-	uint8_t	TCU torque-limit onset latch.
+D	400026a9	cruise_brake_release_timer	u8_time_5ms	Brake release countdown (20). Was brake_timer2.
+D	400026b0	-	short	A/C load torque base (negative Nm).
+D	400026b8	-	u16_factor_1/1023	TPS from the learned load-to-TPS mapping.
+D	400026bc	torque_limit_pi_flags	uint8_t	Load-to-TPS PI state bits. Was torque_limit_flags_pi.
+D	400026c0	-	short	Load-to-TPS proportional correction.
+D	400026c2	-	short	Load-to-TPS integral correction.
+D	400026c4	load_to_tps_integral_timer	u8_count	Countdown between integral updates. Was integral_update_timer.
+D	400026c8	-	uint32_t	Filtered TPS feed-forward x1024.
+D	400015a0	cruise_button_timer_a	u8_time_5ms	cruise2_200hz countdown (reload 3).
+D	400015a1	cruise_button_timer_a_hold	u8_count	cruise2_200hz hold byte (set 3).
+D	400015a2	cruise_button_timer_b_reload	u8_count	Reload value copied into cruise_button_timer_b.
+D	400015a3	cruise_button_timer_b	u8_time_5ms	cruise2_200hz countdown.
+D	400015a4	cruise_timer_c	u8_time_5ms	cruise2_200hz countdown.
+D	400015a5	cruise_timer_d	u8_time_5ms	cruise2_200hz countdown.
+D	400015a6	cruise_timer_e	u8_time_5ms	cruise2_200hz countdown.
+D	400015a8	cruise_maf_flow_target	u16_flow_10mg/s	Cruise airflow target (0xffff = unset; seeded from obd_ii_maf_flow).
+D	400015ab	cruise_speed_band_hi_factor	uint8_t	Upper speed-band factor in cruise2_200hz.
+D	400015ac	cruise_speed_band_lo_factor	uint8_t	Lower speed-band factor in cruise2_200hz.
+D	400015ae	cruise_speed_error_limit	uint16_t	Speed-error limit (lookup<<2).
+D	400015b0	cruise_maf_flow_target_prev	u16_flow_10mg/s	Previous cruise airflow target (low half used).

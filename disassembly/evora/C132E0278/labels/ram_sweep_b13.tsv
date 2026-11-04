@@ -1,0 +1,31 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 13 - residual named-but-undefined and mechanical names.
+D	40001c1c	obd_ii_cat_post_dfco_holdoff_prescaler	-	Cat monitor post-DFCO hold-off prescaler countdown (CAL_obd_ii_cat_mon_post_dfco_holdoff_prescaler).
+D	40001d76	obd_ii_o2_imbalance_sample_timer	-	O2 imbalance sample period countdown (CAL_obd_ii_o2_imbalance_sample_period).
+D	40001d78	obd_ii_fuel_learn_inhibit_holdoff	-	Fuel-trim learn inhibit hold-off (CAL_obd_ii_fuel_learn_inhibit_holdoff_ticks); fuel-trim monitors wait for 0.
+D	40001e82	evap_leak_pre_start_timer	-	EVAP leak test pre-start delay countdown (CAL_evap_leak_test_pre_start_delay).
+D	40001e83	evap_leak_purge_settle_timer	-	EVAP leak test purge settle countdown (CAL_evap_leak_test_purge_settle_delay).
+D	40001e84	evap_leak_settle_samples	-	EVAP leak test settle samples left (CAL_evap_leak_test_settle_samples).
+D	40001e85	evap_leak_stage4_dwell_timer	-	EVAP leak test stage 4 dwell countdown (CAL_evap_leak_test_stage4_dwell).
+D	40001e86	evap_leak_samples_left	-	EVAP leak test samples left (CAL_evap_leak_test_sample_count).
+D	40001e92	evap_leak_idle_dwell_timer	-	EVAP leak test idle dwell countdown (CAL_evap_leak_test_idle_dwell).
+D	40001e94	evap_leak_test_delay_timer	-	EVAP leak test start delay (CAL_evap_leak_test_delay << 4).
+D	40001e98	evap_leak_vacuum_decay_timer	-	EVAP leak vacuum-decay sample countdown (CAL_evap_leak_vacuum_decay_sample).
+D	40000e28	-	uint16_t	-
+D	40001538	-	uint8_t	-
+D	40001588	-	uint8_t	-
+D	400015c6	-	uint16_t	-
+D	4000168c	-	uint8_t	-
+D	4000168d	-	uint8_t	-
+D	4000168e	-	uint8_t	-
+D	40002010	-	uint16_t	-
+D	400028be	-	u8_count	-
+D	40004f30	-	uint16_t	-
+D	40005600	-	short	-
+D	40005734	-	short	-
+D	40005868	-	short	-
+D	4000599c	-	short	-
+D	40005ad0	-	short	-
+D	40005c04	-	short	-
+D	40006620	-	uint8_t	-
+D	40006874	-	int	-
+D	400068b5	-	uint8_t	-

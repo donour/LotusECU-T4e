@@ -1,0 +1,107 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 8 (0x40002378-0x4000256d).
+D	40002378	obd_ii_tstat_start_engine_air_temp	u8_temp_5/8-40c	temp_engine_air latched at the start of the thermostat monitor.
+D	40002379	obd_ii_tstat_start_manifold_temp	u8_temp_5/8-40c	obd_ii_manifold_temp latched at the start of the thermostat monitor.
+D	4000237a	obd_ii_tstat_start_coolant_temp	u8_temp_5/8-40c	coolant_temp latched at the start of the thermostat monitor.
+D	4000237b	obd_ii_tstat_start_ambient_temp	u8_temp_5/8-40c	air_temp_ambient latched at the start of the thermostat monitor.
+D	40002388	-	uint8_t	Thermostat diagnostic air-mass threshold (compared with thermostat_warmup_air_mass >> 16).
+D	40002394	-	uint32_t	P0128 low-speed time counter.
+D	40002398	-	uint8_t	P0128: IAT too cold latch.
+D	400023a0	evap_tank_vacuum	short	Evap tank vacuum (negative = vacuum) used by the purge-flow test.
+D	400023a2	obd_ii_p0451_status	uint16_t	P0451 (evap pressure sensor range/performance) monitor state bits.
+D	400023a4	obd_ii_evap_entry_settle	u8_count	Entry settle countdown (CAL_obd_ii_evap_entry_settle_delay).
+D	400023a5	obd_ii_evap_fuel_level_noise_count	u8_count	Fuel-level noise events (vs CAL_obd_ii_evap_fuel_level_noise_count_limit).
+D	400023a6	obd_ii_evap_pressure_noise_count	u8_count	Evap pressure noise events (vs CAL_obd_ii_evap_pressure_noise_count_limit).
+D	400023a8	obd_ii_p0451_fail_health	u8_count	P0451 failure debounce (CAL_obd_ii_P0451_fail_debounce_count).
+D	400023a9	obd_ii_evap_fuel_level_start	u8_volume_1/10gallon	fuel_level at the start of the stability window.
+D	400023aa	obd_ii_evap_fuel_level_delta	short	Fuel level change over the window.
+D	400023ac	obd_ii_evap_stability_samples	u16_count	Stable samples (to CAL_obd_ii_evap_stability_window_samples).
+D	400023ae	obd_ii_p0451_pressure_min	short	Minimum evap pressure (+offset) seen by P0451.
+D	400023b0	obd_ii_p0451_pressure_max	short	Maximum evap pressure (+offset); max-min > CAL_obd_ii_P0451_pressure_swing_min passes.
+D	400023b2	obd_ii_evap_fuel_level_noise	uint8_t	|fuel_level_raw delta| this sample.
+D	400023b4	obd_ii_evap_pressure_noise	short	|pressure delta| this sample.
+D	400023b6	obd_ii_evap_fuel_level_raw_prev	uint16_t	Previous fuel_level_raw.
+D	400023b8	obd_ii_p0451_pressure	short	obd_ii_evap_purge_pressure + zero offset.
+D	400023ba	obd_ii_p0451_health_a	u8_count	P0451 sub-test debounce (CAL_obd_ii_P0451_debounce_count).
+D	400023bb	obd_ii_p0451_health_b	u8_count	P0451 sub-test debounce (CAL_obd_ii_P0451_debounce_count).
+D	400023bc	obd_ii_p0451_health_c	u8_count	P0451 sub-test debounce.
+D	400023bd	obd_ii_p0451_health_d	u8_count	P0451 sub-test debounce (CAL_obd_ii_P0451_debounce_count).
+D	400023be	obd_ii_evap_purge_settle	u8_count	Purge settle countdown (CAL_obd_ii_evap_purge_settle_debounce).
+D	400023bf	obd_ii_evap_monitor_settle	u8_count	Monitor settle countdown (CAL_obd_ii_evap_monitor_settle_count).
+D	40002452	tps_track_a_raw	u16_voltage_5/4095v	TPS track A 12-bit ADC (get_tps_a_12bit) before smoothing. Was tps_absolute_.
+D	4000245a	-	uint8_t	ETB PWM duty (%) last commanded.
+D	40002460	-	short	ETB PID debug: position error.
+D	40002462	-	short	ETB PID debug: filtered derivative.
+D	40002464	-	int	ETB PID debug: P term.
+D	40002468	-	int	ETB PID debug: integral.
+D	4000246c	-	int	ETB PID debug: I term.
+D	40002470	-	int	ETB PID debug: PID sum.
+D	40002474	-	int	ETB PID debug: D term.
+D	40002478	-	int	ETB PID debug: feed-forward term.
+D	40002482	tps1_cal_offset	u16_voltage_5/4095v	Learned TPS1 0% count (CAL_tps_etb_tps1_scale_0pct_frac of the closed..max span).
+D	40002484	tps2_cal_offset	u16_voltage_5/4095v	Learned TPS2 0% count.
+D	40002486	tps1_cal_full	u16_voltage_5/4095v	Learned TPS1 100% count.
+D	40002488	tps2_cal_full	u16_voltage_5/4095v	Learned TPS2 100% count.
+D	4000248a	tps1_cal_gain	uint16_t	TPS1 gain = 0x3ffff / (full - offset).
+D	4000248c	tps2_cal_gain	uint16_t	TPS2 gain = 0x3ffff / (full - offset).
+D	4000248e	tps1_abs_gain	uint16_t	TPS1 absolute gain = 0x3ffff / (CAL_tps_etb_tps1_max_count - 0x235).
+D	40002490	tps2_abs_gain	uint16_t	TPS2 absolute gain = 0x3ffff / (CAL_tps_etb_tps2_max_count - 0x732).
+D	40002492	-	uint16_t	Cruise cancel request bits (bit0 set by throttle control).
+D	400024a2	throttle_disable_step_count	u16_count	Step counter in throttle_disable (> 49).
+D	400024a6	throttle_disable_trace_len	u16_count	Number of TPS trace samples captured in throttle_disable.
+D	400024a8	throttle_fault_capture_count	u8_count	Throttle fault capture count (0, 1, 2).
+D	400024ac	throttle_disable_duty	int	Duty ramp in throttle_disable (0xaa0 -> 0x780).
+D	400024b0	throttle_disable_tps_a_last	uint16_t	tps_track_a_smoothed at the end of throttle_disable.
+D	400024b2	throttle_disable_ms	u16_time_ms	Time in throttle_disable (to 1000).
+D	400024b4	throttle_disable_trace_index	u8_count	Write index into the TPS trace buffer at 0x40006170 (32 samples).
+D	400024b8	throttle_disable_trace_ptr	pointer	Pointer to LEA_tps_fault_trace_track_a.
+D	400024cb	-	uint8_t	TPS smoothing decrement after gear scaling.
+D	400024ce	-	u16_count	Torque-limit cooldown countdown (CAL_torque_limit_cooldown_timer).
+D	400024d8	-	short	ETB position history z0.
+D	400024da	-	short	ETB position history z-1.
+D	400024dc	-	short	ETB position history z-2.
+D	400024de	-	short	ETB position history z-3.
+D	400024e0	-	int	ETB PID integral.
+D	400024e4	-	u16_time_ms	ETB init delay (1000 = 1 s at 1 kHz).
+D	400024e6	-	uint8_t	TPS init/stability state (1, 2).
+D	400024e8	-	u16_time_ms	HC08 cruise-mode acknowledge timer (500 ms).
+D	400024ea	-	u16_time_ms	Throttle uptime (1 kHz, saturating).
+D	400024ec	-	u16_time_ms	Time in throttle monitor state 5 (1 kHz, saturating).
+D	400024ee	lfb_tps_cap_x4	short	Left-foot-brake TPS cap x4 (0x3ffc = none).
+D	400024f0	lfb_tps_target_x4	short	Left-foot-brake TPS target x4.
+D	400024f2	lfb_hold_timer	u16_count	LFB hold countdown (CAL_lfb_timer_hold<<5).
+D	400024f4	lfb_entry_countdown_timer	u16_count	LFB entry countdown (CAL_lfb_timer_entry<<5). Was lbf_entry_countdown_timer.
+D	400024f6	-	u16_count	LFB brake-off hold (CAL_lfb_brake_off_hold_ticks).
+D	400024f8	lfb_tps_rate	uint16_t	LFB TPS slew rate (CAL_lfb_pedal_override_rate or CAL_lfb_release_rate).
+D	400024fa	lfb_pedal_filtered_x16	uint16_t	Accel pedal x16 filtered for the LFB override.
+D	400024fc	-	u16_voltage_5/4095v	TPS track B closed-throttle count (default 1829).
+D	400024fe	-	u16_voltage_5/4095v	TPS track A closed-throttle count (default 572).
+D	40002500	-	uint8_t	IPS state byte from CAN (0 / 9 = neutral-like states).
+D	40002504	ips_can_199_word	uint16_t	CAN 0x199 bytes 2-3 (big-endian).
+D	4000250e	lfb_pedal_raw	uint16_t	Accel pedal value passed to get_accel_pedal_lfb_brake_override.
+D	40002514	obd_ii_app_fault_flags	uint8_t	Accel pedal monitor fault bits (P2122.. family).
+D	40002518	-	u8_count	Knock ADC buffer index at the end of the window.
+D	40002519	knock_dsp_window_select	uint8_t	Knock DSP mode-2 window selector.
+D	4000251b	-	u8_count	Cylinder (0..5) whose knock window is being processed.
+D	4000251c	-	uint8_t	Knock AGC stage in use (1/2).
+D	4000251e	knock_fft_bin_index	u8_count	FFT bin loop index (0..6).
+D	40002528	knock_dsp_reset_request	uint8_t	Set to request knock DSP state reset.
+D	4000252a	-	u8_count	Number of knock frequency bins.
+D	40002538	flexcan_diag_tx_count	uint32_t	flexcan_diagnostics_tx call counter.
+D	40002542	-	uint8_t	ISO-TP flow-control status (0 CTS, 1 wait, ...).
+D	40002544	-	u8_count	ISO-TP block size from the tester.
+D	40002546	-	u16_count	Length of the pending OBD response.
+D	40002548	-	u8_count	ISO-TP consecutive frames left in the block.
+D	40002549	-	u8_count	ISO-TP STmin countdown (5 ms ticks).
+D	40002552	-	uint8_t	IPS fault bits from CAN 0x202 (bits 5-6).
+D	40002553	-	uint8_t	ABS/ESP status from CAN 0xA8 (0, 1, 4, 5).
+D	40002554	-	u8_temp_5/8-40c	IPS oil temperature from CAN 0x250 byte 5 (mode 22).
+D	40002555	abs_a4_status_bit3	uint8_t	CAN 0xA4 status bit 3 (wheel-speed message).
+D	40002556	abs_a4_status_bit5	uint8_t	CAN 0xA4 status bit 5 (wheel-speed message).
+D	40002558	-	pointer	Dev-mode CAN memory peek/poke address (CAN 0x50-0x53).
+D	4000255c	dm_write_ptr	pointer	Dev-mode CAN memory write pointer (multi-frame poke).
+D	40002560	dm_write_remaining	u16_count	Dev-mode CAN bytes left to write.
+D	40002562	dm_read_length	u16_count	Dev-mode CAN read length (<= 8).
+D	40002564	-	uint16_t	Timestamp of the last received CAN message.
+D	40002566	can_502_rx_count	u8_count	CAN 0x502 receive counter.
+D	4000256c	can_a4_dlc	u8_count	DLC of the last CAN 0xA4 frame (8 = extended data).
+D	4000256d	-	u8_count	CAN 0xB7 rolling counter (4-bit).

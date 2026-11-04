@@ -1,0 +1,101 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 4 (0x40001c9c-0x40001dee).
+D	40001c9c	obd_ii_dtc_format_buffer	char[6]	Static 5-char + NUL text buffer returned by obd_ii_dtc_format ("P0171").
+D	40001ca4	-	uint32_t	DTC being captured into the freeze frame.
+D	40001ca8	-	uint8_t	Config byte of the DTC being captured into the freeze frame.
+D	40001cb0	o2_sensor_fault_detected	uint8_t	Set to 1 by o2_sensor_fault_detection when a heater/circuit fault is reported.
+D	40001ce0	-	short	Throttle model velocity (obd_ii_throttle_actuator_model_monitor_200hz).
+D	40001ce2	-	short	Throttle model position error (model - measured).
+D	40001ce4	-	u8_count	Throttle model monitor blanking countdown (CAL_tps_obd_throttle_monitor_blank_time).
+D	40001ce8	-	uint8_t	1 = evap canister vent valve commanded closed (leak test).
+D	40001ceb	-	u8_time_100ms	Evap purge solenoid test countdown.
+D	40001cec	evap_purge_load_min_selected	u8_load_4mg/stroke	Minimum load for the purge-flow test (CAL_evap_purge_min_load or _active).
+D	40001ced	-	u8_time_100ms	Evap purge flow test state countdown (decremented in evap_leak_detection_timers_decrement_100ms).
+D	40001cee	evap_purge_flow_test_state	uint8_t	Purge-flow test sub-state (0, 2, 4).
+D	40001cef	evap_purge_flow_test_result	uint8_t	Purge-flow test result state (0 idle, 1-2 running, 3 pass, 4 abort).
+D	40001cf0	-	u8_time_100ms	Evap vent control test countdown.
+D	40001cf1	evap_purge_stuck_open_test_count	u8_count	Stuck-open test passes remaining (CAL_evap_purge_stuck_open_test_passes).
+D	40001cfe	vss_monitor_flags	uint8_t	Vehicle-speed-sensor monitor state bits (P0500). Was car_speed_flags_unknown.
+D	40001d00	obd_ii_p0500_test_timer	u16_time_100ms	P0500 test window countdown (CAL_obd_ii_P0500_test_time).
+D	40001d02	obd_ii_p0500_debounce_ticks	u16_count	P0500 up/down debounce ticks (reload CAL_obd_ii_monitor_debounce_cycles).
+D	40001d04	vss_monitor_speed_max	u8_speed_kph	Maximum car_speed_u8 seen by the P0500 monitor.
+D	40001d14	-	short	Bank-1 STFT low-pass filtered (fuel learn).
+D	40001d16	-	short	Bank-2 STFT low-pass filtered (fuel learn).
+D	40001d1e	-	u16_time_100ms	Bank-1 time in the off-idle fuel-trim zone (P0171/P0172).
+D	40001d20	-	u16_time_100ms	Bank-2 time in the off-idle fuel-trim zone.
+D	40001d22	-	u16_time_100ms	Bank-1 time in the idle fuel-trim zone.
+D	40001d24	-	u16_time_100ms	Bank-2 time in the idle fuel-trim zone.
+D	40001d26	-	u16_time_100ms	Bank-1 time in fuel-trim zone 3.
+D	40001d28	-	u16_time_100ms	Bank-2 time in fuel-trim zone 3.
+D	40001d2a	-	uint16_t	Closed-loop proportional step applied on a lean O2 switch.
+D	40001d2c	-	uint16_t	Closed-loop proportional step applied on a rich O2 switch.
+D	40001d34	-	short	Bank-1 STFT ramp rate per step.
+D	40001d36	-	short	Bank-2 STFT ramp rate per step.
+D	40001d38	-	bool	-
+D	40001d39	-	bool	-
+D	40001d3a	-	short	Bank-1 STFT ramp interval countdown (200 Hz).
+D	40001d3e	-	short	Bank-2 STFT ramp interval countdown (200 Hz).
+D	40001d44	stft_filter_q8_bank1	int	Bank-1 STFT IIR accumulator (<<8). Was stft_filter_accum_bank1.
+D	40001d48	stft_filter_q8_bank2	int	Bank-2 STFT IIR accumulator (<<8). Was stft_filter_accum_bank2.
+D	40001d4c	-	u16_voltage_5/1023v	Pre-cat O2 lean switch threshold (CAL_closedloop_o2_sensor_threshold_lean).
+D	40001d4e	-	u16_voltage_5/1023v	Pre-cat O2 rich switch threshold (CAL_closedloop_o2_sensor_threshold_rich).
+D	40001d50	fuel_learn_step_timer_bank1	u8_time_100ms	Bank-1 fuel-learn step countdown (CAL_inj_fuel_learn_step_period + zone delay).
+D	40001d51	fuel_learn_step_timer_bank2	u8_time_100ms	Bank-2 fuel-learn step countdown.
+D	40001d53	-	u8_count	Closed-loop cross-bank check countdown.
+D	40001d54	-	uint16_t	Closed-loop cross-bank fault bits.
+D	40001d56	-	uint16_t	O2 switch count threshold (CAL x5).
+D	40001d58	-	short	Bank-1 STFT at the last rich O2 switch.
+D	40001d5a	-	short	Bank-2 STFT at the last rich O2 switch.
+D	40001d5c	-	short	Bank-1 STFT bank-sync hold countdown.
+D	40001d5e	-	short	Bank-2 STFT bank-sync hold countdown.
+D	40001d60	fuel_learn_zone1_delay_bank1	u8_time_100ms	Bank-1 delay before zone-1 learning (CAL_inj_fuel_learn_zone_step_delay[0]).
+D	40001d61	fuel_learn_zone2_delay_bank1	u8_time_100ms	Bank-1 delay before zone-2 learning (CAL_inj_fuel_learn_zone_step_delay[1]).
+D	40001d62	fuel_learn_zone3_delay_bank1	u8_time_100ms	Bank-1 delay before zone-3 learning (CAL_inj_fuel_learn_zone_step_delay[2]).
+D	40001d63	fuel_learn_zone1_delay_bank2	u8_time_100ms	Bank-2 delay before zone-1 learning.
+D	40001d64	fuel_learn_zone2_delay_bank2	u8_time_100ms	Bank-2 delay before zone-2 learning.
+D	40001d65	fuel_learn_zone3_delay_bank2	u8_time_100ms	Bank-2 delay before zone-3 learning.
+D	40001d6e	fuel_trim_monitor_ready_flags	uint8_t	Fuel-trim monitor zone completion bits (0x3f = all zones done).
+D	40001d70	o2_imbalance_afr_delta	u16_afr_1/100	|AFR(now) - AFR(previous sample)| from the pre-cat O2 (imbalance monitor).
+D	40001d72	o2_imbalance_afr_now	u16_afr_1/100	AFR from CAL_sensor_o2_afr_diag_scaling at the current O2 voltage.
+D	40001d74	o2_imbalance_afr_prev	u16_afr_1/100	AFR at the previous O2 voltage.
+D	40001d76	-	u8_time_ms	Imbalance sampling period countdown (CAL_obd_ii_o2_imbalance_sample_period, 1 kHz).
+D	40001d78	-	u16_time_ms	Fuel-learn inhibit hold-off before the imbalance monitor runs.
+D	40001d7a	o2_imbalance_fail_windows_b2	u8_count	Bank-2 windows above CAL_obd_ii_o2_imbalance_threshold (P219B).
+D	40001d7b	o2_imbalance_ok_windows_b2	u8_count	Bank-2 windows below the threshold.
+D	40001d7c	o2_imbalance_metric_b2	uint16_t	Bank-2 imbalance metric per window (sum*1000/samples); Mode 06 fuel-trim result 2.
+D	40001d7e	o2_imbalance_samples_b2	u16_count	Bank-2 samples in the current window (to CAL_obd_ii_o2_imbalance_sample_total).
+D	40001d80	o2_imbalance_sum_b2	uint32_t	Bank-2 sum of |dAFR| in the current window.
+D	40001d84	o2_imbalance_volt_last_b2	u16_voltage_5/1023v	Bank-2 previous pre-cat O2 voltage (ADC ch 0x17).
+D	40001d86	o2_imbalance_fail_windows_b1	u8_count	Bank-1 windows above CAL_obd_ii_o2_imbalance_threshold (P219A).
+D	40001d87	o2_imbalance_ok_windows_b1	u8_count	Bank-1 windows below the threshold.
+D	40001d88	o2_imbalance_metric_b1	uint16_t	Bank-1 imbalance metric per window; Mode 06 fuel-trim result 1.
+D	40001d8a	o2_imbalance_samples_b1	u16_count	Bank-1 samples in the current window.
+D	40001d8c	o2_imbalance_sum_b1	uint32_t	Bank-1 sum of |dAFR| in the current window.
+D	40001d90	o2_imbalance_volt_last_b1	u16_voltage_5/1023v	Bank-1 previous pre-cat O2 voltage (ADC ch 0x16).
+D	40001d92	obd_ii_p2192_rich_timer_a	u8_time_100ms	P2192 rich confirmation countdown (CAL_obd_ii_P2192_rich_confirm_time).
+D	40001d93	obd_ii_p2192_rich_timer_b	u8_time_100ms	P2192 rich confirmation countdown (second sensor).
+D	40001d94	obd_ii_p2191_lean_timer_a	u8_time_100ms	P2191 lean confirmation countdown (CAL_obd_ii_P2191_lean_confirm_time).
+D	40001d95	obd_ii_p2191_lean_timer_b	u8_time_100ms	P2191 lean confirmation countdown (second sensor).
+D	40001d96	o2_imbalance_status_b2	uint8_t	Bank-2 imbalance monitor bits: bit0 enabled, bit1 window done, bit2 fail, bit3 pass.
+D	40001d97	o2_imbalance_status_b1	uint8_t	Bank-1 imbalance monitor bits: bit0 enabled, bit1 window done, bit2 fail, bit3 pass.
+D	40001d98	throttle_actuator_init_status	uint16_t	Cleared in throttle_actuator_init.
+D	40001d9a	-	u16_count	HC08 remote communication fault count (hc08_obd_flags bit7), saturating.
+D	40001d9c	hc08_comm_event_count	u16_count	HC08 communication event count (saturating).
+D	40001d9e	-	u16_count	-
+D	40001da0	-	u16_count	-
+D	40001da9	-	uint8_t	Throttle control state bits.
+D	40001dbe	-	short	Idle air PI proportional term (CAL_idle_air_control_proportional[speed error]) (10 mg/s).
+D	40001dc0	-	int	Idle air PI integral accumulator (>>10 -> 10 mg/s).
+D	40001dc6	idle_tps_from_airflow	u16_factor_1/1023	Idle throttle position computed from the idle airflow target.
+D	40001dc8	idle_tps_minimum	u16_factor_1/1023	Minimum idle throttle position (lookup x4).
+D	40001dce	idle_comp_clutch_antistall	u16_flow_10mg/s	Clutch anti-stall idle air adder (CAL_idle_clutch_antistall_comp scaled by speed below threshold).
+D	40001dd0	idle_comp_steering	u16_flow_10mg/s	Steering load idle air adder (CAL_idle_comp_steering[|steering angle|]).
+D	40001dd8	idle_control_exit_rpm	u16_rspeed_rpm	Idle target + CAL_idle_unknown3*8: above this idle control exits.
+D	40001dda	idle_control_low_rpm	u16_rspeed_rpm	Idle target + CAL_idle_unknown4*8: below this the low-rpm branch runs.
+D	40001ddc	idle_comp_ecu_voltage	short	Idle air adder from CAL_idle_comp_ecu_voltage (offset-binary, clamped +-0x500) (10 mg/s).
+D	40001de0	idle_air_p_term_raw	short	CAL_idle_air_control_proportional[speed error] (offset-binary, +-0x500) (10 mg/s).
+D	40001de2	idle_error_correction	short	CAL_idle_error_correction_unknown[speed error] (offset-binary, +-0x9f6) (10 mg/s).
+D	40001de6	idle_comp_vehicle_speed	u16_flow_10mg/s	Idle air adder from CAL_idle_comp_vehicle_speed_ips/_manual (max 0x9f6).
+D	40001de8	-	u16_flow_10mg/s	A/C idle air adder (max 2550).
+D	40001dea	-	u16_flow_10mg/s	Fan idle air adder (max 0x9f6).
+D	40001dec	idle_comp_hot_soak	u16_flow_10mg/s	Hot-soak idle air adder from CAL_idle_air_hot_soak_comp[engine-bay fan run time].
+D	40001dee	idle_comp_baro	short	Idle air adder from CAL_idle_comp_baro2[baro] (offset-binary, +-0x500) (10 mg/s).

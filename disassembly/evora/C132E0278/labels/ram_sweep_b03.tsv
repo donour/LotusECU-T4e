@@ -1,0 +1,100 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 3 (0x40001a32-0x40001c7b).
+D	40001a32	-	uint16_t	LEA init stamp high word (0xd98).
+D	40001a34	-	uint32_t	LEA / EEPROM load status bits (bit0 loaded, bit14/15 stamp state).
+D	40001a38	-	uint16_t	Diagnostic LEA reset trigger: write 0x5352 ("SR") to reset learned values; set to 0x4b4f ("OK") when done.
+D	40001a78	-	uint32_t	Cooling system state bits (pumps/fans).
+D	40001a7f	-	uint8_t	Fuel level % for the cluster (0xff = invalid).
+D	40001a82	accessory_relay_bit6_state	uint8_t	obd_ii_relay_status bit6 as a 0/0xff flag (read_accessory_states).
+D	40001a83	recirc_pump_state	uint8_t	Coolant recirculation pump on (read_accessory_states); reported in mode 22. Was recirculation_pump_state_____or_acis.
+D	40001a84	accessory_input_state	uint8_t	Accessory input == 1 (read_accessory_states).
+D	40001a88	-	uint32_t	Engine revs per km (obd_ii_engine_speed/4*1000/car_speed_x100), matched against gear_lookup bands.
+D	40001abc	roughness_cycle_mean	uint16_t	Mean roughness period-delta over the captured cycles (x2/count).
+D	40001abe	roughness_peak_valley_delta	uint16_t	Peak - valley captured engine speed (roughness), vs CAL_roughness_unknown6.
+D	40001ac0	-	short	Front-wheel acceleration (filtered d(speed)/dt).
+D	40001ac4	-	uint8_t	Charge-cooler pump PWM duty (0..255; output = (255-val)/255).
+D	40001ac6	-	u8_time_100ms	Countdown between cluster fuel-economy updates (CAL_cluster_fuel_mileage_update_timer).
+D	40001ac7	fuel_range_smoothing_timer	u8_time_100ms	Countdown between fuel range smoothing steps (CAL_cluster_fuel_range_smoothing_interval). Was fuel_usage_timer1.
+D	40001ac8	-	uint16_t	Shift-light rpm offset per gear (x4 rpm below revlimit_hard).
+D	40001acd	-	u8_time_100ms	Oil pressure warning light debounce (reload 5).
+D	40001ace	oil_pressure_expected_x16	uint16_t	Expected oil pressure threshold <<4 for the cluster lamp.
+D	40001ad8	-	uint8_t	Cluster indicator bits (bits5-7 shift lights, ...).
+D	40001ad9	-	uint8_t	Cluster flag bits.
+D	40001adc	-	uint8_t	Exhaust flap state machine bits.
+D	40001ae0	nonabs_wheelspeed_filter_q8	uint32_t	Non-ABS wheel-speed IIR accumulator (<<8, CAL_wheel_speed_smoothing). Was nonabs_wheelspeed.
+D	40001aee	roughness_rpm_prev	u16_rspeed_1/4rpm	Previous obd_ii_engine_speed sample for roughness direction tracking.
+D	40001af0	roughness_edge_count	u8_count	Samples since the last direction change (vs CAL_roughness_min_edge_count).
+D	40001af1	roughness_direction_count	u8_count	Consecutive samples in the same direction (vs CAL_roughness_direction_count_threshold).
+D	40001af2	roughness_valley_rpm	u16_rspeed_1/4rpm	Engine speed at the last valley.
+D	40001af4	roughness_valley_period	uint16_t	Period count at the last valley.
+D	40001af6	roughness_peak_rpm	u16_rspeed_1/4rpm	Engine speed at the last peak.
+D	40001af8	roughness_cycle_period	uint16_t	Samples in the current half-cycle.
+D	40001afa	roughness_rise_count	u16_count	Samples spent rising (saturating).
+D	40001afc	roughness_fall_count	u16_count	Samples spent falling (saturating); |rise-fall| tests symmetry.
+D	40001afe	roughness_delta_rpm_filtered	short	Filtered rpm delta (CAL_roughness_delta_rpm_smoothing_factor/100); ign_comp_roughness_request = -this*CAL/1000.
+D	40001b02	-	uint8_t	Recirc pump test override (0 normal, 1 forced).
+D	40001b03	-	uint8_t	Trans pump test override (0 normal, 1 forced).
+D	40001b0a	engine_bay_fan_override_state	uint8_t	Engine-bay fan test override (0 normal, 1 forced).
+D	40001b0b	-	uint8_t	-
+D	40001b0d	-	u8_time_100ms	Charge-cooler pump warm-up countdown (30 = 3 s).
+D	40001b0e	pwm_b3_latched_on	uint8_t	Software PWM 0xB3 output latched on once the engine has run.
+D	40001b0f	pwm_b3_phase	u8_count	Software PWM 0xB3 phase counter (0..39).
+D	40001b10	pwm_b3_duty_pct	uint8_t	Software PWM 0xB3 duty (%), latched at the start of each 40-step period.
+D	40001b11	-	uint8_t	Exhaust flap state (0 closed, 1, 2 open).
+D	40001b12	roughness_period_sum	uint16_t	Sum of captured peak+valley periods (roughness_cycle_mean numerator).
+D	40001b14	-	short	Front-wheel speed delta IIR accumulator.
+D	40001b16	-	short	Front-wheel average speed delta since the last sample.
+D	40001b1a	-	uint16_t	Front-wheel average speed.
+D	40001b1c	-	uint16_t	Previous front-wheel average speed.
+D	40001b1e	-	u16_rspeed_1/4rpm	Engine-speed reference target (idle target x4 or pedal-based).
+D	40001b28	-	uint32_t	Previous engine_speed_reference_x256.
+D	40001b2c	-	uint8_t	Engine-speed reference ramp-up gain (/0xa00).
+D	40001b2e	-	uint16_t	Cluster fuel-economy factor (x100), stepped toward the computed value.
+D	40001b3a	-	uint8_t	IPS shift-light bits from CAN 0x250 byte 3.
+D	40001b54	-	u32_time_us	Tip-in enrichment pulse before limits.
+D	40001b58	-	u32_time_us	Tip-out enleanment pulse before limits.
+D	40001b5c	-	short	Snapshot of tps_transient_magnitude_decay used by injtip.
+D	40001b6a	-	u16_rspeed_rpm	DFCO re-enable rpm in gear (CAL x10).
+D	40001b6c	-	u16_rspeed_rpm	DFCO re-enable rpm in neutral (CAL x10).
+D	40001b70	injtip_first_gear_state	uint8_t	Tip-in state machine for first-gear launch (1 -> 2 -> ...).
+D	40001b71	inj_post_start_trim_decay_step	uint8_t	Post-start trim decay step from CAL_inj_post_start_trim_decay_lean/rich.
+D	40001b72	inj_load_drop	short	Load drop over the history window (u16_load_mg_stroke_40004d20 history), mg/stroke.
+D	40001b74	inj_transient_rate_pct	short	Transient rate term (lookup - 100), clamped -30..100.
+D	40001b76	inj_transient_gain	uint8_t	Transient gain lookup.
+D	40001b77	inj_post_start_10ms_divider	u8_count	200 Hz divider, reload 2, for the post-start trim decay.
+D	40001b78	inj_transient_20ms_divider	u8_count	200 Hz divider, reload 4.
+D	40001b79	-	uint8_t	Per-cylinder bits: cylinder fuel-cut but still sparking.
+D	40001b7a	-	uint8_t	Per-cylinder spark enable bits (DFCO / cut patterns).
+D	40001b92	-	u16_flow_10mg/s	Expected airflow from the alpha-N load (load*1e5/period).
+D	40001ba8	-	uint16_t	Load baro gain (efficiency2 lookup x2).
+D	40001be5	-	uint8_t	Load axis value for the LEA alpha-N MAF-error lookup.
+D	40001c14	obd_ii_cat_precat_sum_b1	uint16_t	Sum of LEA_cat_o2_accum_b1_precat[] for the efficiency ratio.
+D	40001c16	obd_ii_cat_precat_sum_b2	uint16_t	Sum of LEA_cat_o2_accum_b2_precat[].
+D	40001c18	obd_ii_cat_postcat_sum_b1	uint16_t	Sum of LEA_cat_o2_accum_b1_postcat[]; ratio = post*1000/pre.
+D	40001c1a	obd_ii_cat_postcat_sum_b2	uint16_t	Sum of LEA_cat_o2_accum_b2_postcat[].
+D	40001c1c	-	uint8_t	Catalyst monitor post-DFCO hold-off prescaler countdown.
+D	40001c1e	obd_ii_cat_dfco_time_max	u16_time_5ms	Longest DFCO seen (dfco_active_time_5ms max); non-zero blocks the cat monitor until it decays.
+D	40001c20	obd_ii_cat_tps_settle_timer	u16_count	Settle countdown after a TPS transient (CAL_obd_ii_o2_tps_transient_settle_ticks).
+D	40001c24	obd_ii_cat_precat_accum_b1_copy	uint32_t	Snapshot of LEA_cat_o2_accum_b1_precat.
+D	40001c28	obd_ii_cat_postcat_accum_b1_copy	uint32_t	Snapshot of LEA_cat_o2_accum_b1_postcat.
+D	40001c2c	obd_ii_cat_precat_accum_b2_copy	uint32_t	Snapshot of LEA_cat_o2_accum_b2_precat.
+D	40001c30	obd_ii_cat_postcat_accum_b2_copy	uint32_t	Snapshot of LEA_cat_o2_accum_b2_postcat.
+D	40001c38	-	uint32_t	Post-cat O2 bank-1 mean (x0xa00).
+D	40001c3c	obd_ii_cat_monitor_count_b2_post	uint16_t	Catalyst monitor count (bank 2, post).
+D	40001c3e	obd_ii_cat_monitor_count_b1_post	uint16_t	Catalyst monitor count (bank 1, post).
+D	40001c40	obd_ii_p0430_status	uint16_t	P0430 catalyst bank-2 test state bits.
+D	40001c42	obd_ii_p0420_status	uint16_t	P0420 catalyst bank-1 test state bits.
+D	40001c44	-	uint16_t	-
+D	40001c46	-	uint16_t	-
+D	40001c48	-	uint16_t	-
+D	40001c50	perf_stats_event_counters	u8_count[4]	Per-band perf-stats event counters (reset after 20).
+D	40001c56	perf_stats_rpm_max_capture	u16_rspeed_rpm	Max engine speed captured during the hold window.
+D	40001c58	perf_accel_timer	u8_count	0-100/0-160 km/h stopwatch (100 ms ticks, saturating 255).
+D	40001c59	perf_0_100kmh_time	u8_count	0-100 km/h time of the current run (100 ms).
+D	40001c5a	perf_0_160kmh_time	u8_count	0-160 km/h time of the current run (100 ms).
+D	40001c5b	perf_accel_run_flags	uint8_t	Perf acceleration run state bits (bit0 armed, bit1 ...).
+D	40001c5c	low_oil_pressure_event_time	u8_count	Duration of the current low-oil-pressure event (saturating).
+D	40001c5d	high_lat_accel_event_time	u8_count	Duration of the current high-lateral-accel event (saturating).
+D	40001c68	-	uint8_t	Bit per similar-conditions slot whose test point has been met.
+D	40001c6e	-	uint8_t	DTC processing state machine index (obd_ii_set_dtc_processing).
+D	40001c79	obd_ii_engine_has_run_latched	uint8_t	engine_has_run latched at mode-01 DTC processing.
+D	40001c7b	obd_ii_dtc_process_first_pass	uint8_t	Set on the first mode-01 DTC processing pass.

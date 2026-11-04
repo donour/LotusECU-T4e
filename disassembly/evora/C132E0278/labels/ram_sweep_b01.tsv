@@ -1,0 +1,86 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 1 (0x40000000-0x40001630).
+D	40000000	engine_period_history_accel	u16_time_us[8]	Last 8 engine_period_90deg_us samples (newest first); engine_rpm_rate uses [0] vs [CAL_engine_accel_lookback_teeth].
+D	40000010	engine_period_history_roughness	u16_time_us[16]	16-deep engine_period_90deg_us history (shifted every 4th update); roughness trend compares old vs new 4-sample means.
+D	40000190	etpu_init_config_table	uint32_t[8]	8-word eTPU channel configuration block copied to the stack by init_etpu.
+D	40000678	misfire_cyl_holdoff_timer	u16_time_5ms[6]	Per-cylinder misfire detection hold-off (reloaded to 100 = 500 ms); misfire codes need it expired.
+D	40000e28	obd_ii_readiness_init_table	-	Readiness group init values copied into the 0x4000601c table by obd_ii_readiness_monitor_init.
+D	40001408	tps_shaping_event_time_history	u32_time_5ms[4]	Last 4 runtime_since_start stamps of TPS-shaping events (shifted in init_tps_shaping).
+D	40001430	crank_cycle_position_src	pointer	Pointer read by copyCAL2RAM to seed crank_cycle_position.
+D	40001462	-	u16_count	Countdown from CAL_misc_engine_running_confirm_delay before engine_is_running is confirmed.
+D	40001464	ign_isr_cyl1_toggle	uint8_t	Alternating-event toggle in ign_isr_cylinder1 (flipped each event while 0-gated).
+D	40001465	ign_isr_cyl2_toggle	uint8_t	Alternating-event toggle in ign_isr_cylinder2.
+D	40001466	ign_isr_cyl3_toggle	uint8_t	Alternating-event toggle in ign_isr_cylinder3.
+D	40001467	ign_isr_cyl4_toggle	uint8_t	Alternating-event toggle in ign_isr_cylinder4.
+D	40001468	ign_isr_cyl5_toggle	uint8_t	Alternating-event toggle in ign_isr_cylinder5.
+D	40001469	ign_isr_cyl6_toggle	uint8_t	Alternating-event toggle in ign_isr_cylinder6.
+D	40001470	etb_driver_spi_cmd	uint32_t	DSPI-C command word for the ETB H-bridge diagnostic read (0x80 after first read).
+D	4000147e	start_input_debounce_timer	u8_time_10ms	Start-input debounce (reload 40 = 400 ms with ignition off). Was brake_clutch_debounce_timer___.
+D	4000149c	engine_soak_time_effective	u16_time_100ms	Effective soak time: CAL_inj_soak_time_max while stopped, decays by maf/(CAL_inj_post_start_enrichment_decay_divisor+1) per 100 ms while running; engine_off_time_100ms is clamped to it.
+D	400014a4	soak_timer_100ms_divider	u8_count	200 Hz divider, reload 20 -> 100 ms soak/off-time update. Was soak_timer_tick_10hz___.
+D	400014a8	-	u8_time_100ms	Countdown from CAL_cluster_fuel_usage_reset_request_timer.
+D	400014b0	-	u8_count	100 ms divider, reload 5 -> 500 ms cluster test step.
+D	400014c0	perf_stats_rpm_hold_timer	u8_count	Perf-stats max-rpm capture hold (reload 50).
+D	400014c1	perf_stats_event_hold_timer	u8_count	Perf-stats event hold countdown (reload 10).
+D	400014f8	stft_ramp_interval_selected	uint8_t	STFT ramp interval chosen from CAL_closedloop_stft_ramp_interval_manual/ips; copied into the per-bank ramp timers. Was closedloop_o2_timer_unknown.
+D	4000150b	-	u8_count	Knock retard decay: delay counter to 10 (200 Hz).
+D	4000150c	knock_ign_retard_decay_counter	u8_count	Knock retard decay: counter to 100 (200 Hz). Was knock_ign_retard_timer_unknown2.
+D	40001510	evap_leak_pressure_margin	short	Pressure margin added to the leak-test start pressure; also the divisor of the decay rate.
+D	40001518	obd_ii_cat_o2_extreme_a	uint16_t	Catalyst monitor O2 min/max tracker (init 0xffff) passed by address with 0x40001fe4.
+D	4000151a	obd_ii_cat_o2_extreme_b	uint16_t	Catalyst monitor O2 min/max tracker (init 0xffff), pair of obd_ii_cat_o2_extreme_a.
+D	4000151c	obd_ii_cat_o2_extreme_c	uint16_t	Catalyst monitor O2 min/max tracker (init 0xffff) passed with 0x40001fe8.
+D	4000151e	obd_ii_cat_o2_extreme_d	uint16_t	Catalyst monitor O2 min/max tracker (init 0xffff), pair of _c.
+D	40001524	-	u16_voltage_5/1023v	Learned APP sensor E zero (minimum) voltage.
+D	40001526	-	u8_time_5ms	Cruise accel-pedal override hold-off (reload 100 = 500 ms).
+D	40001528	cruise_accel_pedal_timer	u16_time_5ms	Cruise accel-pedal timer (reload 500 = 2.5 s). Was cruise_timer_unknown.
+D	40001530	-	uint16_t	Evap purge duty ramp-up step per tick (mode-dependent CAL).
+D	40001532	-	uint16_t	Evap purge duty ramp-down step per tick (mode-dependent CAL).
+D	40001534	evap_purge_conditioning_timer	u8_time_100ms	Purge conditioning countdown (CAL_evap_purge_conditioning_timer_100ms).
+D	40001535	evap_purge_suspend_timer	u8_count	Purge suspend countdown after power enrichment / DFCO (CAL_evap_purge_*_suspend_timeout).
+D	40001538	obd_ii_readiness_group_size_table	-	Readiness group size table (first entry; running sums built in obd_ii_readiness_monitor_init).
+D	4000154e	-	u16_count	Minimum clutch_sensor_confidence seen (reset to CAL_clutch_sensor_confidence_max).
+D	40001568	-	u8_count	Throttle warm-up limit step countdown (reload 100).
+D	4000156a	-	uint16_t	TPS cap during left-foot braking (0xfff = none).
+D	4000156e	-	u16_time_ms	ETB high-duty timer (reload 100 = 100 ms at 1 kHz).
+D	40001570	throttle_fault_confirm_timer	u16_time_ms	1 kHz countdown from 3000 (3 s) before a throttle error (throttle_error_flags&8) is confirmed.
+D	40001572	-	u8_count	ETB low-voltage debounce (reload 5).
+D	40001573	-	bool	-
+D	40001579	-	uint8_t	Knock AGC stage override value (1 or 2).
+D	4000157a	-	uint8_t	Knock AGC gain normalisation divisor (0x80 or 0xff).
+D	4000157b	-	uint8_t	Knock window ISR phase toggle.
+D	40001588	chlog_command_buffer	-	NUL-terminated channel-logger command string scanned by chlog_command_dispatch.
+D	40001591	-	uint8_t	Raw ambient air temp byte from CAN 0x407 (degC = raw*10000/12805 in u8_temp_5/8-40c).
+D	40001592	torque_request_tc_fast_raw	uint16_t	CAN 0xB7 12-bit TC fast torque request (Nm = raw/4 + 400 offset form). Was torque_request1.
+D	40001594	torque_request_esp_fast_raw	uint16_t	CAN 0xB7 12-bit ESP fast torque request. Was torque_request2.
+D	40001596	torque_request_tc_slow_raw	uint16_t	CAN 0xB7 12-bit TC slow torque request. Was torque_request3.
+D	40001598	hc08_rx_timeout_min	u8_time_5ms	Lowest remaining hc08_rx_timeout_5ms seen at a valid frame (HC08 link margin).
+D	400015c6	torque_limit_tcu_0xc7_raw_copy	-	Copy of torque_limit_tcu_0xc7_raw from CAN 0x199.
+D	400015ce	ips_tcu_torque_scale	uint8_t	CAN 0x250 byte 6 (0x80 on timeout); cruise torque request = CAL_cruise_torque_request_factor*256/this.
+D	400015d6	-	short	-
+D	400015da	-	u8_factor_1/255	-
+D	400015f6	torque_model_10ms_divider	u8_count	200 Hz divider, reload 2. Was torque_timer_primary_unknown.
+D	400015f7	torque_cruise_10ms_divider	u8_count	200 Hz divider, reload 2, for the cruise torque request update.
+D	400015f9	ac_load_ramp_step_timer	u8_count	A/C load ramp step countdown (CAL_ac_load_ramp_steps).
+D	400015fa	ac_10ms_divider	u8_count	200 Hz divider, reload 2.
+D	400015fb	-	u8_count	A/C compressor soft-engage countdown (CAL_ac_compressor_soft_engage_time).
+D	40001608	ips_tcu_status_byte1	uint8_t	CAN 0x250 byte 1 (0xff on timeout).
+D	4000160a	revlimit_integral_tps_max	u16_factor_1/1023	TPS ceiling above which the rev-limit integrator stops winding up.
+D	40001610	yaw_sensor_status_flags	uint8_t	CAN 0x303 yaw/lat-accel sensor status bits (bit0 received, bit2, bit5 invalid).
+D	40001612	can_timeout_20ms_divider	u8_count	200 Hz divider, reload 4.
+D	40001613	can_timeout_gear_info	u8_time_5ms	CAN timeout countdown (reload 40 = 200 ms) for the gear-info message.
+D	40001614	can_timeout_ips_gear_control	u8_time_5ms	CAN timeout countdown (200 ms) for the IPS gear-control message.
+D	40001615	can_timeout_ips_data	u8_time_5ms	CAN timeout countdown (200 ms) for the IPS data message (0x250).
+D	40001616	can_timeout_front_wheelspeeds	u8_time_5ms	CAN 0xA2 timeout countdown (reload 10 = 50 ms).
+D	40001617	can_timeout_rear_wheelspeeds	u8_time_5ms	CAN 0xA4 timeout countdown (50 ms).
+D	40001618	can_timeout_abs_a8	u8_time_5ms	CAN 0xA8 timeout countdown (reload 20 = 100 ms).
+D	40001619	can_timeout_abs_flags	u8_time_5ms	ABS flags message timeout countdown (50 ms).
+D	4000161a	can_timeout_sas	u8_time_5ms	CAN 0x85 steering-angle timeout countdown (50 ms). Was sas_timer_unknown.
+D	4000161b	obd_ii_misc1_holdoff_timer	u8_count	Hold-off countdown in obd_ii_monitors_misc1 (reload 10).
+D	40001620	ips_speedmatch_param_a	uint8_t	Parameter byte referenced by the IPS speed-matching controller config (param_1[0x15]).
+D	40001621	ips_speedmatch_param_b	uint8_t	IPS speed-matching config byte (param_1[0x17]).
+D	40001622	ips_speedmatch_param_c	uint8_t	IPS speed-matching config byte (param_1[0x18]).
+D	40001624	ips_shift_error_threshold	uint16_t	Error threshold in ips_shift_state_mgmt_1000hz.
+D	40001626	ips_shift_timer_ms	u16_time_ms	1 kHz countdown (reload 999) in the IPS shift state machine.
+D	40001628	ips_shift_hold_timer_ms	u8_time_ms	1 kHz countdown while no shift is active.
+D	40001629	ips_shift_blend_factor	uint8_t	Blend factor in the IPS speed-match target (0xa00 - val weighting).
+D	4000162a	ips_shift_enable	uint8_t	Enable byte for the IPS shift speed check.
+D	40001630	fuel_pump_cl_10ms_divider	u8_count	200 Hz divider, reload 2, for fuel_pump_closed_loop_update.

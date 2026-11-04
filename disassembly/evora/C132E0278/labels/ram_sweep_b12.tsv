@@ -1,0 +1,76 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 12 (0x40004cd0-0x40008158, arrays and strided structs).
+D	40004cd0	roughness_rpm_hist_a	uint16_t[10]	Engine roughness: crank-speed sample history A (newest first, 1/4 rpm).
+D	40004ce4	roughness_aux_hist_a	uint16_t[10]	Engine roughness: companion history A (DAT_40001af4).
+D	40004cf8	roughness_rpm_hist_b	uint16_t[10]	Engine roughness: crank-speed sample history B (newest first, 1/4 rpm).
+D	40004d0c	roughness_aux_hist_b	uint16_t[10]	Engine roughness: companion history B (DAT_40001af4).
+D	40004d20	inj_transient_load_alphan_hist	-	inj_transient_ramp_200hz: load_computed_alphaN shift history (newest first, mg/stroke); delta vs older sample feeds the transient ramp.
+D	40004d68	sensor_rationality_monitors	uint8_t[420]	35 x 12-byte sensor rationality monitor records (o2_sensor_fault_detection). +0 u8 fault index into sensor_rationality_fault_flags, +1 u8 state (0 idle, 1 running), +2 u16 fail threshold, +4 u16 pass threshold, +6 u16 fail count, +8 u16 pass count. Init in obd_ii_reset_sensor_rationality_monitors / o2_sensors_fault_detection_all.
+D	40004f0c	sensor_rationality_fault_flags	uint8_t	Per-fault active flags indexed by the monitor record fault index.
+D	40004f34	hc08_status_bytes	uint8_t[10]	HC08 status frame bytes 4..13 (HC08_recv); byte 11 tracked as LEA_hc08_status_byte11_min.
+D	40004f4c	knock_peak_per_cyl	uint16_t[6]	Knock detect: per-cylinder peak level vs knock_peak_threshold.
+D	40004f58	knock_event_count_per_cyl	uint16_t[6]	Knock detect: per-cylinder events above threshold (halved into DAT_40001e48 each window).
+D	40004f70	knock_baseline_per_cyl	uint16_t[6]	Knock detect: per-cylinder background baseline.
+D	40004f7c	knock_baseline_log	uint16_t[12]	Knock detect: baseline snapshot log indexed by DAT_40001e59.
+D	40004f94	knock_peak_log	uint16_t[12]	Knock detect: peak snapshot log indexed by DAT_40001e59.
+D	40004fb8	misfire_accel_deviation_per_cyl	int[6]	Misfire: per-cylinder filtered acceleration deviation (window +-3).
+D	40004fd0	misfire_accel_filter_per_cyl	int[6]	Misfire: per-cylinder IIR (x252/256) accumulator.
+D	40004fe8	misfire_bias_per_cyl	short[6]	Misfire: per-cylinder adaptive bias around 0x80.
+D	40004ff4	misfire_raw_metric_per_cyl	short[6]	Misfire: per-cylinder raw segment metric.
+D	40005c04	misfire_baseline_cyl1_q8	-	Misfire learned baseline table cyl 1 ((LEA_misfire_baseline_cyl1 - 128) << 8).
+D	40005ad0	misfire_baseline_cyl2_q8	-	Misfire learned baseline table cyl 2 ((LEA_misfire_baseline_cyl2 - 128) << 8).
+D	4000599c	misfire_baseline_cyl3_q8	-	Misfire learned baseline table cyl 3 ((LEA_misfire_baseline_cyl3 - 128) << 8).
+D	40005868	misfire_baseline_cyl4_q8	-	Misfire learned baseline table cyl 4 ((LEA_misfire_baseline_cyl4 - 128) << 8).
+D	40005734	misfire_baseline_cyl5_q8	-	Misfire learned baseline table cyl 5 ((LEA_misfire_baseline_cyl5 - 128) << 8).
+D	40005600	misfire_baseline_cyl6_q8	-	Misfire learned baseline table cyl 6 ((LEA_misfire_baseline_cyl6 - 128) << 8).
+D	40005d38	-	uint32_t[6]	Misfire: previous crank segment period per cylinder.
+D	40005d50	misfire_seg_period	uint32_t[6]	Misfire: latest crank segment period per cylinder (misfire_record_segment_period).
+D	40005d68	misfire_event_count	uint16_t[6]	Misfire: per-cylinder event counters for the current window (second bank of 6 is misfires_per_cyl).
+D	40005d80	misfire_rate_per_cyl	uint16_t[6]	Misfire rate per cylinder (events per 1000 revs; >100 sets codes, >600 = coilpack failure).
+D	40005d8c	misfire_count_per_cyl	uint16_t[6]	Misfire count per cylinder (copied to LEA_obd_ii_misfire_count_cyl, >100 with P1301).
+D	40005d98	misfire_metric_per_cyl	short[6]	Misfire: per-cylinder metric vs misfire_sensitivity / misfire_rpm_load_threshold_scaled.
+D	40005fa8	obd_ii_cat_load_hist	uint32_t[10]	Catalyst monitor: load_mass_per_stroke_raw shift history (newest first); |newest - oldest| -> u32_load_mg_stroke_40001ff4.
+D	40005fd0	obd_ii_iumpr_group_numerator	uint16_t	IUMPR group minimum table (stride 8): +0 numerator.
+D	40005fd6	obd_ii_iumpr_group_denominator	uint16_t	IUMPR group minimum table (stride 8): +6 denominator.
+D	40006010	obd_ii_iumpr_monitors	uint16_t	IUMPR monitor records (stride 16): +0 u16 denominator, +2 u8 denominator incremented this cycle, +4 u16 numerator, +6 u8 numerator incremented, +8 u16 ratio, +0xa/+0xb u8 condition flags, +0xc u16 monitor id (0x85, 0x99), +0xe u8 group.
+D	40006012	obd_ii_iumpr_denom_done	uint8_t	IUMPR record +2: denominator incremented this cycle.
+D	40006014	obd_ii_iumpr_numerator	uint16_t	IUMPR record +4: numerator (LEA_obd_ii_iumpr_numerator).
+D	40006016	obd_ii_iumpr_numer_done	uint8_t	IUMPR record +6: numerator incremented this cycle.
+D	40006018	obd_ii_iumpr_ratio	uint16_t	IUMPR record +8: numerator/denominator ratio (0xffff when undefined).
+D	4000601a	obd_ii_iumpr_cond_a	uint8_t	IUMPR record +0xa: condition flag.
+D	4000601b	obd_ii_iumpr_cond_b	uint8_t	IUMPR record +0xb: condition flag.
+D	4000601c	obd_ii_iumpr_monitor_id	uint16_t	IUMPR record +0xc: monitor id (0x85, 0x99).
+D	4000601e	obd_ii_iumpr_group	uint8_t	IUMPR record +0xe: group id.
+D	40006150	throttle_disable_tps_hist	uint16_t[16]	throttle_disable: tps_track_a_smoothed shift history (newest first); |oldest - now| checks motion.
+D	40006170	throttle_disable_tps_trace	uint16_t[32]	throttle_disable: TPS trace ring (copied to LEA_tps_fault_trace_track_a).
+D	400061b0	throttle_cmd_lowpass_state	struct_adc_smoothing_state	Biquad low-pass state for throttle_command_actuator (init_tps_biquad_filters).
+D	40006220	knock_fft_re	int[128]	Knock 128-point FFT real buffer.
+D	40006420	knock_fft_im	int[128]	Knock 128-point FFT imaginary buffer.
+D	40006748	knock_bin_energy_x2	int[64]	Knock DSP per-bin energy x2 (mode1) / FFT bin compare.
+D	40006848	knock_energy_sum	int	Knock DSP total bin energy (mode1); per-window sums in mode4.
+D	4000684c	knock_energy_x2_sum	int	Knock DSP total of knock_bin_energy_x2.
+D	400068a0	chlog_response	uint8_t	Channel-logger response frame byte 0 (0xff), buffer runs to 0x40007d3c.
+D	400068a1	chlog_response_status	uint8_t	Channel-logger response byte 1 (status, 0x30, ...).
+D	400068a2	chlog_response_cmd	uint8_t	Channel-logger response byte 2 (echoed command).
+D	400068a3	chlog_response_result	uint8_t	Channel-logger response byte 3 (result / data).
+D	400068a4	chlog_response_data	uint32_t	Channel-logger response bytes 4..7 (data / checksum).
+D	400068a9	chlog_flag_400068a9	uint8_t	Cleared in chlog_command_dispatch.
+D	400068ac	diag_stream_ptr	pointer	Diagnostic stream read/write pointers, indexed by stream.
+D	400068b0	diag_tx_ptr	pointer	diagnostic_tx_unknown source pointer (checksummed as it advances).
+D	400068ba	telemetry_queue_b4	uint8_t	Telemetry queue entry byte (data[4]).
+D	400068bb	telemetry_queue_b5	uint8_t	Telemetry queue entry byte.
+D	400068bc	telemetry_queue_b6	uint8_t	Telemetry queue entry byte (data[6]).
+D	400068bd	telemetry_queue_b7	uint8_t	Telemetry queue entry byte.
+D	40006c78	chlog_poke_dst	pointer	Channel-logger pending write target.
+D	40006c7c	chlog_poke_slot	pointer	Channel-logger pending slot descriptor (group*0x1ac + index*7).
+D	40006c80	chlog_groups	uint8_t	Channel-logger group records (stride 0x1ac).
+D	40006e24	chlog_group_period	uint16_t	Group record +0x1a4: send period reload.
+D	40006e26	chlog_group_countdown	uint16_t	Group record +0x1a6: send countdown.
+D	40006e28	chlog_group_slot	uint8_t	Group record +0x1a8: schedule slot.
+D	40006e29	chlog_group_nchan	uint8_t	Group record +0x1a9: channel count - 1.
+D	40006e2a	chlog_group_state	uint8_t	Group record +0x1aa: state (bit0 running, 4 armed).
+D	40007d3a	diag_tx_pending_len	uint16_t	Bytes left to send in diagnostic_tx_unknown.
+D	40007f58	esci_a_tx_buf	uint8_t[32]	eSCI A transmit buffer.
+D	40007f78	esci_a_rx_buf	uint8_t	eSCI A receive circular buffer.
+D	40008150	eh_table_base	pointer	Registered exception-handling table (eh_register_table).
+D	40008154	eh_table_size	uint32_t	Registered exception-handling table size.
+D	40008158	eh_table_registered	uint32_t	Set once eh_register_table has run.

@@ -1,0 +1,98 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 11 (0x40002810-0x40003028).
+D	40002810	vin_check_flags_a	uint8_t	VIN check state bits (vin_flags).
+D	40002811	vin_check_flags_b	uint8_t	VIN check state bits (vin_flags; high nibble state, low nibble result).
+D	40002814	can_a4_ext_byte0_copy	uint8_t	CAN 0xA4 extended data byte (copy).
+D	40002815	can_a4_ext_byte2_copy	uint8_t	CAN 0xA4 extended data byte (copy).
+D	40002816	-	uint16_t	TCU CAN status bits (0x199 / 0x250 reception state).
+D	4000281a	sas_can_status	uint16_t	CAN 0x85 (steering angle) reception bits.
+D	4000281e	-	uint8_t	IPS calibration version received on CAN 0x250 byte 4 (checked against CAL_ecu_ips_calibration_version).
+D	4000281f	ips_cal_version_valid	uint8_t	Set when CAN 0x250 has been received.
+D	40002820	-	u8_count	Consecutive CAN 0xB7 rolling-counter failures (saturating); >= 6 sets the CAN fault.
+D	40002821	can_b7_crc_failure_counter	u8_count	Consecutive CAN 0xB7 second-check failures.
+D	40002822	can_a2_failure_counter	u8_count	Consecutive CAN 0xA2 check failures.
+D	40002823	can_a2_rolling_failure_counter	u8_count	Consecutive CAN 0xA2 rolling-counter failures.
+D	40002824	can_a4_failure_counter	u8_count	Consecutive CAN 0xA4 check failures.
+D	40002825	can_a4_rolling_failure_counter	u8_count	Consecutive CAN 0xA4 rolling-counter failures.
+D	40002826	obd_ii_u0101_health	u8_count	U0101 (lost communication with TCM) health (CAL_obd_ii_U0101_pass_counter_max).
+D	40002828	can_abs_missing_ticks	u16_time_5ms	Time without ABS messages (saturating); > 600 (3 s) flags the fault.
+D	4000282a	obd_ii_can_check_divider	u8_count	Divider (0..16) in obd_ii_monitors_misc1.
+D	40002830	can_sensor_timeout	u8_count	CAN sensor timeout countdown (CAL_can_sensor_timeout_reload).
+D	40002831	can_yaw_timeout	u8_count	CAN yaw message timeout countdown (CAL_can_yaw_timeout).
+D	40002832	can_yaw_data_timeout	u8_count	CAN yaw data timeout countdown (CAL_can_yaw_data_timeout).
+D	40002834	can_lat_accel_standstill_timer	u16_time_5ms	Lateral-accel standstill timeout (CAL x20).
+D	40002836	can_sensor_check_count	u8_count	CAN sensor check counter (20..30 window).
+D	40002837	can_sensor_fail_count	u8_count	CAN sensor failure count (> 2).
+D	40002838	ips_speedmatch_param_d	uint8_t	IPS speed-matching config byte (param_1[0x16]).
+D	40002839	ips_shift_sm_state	uint8_t	IPS shift-management state (0..4).
+D	4000283c	ips_shift_speed_filter	int	IPS speed-match filter (x0xa00).
+D	40002840	ips_shift_sm_timer	u16_time_ms	IPS shift state countdown (3000 = 3 s at 1 kHz).
+D	40002850	-	enum_t6e_gear	Gear in which traction slip was detected (NO_GEAR = none).
+D	40002851	-	enum_t6e_gear	Gear at which the traction power limit applies.
+D	40002858	-	uint32_t	Smoothed steering angle x256.
+D	4000286a	-	enum_t6e_gear	Gear tracked by TC (0xf = reset).
+D	4000286c	traction_flags	uint8_t	Traction control state bits (bit2, bit6 cluster lamp). Was traction_flags_unknown.
+D	40002870	-	u16_count	Fuel pump run-on after crank activity (CAL_fuel_pump_prime_time).
+D	40002874	-	u16_flow_mg/s	Required injector flow estimate (fuel pump feed-forward).
+D	4000287c	-	uint8_t	Fuel pump state (mode 22).
+D	40002880	-	u8_count	Fuel pump integral update countdown (CAL_fuel_pump_integral_update_period).
+D	40002884	fuel_pump_p_term	short	Fuel pump PI proportional term (+-CAL_fuel_pump_proportional_limit*100, 1/10000 duty).
+D	40002886	fuel_pump_i_term	short	Fuel pump PI integral term (max CAL_fuel_pump_integral_max*100, 1/10000 duty).
+D	40002888	fuel_pump_adapt_settle_timer	u16_count	Fuel pump adaptation settle countdown (CAL_fuel_pump_adapt_settle_delay*10).
+D	4000288a	fuel_pump_adapt_step_timer	u8_count	Fuel pump adaptation step countdown (CAL_fuel_pump_adapt_step_period).
+D	4000288c	-	u16_count	Fuel pump prime countdown (CAL_fuel_pump_prime_time).
+D	4000288e	fuel_pump_state_reported	uint8_t	Fuel pump state passed to the OBD monitors (5, 6, 0).
+D	4000288f	fuel_pump_state_counter_a	u8_count	Fuel pump state machine counter (saturating).
+D	40002890	fuel_pump_state_counter_b	u8_count	Fuel pump state machine counter (saturating).
+D	40002891	fuel_pump_state_debounce	u8_count	Fuel pump state change debounce (reload 3).
+D	40002892	fuel_pump_state_hold	u8_count	Fuel pump state hold countdown (reload 10).
+D	40002893	obd_ii_p0087_fail_ticks	u8_count	P0087 (fuel rail pressure) failing samples (vs CAL_obd_ii_fuel_pressure_high_debounce; SAE P0087 = pressure too low, CAL name says high).
+D	40002894	obd_ii_p0088_fail_ticks	u8_count	P0088 failing samples (vs CAL_obd_ii_fuel_pressure_low_debounce).
+D	40002898	fuel_pump_pwm_duty	short	Fuel pump PWM duty after scaling (500..7000, 1/10000).
+D	400028a0	fuel_pump_correction_filter_q8	int	Fuel pump correction IIR accumulator (<<8).
+D	400028a4	fuel_pump_correction_filtered	short	Filtered fuel pump correction (adaptation input).
+D	400028a6	fuel_pump_i_term_max	short	Upper integral limit (10000 - commanded - P).
+D	400028a8	fuel_pump_i_term_min	short	Lower integral limit (1000 - (P + commanded)).
+D	400028aa	fuel_pump_state_prev	uint8_t	fuel_pump_state at the previous update.
+D	400028b0	obd_ii_p0712_fail_ticks	u16_count	P0712 (trans fluid temp low) failing samples. Was obd_ii_P0713_failure_count.
+D	400028b4	obd_ii_p0713_fail_ticks	u16_count	P0713 (trans fluid temp high) failing samples.
+D	400028b8	obd_ii_p0897_fail_ticks	u16_count	P0897 (trans fluid deteriorated) failing samples (vs CAL_obd_ii_P0897_debounce).
+D	400028bc	trans_fluid_pump_setup	uint32_t	Cleared in obd_ii_setup_trans_fluid_pump.
+D	400028bf	-	uint8_t	Trans fluid pump mode (0, 1).
+D	400028c1	-	uint8_t	Trans pump condition bits (bit0 enabled).
+D	400028cc	-	uint8_t	TC slip target mode state.
+D	400028da	-	uint8_t	TC inhibit bits (bit4-6 from wheel-speed messages).
+D	400028e4	dpm_slip_filter_q8	int	DPM slip IIR accumulator (<<8). Was dpm_slip_filter_accumulator.
+D	400028ec	-	short	DPM slip integral (+-CAL_dpm_torque_cut_i_limit*128).
+D	400028f8	ign_cyl_window_start_tooth	uint8_t[6]	Per-cylinder crank tooth that arms the spark window (ign_update_cyl_enable_by_tooth).
+D	40002900	ign_cyl_window_fire_tooth	uint8_t[6]	Per-cylinder crank tooth that sets the fire request.
+D	40002930	knock_fft_bin_start	uint8_t[7]	Knock FFT bin start indices.
+D	40002938	knock_fft_bin_width	uint8_t[7]	Knock FFT bin widths.
+D	40002998	eqadc_cal_extreme_0	uint32_t	eQADC calibration result 0 running extreme (from CFIFO result register).
+D	4000299c	eqadc_cal_read_0	uint32_t	eQADC calibration result 0 latest read.
+D	40002984	eqadc_cal_extreme_1	uint32_t	eQADC calibration result 1 running extreme (from CFIFO result register).
+D	40002988	eqadc_cal_read_1	uint32_t	eQADC calibration result 1 latest read.
+D	4000295c	eqadc_cal_extreme_2	uint32_t	eQADC calibration result 2 running extreme (from CFIFO result register).
+D	40002960	eqadc_cal_read_2	uint32_t	eQADC calibration result 2 latest read.
+D	40002970	eqadc_cal_extreme_3	uint32_t	eQADC calibration result 3 running extreme (from CFIFO result register).
+D	40002974	eqadc_cal_read_3	uint32_t	eQADC calibration result 3 latest read.
+D	40002948	eqadc_cal_extreme_4	uint32_t	eQADC calibration result 4 running extreme (from CFIFO result register).
+D	4000294c	eqadc_cal_read_4	uint32_t	eQADC calibration result 4 latest read.
+D	40002a08	eqadc_cal_results	uint16_t[10]	eQADC calibration results >>4 (two passes of 5).
+D	40002d28	eqadc_cmd_queue_a	uint32_t[45]	eQADC CFIFO command queue (built by eqadc_build_adc_config_queue / init_eqADC5).
+D	40002de0	eqadc_cmd_queue_b	uint32_t[11]	eQADC CFIFO command queue (init_eqADC4).
+D	40002e78	engine_speed_100ms_prev	u16_rspeed_rpm	engine_speed_16bit 100 ms ago (engine_speed_delta100ms).
+D	40002ef4	-	u32_time_100ns	TCR1 timestamp at the end of the main loop.
+D	40002ef8	-	u32_time_100ns	Last main-loop duration.
+D	40002efc	-	u32_time_100ns	Max main-loop duration.
+D	40002f00	-	u32_time_100ns	TCR1 timestamp at the start of the main loop.
+D	40002f04	-	u32_time_100ns	TCR1 timestamp after the CAN diagnostics step.
+D	40002f08	-	u32_time_100ns	Last CAN diagnostics duration.
+D	40002f0c	-	u32_time_100ns	Max CAN diagnostics duration.
+D	40003021	-	uint8_t	ETB driver error bits from the DSPI diagnostic read.
+D	40003022	injector_driver_status_lo	uint8_t	Injector driver SPI diagnostic status byte (low).
+D	40003023	output_driver_status_lo	uint8_t	Output driver SPI diagnostic status byte (low).
+D	40003024	output_driver_status_hi	uint8_t	Output driver SPI diagnostic status byte (high).
+D	40003025	injector_driver_status_hi	uint8_t	Injector driver SPI diagnostic status byte (high).
+D	40003026	-	uint8_t	Charge-cooler pump driver SPI status byte.
+D	40003027	relay_driver_status_hi	uint8_t	Relay driver SPI diagnostic status byte (high).
+D	40003028	relay_driver_status_lo	uint8_t	Relay driver SPI diagnostic status byte (low).

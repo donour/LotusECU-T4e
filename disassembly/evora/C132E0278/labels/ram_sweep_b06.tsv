@@ -1,0 +1,122 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 6 (0x40001f08-0x40002018),
+# plus corrected names for 0x40001518-0x4000151e (O2 switching previous durations).
+D	40001f08	-	uint32_t	LF wheel speed, filtered (rough-road detection).
+D	40001f0c	misfire_wheel_speed_filt_rf	uint32_t	RF wheel speed, filtered.
+D	40001f10	misfire_wheel_speed_filt_lr	uint32_t	LR wheel speed, filtered.
+D	40001f14	misfire_wheel_speed_filt_rr	uint32_t	RR wheel speed, filtered.
+D	40001f18	misfire_cat_damage_rate	u16_count[2]	Per-bank misfire rate for the cat-damage window (count*10/3).
+D	40001f1c	misfire_emissions_count	u16_count	Misfires in the emissions window /3 (obd_ii_max_misfire_results_emissions source).
+D	40001f1e	-	u8_count	Last cylinder index sampled by misfire_record_segment_period.
+D	40001f20	misfire_cat_damage_accum	u16_count[2]	Per-bank cat-damage accumulator (+333 per window).
+D	40001f26	-	u16_time_5ms	Misfire enable-condition hold (CAL_misfire_enable_conditions_hold).
+D	40001f2c	-	short	-
+D	40001f2e	-	short	-
+D	40001f34	-	u16_count	-
+D	40001f36	-	u8_count	Misfire emissions limit (CAL_misfire_emissions_limit); x10 in Mode 06.
+D	40001f60	-	uint8_t	Mode 22 supported-PID bitmap byte (0xff).
+D	40001f61	obd_ii_mode22_supported_pids_byte1	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f62	obd_ii_mode22_supported_pids_byte2	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f63	obd_ii_mode22_supported_pids_byte3	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f64	obd_ii_mode22_supported_pids_byte4	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f65	obd_ii_mode22_supported_pids_byte5	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f66	obd_ii_mode22_supported_pids_byte6	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f67	obd_ii_mode22_supported_pids_byte7	uint8_t	Mode 22 supported-PID bitmap byte (set in obd_ii_set_mode22_supported_pids).
+D	40001f70	obd_ii_mode06_supported_mid_0_0	uint8_t	Mode 06 supported-MID bitmap group 0 byte 0 (obd_ii_set_mode06_supported_pids).
+D	40001f71	obd_ii_mode06_supported_mid_0_1	uint8_t	Mode 06 supported-MID bitmap group 0 byte 1 (obd_ii_set_mode06_supported_pids).
+D	40001f72	obd_ii_mode06_supported_mid_0_2	uint8_t	Mode 06 supported-MID bitmap group 0 byte 2 (obd_ii_set_mode06_supported_pids).
+D	40001f73	obd_ii_mode06_supported_mid_0_3	uint8_t	Mode 06 supported-MID bitmap group 0 byte 3 (obd_ii_set_mode06_supported_pids).
+D	40001f74	obd_ii_mode06_supported_mid_1_0	uint8_t	Mode 06 supported-MID bitmap group 1 byte 0 (obd_ii_set_mode06_supported_pids).
+D	40001f75	obd_ii_mode06_supported_mid_1_1	uint8_t	Mode 06 supported-MID bitmap group 1 byte 1 (obd_ii_set_mode06_supported_pids).
+D	40001f76	obd_ii_mode06_supported_mid_1_2	uint8_t	Mode 06 supported-MID bitmap group 1 byte 2 (obd_ii_set_mode06_supported_pids).
+D	40001f77	obd_ii_mode06_supported_mid_1_3	uint8_t	Mode 06 supported-MID bitmap group 1 byte 3 (obd_ii_set_mode06_supported_pids).
+D	40001f78	obd_ii_mode06_supported_mid_2_0	uint8_t	Mode 06 supported-MID bitmap group 2 byte 0 (obd_ii_set_mode06_supported_pids).
+D	40001f79	obd_ii_mode06_supported_mid_2_1	uint8_t	Mode 06 supported-MID bitmap group 2 byte 1 (obd_ii_set_mode06_supported_pids).
+D	40001f7a	obd_ii_mode06_supported_mid_2_2	uint8_t	Mode 06 supported-MID bitmap group 2 byte 2 (obd_ii_set_mode06_supported_pids).
+D	40001f7b	obd_ii_mode06_supported_mid_2_3	uint8_t	Mode 06 supported-MID bitmap group 2 byte 3 (obd_ii_set_mode06_supported_pids).
+D	40001f7c	obd_ii_mode06_supported_mid_3_0	uint8_t	Mode 06 supported-MID bitmap group 3 byte 0 (obd_ii_set_mode06_supported_pids).
+D	40001f7d	obd_ii_mode06_supported_mid_3_1	uint8_t	Mode 06 supported-MID bitmap group 3 byte 1 (obd_ii_set_mode06_supported_pids).
+D	40001f7e	obd_ii_mode06_supported_mid_3_2	uint8_t	Mode 06 supported-MID bitmap group 3 byte 2 (obd_ii_set_mode06_supported_pids).
+D	40001f7f	obd_ii_mode06_supported_mid_3_3	uint8_t	Mode 06 supported-MID bitmap group 3 byte 3 (obd_ii_set_mode06_supported_pids).
+D	40001f80	obd_ii_mode06_supported_mid_4_0	uint8_t	Mode 06 supported-MID bitmap group 4 byte 0 (obd_ii_set_mode06_supported_pids).
+D	40001f81	obd_ii_mode06_supported_mid_4_1	uint8_t	Mode 06 supported-MID bitmap group 4 byte 1 (obd_ii_set_mode06_supported_pids).
+D	40001f82	obd_ii_mode06_supported_mid_4_2	uint8_t	Mode 06 supported-MID bitmap group 4 byte 2 (obd_ii_set_mode06_supported_pids).
+D	40001f83	obd_ii_mode06_supported_mid_4_3	uint8_t	Mode 06 supported-MID bitmap group 4 byte 3 (obd_ii_set_mode06_supported_pids).
+D	40001f84	obd_ii_mode06_supported_mid_5_0	uint8_t	Mode 06 supported-MID bitmap group 5 byte 0 (obd_ii_set_mode06_supported_pids).
+D	40001f85	obd_ii_mode06_supported_mid_5_1	uint8_t	Mode 06 supported-MID bitmap group 5 byte 1 (obd_ii_set_mode06_supported_pids).
+D	40001f86	obd_ii_mode06_supported_mid_5_2	uint8_t	Mode 06 supported-MID bitmap group 5 byte 2 (obd_ii_set_mode06_supported_pids).
+D	40001f87	obd_ii_mode06_supported_mid_5_3	uint8_t	Mode 06 supported-MID bitmap group 5 byte 3 (obd_ii_set_mode06_supported_pids).
+D	40001f88	-	u8_count	Number of pending DTCs (mode 07), max 127.
+D	40001f90	-	uint8_t	Mode 08 active test (non-zero = evap test running).
+D	40001f96	obd_ii_mode08_evap_test_timer	u16_time_5ms	Mode 08 evap test countdown (CAL_obd_ii_mode08_evap_test_duration).
+D	40001f98	-	u8_count	Number of confirmed DTCs, max 127.
+D	40001fa0	-	uint16_t	Calibration verification number computed at start-up (compared with CAL_ecu_cvn; reported in mode 09).
+D	40001faa	obd_ii_o2_precat_activity_count_b1	u16_count	Bank-1 pre-cat O2 activity samples (to CAL_obd_ii_o2_precat_activity_window).
+D	40001fac	obd_ii_o2_precat_activity_count_b2	u16_count	Bank-2 pre-cat O2 activity samples.
+D	40001fae	obd_ii_o2_postcat_activity_count_b1	u16_count	Bank-1 post-cat O2 activity samples (vs CAL_obd_ii_o2_postcat_activity_min).
+D	40001fb0	obd_ii_o2_postcat_activity_count_b2	u16_count	Bank-2 post-cat O2 activity samples.
+D	40001fb2	obd_ii_o2_slow_response_holdoff	u8_count	Countdown blocking the O2 slow-response test (decremented while not in alpha-N).
+D	40001fb4	obd_ii_o2_noact_ref_b1_pre	uint16_t	Bank-1 pre-cat O2 no-activity reference (obd_ii_o2_no_activity_monitor).
+D	40001fb6	obd_ii_o2_noact_ref_b1_post	uint16_t	Bank-1 post-cat O2 no-activity reference.
+D	40001fb8	obd_ii_o2_noact_ref_b2_pre	uint16_t	Bank-2 pre-cat O2 no-activity reference.
+D	40001fba	obd_ii_o2_noact_ref_b2_post	uint16_t	Bank-2 post-cat O2 no-activity reference.
+D	40001fbc	obd_ii_o2_noact_count_b1	u8_count	Bank-1 O2 activity rate counter.
+D	40001fbd	obd_ii_o2_noact_count_b2	u8_count	Bank-2 O2 activity rate counter.
+D	40001fbe	obd_ii_p0134_fail_ticks	u8_count	P0134 (B1S1 no activity) failing samples; at CAL_obd_ii_monitor_debounce_cycles decrements obd_ii_p0134_health.
+D	40001fbf	obd_ii_p0154_fail_ticks	u8_count	P0154 (B2S1 no activity) failing samples.
+D	40001fc0	obd_ii_p0140_fail_ticks	u8_count	P0140 (B1S2 no activity) failing samples.
+D	40001fc1	obd_ii_p0160_fail_ticks	u8_count	P0160 (B2S2 no activity) failing samples.
+D	40001fc2	o2_activity_lean_duration_b1	u8_count	Bank-1 pre-cat O2 current lean duration (obd_ii_o2_transition_activity_counter).
+D	40001fc3	o2_activity_lean_duration_b2	u8_count	Bank-2 pre-cat O2 current lean duration.
+D	40001fc4	o2_activity_rich_duration_b1	u8_count	Bank-1 pre-cat O2 current rich duration.
+D	40001fc5	o2_activity_rich_duration_b2	u8_count	Bank-2 pre-cat O2 current rich duration.
+D	40001fc6	obd_ii_cat_o2_rich_time_b1	u16_count	Catalyst check: time post-cat O2 held rich, bank 1 (vs CAL_obd_ii_cat_check_o2_rich_time_max*5).
+D	40001fc8	obd_ii_cat_o2_rich_time_b2	u16_count	Catalyst check: time post-cat O2 held rich, bank 2.
+D	40001fca	obd_ii_o2_noact_status_b1	uint8_t	Bank-1 O2 no-activity monitor state bits.
+D	40001fcb	obd_ii_o2_noact_status_b2	uint8_t	Bank-2 O2 no-activity monitor state bits.
+D	40001fcc	o2_leanrich_flags_b1	uint8_t	Bank-1 pre-cat O2 lean/rich state bits (o2_leanrich_detect: bit1 rich, bit2 lean, bit6/7 edges). Was o2_sensor_1_leanrich.
+D	40001fcd	o2_leanrich_flags_b2	uint8_t	Bank-2 pre-cat O2 lean/rich state bits.
+D	40001fd0	o2_switch_rich_duration_accum_b1	int	Bank-1 sum of rich durations (obd_ii_o2_switching_counter); /count -> LEA_obd_ii_o2_b1_period_avg2.
+D	40001fd4	o2_switch_lean_duration_accum_b1	int	Bank-1 sum of lean durations; /count -> LEA_obd_ii_o2_b1_period_avg1.
+D	40001fd8	o2_switch_rich_duration_accum_b2	int	Bank-2 sum of rich durations.
+D	40001fdc	o2_switch_lean_duration_accum_b2	int	Bank-2 sum of lean durations.
+D	40001fe0	o2_switch_rich_count_b1	u8_count	Bank-1 rich transitions counted.
+D	40001fe1	o2_switch_lean_count_b1	u8_count	Bank-1 lean transitions counted.
+D	40001fe2	o2_switch_rich_count_b2	u8_count	Bank-2 rich transitions counted.
+D	40001fe3	o2_switch_lean_count_b2	u8_count	Bank-2 lean transitions counted.
+D	40001fe4	o2_switch_lean_duration_cur_b1	u16_time_5ms	Bank-1 current lean duration.
+D	40001fe6	o2_switch_rich_duration_cur_b1	u16_time_5ms	Bank-1 current rich duration.
+D	40001fe8	o2_switch_lean_duration_cur_b2	u16_time_5ms	Bank-2 current lean duration.
+D	40001fea	o2_switch_rich_duration_cur_b2	u16_time_5ms	Bank-2 current rich duration.
+D	40001518	o2_switch_rich_duration_prev_b1	u16_time_5ms	Bank-1 previous rich duration (0xffff = none).
+D	4000151a	o2_switch_lean_duration_prev_b1	u16_time_5ms	Bank-1 previous lean duration (0xffff = none).
+D	4000151c	o2_switch_rich_duration_prev_b2	u16_time_5ms	Bank-2 previous rich duration.
+D	4000151e	o2_switch_lean_duration_prev_b2	u16_time_5ms	Bank-2 previous lean duration.
+D	40001fec	obd_ii_cat_transient_blackout	u16_count	Catalyst check transient blackout countdown (CAL_obd_ii_cat_check_transient_blackout).
+D	40001fee	o2_switch_delay_timer_b1	short	Bank-1 O2 switching monitor start delay (CAL_obd_ii_o2_precat_diag_reset_counter).
+D	40001ff0	o2_switch_delay_timer_b2	short	Bank-2 O2 switching monitor start delay.
+D	40001ff2	obd_ii_cat_20ms_divider	u8_count	Catalyst monitor divider (reload 4).
+D	40001ff4	obd_ii_cat_load_delta	int	Load change over the catalyst window (mg/stroke); stability check for the O2 response tests.
+D	40001ff8	o2_slow_response_arm_timer_b2	u16_count	O2 slow-response arm dwell countdown (CAL_obd_ii_o2_slow_response_arm_dwell).
+D	40001ffa	o2_slow_response_arm_timer_b1	u16_count	O2 slow-response arm dwell countdown.
+D	40001ffc	o2_slow_response_state_b2_a	uint8_t	O2 slow-response test state (0/1).
+D	40001ffd	o2_slow_response_state_b1_a	uint8_t	O2 slow-response test state (0/1).
+D	40001ffe	o2_slow_response_state_b2_b	uint8_t	O2 slow-response test state (0/1).
+D	40001fff	o2_slow_response_state_b1_b	uint8_t	O2 slow-response test state (0/1).
+D	40002000	o2_slow_response_runtime_s	short	runtime_since_start / 200 (s) snapshot.
+D	40002002	o2_slow_response_timer_b2_a	u16_count	Countdown loaded from CAL_cat_check_unknown4.
+D	40002004	o2_slow_response_timer_b1_a	u16_count	Countdown loaded from CAL_cat_check_unknown4.
+D	40002006	o2_slow_response_timer_b2_b	u16_count	Countdown loaded from CAL_obd_ii_o2_min_voltage_init.
+D	40002008	o2_slow_response_timer_b1_b	u16_count	Countdown loaded from CAL_obd_ii_o2_min_voltage_init.
+D	4000200a	o2_switch_monitor_timer_b2	short	Bank-2 O2 switching monitor window (CAL_obd_ii_o2_precat_diag_init_counter).
+D	4000200c	o2_switch_monitor_timer_b1	short	Bank-1 O2 switching monitor window.
+D	40002012	o2_activity_rich_count_b2	u8_count	Bank-2 rich transitions (activity counter); r2l time = accum/count.
+D	40002013	o2_activity_rich_count_b1	u8_count	Bank-1 rich transitions (activity counter).
+D	40002014	o2_activity_lean_count_b2	u8_count	Bank-2 lean transitions (activity counter).
+D	40002015	o2_activity_lean_count_b1	u8_count	Bank-1 lean transitions (activity counter).
+D	40002016	o2_slow_response_samples_a	u8_count	Sample counter (to CAL_obd_ii_o2_slow_response_sample_count).
+D	40002017	o2_slow_response_samples_b	u8_count	Sample counter (to CAL_obd_ii_o2_slow_response_sample_count).
+D	40002018	o2_slow_response_samples_c	u8_count	Sample counter (to CAL_obd_ii_o2_slow_response_sample_count).
+D	40002034	o2_activity_lean_accum_b2	int	Bank-2 sum of lean transition durations; /count -> LEA_obd_ii_precat_b2_l2r_time.
+D	40002038	o2_activity_lean_accum_b1	int	Bank-1 sum of lean transition durations; /count -> LEA_obd_ii_precat_b1_l2r_time.
+D	4000203c	o2_activity_rich_accum_b2	int	Bank-2 sum of rich transition durations; /count -> LEA_obd_ii_precat_b2_r2l_time.
+D	40002040	o2_activity_rich_accum_b1	int	Bank-1 sum of rich transition durations; /count -> LEA_obd_ii_precat_b1_r2l_time.

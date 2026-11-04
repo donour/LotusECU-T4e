@@ -1,0 +1,91 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 7 (0x40002019-0x40002375).
+D	40002019	o2_slow_response_samples_d	u8_count	Sample counter (to CAL_obd_ii_o2_slow_response_sample_count).
+D	4000201a	obd_ii_postcat_r2l_time_sum_b2	u16_count	Bank-2 post-cat rich-to-lean response time sum over the samples (vs LEA_obd_ii_postcat_b2_r2l_time_sum_max10).
+D	4000201c	obd_ii_postcat_r2l_time_sum_b1	u16_count	Bank-1 post-cat rich-to-lean response time sum.
+D	4000201e	obd_ii_postcat_l2r_time_sum_b2	u16_count	Bank-2 post-cat lean-to-rich response time sum.
+D	40002020	obd_ii_postcat_l2r_time_sum_b1	u16_count	Bank-1 post-cat lean-to-rich response time sum.
+D	40002022	obd_ii_postcat_r2l_time_b2	u16_time_5ms	Bank-2 post-cat rich-to-lean response time (to CAL_obd_ii_o2_slow_response_limit_rich_to_lean).
+D	40002024	obd_ii_postcat_r2l_time_b1	u16_time_5ms	Bank-1 post-cat rich-to-lean response time.
+D	40002026	obd_ii_postcat_l2r_time_b2	u16_time_5ms	Bank-2 post-cat lean-to-rich response time (to CAL_obd_ii_o2_slow_response_limit_lean_to_rich).
+D	40002028	obd_ii_postcat_l2r_time_b1	u16_time_5ms	Bank-1 post-cat lean-to-rich response time.
+D	4000202a	obd_ii_postcat_response_flags_b2	uint16_t	Bank-2 post-cat O2 response test state bits.
+D	4000202c	obd_ii_postcat_response_flags_b1	uint16_t	Bank-1 post-cat O2 response test state bits.
+D	4000202e	-	uint16_t	Bank-2 pre-cat O2 response test state bits.
+D	40002030	-	uint16_t	Bank-1 pre-cat O2 response test state bits.
+D	40002050	obd_ii_circuit_latch_a	uint16_t	Latched driver-chip diagnostic bits (OR of inverted SPI status 0x40003022/25); consumed by obd_ii_evaluate_electrical_circuit_monitors.
+D	40002052	-	uint8_t	Cylinder sequence sync state bits.
+D	40002054	obd_ii_circuit_latch_b	uint16_t	Latched driver-chip diagnostic bits (status 0x40003023/24).
+D	40002056	obd_ii_circuit_latch_cac	uint16_t	Latched charge-cooler pump driver diagnostic bits (cac_driver_status_spi).
+D	40002058	obd_ii_circuit_latch_c	uint16_t	Latched driver-chip diagnostic bits (status 0x40003027/28).
+D	4000207e	obd_ii_p0141_current_health	u8_count	P0141 heater-current health (CAL_obd_ii_P0141_heater_current_debounce_count).
+D	40002080	-	uint16_t	Aux coolant pump state + diagnostic bits (mode 22; bits 1,4-8 fault -> P123C).
+D	400020ee	obd_ii_circuit_flags_ee	uint8_t	Electrical circuit monitor bits (low nibble active faults).
+D	40002104	obd_ii_p2170_health	u8_count	P2170 health (CAL_obd_ii_P2170_pass_counter_max).
+D	40002114	-	uint16_t	Charge-cooler pump fault code bits (latched).
+D	40002116	-	u16_time_ms	Charge-cooler pump response timer (1 kHz, saturating).
+D	40002118	-	u16_time_ms	Charge-cooler pump measured response time (timestamp - 50).
+D	4000211a	-	u16_time_ms	Charge-cooler diagnostic timer (1 kHz).
+D	4000211c	-	u16_time_ms	Time the charge-cooler PWM has been active (1 kHz).
+D	4000211e	-	u8_count	Charge-cooler fault debounce (reload 10).
+D	4000211f	-	u8_count	Charge-cooler PWM mismatch counter (vs CAL_cac_pwm_mismatch_threshold).
+D	40002120	-	u8_count	Charge-cooler diag state timeout counter (> 50).
+D	40002132	tps_shaping_time_delta	uint32_t	Time delta computed in init_tps_shaping.
+D	40002136	-	u16_time_5ms	DCA stationary wait (vs CAL_dca_stationary_wait_time*20).
+D	4000213a	-	u8_count	DCA activation counter (vs CAL_dca_activate_timer).
+D	40002144	-	uint16_t	DCA throttle ramp step lookup.
+D	40002146	-	u16_factor_1/1023	DCA throttle ramp target cap.
+D	40002148	-	u16_count	DCA throttle ramp index (>>2 axis), 0..1023.
+D	4000214c	obd_ii_app_monitor_word_a	uint32_t	Cleared in obd_ii_accel_pedal_monitors.
+D	40002150	obd_ii_app_monitor_word_b	uint32_t	Cleared in obd_ii_accel_pedal_monitors.
+D	40002154	obd_ii_app_monitor_word_c	uint32_t	Cleared in obd_ii_accel_pedal_monitors.
+D	40002158	obd_ii_app_monitor_word_d	uint32_t	Cleared in obd_ii_accel_pedal_monitors.
+D	4000215c	obd_ii_app_monitor_word_e	uint32_t	Cleared in obd_ii_accel_pedal_monitors.
+D	40002168	-	uint16_t	Commanded evap purge duty (0..255 into the freeze frame).
+D	4000216a	-	uint16_t	Evap purge state bits.
+D	4000216e	-	u16_flow_10mg/s	Air bypassing the throttle through the purge (subtracted from idle air).
+D	40002178	-	uint16_t	Evap vapor concentration estimate (mode 22).
+D	4000217c	fuel_trim_purge_fraction	u16_count[2]	Per-bank purge fuel fraction from fuel_trim_update_proportional (0xffff = invalid).
+D	40002180	evap_purge_state	uint8_t	Evap purge state machine (0 off .. 4 purging).
+D	40002182	-	uint16_t	Filtered purge vacuum (>>2 axis).
+D	40002184	evap_purge_bypass_air_axis	uint8_t	idle_bypass_airflow / CAL_evap_idle_bypass_airflow_divisor (0xf2 max).
+D	40002186	evap_purge_solenoid_duty	short	Purge solenoid duty sent to evap_purge_solenoid_set_duty.
+D	40002188	-	uint16_t	Purge solenoid duty from the table (before CAL_obd_ii_commanded_evap_purge_min).
+D	4000218c	evap_purge_duty_integral	uint32_t	Running sum of evap_purge_duty_hi (100 ms).
+D	40002190	-	u8_time_100ms	Evap STFT settle countdown (CAL_evap_stft_settle_time).
+D	40002194	fuel_trim_integral_limit	short[2]	Per-bank purge fuel-trim integral limit.
+D	40002198	fuel_trim_prop_term	short[2]	Per-bank purge fuel-trim proportional term (+-0x7fff).
+D	400021a0	fuel_trim_integral_accum	int[2]	Per-bank purge fuel-trim integral accumulator.
+D	400021a4	-	-	-
+D	400021a8	fuel_trim_purge_mass	u16_count[2]	Per-bank purge fuel mass term (/250000 scaling).
+D	400021ac	-	uint16_t	Ramped purge duty (x256).
+D	400021ae	-	uint8_t	Purge duty limit (min of flow/fuel limits, idle cap).
+D	400021b0	-	uint8_t	Purge duty limit from the fuel-mass budget (0xff = none).
+D	400021b4	evap_bypass_air_integral	uint32_t	Running sum of idle_bypass_airflow (100 ms).
+D	400021b8	fuel_trim_integral_state	int[2]	Per-bank purge fuel-trim integral state.
+D	400021c0	evap_purge_duty_ramped_prev	uint16_t	Previous evap_purge_duty_ramped.
+D	400021c4	evap_purge_filter_q8	int	Purge IIR accumulator (<<8, CAL_evap_purge_filter_alpha).
+D	400021c8	-	u16_mass_10ug	Minimum injector fuel mass kept when purging (mg = val/100).
+D	400021ca	evap_purge_enable_delay	u16_count	Purge enable delay (lookup<<4), decremented at 100 ms.
+D	400021cc	fuel_trim_error	short[2]	Per-bank purge fuel-trim error term.
+D	400021d0	evap_purge_pe_suspend_delay	u8_time_100ms	Delay before suspending purge in power enrichment (CAL_evap_purge_power_enrich_suspend_delay).
+D	400021d1	evap_purge_pe_suspend_hold	u8_time_100ms	Purge suspend hold after power enrichment (CAL_evap_purge_power_enrich_suspend_hold).
+D	400021d2	evap_purge_ramp_divider	u8_count	Purge ramp divider (to 10).
+D	400021d3	evap_fuel_learn_entry_delay	u8_time_100ms	Delay before fuel learning with purge (CAL_evap_fuel_learn_entry_delay).
+D	400021d4	evap_purge_start_delay	u16_time_100ms	Purge start delay (CAL_evap_purge_start_delay<<4).
+D	400021d6	-	u8_time_100ms	Purge open kick countdown (CAL_evap_purge_open_kick_time).
+D	400021d7	evap_purge_restart_delay	u8_time_100ms	Purge restart countdown.
+D	400021e0	-	uint32_t	Mode $2F trans pump request bits.
+D	400021e4	-	uint32_t	Mode $2F trans pump state bits.
+D	400021e8	obd_ii_mode2f_flags_misc	uint32_t	Mode $2F actuator test bits (third word).
+D	400021f2	-	uint8_t	Mode $2F evap purge test value.
+D	400021f4	-	uint8_t	Mode $2F cooling fan test duty.
+D	4000221a	-	u16_time_5ms	Mode $2F inactivity timeout (CAL_obd_ii_mode2f_timeout).
+D	40002220	obd_ii_readiness_flags	uint8_t	OBD readiness / monitor completion bits (bit3 init, bit4 O2 response done).
+D	40002224	obd_ii_cat_stable_timer	u16_count	Catalyst monitor stability countdown (CAL_obd_ii_cat_monitor_stable_time).
+D	40002226	obd_ii_cat_init_counter	u16_count	Catalyst monitor init countdown (CAL_obd_ii_cat_monitor_init_counter_2).
+D	40002228	obd_ii_cat_run_timer	u16_count	Catalyst monitor minimum run countdown (CAL_obd_ii_cat_monitor_run_time_min).
+D	4000222a	obd_ii_cat_window_timer	u16_count	Catalyst monitor window countdown (CAL_obd_ii_cat_monitor_window_time).
+D	400022ca	-	u16_time_10ms	Low oil pressure duration (100 Hz, vs CAL_oil_pressure_low_timer_threshold).
+D	40002312	-	uint16_t	Expected oil pressure <<4.
+D	40002374	-	u8_count	Clutch samples below the window.
+D	40002375	-	u8_count	Clutch samples above the window.

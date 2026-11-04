@@ -1,0 +1,113 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 10 (0x400026d0-0x400027da).
+D	400026d0	tps_torque_limit_filter_q8	int	Torque-limit TPS target IIR accumulator (<<8). Was tps_accumulator_torque_limit.
+D	400026d8	-	uint8_t	A/C compressor requested (from the HVAC input).
+D	400026da	-	uint8_t	A/C clutch relay on (obd_ii_relay_status bit5), mode 22.
+D	400026dc	ac_load	uint16_t	A/C compressor load (copy of the A/C power term); axis for idle/torque A/C comp (/40). Was ac_load2____.
+D	400026de	-	uint16_t	A/C inhibit reason bits.
+D	400026e0	ac_on_time_count	u8_count	A/C on-time counter (saturating).
+D	400026e1	ac_ign_comp_delay	u8_time_5ms	Delay before the A/C ignition compensation (CAL_ac_ign_comp_delay).
+D	400026e2	ac_shutdown_delay	u8_time_5ms	A/C shutdown countdown (CAL_ac_shutdown_delay).
+D	400026e3	-	u8_time_5ms	A/C TPS inhibit countdown (CAL_ac_tps_inhibit_timer).
+D	400026e8	ac_compressor_speed_rpm	u16_rspeed_rpm	Filtered A/C compressor speed (rpm).
+D	400026ea	-	short	A/C evaporator PID P term.
+D	400026ec	ac_pid_error	short	A/C load error term (power - offset - target).
+D	400026ee	-	short	A/C evaporator PID D term (filtered).
+D	400026f0	-	short	A/C evaporator PID integral (output accumulator).
+D	400026f2	-	short	A/C target accumulator.
+D	400026f4	ac_load_step	short	A/C load ramp step per tick.
+D	400026f6	-	uint16_t	A/C power limit (lookup x40).
+D	400026fa	ac_clutch_reengage_timer	u8_time_5ms	A/C clutch re-engage hold-off (reload 50).
+D	400026fc	-	uint16_t	A/C compressor PWM duty.
+D	400026fe	-	u16_time_5ms	Fan hold time after A/C start (CAL_ac_fan_startup_hold_time*10).
+D	40002708	ac_fault_check_timer	u16_count	A/C fault check countdown.
+D	4000270a	ac_load_slew_up_timer	u16_time_5ms	A/C load slew-up period countdown.
+D	4000270c	ac_load_slew_down_timer	u16_time_5ms	A/C load slew-down period countdown.
+D	4000270e	-	uint8_t	A/C clutch engage request.
+D	4000270f	-	u8_count	A/C evaporator PID update countdown.
+D	40002710	ac_pid_d_period	u8_count	A/C PID derivative update countdown (CAL_ac_evap_pid_d_period).
+D	40002712	ac_compressor_power	short	A/C compressor power demand (clipped to 2000..ac_power_limit). Was ac_load_mw___.
+D	40002714	ac_pid_d_raw	short	A/C PID derivative before filtering (CAL_ac_evap_pid_kd * d(error) * 4).
+D	40002716	-	u8_time_5ms	A/C low-rpm inhibit hold (CAL_ac_inhibit_rpm_min_hold).
+D	40002718	-	u16_time_5ms	A/C evaporator freeze inhibit (CAL_ac_evap_freeze_inhibit_delay*4).
+D	4000271a	ac_evap_temp_falling	uint8_t	0xff when the evaporator temperature is falling.
+D	4000271c	ac_evap_temp_prev	short	Previous obd_ii_ac_evap_temp for the trend.
+D	4000271e	ac_evap_trend_timer	u8_count	Evaporator trend sample countdown (CAL_ac_evap_temp_trend_period2).
+D	4000271f	ac_load_slew_up_active	uint8_t	1 while the A/C load is slewing up.
+D	40002720	ac_rpm_cutoff_on_delay	u16_time_5ms	A/C high-rpm cutoff on delay (CAL x10).
+D	40002722	-	u16_time_5ms	A/C rpm cutoff minimum hold (CAL x10).
+D	40002724	ac_evap_temp_delta_rate	short	Change in the evaporator temperature error.
+D	40002726	ac_evap_temp_delta_prev	short	Previous evaporator temperature error.
+D	40002728	ac_power_target	short	A/C power target before the step limit.
+D	4000272c	ac_compressor_speed_filter_q8	int	A/C compressor speed IIR accumulator (<<8).
+D	40002730	ac_compressor_speed_raw	u16_rspeed_rpm	A/C compressor speed 60e6/period (rpm).
+D	40002732	ac_fault_metric_a	uint16_t	A/C fault check metric.
+D	40002734	ac_fault_metric_b	uint16_t	A/C fault check metric.
+D	40002736	ac_compressor_speed_ratio	uint16_t	A/C compressor speed / engine speed ratio (x10000/127).
+D	4000273c	tps1_scaled_hist0	uint16_t	TPS1 scaled history (newest).
+D	4000273e	tps1_scaled_hist1	uint16_t	TPS1 scaled history (-1).
+D	40002740	tps1_scaled_hist2	uint16_t	TPS1 scaled history (-2).
+D	40002744	tps2_scaled_hist0	uint16_t	TPS2 scaled history (newest).
+D	40002746	tps2_scaled_hist1	uint16_t	TPS2 scaled history (-1).
+D	40002748	tps2_scaled_hist2	uint16_t	TPS2 scaled history (-2).
+D	4000274a	tps_track_diff	short	TPS1 - TPS2 scaled difference (correlation check).
+D	4000274c	tps1_scaled_12bit	uint16_t	TPS1 scaled to 0..0xfff.
+D	4000274e	tps2_scaled_12bit	uint16_t	TPS2 scaled to 0..0xfff.
+D	40002750	tps_scaled_diff	short	tps1_scaled_12bit - tps2_scaled_12bit.
+D	40002752	tps1_fault_timer	u16_time_ms	TPS1 fault countdown (1000); non-zero = tps_sensor_fault_active.
+D	40002754	tps2_fault_timer	u16_time_ms	TPS2 fault countdown (1000).
+D	40002758	app_track_c_hist0	uint16_t	Pedal track history (newest).
+D	4000275a	app_track_c_hist1	uint16_t	Pedal track history (-1).
+D	4000275c	app_track_c_hist2	uint16_t	Pedal track history (-2).
+D	40002760	app_track_d_hist0	uint16_t	Pedal track history (newest).
+D	40002762	app_track_d_hist1	uint16_t	Pedal track history (-1).
+D	40002764	app_track_d_hist2	uint16_t	Pedal track history (-2).
+D	40002769	-	uint8_t	Accel pedal system state (0 ok, 1, 2 fault).
+D	4000276a	tps_track_d_preferred	bool	Returned by get_tps_sensor_track_d_preferred.
+D	40002770	-	uint8_t	Service coding command (1, 2, 7, ...).
+D	4000278e	-	uint8_t	Pending EEPROM/coding update bits.
+D	40002794	-	uint32_t	Bitmask of VIN bytes received (bits 3..16).
+D	40002798	-	uint8_t	-
+D	40002799	-	uint8_t	-
+D	4000279a	-	uint8_t	-
+D	4000279b	-	uint8_t	-
+D	4000279c	-	uint8_t	-
+D	4000279d	-	uint8_t	-
+D	4000279e	-	uint8_t	-
+D	4000279f	-	uint8_t	-
+D	400027a0	-	uint8_t	-
+D	400027a1	-	uint8_t	-
+D	400027a2	-	uint8_t	-
+D	400027a3	-	uint8_t	-
+D	400027a4	-	uint8_t	-
+D	400027a5	-	uint8_t	-
+D	400027a6	-	uint8_t	-
+D	400027a8	-	uint8_t	-
+D	400027a9	-	uint8_t	-
+D	400027aa	-	uint8_t	-
+D	400027ab	-	uint8_t	-
+D	400027ac	-	uint8_t	-
+D	400027ad	-	uint8_t	-
+D	400027ae	-	uint8_t	-
+D	400027af	-	uint8_t	-
+D	400027b0	-	uint8_t	-
+D	400027b1	-	uint8_t	-
+D	400027b2	-	uint8_t	-
+D	400027b3	-	uint8_t	-
+D	400027b4	-	uint8_t	-
+D	400027b5	-	uint8_t	-
+D	400027b6	-	uint8_t	-
+D	400027b7	-	uint8_t	-
+D	400027b8	-	uint8_t	-
+D	400027b9	-	uint8_t	-
+D	400027ba	-	uint8_t	-
+D	400027bb	-	uint8_t	-
+D	400027bc	-	uint8_t	-
+D	400027bd	-	uint8_t	-
+D	400027be	-	uint8_t	-
+D	400027bf	-	uint8_t	-
+D	400027c1	-	uint8_t	-
+D	400027c2	-	uint8_t	-
+D	400027c3	-	uint8_t	-
+D	400027a7	cod_option_bits_16_17	uint8_t	Variant coding COD[1] bits 16-17.
+D	400027d9	ips_tcu_data_invalid	uint8_t	Set when CAN 0x250 data is invalid/timed out.
+D	400027da	-	uint8_t	IPS throttle restriction request (CAN 0x250 byte 0 bit 2).

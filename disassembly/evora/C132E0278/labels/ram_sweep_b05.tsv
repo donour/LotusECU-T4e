@@ -1,0 +1,93 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): RAM sweep batch 5 (0x40001df0-0x40001f04).
+D	40001df0	-	u16_flow_10mg/s	Expected idle airflow (max 0x9f6).
+D	40001df6	idle_manifold_vacuum	u16_pressure_mbar	Manifold vacuum used for the idle throttle-area calc (0x3ff when invalid).
+D	40001dfa	idle_comp_misc_air	u16_flow_10mg/s	Idle air adder (max 0x9f6) summed into obd_ii_idle_air_output.
+D	40001dfc	idle_air_base	u16_flow_10mg/s	Base idle airflow term (max 0x9f6) summed into obd_ii_idle_air_output.
+D	40001e00	-	u16_flow_10mg/s	Idle airflow corrected for density (max 0x13ec); axis of the idle throttle-area lookup.
+D	40001e02	-	bool	-
+D	40001e08	idle_clutch_antistall_inhibit	uint8_t	1 = clutch anti-stall adder inhibited.
+D	40001e09	idle_strategy_prev	uint8_t	idle_strategy at the previous pass (slewed target reset on change).
+D	40001e1a	idle_manifold_pressure_ratio	u16_pressure_mbar	Manifold pressure ratio term for the idle throttle-area lookup.
+D	40001e23	obd_ii_p0506_fail_ticks	u8_count	Idle speed low failing samples for P0506; at CAL_obd_ii_idle_error_fail_count decrements obd_ii_p0506_health.
+D	40001e24	obd_ii_p0507_fail_ticks	u8_count	Idle speed high failing samples for P0507; at CAL_obd_ii_idle_error_fail_count decrements obd_ii_p0507_health.
+D	40001e25	obd_ii_p050a_fail_ticks	u8_count	Idle speed cold-start failing samples for P050A; at CAL_obd_ii_idle_error_fail_count decrements obd_ii_p050a_health.
+D	40001e26	obd_ii_p050a_fail_ticks_2	u8_count	Idle speed cold-start (2) failing samples for P050A; at CAL_obd_ii_idle_error_fail_count decrements obd_ii_p050a_health.
+D	40001e27	obd_ii_p0507_fail_ticks_2	u8_count	Idle speed high (2) failing samples for P0507; at CAL_obd_ii_idle_error_fail_count decrements obd_ii_p0507_health.
+D	40001e28	knock_ign_retard_hold_per_cyl	u8_count[6]	Per-cylinder knock retard hold countdown (CAL_knock_retard_hold_time); retard does not decay while non-zero. Was knock_ign_retard_hold_counter_per_cyl.
+D	40001e40	-	uint8_t	Knock control state bits.
+D	40001e42	knock_baseline_update_pending	uint8_t	1 while the knock baseline update for the current cylinder is pending.
+D	40001e44	knock_baseline_sample_counter	u16_count	Knock baseline sample counter (wraps at 2000).
+D	40001e48	knock_noise_half_per_cyl	u8_count[6]	Per-cylinder knock noise level /2 (from 0x40004f58).
+D	40001e4e	knock_noise_half_sum	u16_count	Sum of knock_noise_half_per_cyl.
+D	40001e56	knock_trace_cylinder	uint8_t	Cylinder selected for the knock trace buffers.
+D	40001e57	knock_baseline_rpm_index	u8_count	Row of LEA_knock_baseline_3d = engine_speed_8bit >> 5.
+D	40001e58	knock_baseline_load_index	u8_count	Column of LEA_knock_baseline_3d = load_mass_per_stroke >> 5.
+D	40001e59	knock_trace_index	u8_count	Write index (0..10) of the knock trace buffers at 0x40004f7c / 0x40004f94.
+D	40001e6c	-	uint32_t	Evap system / leak monitor state bits.
+D	40001e70	evap_p0441_pressure_delta	short	Evap pressure change during the P0441 purge-flow test (stored in LEA_obd_ii_evap_P0441_test_result).
+D	40001e72	-	uint8_t	Evap leak test state (0..5).
+D	40001e74	evap_leak_decay	short	Pressure decay over the leak-test window (P0456/P0442 metric).
+D	40001e76	-	short	Last leak-check result (mode 22).
+D	40001e78	evap_p0456_decay_limit	uint8_t	P0456 decay limit lookup [fuel level, ...].
+D	40001e7a	evap_leak_pressure_rise	short	Pressure rise above the vacuum start point.
+D	40001e7c	evap_leak_purge_duty_limit	uint8_t	Purge duty limit during the leak test (0xff = none).
+D	40001e7e	evap_leak_pressure_max	short	Maximum evap pressure seen in the leak test.
+D	40001e80	evap_leak_pressure_start	short	Evap pressure at the start of the decay window.
+D	40001e82	-	u8_count	Leak test pre-start delay (CAL_evap_leak_test_pre_start_delay).
+D	40001e83	-	u8_count	Leak test purge settle delay (CAL_evap_leak_test_purge_settle_delay).
+D	40001e84	-	u8_count	Leak test settle samples remaining (CAL_evap_leak_test_settle_samples).
+D	40001e85	-	u8_count	Leak test stage-4 dwell remaining (CAL_evap_leak_test_stage4_dwell).
+D	40001e86	-	u16_count	Leak test decay samples remaining (CAL_evap_leak_test_sample_count).
+D	40001e88	evap_leak_vacuum_target	short	Vacuum target for the leak test (P0441 delta - offset).
+D	40001e8c	evap_leak_monitor_flags	uint16_t	Evap leak monitor state bits.
+D	40001e92	-	u16_count	Leak test idle dwell remaining (CAL_evap_leak_test_idle_dwell).
+D	40001e94	-	u16_count	Leak test delay remaining (CAL_evap_leak_test_delay<<4).
+D	40001e96	evap_leak_purge_duty	uint8_t	Purge duty (evap_purge_duty_hi) latched for the pull-down rate.
+D	40001e98	-	u16_count	Vacuum decay samples remaining (CAL_evap_leak_vacuum_decay_sample).
+D	40001e9a	evap_leak_pulldown_ticks	u8_count	Ticks spent pulling vacuum (saturating).
+D	40001ea0	-	uint16_t	Main diagnostic state bits.
+D	40001ea2	obd_ii_p050b_fail_ticks	u16_count	P050B failing samples (vs CAL_obd_ii_monitor_debounce_cycles). Was p050b_fail_cycle_counter.
+D	40001ea5	obd_ii_p2336_noactivity_ticks	u8_count	Cylinder 1 knock no-activity samples; above CAL_obd_ii_knock_no_activity_count decrements obd_ii_p2336_noactivity_health.
+D	40001ea6	obd_ii_p2336_noactivity_health	u8_count	Cylinder 1 knock-sensor activity health for P2336 (to CAL_obd_ii_P2336_maturing_limit).
+D	40001eb1	obd_ii_p2336_threshold_ticks	u8_count	Cylinder 1 knock-threshold check samples (vs CAL_knock_threshold_obd_ii_check_count).
+D	40001eb2	obd_ii_p2336_threshold_health	u8_count	Cylinder 1 knock-threshold health for P2336 (to CAL_obd_ii_P2336_maturing_limit). Was obd_ii_knock_monitor_counters.
+D	40001ea7	obd_ii_p2337_noactivity_ticks	u8_count	Cylinder 2 knock no-activity samples; above CAL_obd_ii_knock_no_activity_count decrements obd_ii_p2337_noactivity_health.
+D	40001ea8	obd_ii_p2337_noactivity_health	u8_count	Cylinder 2 knock-sensor activity health for P2337 (to CAL_obd_ii_P2337_maturing_limit).
+D	40001eb3	obd_ii_p2337_threshold_ticks	u8_count	Cylinder 2 knock-threshold check samples (vs CAL_knock_threshold_obd_ii_check_count).
+D	40001eb4	obd_ii_p2337_threshold_health	u8_count	Cylinder 2 knock-threshold health for P2337 (to CAL_obd_ii_P2337_maturing_limit).
+D	40001ea9	obd_ii_p2338_noactivity_ticks	u8_count	Cylinder 3 knock no-activity samples; above CAL_obd_ii_knock_no_activity_count decrements obd_ii_p2338_noactivity_health.
+D	40001eaa	obd_ii_p2338_noactivity_health	u8_count	Cylinder 3 knock-sensor activity health for P2338 (to CAL_obd_ii_P2338_maturing_limit).
+D	40001eb5	obd_ii_p2338_threshold_ticks	u8_count	Cylinder 3 knock-threshold check samples (vs CAL_knock_threshold_obd_ii_check_count).
+D	40001eb6	obd_ii_p2338_threshold_health	u8_count	Cylinder 3 knock-threshold health for P2338 (to CAL_obd_ii_P2338_maturing_limit).
+D	40001eab	obd_ii_p2339_noactivity_ticks	u8_count	Cylinder 4 knock no-activity samples; above CAL_obd_ii_knock_no_activity_count decrements obd_ii_p2339_noactivity_health.
+D	40001eac	obd_ii_p2339_noactivity_health	u8_count	Cylinder 4 knock-sensor activity health for P2339 (to CAL_obd_ii_P2339_maturing_limit).
+D	40001eb7	obd_ii_p2339_threshold_ticks	u8_count	Cylinder 4 knock-threshold check samples (vs CAL_knock_threshold_obd_ii_check_count).
+D	40001eb8	obd_ii_p2339_threshold_health	u8_count	Cylinder 4 knock-threshold health for P2339 (to CAL_obd_ii_P2339_maturing_limit).
+D	40001ead	obd_ii_p2340_noactivity_ticks	u8_count	Cylinder 5 knock no-activity samples; above CAL_obd_ii_knock_no_activity_count decrements obd_ii_p2340_noactivity_health.
+D	40001eae	obd_ii_p2340_noactivity_health	u8_count	Cylinder 5 knock-sensor activity health for P2340 (to CAL_obd_ii_P2340_maturing_limit).
+D	40001eb9	obd_ii_p2340_threshold_ticks	u8_count	Cylinder 5 knock-threshold check samples (vs CAL_knock_threshold_obd_ii_check_count).
+D	40001eba	obd_ii_p2340_threshold_health	u8_count	Cylinder 5 knock-threshold health for P2340 (to CAL_obd_ii_P2340_maturing_limit).
+D	40001eaf	obd_ii_p2341_noactivity_ticks	u8_count	Cylinder 6 knock no-activity samples; above CAL_obd_ii_knock_no_activity_count decrements obd_ii_p2341_noactivity_health.
+D	40001eb0	obd_ii_p2341_noactivity_health	u8_count	Cylinder 6 knock-sensor activity health for P2341 (to CAL_obd_ii_P2341_maturing_limit).
+D	40001ebb	obd_ii_p2341_threshold_ticks	u8_count	Cylinder 6 knock-threshold check samples (vs CAL_knock_threshold_obd_ii_check_count).
+D	40001ebc	obd_ii_p2341_threshold_health	u8_count	Cylinder 6 knock-threshold health for P2341 (to CAL_obd_ii_P2341_maturing_limit).
+D	40001ebd	obd_ii_coding_check_count	u8_count	Module coding / VIN monitor sample count (to 8).
+D	40001ebe	obd_ii_knock_monitor_samples	u16_count	Knock monitor samples (vs CAL_obd_ii_knock_monitor_sample_count), saturating.
+D	40001eca	-	u16_count	Misfire cat-damage threshold for the current window (misfire_cat_damage_limit x2).
+D	40001ecc	obd_ii_misfire_code_state	uint8_t	Misfire DTC evaluation state (obd_ii_set_misfire_codes).
+D	40001ece	misfire_rough_road_hold_timer	u16_time_5ms	Rough-road hold countdown (CAL_misfire_rough_road_hold); misfire counting suspended while non-zero.
+D	40001ed0	-	u16_time_5ms	TPS-rate misfire inhibit hold (CAL_misfire_inhibit_tps_rate_hold).
+D	40001ed2	misfire_cyl_detect_divider	u8_count	Per-cylinder misfire detection divider (reload 3).
+D	40001ed4	misfire_window_15s_counter	u16_count	200 Hz counter to 3000 (15 s).
+D	40001ed6	misfire_window_3s_counter	u16_count	200 Hz counter to 600 (3 s).
+D	40001ed8	misfire_detect_cyl_index	u8_count	Cylinder index being processed by misfire_detect_per_cylinder_200hz (catches up to last_fired_cylinder).
+D	40001edc	misfire_cyl_detected	uint8_t[6]	Per-cylinder misfire-detected flag for the current cycle.
+D	40001ee4	misfire_trim_ptr	pointer	Pointer to the current cylinder LEA_misfire_trim_cylN table.
+D	40001ee8	-	int	LF wheel speed - filtered (rough-road detection).
+D	40001eec	misfire_wheel_speed_dev_rf	int	RF wheel speed - filtered (rough-road detection).
+D	40001ef0	misfire_wheel_speed_dev_lr	int	LR wheel speed - filtered.
+D	40001ef4	misfire_wheel_speed_dev_rr	int	RR wheel speed - filtered.
+D	40001ef8	misfire_wheel_speed_filter_q8_lf	uint32_t	LF wheel speed IIR accumulator (<<8, CAL_wheel_speed_smoothing). Was misfire_wheel_speed_filt_x256.
+D	40001efc	misfire_wheel_speed_filter_q8_rf	uint32_t	RF wheel speed IIR accumulator (<<8).
+D	40001f00	misfire_wheel_speed_filter_q8_lr	uint32_t	LR wheel speed IIR accumulator (<<8).
+D	40001f04	misfire_wheel_speed_filter_q8_rr	uint32_t	RR wheel speed IIR accumulator (<<8).
