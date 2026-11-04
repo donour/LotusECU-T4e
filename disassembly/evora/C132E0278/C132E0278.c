@@ -2004,7 +2004,7 @@ uint16_t dpm_control_flags;
 bool CAL_vvt_low_load_ips_enable;
 uint16_t vehicle_mode_flags;
 u16_voltage_5/1023v adc_ch35_voltage;
-uint32_t adc_sample_status;
+uint16_t adc_sample_status;
 u16_voltage_5/1023v obd_ii_o2_sensor1_voltage;
 u16_count paddle_shift_sensor_raw;
 u16_voltage_5/1023v obd_ii_o2_sensor2_voltage;
@@ -2025,6 +2025,7 @@ u16_voltage_5/1023v o2_sensor2_heater_current;
 u16_voltage_5/1023v knock_sensor2_voltage;
 u16_voltage_5/1023v o2_sensor5_heater_current;
 u16_voltage_5/1023v o2_sensor6_heater_current;
+u16_voltage_5/1023v sensor_adc_ign_voltage;
 u8_speed_kph CAL_ips_gear_engage_brake_speed_max;
 u16_speed_1/100kph car_speed_x100;
 bool starter_request_active;
@@ -2037,10 +2038,10 @@ u16_time_5ms CAL_ecu_starter_max_engage_after_run;
 uint8_t CAL_ecu_learning_x_axis_stability_threshold;
 uint8_t CAL_ecu_learning_y_axis_stability_threshold;
 enum_oil_pressure_sensor_mode CAL_oil_pressure_warning_light_mode;
-uint8_t sensor_temp_unk1_diag;
-uint8_t sensor_temp_unk2_diag;
-uint16_t sensor_aux_temp1_raw;
-uint16_t sensor_aux_temp2_raw;
+uint8_t sensor_aux1_lookup_unused;
+uint8_t sensor_aux2_lookup_unused;
+u16_voltage_5/1023v sensor_aux1_raw_unused;
+u16_voltage_5/1023v sensor_aux2_raw_unused;
 u16_pressure_mbar manifold_pressure_calculated;
 u16_voltage_5/1023v[16] CAL_sensor_ac_evap_temp_scaling_X_voltage;
 uint16_t[16] CAL_sensor_ac_evap_temp_scaling;
@@ -2062,8 +2063,8 @@ short obd_ii_evap_purge_pressure;
 u16_temp_5/8-40c coolant_temp_raw;
 u16_temp_5/8-40c iat;
 uint16_t chargecooler_temp_div_160;
-u8_voltage_5/255v[16] CAL_sensor_aux_temp_X_voltage;
-uint8_t[16] CAL_sensor_aux_temp;
+u8_voltage_5/255v[16] CAL_sensor_aux_unused_X_voltage;
+uint8_t[16] CAL_sensor_aux_unused;
 u16_pressure_mbar fuel_pressure_abs2;
 u16_factor_1/4095 tps_16bit;
 u16_pressure_mbar map;
@@ -13906,8 +13907,8 @@ void adc_sample(void)
   uVar1 = ((int)(uint)adc_dma_dest[0x14] >> 4) +
           ((uint)sensor_adc_ecu_voltage * 8 - (uint)sensor_adc_ecu_voltage);
   sensor_adc_ecu_voltage = (short)((int)uVar1 >> 3) + (ushort)((int)uVar1 < 0 && (uVar1 & 7) != 0);
-  adc_sample_status._2_2_ = (short)((int)(uint)adc_dma_dest[0x15] >> 4);
-  adc_sample_status._0_2_ = 0;
+  sensor_adc_ign_voltage = (u16_voltage_5_1023v)((int)(uint)adc_dma_dest[0x15] >> 4);
+  adc_sample_status = 0;
   paddle_shift_sensor_raw = (u16_count)((int)(uint)adc_dma_dest[0x1d] >> 4);
   return;
 }
@@ -14196,7 +14197,7 @@ void adc_convert(void)
                        (32,(uint16_t)((int)(uint)adc_dma_dest[0x32] >> 4),CAL_sensor_maf_scaling,
                         CAL_sensor_maf_scaling_X_signal);
   if (((ignition_on_flags & 0x10) == 0) &&
-     ((ushort)((ushort)CAL_ecu_ign_threshold << 2) < adc_sample_status._2_2_)) {
+     ((ushort)((ushort)CAL_ecu_ign_threshold << 2) < sensor_adc_ign_voltage)) {
     trans_fluid_temp_filter_q8 = (uint)trans_fluid_temp_raw << 8;
     coolant_temp_filter1_q2560 = (uint)coolant_temp_raw * 0xa00;
     iat_filter_q2560 = (uint)iat * 0xa00;
@@ -14301,14 +14302,14 @@ void adc_convert(void)
       air_temp_ambient = CAL_sensor_iat_fallback;
     }
   }
-  sensor_temp_unk1_diag =
+  sensor_aux1_lookup_unused =
        lookup_2D_uint8_interpolated
-                 (16,(uint8_t)((int)(uint)sensor_aux_temp1_raw >> 2),CAL_sensor_aux_temp,
-                  CAL_sensor_aux_temp_X_voltage);
-  sensor_temp_unk2_diag =
+                 (16,(uint8_t)((int)(uint)sensor_aux1_raw_unused >> 2),CAL_sensor_aux_unused,
+                  CAL_sensor_aux_unused_X_voltage);
+  sensor_aux2_lookup_unused =
        lookup_2D_uint8_interpolated
-                 (16,(uint8_t)((int)(uint)sensor_aux_temp2_raw >> 2),CAL_sensor_aux_temp,
-                  CAL_sensor_aux_temp_X_voltage);
+                 (16,(uint8_t)((int)(uint)sensor_aux2_raw_unused >> 2),CAL_sensor_aux_unused,
+                  CAL_sensor_aux_unused_X_voltage);
   if (fuel_level_voltage < 0x3ff) {
     _fuel_level_raw =
          lookup_2D_uint16_interpolated
@@ -18776,7 +18777,7 @@ int shutdown(int __fd,uint16_t diag_flags)
   uint32_t *_unknown;
   u8_time_5s _afterrun_time_lookup;
   
-  if (adc_sample_status._2_2_ < (ushort)((ushort)CAL_ecu_ign_threshold << 2)) {
+  if (sensor_adc_ign_voltage < (ushort)((ushort)CAL_ecu_ign_threshold << 2)) {
     _unknown = (uint32_t *)CAL_base;
     if ((ignition_on_flags & 1) != 0) {
       _unknown = (uint32_t *)digital_inputs_zero();
@@ -19350,7 +19351,7 @@ void read_accessory_states(void)
   uVar1 = siu_gpdo[0xcb];
   accessory_input_state = uVar1 == '\x01';
   ign_voltage_above_threshold =
-       (ushort)((ushort)CAL_ecu_ign_threshold << 2) <= adc_sample_status._2_2_;
+       (ushort)((ushort)CAL_ecu_ign_threshold << 2) <= sensor_adc_ign_voltage;
   uVar1 = siu_gpdo[99];
   o2_sensor5_heater_enable_state = uVar1 == '\x01';
   uVar1 = siu_gpdo[100];
@@ -41471,8 +41472,8 @@ void obd_ii_monitor_completion_update(void)
     }
   }
   if (((CAL_obd_ii_P0685 & 7) != 0) &&
-     ((ushort)((ushort)CAL_ecu_ign_threshold << 2) < adc_sample_status._2_2_)) {
-    if ((uint)adc_sample_status._2_2_ + (uint)CAL_obd_ii_P0685_voltage_delta <
+     ((ushort)((ushort)CAL_ecu_ign_threshold << 2) < sensor_adc_ign_voltage)) {
+    if ((uint)sensor_adc_ign_voltage + (uint)CAL_obd_ii_P0685_voltage_delta <
         (uint)sensor_adc_ecu_voltage) {
       obd_ii_p0685_fail_ticks = obd_ii_p0685_fail_ticks + 1;
       if ((((short)obd_ii_monitor_debounce_ticks <= (short)obd_ii_p0685_fail_ticks) &&
@@ -57517,7 +57518,7 @@ u8_pressure_50mbar fuel_pressure_lookup_target(void)
   byte bVar1;
   u8_pressure_50mbar uVar2;
   
-  if (adc_sample_status._2_2_ < (ushort)((ushort)CAL_ecu_ign_threshold << 2)) {
+  if (sensor_adc_ign_voltage < (ushort)((ushort)CAL_ecu_ign_threshold << 2)) {
     fuel_pressure_state_flags = '\x01';
     uVar2 = '\0';
   }

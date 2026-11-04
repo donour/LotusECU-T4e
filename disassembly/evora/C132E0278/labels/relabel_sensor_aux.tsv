@@ -1,0 +1,9 @@
+# ApplyLabelSpec.java spec for /C132E0278.fullbin (2026-11-04): vestigial aux analog lookups in adc_convert; adc_sample_status / ign voltage split.
+D	4000186c	sensor_aux1_lookup_unused	uint8_t	CAL_sensor_aux_unused[sensor_aux1_raw_unused >> 2]; written in adc_convert, read only via the logger channel descriptor table (0x000cea50). Input is never written in 0278, so this is constant. 0091 equivalent: fuel_pressure_unused. Was sensor_temp_unk1_diag.
+D	4000186d	sensor_aux2_lookup_unused	uint8_t	CAL_sensor_aux_unused[sensor_aux2_raw_unused >> 2]; same as sensor_aux1_lookup_unused (logger table 0x000cea62). 0091 equivalent: fuel_pressure_unknown_fallback___. Was sensor_temp_unk2_diag.
+D	400018f6	sensor_aux1_raw_unused	u16_voltage_5/1023v	No write reference in 0278 (reads 0). In 0091 the equivalent is ADC ch 0x1e >> 4, which 0278 uses for fuel_pressure_voltage. Was sensor_aux_temp1_raw.
+D	400018f4	sensor_aux2_raw_unused	u16_voltage_5/1023v	No write reference in 0278 (reads 0). 0091 equivalent: fuel_pressure_voltage_unknown. Was sensor_aux_temp2_raw.
+D	40008cdc	CAL_sensor_aux_unused	-	16-point table for the vestigial aux inputs (0x5f..0xbd rising with voltage); quantity unknown, 0091 labels it CAL_sensor_fuel_pressure_sensor_unused. Was CAL_sensor_aux_temp.
+D	40008ccc	CAL_sensor_aux_unused_X_voltage	-	X axis (0.65..4.63 V) of CAL_sensor_aux_unused. Was CAL_sensor_aux_temp_X_voltage.
+D	400018f0	-	uint16_t	Cleared in adc_sample (was the low half of a uint32 that overlapped sensor_adc_ign_voltage).
+D	400018f2	-	u16_voltage_5/1023v	Ignition-sense voltage: ADC ch 0x15 >> 4; compared with CAL_ecu_ign_threshold << 2 (ignition on / P0685).
