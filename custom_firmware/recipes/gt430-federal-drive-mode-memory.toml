@@ -1,0 +1,5 @@
+# gt430-federal plus drive-mode-memory: the Tour/Sport/Race mode and the
+# exhaust button come back as they were at the last key-off.
+target = "C132E0278"
+modules = ["federal-gt", "torque-4nm", "hc08-tps", "drive-mode-memory"]
+cal = "../../patch/C132E0278_TAB.20260628-93octane.cpt"

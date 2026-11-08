@@ -74,7 +74,11 @@ def cmd_list(args):
 		print(f"  {n:12s} v{m.version}  targets: {', '.join(m.targets)}  {m.description}")
 	print("Recipes:")
 	for n in names(RECIPES_DIR, ".toml"):
-		r = load_recipe(os.path.join(RECIPES_DIR, n + ".toml"))
+		try:
+			r = load_recipe(os.path.join(RECIPES_DIR, n + ".toml"))
+		except ConfigError as e:
+			print(f"  {n:24s} error: {e}")
+			continue
 		print(f"  {n:24s} {r.target}: {' -> '.join(r.modules)}")
 
 def main(argv=None):

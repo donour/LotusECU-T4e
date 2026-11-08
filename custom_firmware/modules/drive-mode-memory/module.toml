@@ -1,0 +1,75 @@
+id = "drive-mode-memory"
+version = 1
+description = "Keep the drive mode (Tour/Sport/Race) and the exhaust button across key cycles, in the LEA"
+targets = ["C132E0278"]
+sources = ["drive_mode_memory.S"]
+cal = "cal.inc.S"
+#
+# Storage: the last 4 bytes of LEA_core_reserved (0x40004716-0x40004719,
+# LEA offset 0x162E). That area is inside the LEA core block, so EEPROM_save
+# writes it and EEPROM_load reads and CRC-checks it with the rest, but
+# EEPROM_load then zeroes all 1605 bytes of it. Site "lea_reserve" shortens
+# that loop to 1601 bytes, so ours survive. reset_learned_adaptive_values
+# (diagnostic LEA reset, factory reset) still clears all 1605, which puts the
+# car back in Tour with the exhaust button off.
+#   +0 drive mode: 0 Tour, 1 Sport, 3 Race
+#   +1 exhaust button toggle (digital_input_debounced[12]): 0/1
+#   +2, +3 spare
+#
+# Drive mode. The sport and race buttons are momentary; the state is
+# vehicle_mode, which set_driver_input_and_vehicle_mode_100hz forces to Tour
+# while the ignition is off or any of its fault conditions hold. Site
+# "dispatch" calls drive_mode_memory_dispatch where that function, on its
+# normal (buttons read, no fault) path only, is about to act on the button
+# event of this tick (r3). So:
+#  - the saved mode follows vehicle_mode only while that path runs. At key-off
+#    the forced-Tour path takes over first, so the mode in use before key-off
+#    is what EEPROM_save writes.
+#  - after each ignition on (cold boot, or a key cycle during after-run, which
+#    does not reboot), the first time that path runs with no button event and
+#    the mode still Tour, the saved mode is applied. If the driver has already
+#    changed mode, it is left alone. Race is applied only if race mode is
+#    coded (COD[1] bit 7) and the engine is turning (engine_speed_2 != 0),
+#    the same conditions as the race button; until the engine turns, the
+#    restore waits (and nothing is saved).
+#  - Launch and DPM (Race sub-modes) are saved as Race. TC off is saved as
+#    Tour: ESP off is never brought back by a key cycle.
+#
+# Exhaust button. It is a toggle input (digital_input_debounced[12]); the
+# firmware zeroes it at init and at ignition off (shutdown). It is saved with
+# the mode and applied right after the mode restore, never before it:
+# exhaust_flap_control cancels the override when the mode changes under it.
+# A press made before the restore is kept. Only with the exhaust bypass
+# override switch coded (COD[1] bit 30).
+#
+# CAL_drive_mode_memory_enable (patch cal block): bit 0 restore the drive
+# mode, bit 1 restore the exhaust button. Saving always runs.
+#
+# Known limits:
+#  - Saved only when EEPROM_save runs (a normal shutdown after after-run).
+#    Cutting power before that loses the last key cycle's changes.
+#  - Pressing Sport twice before cranking (Tour -> Sport -> Tour) while a Race
+#    restore is waiting still lets Race come back when the engine turns.
+
+[hooks]
+tick_5ms = "drive_mode_memory_5ms"
+
+# EEPROM_load: for (i = 0; i < 1605; i++) LEA_core_reserved[i] = 0;
+[[sites]]
+name = "lea_reserve"
+at = "eeprom_load_reserved_clear_limit"
+expect = [
+	"cmplwi %r0, 1605",
+	"blt EEPROM_load + 0x240",
+]
+
+# set_driver_input_and_vehicle_mode_100hz, normal path: switch (vehicle_mode)
+# on the button event in r3. Only r3 is live here; LR is in the frame.
+[[sites]]
+name = "dispatch"
+at = "vehicle_mode_dispatch"
+expect = [
+	"lbz %r0, {vehicle_mode - _SDA_BASE_}(%r13)",
+	"cmpwi %r0, 0",
+	"beq set_driver_input_and_vehicle_mode_100hz + 0x964",
+]

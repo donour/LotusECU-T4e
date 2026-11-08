@@ -131,6 +131,8 @@ digital_input_debouncer_100hz = 0x4d9a0;
 adc_sample = 0x4d9e8;
 adc_sample_pre_O2_bank1 = 0x4db28;
 adc_sample_pre_O2_bank2 = 0x4db40;
+adc_sample_post_O2_bank1 = 0x4db58;
+adc_sample_post_O2_bank2 = 0x4db70;
 set_driver_input_brake_clutch_100hz = 0x4dc9c;
 learneddata_get_table_cell_and_enable_flag = 0x4e098;
 adc_convert = 0x4e41c;
@@ -139,6 +141,8 @@ compute_engine_speed_byte = 0x4eff0;
 O2_heater_500us = 0x4f024;
 load_pre_O2_heater_threshold_bank1 = 0x4f118;
 load_pre_O2_heater_threshold_bank2 = 0x4f170;
+load_post_O2_heater_threshold_bank1 = 0x4f1c8;
+load_post_O2_heater_threshold_bank2 = 0x4f220;
 sort_array10 = 0x4f48c;
 sqrt_integer = 0x4f51c;
 ignition = 0x4f590;
@@ -3470,3 +3474,8 @@ dpm_state_manager_call_button_handler = 0xcbaf4;  /* bl dpm_mode_button_handler 
 torque_limit_by_rpm_scale = 0xab3ec;  /* slwi r0,r0,1: CAL_torque_limit_by_rpm -> Nm */
 torque_limit_coolant_scale = 0xab424; /* slwi r0,r0,1: coolant torque limit (torque_limit_engine_speed) -> Nm */
 calc_tps_for_torque_limit_no_limit = 0xbd5a0;     /* cmplwi r0,510: a limit >= 510 Nm is no limit */
+
+/* drive-mode-memory */
+LEA_core_reserved = 0x400040d5;       /* uint8_t[1605], LEA offset 0xFED: saved with LEA, zeroed by EEPROM_load */
+eeprom_load_reserved_clear_limit = 0x5498c;   /* cmplwi r0,1605: EEPROM_load's LEA_core_reserved clear loop */
+vehicle_mode_dispatch = 0x4cc34;      /* lbz r0,vehicle_mode: set_driver_input_and_vehicle_mode_100hz normal path, button event in r3 */

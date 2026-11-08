@@ -12,7 +12,7 @@
 import json, os, shutil, struct, zlib
 from dataclasses import dataclass, field
 from . import codegen
-from .config import ROOT, ConfigError, load_module, load_target
+from .config import ROOT, ConfigError, check_conflicts, load_module, load_target
 from .elf import Elf, STB_LOCAL
 from .image import FlashImage, PatchError, sha256_file
 
@@ -220,6 +220,7 @@ class BuildResult:
 def build(tc, recipe, out_dir, cal_path=None, reset_patch_cal=False, allow_foreign_cal=False, log=print):
 	target = load_target(recipe.target)
 	modules = [load_module(m) for m in recipe.modules]
+	check_conflicts(modules)
 	for m in modules: m.check_target(target)
 	if("init" not in target.hooks):
 		raise ConfigError(f"target {target.name} has no 'init' hook (the core runtime needs it)")

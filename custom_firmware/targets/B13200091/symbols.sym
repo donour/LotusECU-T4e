@@ -18,10 +18,17 @@ sensor_adc_pre_O2_bank2            = 0x40001714;
 sensor_adc_post_O2_bank1           = 0x40001716;
 sensor_adc_post_O2_bank2           = 0x40001718;
 CAL_sensor_O2_heater_threshold     = 0x4000d23c;
-load_pre_O2_heater_threshold_bank1 = 0x4cf54;
-load_pre_O2_heater_threshold_bank2 = 0x4cfac;
+/* The four heater checks in O2_heater_500us, in the same order as the
+ * GT430's. That order was checked there against the heater undercurrent
+ * DTCs (P0135 / P0155 / P0141 / P0161 = pre b1 / pre b2 / post b1 / post b2). */
+load_pre_O2_heater_threshold_bank1  = 0x4cf54;
+load_pre_O2_heater_threshold_bank2  = 0x4cfac;
+load_post_O2_heater_threshold_bank1 = 0x4d004;
+load_post_O2_heater_threshold_bank2 = 0x4d05c;
 adc_sample_pre_O2_bank1            = 0x4c3ac;
 adc_sample_pre_O2_bank2            = 0x4c3c4;
+adc_sample_post_O2_bank1           = 0x4c3dc;
+adc_sample_post_O2_bank2           = 0x4c3f4;
 
 /* Hooks for initializing memory/state */
 

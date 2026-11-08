@@ -1,0 +1,159 @@
+id = "aem30-0310"
+version = 2
+description = "AEM 30-0310 wideband on any O2 input (pre/post, per bank), auto-detected, with narrow-band simulation"
+targets = ["B13200091", "C132E0278"]
+sources = ["aem30_0310.S"]
+# Both modules take over the O2 inputs and heater limits.
+conflicts = ["wideband"]
+# v1 is the AEM patch of AEM-Version-5s+aem_thresholds+postO2+hc08.CRP (a
+# GT430 on the legacy patch/build.py) with the same machine code: only the
+# names, the addresses and the RAM order of the post-cat channel structs
+# differ. It only ran on the GT430; the B13200091 sites are the same
+# instructions at the NA addresses.
+#
+# v2:
+# - Only the controller's valid range, 0.5-4.5 V, is used; below it ("not
+#   ready") and above it ("sensor error") the ECU is fed stoichiometric. v1
+#   used 0.25-4.75 V, so it simulated 0.25-0.5 V (8.0-8.5 AFR) as rich and
+#   4.5-4.75 V as lean.
+# - Detection counts only valid wideband readings (above 2.5 V, at most
+#   4.5 V), so a narrow-band sensor shorted to voltage stays narrow-band and
+#   still sets its stock DTC. v1 counted everything above 2.5 V.
+# - A narrow-band channel keeps being watched after the 5 s window: 100 ms in
+#   a row of valid readings switches it to wideband. v1 decided only in the
+#   window, so a controller still warming up then stayed narrow-band for the
+#   whole drive, with its raw 0-5 V passed through (~3.1 V at stoichiometric
+#   reads to the ECU as very rich).
+# - A narrow-band channel's input is passed through only up to 1.5 V and
+#   above 4.5 V. 1.5-4.5 V, which only a wideband controller not detected yet
+#   reads, is fed as stoichiometric. v1 passed everything through.
+#
+# Known issues:
+# - Until a channel is detected, a controller that is not ready or not
+#   powered (below 0.5 V) is passed through and reads as a lean narrow-band
+#   sensor.
+# - A controller in sensor error from ignition on is never detected: its raw
+#   voltage (above 4.5 V) is passed through and the stock O2 high-voltage DTC
+#   is set. On a detected channel, sensor error is fed as stoichiometric and
+#   not reported.
+# - A narrow-band sensor whose signal is held between 1.5 and 4.5 V (e.g.
+#   shorted through a resistance) is fed as stoichiometric, so its stock
+#   high-voltage DTC (limit 1.2 V) cannot set; held steady between 2.5 and
+#   4.5 V it is taken for a wideband.
+#
+# Possible future change: a per-channel mode in the patch cal block
+# (cal.inc.S), one byte per channel: auto (today's behaviour, the default),
+# wideband or narrow-band. Forced wideband would feed stoichiometric from
+# ignition on whenever the controller is outside 0.5-4.5 V, which removes the
+# first two known issues. Forced narrow-band would leave the channel stock (no
+# window, no 1.5-4.5 V clamp, stock heater limit), which removes the third. A
+# forced-wideband channel is also where heater handling would go once it is
+# known how the controller is powered: hold the ECU heater output fully on
+# instead of the stock warm-up PWM, or suppress its undercurrent DTC. Cost:
+# prog-only CRPs become unsafe (the cal has to be flashed too), and the modes
+# are set by hand at the report address until RomRaider definitions are
+# generated for the patch cal block.
+#
+# OBD readout (mode 01 PIDs 0x24-0x27, mode 22 0x0403-0x0406 in the original)
+# is not wired: t6patch has no OBD dispatch yet. Log aem_<channel>_adc with
+# CCP or dev-mode memory peeks (addresses in symbols.txt).
+#
+# If the ECU's O2 heater output of a wideband channel is left unconnected, its
+# heater undercurrent DTC (P0135 / P0155 / P0141 / P0161 for pre b1 / pre b2 /
+# post b1 / post b2) has to be disabled in the cal.
+
+[hooks]
+init = "aem_init"
+loop = "aem_loop"
+tick_5ms = "aem_5ms"
+
+# The O2 heater current limit of each channel comes from its struct (ch_ht_th)
+# instead of CAL_sensor_O2_heater_threshold: 3 A for a wideband, the stock
+# value for a narrow-band.
+[[sites]]
+name = "heater_threshold_pre_b1"
+at = "load_pre_O2_heater_threshold_bank1"
+expect = [
+	"lis %r3, CAL_base@ha",
+	"addi %r3, %r3, CAL_base@l",
+	"lhz %r0, {CAL_sensor_O2_heater_threshold - CAL_base}(%r3)",
+]
+
+[[sites]]
+name = "heater_threshold_pre_b2"
+at = "load_pre_O2_heater_threshold_bank2"
+expect = [
+	"lis %r3, CAL_base@ha",
+	"addi %r3, %r3, CAL_base@l",
+	"lhz %r0, {CAL_sensor_O2_heater_threshold - CAL_base}(%r3)",
+]
+
+[[sites]]
+name = "heater_threshold_post_b1"
+at = "load_post_O2_heater_threshold_bank1"
+expect = [
+	"lis %r3, CAL_base@ha",
+	"addi %r3, %r3, CAL_base@l",
+	"lhz %r0, {CAL_sensor_O2_heater_threshold - CAL_base}(%r3)",
+]
+
+[[sites]]
+name = "heater_threshold_post_b2"
+at = "load_post_O2_heater_threshold_bank2"
+expect = [
+	"lis %r3, CAL_base@ha",
+	"addi %r3, %r3, CAL_base@l",
+	"lhz %r0, {CAL_sensor_O2_heater_threshold - CAL_base}(%r3)",
+]
+
+# Skip the firmware's own O2 ADC sampling: aem_loop writes the (simulated)
+# narrow-band value into sensor_adc_<pre|post>_O2_bankN instead. Only the
+# first instruction is replaced; the rest is verified so a wrong channel
+# symbol fails the build.
+[[sites]]
+name = "adc_skip_pre_b1"
+at = "adc_sample_pre_O2_bank1"
+expect = [
+	"lis %r3, adc_dma_dest@ha",
+	"addi %r3, %r3, adc_dma_dest@l",
+	"lhz %r0, 44(%r3)",
+	"srawi %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {sensor_adc_pre_O2_bank1 - _SDA_BASE_}(%r13)",
+]
+
+[[sites]]
+name = "adc_skip_pre_b2"
+at = "adc_sample_pre_O2_bank2"
+expect = [
+	"lis %r3, adc_dma_dest@ha",
+	"addi %r3, %r3, adc_dma_dest@l",
+	"lhz %r0, 46(%r3)",
+	"srawi %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {sensor_adc_pre_O2_bank2 - _SDA_BASE_}(%r13)",
+]
+
+[[sites]]
+name = "adc_skip_post_b1"
+at = "adc_sample_post_O2_bank1"
+expect = [
+	"lis %r3, adc_dma_dest@ha",
+	"addi %r3, %r3, adc_dma_dest@l",
+	"lhz %r0, 48(%r3)",
+	"srawi %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {sensor_adc_post_O2_bank1 - _SDA_BASE_}(%r13)",
+]
+
+[[sites]]
+name = "adc_skip_post_b2"
+at = "adc_sample_post_O2_bank2"
+expect = [
+	"lis %r3, adc_dma_dest@ha",
+	"addi %r3, %r3, adc_dma_dest@l",
+	"lhz %r0, 50(%r3)",
+	"srawi %r0, %r0, 4",
+	"clrlwi %r0, %r0, 16",
+	"sth %r0, {sensor_adc_post_O2_bank2 - _SDA_BASE_}(%r13)",
+]

@@ -1,0 +1,3 @@
+# Race traction control, then the AEM 30-0310 wideband, on the S1 NA.
+target = "B13200091"
+modules = ["race-tc", "aem30-0310"]

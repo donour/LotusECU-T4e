@@ -176,6 +176,7 @@ class Module:
 	hooks: dict # hook name -> [handler symbols]
 	sites: list
 	cal_sites: list = field(default_factory=list)
+	conflicts: list = field(default_factory=list) # Module ids that cannot share a recipe with this one
 
 	def check_target(self, target):
 		if(target.name not in self.targets):
@@ -201,7 +202,8 @@ def load_module(mid):
 			[ModuleSite(s["name"], s["at"], s["expect"], s.get("notes", ""))
 				for s in m.get("sites", [])],
 			[ModuleCalSite(s["name"], s["at"], s.get("stock", "zeros"), s.get("notes", ""))
-				for s in m.get("cal_sites", [])])
+				for s in m.get("cal_sites", [])],
+			_list(m.get("conflicts")))
 	except KeyError as e:
 		raise ConfigError(f"{d}/module.toml: missing key {e}")
 	if(module.id != mid):
@@ -213,6 +215,15 @@ def load_module(mid):
 	if(len(names) != len(set(names))):
 		raise ConfigError(f"module {mid}: duplicate site names")
 	return module
+
+# Either side of a conflict may declare it.
+def check_conflicts(modules):
+	ids = {m.id for m in modules}
+	for m in modules:
+		for c in m.conflicts:
+			if(c in ids):
+				raise ConfigError(f"modules {m.id} and {c} cannot be used together "
+					f"(see {m.id}/module.toml)")
 
 @dataclass
 class Recipe:
@@ -239,4 +250,8 @@ def load_recipe(path):
 		raise ConfigError(f"{path}: missing key {e}")
 	if(len(recipe.modules) != len(set(recipe.modules))):
 		raise ConfigError(f"{path}: a module is listed twice")
+	try:
+		check_conflicts([load_module(m) for m in recipe.modules])
+	except ConfigError as e:
+		raise ConfigError(f"{path}: {e}")
 	return recipe

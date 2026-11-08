@@ -3,6 +3,7 @@ version = 1
 description = "Wideband pre-O2 (Spartan, 0-5 V = 10-20 AFR) with narrow-band simulation, per bank"
 targets = ["B13200091", "C132E0278"]
 sources = ["wideband.S"]
+conflicts = ["aem30-0310"]
 # OBD readout (mode 01 PIDs 0x24/0x25, mode 22 0x0403/0x0404) is not wired
 # yet: t6patch has no OBD dispatch. Read wb_bank1/wb_bank2 with dev-mode CAN
 # memory peeks (addresses in symbols.txt).

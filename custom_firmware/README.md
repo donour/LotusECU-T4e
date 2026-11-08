@@ -46,7 +46,7 @@ core/         runtime linked into every build (RAM zeroing, cal block copy)
 targets/      one directory per stock firmware: target.toml + symbols.sym
 modules/      one directory per feature: module.toml + sources
 recipes/      target + ordered module list (+ your cal)
-tests/        legacy regression + safety checks
+tests/        legacy regression, safety checks, module behaviour (ppcsim.py runs the built code)
 bases/        stock images (not committed)
 ```
 
@@ -112,6 +112,7 @@ version = 1                       # bump when its cal layout or behaviour change
 targets = ["B13200091", "C132E0278"]
 sources = ["wideband.S"]
 cal = "cal.inc.S"                 # optional
+conflicts = ["aem30-0310"]        # optional: modules that cannot share a recipe with this one
 [hooks]                           # handler symbols, called in this order
 init = "wideband_init"
 tick_5ms = ["wideband_5ms"]
@@ -145,7 +146,9 @@ expect = [                        # or { B13200091 = [...], C132E0278 = [...] }
 |---|---|---|
 | `race-tc` | B13200091 | Race traction control, from `20260706/s1_dpm` (a15fc67), where it was called dpm; renamed with identical machine code. The torque-arbitration filter moved out of `hook.S` into the module (`race_tc.S`, with the other hook handlers). v2: the dash display rewrites only the CAN 0x402 frame (hook `tpms_frame_packed`), and only while race-tc is on, so TPMS works normally with it off. v3: the slip-target base table and its level axis are cal sites (`CAL_racetc_slip_target_base`, `..._X_dpm_level`, cal offsets 0x31E / 0x30E). v4: 9 levels instead of 6 (`RACE_TC_MAX_LEVEL`); default slip-target bases 0–24 % in 3 % steps. |
 | `wideband` | both | From `patch/t6/wideband`. Its sites are now verified across the whole skipped ADC sequence. |
+| `aem30-0310` | both | AEM 30-0310 X-Series wideband on any of the four O2 inputs (pre/post, bank 1/2), each detected on its own. v1 is the AEM patch of the legacy `AEM-Version-5s+aem_thresholds+postO2+hc08.CRP` (GT430) with the same machine code. v2: readings outside the controller's valid 0.5-4.5 V (not ready / sensor error) are fed as stoichiometric; detection counts only valid readings, so a narrow-band sensor shorted to voltage stays narrow-band; a narrow-band channel switches to wideband whenever 100 ms in a row of valid readings appear after the window; before that, its 1.5-4.5 V readings (only a wideband reads those) are fed as stoichiometric. Known issues are listed in its `module.toml`. Conflicts with `wideband`. |
 | `flexfuel` | C132E0278 | From `patch/t6/flexfuel`. Pad RG4 site located on the GT430 only. |
+| `drive-mode-memory` | C132E0278 | Keeps the drive mode (Tour/Sport/Race) and the exhaust button across key cycles. They are stored in the last 4 bytes of `LEA_core_reserved`, which `EEPROM_save` already writes; `EEPROM_load`'s clear loop is shortened by those 4 bytes. Race comes back only once the engine is turning. TC off is saved as Tour. Details in its `module.toml`. |
 
 ## Differences from patch/build.py
 
@@ -168,7 +171,7 @@ expect = [                        # or { B13200091 = [...], C132E0278 = [...] }
 ## Not done yet
 
 - **OBD dispatch.** Module PIDs (wideband 0x24/0x25 and 0x0403/0x0404,
-  flexfuel 0x52/0x0401) are not wired. The NA OBD hooks were disabled on
+  aem30-0310 0x24-0x27 and 0x0403-0x0406, flexfuel 0x52/0x0401) are not wired. The NA OBD hooks were disabled on
   s1_dpm because they forced a reboot, and the register conventions differ
   between targets. The plan is a per-target glue plus a uniform handler ABI.
 - RomRaider definition generation for the patch cal block (port

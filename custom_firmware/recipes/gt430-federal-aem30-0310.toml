@@ -1,0 +1,6 @@
+# AEM 30-0310 wideband on the GT430, on top of your 93-octane tune, for a
+# Federal Evora GT (see gt430-federal). Same features as the legacy
+# AEM-Version-5s+aem_thresholds+postO2+hc08.CRP, without its OBD PIDs.
+target = "C132E0278"
+modules = ["federal-gt", "torque-4nm", "hc08-tps", "aem30-0310"]
+cal = "../../patch/C132E0278_TAB.20260628-93octane.cpt"
