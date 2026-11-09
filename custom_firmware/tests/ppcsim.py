@@ -40,6 +40,7 @@ class CPU:
 		self.r = [0] * 32
 		self.cr = 0
 		self.lr = 0
+		self.stubs = {} # address -> fn(cpu): firmware functions the patch calls, run in Python
 
 	def rd16(self, a):
 		return (self.mem.get(a, 0) << 8) | self.mem.get(a + 1, 0)
@@ -68,6 +69,10 @@ class CPU:
 		pc = self.symbols[func] if isinstance(func, str) else func
 		for _ in range(self.LIMIT):
 			if(pc == self.RETURN): return self.r[3]
+			if(pc in self.stubs):
+				self.stubs[pc](self)
+				pc = self.lr
+				continue
 			off = pc - self.text_addr
 			if(not 0 <= off < len(self.text)): raise RuntimeError(f"pc 0x{pc:X} outside the patch code")
 			ins = struct.unpack(">I", self.text[off:off + 4])[0]
@@ -121,6 +126,8 @@ class CPU:
 			xo = (ins >> 1) & 0x3FF
 			spr = ((B << 5) | A) if xo in (339, 467) else None
 			if(xo == 824): r[A] = (s32(r[D]) >> B) & M32             # srawi
+			elif(xo == 0): self._cmp(D >> 2, s32(r[A]), s32(r[B]))   # cmpw
+			elif(xo == 32): self._cmp(D >> 2, r[A], r[B])            # cmplw
 			elif(xo == 235): r[D] = (s32(r[A]) * s32(r[B])) & M32    # mullw
 			elif(xo == 266): r[D] = (r[A] + r[B]) & M32              # add
 			elif(xo == 339 and spr == 8): r[D] = self.lr             # mflr

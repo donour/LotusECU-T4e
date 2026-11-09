@@ -195,3 +195,26 @@ CAL_racetc_slip_target_base             = 0x40009142;  /* u8_slip_1/8pct[16] */
 CAL_racetc_torque_cut_p_term_X_carspeed = 0x40009152;  /* u16_speed_1/100kph[6] */
 CAL_racetc_torque_cut_p_term_Y_slip     = 0x4000915e;  /* u16_slip_1/8pct[10] */
 CAL_racetc_torque_cut_p_term            = 0x40009172;  /* u16_factor_1/255[60] */
+
+/* =========================================================================
+ * drive-mode-memory-s1
+ * ========================================================================= */
+
+/* Toggle inputs (digital_input_config flags bit 1): each debounced press
+ * flips the value. [3] sport button, [6] TC off button (1 s press to switch
+ * TC off), [10]/[13] accessory outputs. set_driver_input_and_vehicle_mode_100hz
+ * turns [3]/[6] into sport_button_enable / driver_input_flags[1] 0x80 / 0x40
+ * when coded (COD[1] bits 23 / 24), and zeroes [3]/[6] while
+ * ign_voltage_above_threshold is false. */
+digital_input_debounced       = 0x40002CA8;  /* uint8_t[14] */
+digital_inputs_zero           = 0x0004B9D4;  /* zeroes the toggle inputs: init_devices, and shutdown() at ignition off */
+sensor_adc_ign_voltage        = 0x40001770;  /* u16 5/1023 V, written by adc_sample (main loop) */
+CAL_ecu_ign_threshold         = 0x40008EAF;  /* u8; ignition is on when sensor_adc_ign_voltage >= this << 2 */
+ign_voltage_above_threshold   = 0x400018C8;  /* bool, read_accessory_states (main loop) */
+/* bit 0x20: CAN 0xA8 from the ESP is arriving (set on each frame, cleared
+ * after 20 checks without one). */
+abs_esp_can_torque_request_flags = 0x40002520;  /* u16 */
+LEA_core_reserved             = 0x40003BF8;  /* uint8_t[1610], LEA offset 0xEB8: saved with LEA, zeroed by EEPROM_load */
+EEPROM_load                   = 0x000514AC;
+eeprom_load_reserved_clear_limit = 0x5179C;  /* cmplwi r0,1610: EEPROM_load's LEA_core_reserved clear loop */
+shutdown_ign_off_inputs_zero  = 0x57A78;     /* bl digital_inputs_zero: shutdown(), first main loop with the ignition voltage low */

@@ -1,0 +1,84 @@
+id = "drive-mode-memory-s1"
+version = 1
+description = "Keep Sport (and optionally TC off) across key cycles on the S1 NA, in the LEA"
+targets = ["B13200091"]
+sources = ["drive_mode_memory_s1.S"]
+cal = "cal.inc.S"
+#
+# The S1 NA counterpart of drive-mode-memory (GT430). The S1 has no
+# vehicle_mode: its two drive-mode buttons are toggle inputs,
+# digital_input_debounced[3] (Sport) and [6] (TC off, a 1 s press), which
+# set_driver_input_and_vehicle_mode_100hz turns into sport_button_enable and
+# driver_input_flags[1] 0x80 / 0x40 (CAN 0x114 byte 4 to the ESP; race-tc
+# reads 0x40) when the car is coded for them (COD[1] bits 23 / 24). Tour is
+# both off. The firmware zeroes both at init, in shutdown() at ignition off
+# (digital_inputs_zero), and every 10 ms while ign_voltage_above_threshold
+# is false.
+#
+# Storage: the last 4 bytes of LEA_core_reserved (0x4000423E-0x40004241,
+# LEA offset 0x14FE). EEPROM_save writes them and EEPROM_load CRC-checks them
+# with the rest of the LEA core block, then zeroes all 1610 bytes. Site
+# "lea_reserve" shortens that loop to 1606. reset_learned_adaptive_values
+# (diagnostic LEA reset, factory reset) still clears all of it: Sport off.
+#   +0 Sport: 0/1
+#   +1 TC off: 0/1
+#   +2, +3 spare
+#
+# drive_mode_memory_s1_5ms (200 Hz, at the top of the 5 ms block of
+# interrupt_timer_2000hz, the same ISR pass as the 100 Hz input code) works
+# while the ignition is on:
+#   ign_voltage_above_threshold, and
+#   sensor_adc_ign_voltage >= CAL_ecu_ign_threshold << 2.
+# These are the conditions under which none of the firmware's zeroings can
+# happen: the 100 Hz one needs ign_voltage_above_threshold false (it is set
+# by read_accessory_states, in the main loop, so it cannot change between
+# this handler and the 100 Hz code), and shutdown()'s needs the voltage low
+# (sensor_adc_ign_voltage changes only in adc_sample, earlier in the same
+# main loop pass). Init's zeroing comes before interrupts are enabled.
+# Otherwise it rearms the restore.
+#  - First pass with the ignition on (cold boot, or a key cycle in after-run,
+#    which does not reboot): a saved 1 is written to the input; a 0 is never
+#    written, so a press made before the restore is kept. TC off waits until
+#    the ESP is talking (abs_esp_can_torque_request_flags 0x20), so the ESP
+#    sees it switch on like a button press; nothing for TC off is saved while
+#    it waits. Sport is not delayed: the firmware already holds it off while
+#    the ESP reports a fault.
+#  - Then it saves both inputs every 5 ms. EEPROM_save runs only with the
+#    voltage low, so never while this writes.
+# Site "ign_off": shutdown() calls drive_mode_memory_s1_ign_off in place of
+# digital_inputs_zero. It rearms the restore, then zeroes the inputs. Without
+# it, an ignition dip that starts and ends between two 5 ms ticks would zero
+# the inputs unseen, and the next tick would save the zeros.
+#
+# CAL_drive_mode_memory_s1_enable (patch cal block): bit 0 restore Sport,
+# bit 1 restore TC off. Saving always runs. The default is Sport only, as on
+# the GT430, where TC off is never brought back by a key cycle. With bit 1
+# set, the car can start with the ESP's traction control off and, with
+# race-tc, race-tc at level 0 (its level is not saved).
+#
+# Known limits:
+#  - Saved only when EEPROM_save runs (a normal shutdown after after-run).
+#    Cutting power before that loses the last key cycle's changes.
+
+[hooks]
+tick_5ms = "drive_mode_memory_s1_5ms"
+
+# EEPROM_load: for (i = 0; i < 1610; i++) LEA_core_reserved[i] = 0;
+[[sites]]
+name = "lea_reserve"
+at = "eeprom_load_reserved_clear_limit"
+expect = [
+	"cmplwi %r0, 1610",
+	"blt EEPROM_load + 0x2d0",
+]
+
+# shutdown(): if (ignition_on_flags & 1) digital_inputs_zero();
+#             ignition_on_flags &= ~0x11;
+[[sites]]
+name = "ign_off"
+at = "shutdown_ign_off_inputs_zero"
+expect = [
+	"bl digital_inputs_zero",
+	"lhz %r0, {ignition_on_flags - _SDA_BASE_}(%r13)",
+	"clrrwi %r0, %r0, 1",
+]

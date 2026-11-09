@@ -1,0 +1,4 @@
+# Race traction control on the S1 NA, plus drive-mode-memory-s1: Sport comes
+# back as it was at the last key-off (TC off too, if enabled in its cal).
+target = "B13200091"
+modules = ["race-tc", "drive-mode-memory-s1"]
