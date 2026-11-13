@@ -203,6 +203,7 @@ typedef unsigned char   undefined;
 
 typedef unsigned char    bool;
 typedef unsigned char    byte;
+typedef long double    longdouble;
 typedef long long    longlong;
 typedef unsigned char    uchar;
 typedef unsigned int    uint;
@@ -1327,30 +1328,24 @@ uint16_t siu_pcr[229];
 undefined4 EBI_MCR;
 undefined EBI_BR0;
 undefined EBI_OR0;
-undefined4 DAT_fff800ac;
+uint16_t EQADC_CFCR0;
 uint DAT_4000154c;
 uint DAT_40001548;
-undefined4 DAT_fff80010;
-undefined4 DAT_fff80030;
-undefined2 DAT_fff80050;
-undefined2 DAT_fff80060;
-undefined4 DAT_fff80070;
-undefined4 DAT_fff80038;
-undefined4 DAT_fff80078;
-uint DAT_400025b0;
-uint DAT_40002600;
-uint DAT_400025c4;
-undefined4 DAT_fff8003c;
-undefined4 DAT_fff8007c;
-uint DAT_400025ec;
-uint DAT_400025d8;
-undefined4 DAT_fff80034;
-undefined4 DAT_fff80074;
-uint DAT_40002604;
-uint DAT_400025f0;
-uint DAT_400025c8;
-uint DAT_400025dc;
-uint DAT_400025b4;
+uint32_t EQADC_CFPR0;
+uint16_t EQADC_IDCR0;
+uint32_t EQADC_RFPR0;
+uint32_t EQADC_CFSR;
+uint32_t EQADC_FISR0;
+uint32_t DAT_400025b0;
+uint32_t DAT_40002600;
+uint32_t DAT_400025c4;
+uint32_t DAT_400025ec;
+uint32_t DAT_400025d8;
+uint32_t DAT_40002604;
+uint32_t DAT_400025f0;
+uint32_t DAT_400025c8;
+uint32_t DAT_400025dc;
+uint32_t DAT_400025b4;
 undefined2 DAT_4000267a;
 undefined2 DAT_4000267c;
 undefined2 DAT_4000267e;
@@ -1365,26 +1360,32 @@ uint DAT_40001558;
 uint DAT_40001554;
 undefined2 DAT_40001552;
 undefined2 DAT_40001550;
-undefined4 DAT_fff80040;
-undefined4 DAT_fff80080;
+uint32_t EQADC_RFPR1;
+uint32_t EQADC_RFPR2;
+uint32_t EQADC_RFPR3;
+uint32_t EQADC_RFPR4;
+uint32_t EQADC_FISR1;
+uint32_t EQADC_FISR2;
+uint32_t EQADC_FISR3;
+uint32_t EQADC_FISR4;
 undefined4 ADC_TSCR;
 undefined4 ADC_TBCR;
 undefined4 ADC0_CR;
 undefined4 ADC1_CR;
-undefined2 DAT_fff80058;
-undefined2 DAT_fff8005a;
-undefined2 DAT_fff80052;
-undefined2 DAT_fff80054;
-undefined2 DAT_fff80056;
-undefined4 DAT_fff80008;
-undefined2 DAT_fff80068;
-undefined2 DAT_fff8006a;
-undefined4 DAT_fff8000c;
-undefined4 DAT_fff80000;
-undefined2 DAT_fff80062;
-undefined2 DAT_fff80064;
-undefined4 DAT_fff80084;
-undefined2 DAT_fff80066;
+uint16_t EQADC_CFCR1;
+uint16_t EQADC_CFCR2;
+uint16_t EQADC_CFCR3;
+uint16_t EQADC_CFCR4;
+uint16_t EQADC_CFCR5;
+uint16_t EQADC_IDCR1;
+uint16_t EQADC_IDCR2;
+uint16_t EQADC_IDCR3;
+uint16_t EQADC_IDCR4;
+uint16_t EQADC_IDCR5;
+uint32_t EQADC_MCR;
+uint32_t EQADC_FISR5;
+uint32_t EQADC_NMSFR;
+uint32_t EQADC_ETDFR;
 undefined4 DAT_40002a48;
 undefined4 DAT_40002a4c;
 undefined4 DAT_40002a50;
@@ -1661,7 +1662,7 @@ undefined4 etpu_elapsed_max_captured_ticks;
 undefined2 revlimit_state_flags;
 uint8_t[10] flexcan_timeslot_timer;
 undefined1 paddle_shift_flags;
-uint8_t CAL_ips_request_msg_id_nibble;
+uint8_t CAL_ips_compatibility_id;
 undefined1 ips_cruise_status_flags;
 u16_rspeed_rpm revlimit_hard_exit_rpm;
 uint32_t cruise_status;
@@ -3926,29 +3927,28 @@ uint16_t CAL_cruise_tps_accelerating_threshold;
 undefined2 abs_esp_can_torque_request_flags;
 uint16_t CAL_ecu_standing_start_threshold;
 short DAT_40001aa0;
-byte DAT_40001a8e;
 char DAT_40001a91;
 char DAT_40001aaa;
 u16_rspeed_rpm u16_rspeed_rpm_40001bbc;
 undefined1 DAT_40001a9c;
-u8_temp_-40c obd_ii_engine_coolant_temp;
 byte DAT_40001aa2;
+u8_temp_-40c obd_ii_engine_coolant_temp;
 byte DAT_40001aa3;
 short DAT_40001ab2;
 undefined2 DAT_40001a92;
-uint8_t CAL_obd_ii_standards_supported;
 byte DAT_40001aa6;
+uint8_t CAL_obd_ii_standards_supported;
 uint16_t DAT_40001ab6;
 undefined2 DAT_40001abc;
-u8_percent_100/128-100 obd_ii_stft_b1;
 byte DAT_40001aa4;
 short DAT_40001ab4;
+u8_percent_100/128-100 obd_ii_stft_b1;
 u8_percent_100/128-100 obd_ii_ltft_bank_1;
-u8_percent_100/128-100 obd_ii_stft_b2;
 undefined2 DAT_40001aba;
-u8_percent_100/128-100 obd_ii_ltft_bank_2;
+u8_percent_100/128-100 obd_ii_stft_b2;
 byte DAT_40001aa5;
 short DAT_40001ab8;
+u8_percent_100/128-100 obd_ii_ltft_bank_2;
 undefined2 DAT_40001a94;
 ushort DAT_40001aa8;
 short[128] obd_DTC_current;
@@ -3962,6 +3962,7 @@ undefined1 obd_warmup_ready;
 short[128] obd_DTC_pending;
 u8_temp_5/8-40c CAL_obd_ii_warmup_temp_unknown;
 short[128] obd_DTC_confirmed;
+uint8_t ips_obd_monitor_inhibit_flags;
 uint8_t CAL_obd_ii_coolant_warmup_threshold_unknown;
 bool CAL_obd_ii_variant_enable;
 u8_speed_kph CAL_obd_ii_drive_cycle_car_speed_min;
@@ -6416,7 +6417,7 @@ uint32_t fca_buffer[24].arb_id;
 uint32_t fcc_buffer[14].arb_id;
 uint fca_buffer[24].code_and_timestamp;
 uint fcc_buffer[14].code_and_timestamp;
-undefined1 DAT_40006520;
+undefined1 ccp_crm_frame;
 undefined1 queue_head;
 undefined1 queue_len;
 undefined1 DAT_40006537;
@@ -6428,7 +6429,7 @@ undefined1 DAT_4000653c;
 undefined1 DAT_4000653d;
 undefined1 queue_buffer;
 undefined4 DAT_4000652c;
-undefined DAT_400068fc;
+undefined ccp_daq_lists;
 undefined2 DAT_40006b9c;
 undefined2 DAT_40006b9e;
 undefined1 DAT_40006ba0;
@@ -6602,12 +6603,11 @@ byte fca_buffer[3].data[1];
 undefined1 ambient_air_temp_unscaled;
 ushort DAT_40002522;
 undefined1 steering_angle_rate;
-undefined1 DAT_40001510;
-undefined1 DAT_400024e9;
-undefined1 DAT_40001a8e;
-undefined1 DAT_40002525;
-undefined1 DAT_40002526;
-byte DAT_400014d6;
+undefined1 ips_speed_limit;
+bool ips_fault_active;
+uint8_t ips_software_compat_id;
+bool ips_compat_id_received;
+undefined1 ips_cruise_torque_divisor;
 ushort DAT_400022f2;
 ushort DAT_400022f0;
 ushort DAT_400022ee;
@@ -6654,13 +6654,13 @@ byte fca_buffer[12].data[3];
 byte[8] message_350a_buf;
 byte DAT_400022ce;
 undefined2 imu_gyro;
-byte DAT_400022b0;
 byte DAT_400022b2;
 byte DAT_400022b3;
-undefined DAT_4000251c;
 undefined1 DAT_400023e1;
 undefined1 DAT_400022b4;
 undefined1 DAT_400022b5;
+undefined2 abs_config_word_rx;
+undefined1 can_a4_dlc;
 byte fca_buffer[15].data[4];
 undefined4 dm_data_buffer;
 byte *DAT_400022c4;
@@ -6695,7 +6695,6 @@ byte fca_buffer[11].data[0];
 byte fca_buffer[11].data[1];
 byte fca_buffer[11].data[2];
 byte fca_buffer[11].data[3];
-char DAT_400022b0;
 byte fca_buffer[18].data[4];
 byte fca_buffer[18].data[5];
 byte fca_buffer[18].data[6];
@@ -7302,15 +7301,11 @@ u8_time_5ms CAL_can_yaw_timeout;
 u8_time_100ms CAL_can_lat_accel_standstill_timeout;
 u8_time_5ms CAL_can_yaw_data_timeout;
 u8_time_s CAL_can_yaw_monitor_startup_delay;
-byte DAT_40002518;
 byte DAT_40002519;
-undefined DAT_40002518;
-short DAT_4000251c;
-enum_p0316_eval_tc_request_state p0316_eval_tc_request_state;
+uint8_t vehicle_config_word_expected;
+enum_p0316_eval_tc_request_state obd_ii_U0316_eval_vdc_compat;
 byte DAT_40002529;
 byte DAT_40002524;
-char DAT_40002526;
-byte DAT_40002525;
 byte DAT_4000252b;
 byte DAT_40002528;
 u8_count obd_ii_U0302_debounce_counter;
@@ -7333,7 +7328,6 @@ u8_count CAL_obd_ii_U0123_debounce_count;
 u8_count CAL_obd_ii_U0513_debounce_count;
 undefined1 DAT_40001519;
 undefined1 DAT_4000151a;
-undefined1 DAT_400014d6;
 undefined1 DAT_4000151b;
 undefined1 DAT_4000151c;
 undefined1 DAT_4000151d;
@@ -7664,32 +7658,26 @@ void FUN_000010c8(void)
 {
   uint uVar1;
   bool cVar2;
-  EVP_PKEY_CTX *ctx;
   int unaff_r13;
   
   uVar1 = FLASH_BIUCR;
   FLASH_BIUCR = uVar1 & 0xfffffffe | 1;
   fmpll_init_bootloader_clock();
-  do {
-    (&DAT_ffff8063)[unaff_r13] = (&DAT_ffff8063)[unaff_r13] | 0x10;
-    cVar2 = (bool)bootload_active_check();
-    if (cVar2 == true) {
-      bootloader_main();
-    }
-    ctx = (EVP_PKEY_CTX *)(HC08CODE_base.name._0_4_ + -0x48430000);
-    if (((HC08CODE_base.name._0_4_ == 0x48433038) &&
-        (ctx = (EVP_PKEY_CTX *)(HC08CODE_base.name._4_4_ + -0x434f0000),
-        HC08CODE_base.name._4_4_ == 0x434f4445)) &&
-       ((HC08CODE_base.programming_magic_word == 0xaaaaaaaa ||
-        ((HC08CODE_base.programming_magic_word == 0x88888888 ||
-         (ctx = (EVP_PKEY_CTX *)(HC08CODE_base.programming_magic_word + 0x44450000),
-         HC08CODE_base.programming_magic_word == 0xbbbbbbbb)))))) {
-      bootloader_noop3();
-      ctx = (EVP_PKEY_CTX *)bootloader_flash_update();
-    }
-    WriteExternalEnableImmediate(0);
-    init(ctx);
-  } while( true );
+  (&DAT_ffff8063)[unaff_r13] = (&DAT_ffff8063)[unaff_r13] | 0x10;
+  cVar2 = (bool)bootload_active_check();
+  if (cVar2 == true) {
+    bootloader_main();
+  }
+  if (((HC08CODE_base.name._0_4_ == 0x48433038) && (HC08CODE_base.name._4_4_ == 0x434f4445)) &&
+     ((HC08CODE_base.programming_magic_word == 0xaaaaaaaa ||
+      ((HC08CODE_base.programming_magic_word == 0x88888888 ||
+       (HC08CODE_base.programming_magic_word == 0xbbbbbbbb)))))) {
+    bootloader_noop3();
+    bootloader_flash_update();
+  }
+  WriteExternalEnableImmediate(0);
+                    // WARNING: Subroutine does not return
+  init();
 }
 
 
@@ -11532,41 +11520,26 @@ LAB_000086c8:
 
 
 
-int init(EVP_PKEY_CTX *ctx)
+void init(void)
 
 {
-  ulonglong uVar1;
-  longlong lVar2;
-  longlong in_r4;
-  ulonglong uVar3;
   ulonglong in_MSR;
   char in_spr203;
   
   FLASH_BIUAPR = 0xffffffff;
   if (in_spr203 != 0) {
-    enable_debug_tracing(in_MSR | 0x2000000);
+    l1_cache_invalidate_enable(in_MSR | 0x2000000);
   }
-  init_hardware_timers();
-  init_ram_pattern_fill();
+  init_clock_flash_uncached();
+  init_sram_ecc();
   init_flash_biu();
-  data_segment_setup();
-  init_fmpll_duplicate();
-  init_r2_and_r13();
-  data_segment_setup___();
-  init_siu();
-  uVar1 = main();
-  uVar3 = uVar1 & 0xfffffffffffffff1;
-  lVar2 = uVar1 - uVar3;
-  in_r4 = in_r4 + lVar2;
-  do {
-    dataCacheBlockStore(uVar3);
-    sync(0);
-    instructionCacheBlockInvalidate(uVar3);
-    uVar3 = uVar3 + 8;
-    in_r4 = in_r4 + -8;
-  } while (-1 < in_r4);
-  instructionSynchronize();
-  return (int)lVar2;
+  init_mmu_tlb();
+  init_cache_and_stack();
+  __init_registers();
+  copy_data_early();
+  init_hardware();
+                    // WARNING: Subroutine does not return
+  main();
 }
 
 
@@ -11595,7 +11568,7 @@ void reset_data_cache(byte *dest,size_t size)
 
 // WARNING: Removing unreachable block (ram,0x000401c0)
 
-void enable_debug_tracing(void)
+void l1_cache_invalidate_enable(void)
 
 {
                     // WARNING: Do nothing block with infinite loop
@@ -11626,7 +11599,7 @@ void poll_until_ready__(void)
 
 
 
-void init_hardware_timers(void)
+void init_clock_flash_uncached(void)
 
 {
   undefined8 in_r0;
@@ -11715,9 +11688,8 @@ void fmpll_set_clock_medium(void)
 
 
 
-void init_ram_pattern_fill
-               (undefined4 param_1,undefined4 param_2,undefined8 param_3,undefined4 param_4,
-               undefined4 param_5,undefined4 param_6,undefined4 param_7,undefined4 param_8)
+void init_sram_ecc(undefined4 param_1,undefined4 param_2,undefined8 param_3,undefined4 param_4,
+                  undefined4 param_5,undefined4 param_6,undefined4 param_7,undefined4 param_8)
 
 {
   undefined4 in_r0;
@@ -11819,7 +11791,7 @@ void init_flash_biu(void)
 // WARNING: Removing unreachable block (ram,0x000404d8)
 // WARNING: Removing unreachable block (ram,0x00040508)
 
-void init_fmpll_duplicate(void)
+void init_cache_and_stack(void)
 
 {
   char in_spr203;
@@ -11838,7 +11810,7 @@ void init_fmpll_duplicate(void)
 
 
 
-void init_r2_and_r13(void)
+void __init_registers(void)
 
 {
   return;
@@ -11846,28 +11818,28 @@ void init_r2_and_r13(void)
 
 
 
-void data_segment_setup___(void)
+void copy_data_early(void)
 
 {
   undefined1 *dst_data;
-  longlong _data_len_;
+  longlong _data_len;
   undefined1 *_source_data;
   
-  _data_len_ = 5432;
+  _data_len = 5432;
   _source_data = (undefined1 *)0xc5957;
   dst_data = (undefined1 *)0x3fffffff;
   do {
     _source_data = _source_data + 1;
     dst_data = dst_data + 1;
     *dst_data = *_source_data;
-    _data_len_ = _data_len_ + -1;
-  } while (_data_len_ != 0);
+    _data_len = _data_len + -1;
+  } while (_data_len != 0);
   return;
 }
 
 
 
-undefined4 * data_segment_setup(void)
+undefined4 * init_mmu_tlb(void)
 
 {
   undefined8 in_r0;
@@ -11897,7 +11869,7 @@ undefined4 * data_segment_setup(void)
 
 
 
-void init_segment_data(byte *dest,byte *src,size_t size)
+void __copy_rom_section(byte *dest,byte *src,size_t size)
 
 {
   if ((size != 0) && (dest != src)) {
@@ -11909,7 +11881,7 @@ void init_segment_data(byte *dest,byte *src,size_t size)
 
 
 
-void init_segment_bss(byte *dest,size_t size)
+void __init_bss_section(byte *dest,size_t size)
 
 {
   if (size == 0) {
@@ -11921,7 +11893,7 @@ void init_segment_bss(byte *dest,size_t size)
 
 
 
-void init_segment(void)
+void __init_data(void)
 
 {
   struct_segment_data *data_seg;
@@ -11930,11 +11902,11 @@ void init_segment(void)
   for (data_seg = segment_data;
       ((data_seg->src != (undefined *)0x0 || (data_seg->dest != (undefined *)0x0)) ||
       (data_seg->size != 0)); data_seg = data_seg + 1) {
-    init_segment_data(data_seg->dest,data_seg->src,data_seg->size);
+    __copy_rom_section(data_seg->dest,data_seg->src,data_seg->size);
   }
   for (bss_seg = segment_bss; (bss_seg->dest != (byte *)0x0 || (bss_seg->size != 0));
       bss_seg = bss_seg + 1) {
-    init_segment_bss(bss_seg->dest,bss_seg->size);
+    __init_bss_section(bss_seg->dest,bss_seg->size);
   }
   return;
 }
@@ -12060,7 +12032,7 @@ void get_flash_driver_descriptor(void **out_ops_table,void **out_fn_base)
 
 
 
-void init_intc_external_offset(void)
+void install_ivor4_external_dispatch(void)
 
 {
   return;
@@ -12068,7 +12040,7 @@ void init_intc_external_offset(void)
 
 
 
-void init_intc_vectors(void)
+void intc_set_sw_vector_mode(void)
 
 {
   uint uVar1;
@@ -12083,7 +12055,7 @@ void init_intc_vectors(void)
 
 
 
-void init_intc_cpr(void)
+void intc_clear_cpr_enable_irq(void)
 
 {
   uint uVar1;
@@ -12099,15 +12071,15 @@ void init_intc_cpr(void)
 void init_intc(void)
 
 {
-  init_intc_external_offset();
-  init_intc_vectors();
-  init_intc_cpr();
+  install_ivor4_external_dispatch();
+  intc_set_sw_vector_mode();
+  intc_clear_cpr_enable_irq();
   return;
 }
 
 
 
-void init_intc_1(void)
+void install_boot_exception_vectors(void)
 
 {
   uint uVar1;
@@ -12124,7 +12096,7 @@ void init_intc_1(void)
 
 
 
-void set_spr_IVOR2(void)
+void remove_boot_exception_vectors(void)
 
 {
   WriteExternalEnableImmediate(0);
@@ -12133,19 +12105,19 @@ void set_spr_IVOR2(void)
 
 
 
-void init_siu(void)
+void init_hardware(void)
 
 {
-  siu_init_external_clock_and_pads();
+  siu_init_clkout_engclk();
   init_siu_pcr();
   init_ebi();
-  init_segment();
+  __init_data();
   return;
 }
 
 
 
-void siu_init_external_clock_and_pads(void)
+void siu_init_clkout_engclk(void)
 
 {
   siu_pcr[0xd6] = 0;
@@ -12272,48 +12244,48 @@ void ebi_write_option_register(uint cs,uint am,uint scy,uint bscy)
 void init_eqADC3(void)
 
 {
-  int iVar1;
-  uint uVar2;
-  ushort uVar3;
+  uint32_t uVar1;
+  uint32_t uVar2;
+  uint16_t uVar3;
   
-  uVar3 = DAT_fff80050;
-  DAT_fff80050 = uVar3 & 0xff0f | 0x10;
-  DAT_fff80010 = 0x1000004;
-  DAT_fff80010 = 0x1000005;
-  DAT_fff80010 = 0x3000004;
-  DAT_fff80010 = 0x83000005;
-  uVar3 = DAT_fff80050;
-  DAT_fff80050 = uVar3 & 0xfbff | 0x400;
+  uVar3 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar3 & 0xff0f | 0x10;
+  EQADC_CFPR0 = 0x1000004;
+  EQADC_CFPR0 = 0x1000005;
+  EQADC_CFPR0 = 0x3000004;
+  EQADC_CFPR0 = 0x83000005;
+  uVar3 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar3 & 0xfbff | 0x400;
   do {
-    uVar2 = DAT_fff80070;
+    uVar1 = EQADC_FISR0;
+  } while ((uVar1 >> 0x11 & 1) == 0);
+  uVar1 = EQADC_RFPR0;
+  do {
+    uVar2 = EQADC_FISR0;
   } while ((uVar2 >> 0x11 & 1) == 0);
-  iVar1 = DAT_fff80030;
+  uVar2 = EQADC_RFPR0;
+  DAT_4000154c = uVar1 << 0x10 | uVar2;
   do {
-    uVar2 = DAT_fff80070;
+    uVar1 = EQADC_FISR0;
+  } while ((uVar1 >> 0x11 & 1) == 0);
+  uVar1 = EQADC_RFPR0;
+  do {
+    uVar2 = EQADC_FISR0;
   } while ((uVar2 >> 0x11 & 1) == 0);
-  uVar2 = DAT_fff80030;
-  DAT_4000154c = iVar1 << 0x10 | uVar2;
+  uVar2 = EQADC_RFPR0;
+  DAT_40001548 = uVar1 << 0x10 | uVar2;
+  uVar1 = EQADC_FISR0;
+  EQADC_FISR0 = uVar1 & 0xfffdffff | 0x20000;
+  uVar3 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar3 & 0xff0f;
+  EQADC_IDCR0 = 0;
+  uVar1 = EQADC_FISR0;
+  EQADC_FISR0 = uVar1 & 0xefffffff | 0x10000000;
+  uVar3 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar3 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff80070;
-  } while ((uVar2 >> 0x11 & 1) == 0);
-  iVar1 = DAT_fff80030;
-  do {
-    uVar2 = DAT_fff80070;
-  } while ((uVar2 >> 0x11 & 1) == 0);
-  uVar2 = DAT_fff80030;
-  DAT_40001548 = iVar1 << 0x10 | uVar2;
-  uVar2 = DAT_fff80070;
-  DAT_fff80070 = uVar2 & 0xfffdffff | 0x20000;
-  uVar3 = DAT_fff80050;
-  DAT_fff80050 = uVar3 & 0xff0f;
-  DAT_fff80060 = 0;
-  uVar2 = DAT_fff80070;
-  DAT_fff80070 = uVar2 & 0xefffffff | 0x10000000;
-  uVar3 = DAT_fff80050;
-  DAT_fff80050 = uVar3 & 0xfdff | 0x200;
-  do {
-    uVar2 = DAT_fff800ac;
-  } while (uVar2 >> 0x1e != 0);
+    uVar1 = EQADC_CFSR;
+  } while (uVar1 >> 0x1e != 0);
   return;
 }
 
@@ -12333,96 +12305,97 @@ void eqadc_calc_gain_offset(uint raw_vrl,uint raw_vrh,undefined2 *gcc,undefined2
 undefined8 init_eqADC2(uint param_1)
 
 {
-  ushort uVar1;
-  uint uVar2;
+  uint16_t uVar1;
+  uint32_t uVar2;
   uint uVar3;
   uint uVar4;
   uint uVar5;
   uint uVar6;
-  int iVar7;
+  uint uVar7;
+  int iVar8;
   short local_20;
   short local_1e [15];
   
-  uVar1 = DAT_fff80050;
-  DAT_fff80050 = uVar1 & 0xff0f | 0x10;
-  uVar1 = DAT_fff80050;
-  DAT_fff80050 = uVar1 & 0xfbff | 0x400;
+  uVar1 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar1 & 0xff0f | 0x10;
+  uVar1 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar1 & 0xfbff | 0x400;
   DAT_400025b0 = 0;
   DAT_40002600 = 0;
   DAT_400025c4 = 0;
   DAT_400025ec = 0;
   DAT_400025d8 = 0;
-  uVar2 = DAT_fff80070;
-  DAT_fff80070 = uVar2 & 0xfffdffff | 0x20000;
-  uVar2 = DAT_fff80074;
-  DAT_fff80074 = uVar2 & 0xfffdffff | 0x20000;
-  uVar2 = DAT_fff80078;
-  DAT_fff80078 = uVar2 & 0xfffdffff | 0x20000;
-  uVar2 = DAT_fff8007c;
-  DAT_fff8007c = uVar2 & 0xfffdffff | 0x20000;
-  uVar2 = DAT_fff80080;
-  DAT_fff80080 = uVar2 & 0xfffdffff | 0x20000;
-  for (iVar7 = 0; iVar7 < 100; iVar7 = iVar7 + 1) {
-    DAT_fff80010 = param_1 * 0x2000000 + 0x42b00;
-    DAT_fff80010 = param_1 * 0x2000000 + 0x142c00;
-    DAT_fff80010 = param_1 * 0x2000000 + 0x242a00;
-    DAT_fff80010 = param_1 * 0x2000000 + 0x342900;
-    DAT_fff80010 = param_1 * 0x2000000 + 0x442800;
+  uVar2 = EQADC_FISR0;
+  EQADC_FISR0 = uVar2 & 0xfffdffff | 0x20000;
+  uVar2 = EQADC_FISR1;
+  EQADC_FISR1 = uVar2 & 0xfffdffff | 0x20000;
+  uVar2 = EQADC_FISR2;
+  EQADC_FISR2 = uVar2 & 0xfffdffff | 0x20000;
+  uVar2 = EQADC_FISR3;
+  EQADC_FISR3 = uVar2 & 0xfffdffff | 0x20000;
+  uVar2 = EQADC_FISR4;
+  EQADC_FISR4 = uVar2 & 0xfffdffff | 0x20000;
+  for (iVar8 = 0; iVar8 < 100; iVar8 = iVar8 + 1) {
+    EQADC_CFPR0 = param_1 * 0x2000000 + 0x42b00;
+    EQADC_CFPR0 = param_1 * 0x2000000 + 0x142c00;
+    EQADC_CFPR0 = param_1 * 0x2000000 + 0x242a00;
+    EQADC_CFPR0 = param_1 * 0x2000000 + 0x342900;
+    EQADC_CFPR0 = param_1 * 0x2000000 + 0x442800;
     do {
-      uVar2 = DAT_fff80070;
+      uVar2 = EQADC_FISR0;
     } while ((uVar2 >> 0x11 & 1) == 0);
-    DAT_40002604 = DAT_fff80030;
+    DAT_40002604 = EQADC_RFPR0;
     do {
-      uVar2 = DAT_fff80074;
+      uVar2 = EQADC_FISR1;
     } while ((uVar2 >> 0x11 & 1) == 0);
-    DAT_400025f0 = DAT_fff80034;
+    DAT_400025f0 = EQADC_RFPR1;
     do {
-      uVar2 = DAT_fff80078;
+      uVar2 = EQADC_FISR2;
     } while ((uVar2 >> 0x11 & 1) == 0);
-    DAT_400025c8 = DAT_fff80038;
+    DAT_400025c8 = EQADC_RFPR2;
     do {
-      uVar2 = DAT_fff8007c;
+      uVar2 = EQADC_FISR3;
     } while ((uVar2 >> 0x11 & 1) == 0);
-    DAT_400025dc = DAT_fff8003c;
+    DAT_400025dc = EQADC_RFPR3;
     do {
-      uVar2 = DAT_fff80080;
+      uVar2 = EQADC_FISR4;
     } while ((uVar2 >> 0x11 & 1) == 0);
-    DAT_400025b4 = DAT_fff80040;
-    uVar2 = DAT_fff80070;
-    DAT_fff80070 = uVar2 & 0xfffdffff | 0x20000;
-    uVar2 = DAT_fff80074;
-    DAT_fff80074 = uVar2 & 0xfffdffff | 0x20000;
-    uVar2 = DAT_fff80078;
-    DAT_fff80078 = uVar2 & 0xfffdffff | 0x20000;
-    uVar2 = DAT_fff8007c;
-    DAT_fff8007c = uVar2 & 0xfffdffff | 0x20000;
-    uVar2 = DAT_fff80080;
-    DAT_fff80080 = uVar2 & 0xfffdffff | 0x20000;
-    uVar2 = DAT_40002604;
+    DAT_400025b4 = EQADC_RFPR4;
+    uVar2 = EQADC_FISR0;
+    EQADC_FISR0 = uVar2 & 0xfffdffff | 0x20000;
+    uVar2 = EQADC_FISR1;
+    EQADC_FISR1 = uVar2 & 0xfffdffff | 0x20000;
+    uVar2 = EQADC_FISR2;
+    EQADC_FISR2 = uVar2 & 0xfffdffff | 0x20000;
+    uVar2 = EQADC_FISR3;
+    EQADC_FISR3 = uVar2 & 0xfffdffff | 0x20000;
+    uVar2 = EQADC_FISR4;
+    EQADC_FISR4 = uVar2 & 0xfffdffff | 0x20000;
+    uVar3 = DAT_40002604;
     if (DAT_40002604 < DAT_40002600) {
-      uVar2 = DAT_40002600;
+      uVar3 = DAT_40002600;
     }
-    uVar3 = DAT_400025f0;
+    uVar4 = DAT_400025f0;
     if (DAT_400025f0 < DAT_400025ec) {
-      uVar3 = DAT_400025ec;
+      uVar4 = DAT_400025ec;
     }
-    uVar4 = DAT_400025c8;
+    uVar5 = DAT_400025c8;
     if (DAT_400025c8 < DAT_400025c4) {
-      uVar4 = DAT_400025c4;
+      uVar5 = DAT_400025c4;
     }
-    uVar5 = DAT_400025dc;
+    uVar6 = DAT_400025dc;
     if (DAT_400025dc < DAT_400025d8) {
-      uVar5 = DAT_400025d8;
+      uVar6 = DAT_400025d8;
     }
-    uVar6 = DAT_400025b4;
+    uVar7 = DAT_400025b4;
     if (DAT_400025b4 < DAT_400025b0) {
-      uVar6 = DAT_400025b0;
+      uVar7 = DAT_400025b0;
     }
-    DAT_400025b0 = uVar6;
-    DAT_400025c4 = uVar4;
-    DAT_400025d8 = uVar5;
-    DAT_400025ec = uVar3;
-    DAT_40002600 = uVar2;
+    DAT_400025b0 = uVar7;
+    DAT_400025c4 = uVar5;
+    DAT_400025d8 = uVar6;
+    DAT_400025ec = uVar4;
+    DAT_40002600 = uVar3;
     watchdog_retrigger();
   }
   if ((param_1 & 0xffff) == 0) {
@@ -12444,8 +12417,8 @@ undefined8 init_eqADC2(uint param_1)
   DAT_40001554 = (int)local_20 & 0x3fff;
   DAT_40001552 = (short)DAT_40001558;
   DAT_40001550 = (short)DAT_40001554;
-  DAT_fff80010 = DAT_40001558 << 8 | 4 | param_1 << 0x19;
-  DAT_fff80010 = DAT_40001554 << 8 | 5 | param_1 << 0x19;
+  EQADC_CFPR0 = DAT_40001558 << 8 | 4 | param_1 << 0x19;
+  EQADC_CFPR0 = DAT_40001554 << 8 | 5 | param_1 << 0x19;
   return 1;
 }
 
@@ -12468,100 +12441,100 @@ void eqadc_build_adc_config_queue(void)
 void init_eqADC(void)
 
 {
-  ushort uVar1;
-  uint uVar2;
+  uint16_t uVar1;
+  uint32_t uVar2;
   
-  uVar1 = DAT_fff80050;
-  DAT_fff80050 = uVar1 & 0xff0f;
-  DAT_fff80060 = 0;
-  uVar2 = DAT_fff80070;
-  DAT_fff80070 = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff80050;
-  DAT_fff80050 = uVar1 & 0xfdff | 0x200;
+  uVar1 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar1 & 0xff0f;
+  EQADC_IDCR0 = 0;
+  uVar2 = EQADC_FISR0;
+  EQADC_FISR0 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR0;
+  EQADC_CFCR0 = uVar1 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while (uVar2 >> 0x1e != 0);
-  uVar2 = DAT_fff80070;
-  DAT_fff80070 = uVar2 & 0xfffdffff | 0x20000;
-  uVar1 = DAT_fff80052;
-  DAT_fff80052 = uVar1 & 0xff0f;
-  DAT_fff80062 = 0;
-  uVar2 = DAT_fff80074;
-  DAT_fff80074 = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff80052;
-  DAT_fff80052 = uVar1 & 0xfdff | 0x200;
+  uVar2 = EQADC_FISR0;
+  EQADC_FISR0 = uVar2 & 0xfffdffff | 0x20000;
+  uVar1 = EQADC_CFCR1;
+  EQADC_CFCR1 = uVar1 & 0xff0f;
+  EQADC_IDCR1 = 0;
+  uVar2 = EQADC_FISR1;
+  EQADC_FISR1 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR1;
+  EQADC_CFCR1 = uVar1 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while ((uVar2 >> 0x1c & 3) != 0);
-  uVar2 = DAT_fff80074;
-  DAT_fff80074 = uVar2 & 0xfffdffff | 0x20000;
-  uVar1 = DAT_fff80054;
-  DAT_fff80054 = uVar1 & 0xff0f;
-  DAT_fff80064 = 0;
-  uVar2 = DAT_fff80078;
-  DAT_fff80078 = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff80054;
-  DAT_fff80054 = uVar1 & 0xfdff | 0x200;
+  uVar2 = EQADC_FISR1;
+  EQADC_FISR1 = uVar2 & 0xfffdffff | 0x20000;
+  uVar1 = EQADC_CFCR2;
+  EQADC_CFCR2 = uVar1 & 0xff0f;
+  EQADC_IDCR2 = 0;
+  uVar2 = EQADC_FISR2;
+  EQADC_FISR2 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR2;
+  EQADC_CFCR2 = uVar1 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while ((uVar2 >> 0x1a & 3) != 0);
-  uVar2 = DAT_fff80078;
-  DAT_fff80078 = uVar2 & 0xfffdffff | 0x20000;
-  uVar1 = DAT_fff80056;
-  DAT_fff80056 = uVar1 & 0xff0f;
-  DAT_fff80066 = 0;
-  uVar2 = DAT_fff8007c;
-  DAT_fff8007c = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff80056;
-  DAT_fff80056 = uVar1 & 0xfdff | 0x200;
+  uVar2 = EQADC_FISR2;
+  EQADC_FISR2 = uVar2 & 0xfffdffff | 0x20000;
+  uVar1 = EQADC_CFCR3;
+  EQADC_CFCR3 = uVar1 & 0xff0f;
+  EQADC_IDCR3 = 0;
+  uVar2 = EQADC_FISR3;
+  EQADC_FISR3 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR3;
+  EQADC_CFCR3 = uVar1 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while ((uVar2 >> 0x18 & 3) != 0);
-  uVar2 = DAT_fff8007c;
-  DAT_fff8007c = uVar2 & 0xfffdffff | 0x20000;
-  uVar1 = DAT_fff80058;
-  DAT_fff80058 = uVar1 & 0xff0f;
-  DAT_fff80068 = 0;
-  uVar2 = DAT_fff80080;
-  DAT_fff80080 = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff80058;
-  DAT_fff80058 = uVar1 & 0xfdff | 0x200;
+  uVar2 = EQADC_FISR3;
+  EQADC_FISR3 = uVar2 & 0xfffdffff | 0x20000;
+  uVar1 = EQADC_CFCR4;
+  EQADC_CFCR4 = uVar1 & 0xff0f;
+  EQADC_IDCR4 = 0;
+  uVar2 = EQADC_FISR4;
+  EQADC_FISR4 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR4;
+  EQADC_CFCR4 = uVar1 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while ((uVar2 >> 0x16 & 3) != 0);
-  uVar2 = DAT_fff80080;
-  DAT_fff80080 = uVar2 & 0xfffdffff | 0x20000;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xff0f;
-  DAT_fff8006a = 0;
-  uVar2 = DAT_fff80084;
-  DAT_fff80084 = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xfdff | 0x200;
+  uVar2 = EQADC_FISR4;
+  EQADC_FISR4 = uVar2 & 0xfffdffff | 0x20000;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xff0f;
+  EQADC_IDCR5 = 0;
+  uVar2 = EQADC_FISR5;
+  EQADC_FISR5 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xfdff | 0x200;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while ((uVar2 >> 0x14 & 3) != 0);
-  uVar2 = DAT_fff80084;
-  DAT_fff80084 = uVar2 & 0xfffdffff | 0x20000;
+  uVar2 = EQADC_FISR5;
+  EQADC_FISR5 = uVar2 & 0xfffdffff | 0x20000;
   eqadc_build_adc_config_queue();
-  DAT_fff80000 = 0;
-  DAT_fff80008 = 0;
-  DAT_fff8000c = 6;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xff0f | 0x10;
-  DAT_fff8006a = 0x300;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xfbff | 0x400;
+  EQADC_MCR = 0;
+  EQADC_NMSFR = 0;
+  EQADC_ETDFR = 6;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xff0f | 0x10;
+  EQADC_IDCR5 = 0x300;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xfbff | 0x400;
   do {
-    uVar2 = DAT_fff800ac;
+    uVar2 = EQADC_CFSR;
   } while ((uVar2 >> 0x14 & 3) != 2);
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xff0f;
-  DAT_fff8006a = 0;
-  uVar2 = DAT_fff80084;
-  DAT_fff80084 = uVar2 & 0xefffffff | 0x10000000;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xfdff | 0x200;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xff0f;
+  EQADC_IDCR5 = 0;
+  uVar2 = EQADC_FISR5;
+  EQADC_FISR5 = uVar2 & 0xefffffff | 0x10000000;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xfdff | 0x200;
   return;
 }
 
@@ -12570,7 +12543,7 @@ void init_eqADC(void)
 void init_eqADC4(void)
 
 {
-  ushort uVar1;
+  uint16_t uVar1;
   
   DAT_40002a48 = 0x1440800;
   DAT_40002a4c = 0x1440900;
@@ -12583,11 +12556,11 @@ void init_eqADC4(void)
   DAT_40002a68 = 0x442a00;
   DAT_40002a6c = 0x442b00;
   DAT_40002a70 = 0x80442800;
-  uVar1 = DAT_fff80058;
-  DAT_fff80058 = uVar1 & 0xff0f | 0x90;
-  DAT_fff80068 = 0x303;
-  uVar1 = DAT_fff80058;
-  DAT_fff80058 = uVar1 & 0xfbff | 0x400;
+  uVar1 = EQADC_CFCR4;
+  EQADC_CFCR4 = uVar1 & 0xff0f | 0x90;
+  EQADC_IDCR4 = 0x303;
+  uVar1 = EQADC_CFCR4;
+  EQADC_CFCR4 = uVar1 & 0xfbff | 0x400;
   return;
 }
 
@@ -12596,7 +12569,7 @@ void init_eqADC4(void)
 void init_eqADC5(void)
 
 {
-  ushort uVar1;
+  uint16_t uVar1;
   
   ADC_TSCR = 0x3500000;
   ADC_TBCR = 0x3500100;
@@ -12643,11 +12616,11 @@ void init_eqADC5(void)
   DAT_40002a38 = 0x2502a00;
   DAT_40002a3c = 0x2502b00;
   DAT_40002a40 = 0x82502800;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xff0f | 0x90;
-  DAT_fff8006a = 0x303;
-  uVar1 = DAT_fff8005a;
-  DAT_fff8005a = uVar1 & 0xfbff | 0x400;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xff0f | 0x90;
+  EQADC_IDCR5 = 0x303;
+  uVar1 = EQADC_CFCR5;
+  EQADC_CFCR5 = uVar1 & 0xfbff | 0x400;
   return;
 }
 
@@ -12884,6 +12857,22 @@ void init_ivor(void)
 
 
 
+void exception_default_handler(void)
+
+{
+  return;
+}
+
+
+
+void watchdog_critical_handler(void)
+
+{
+  return;
+}
+
+
+
 undefined8 get_timer_base(void)
 
 {
@@ -12895,16 +12884,24 @@ undefined8 get_timer_base(void)
 
 
 
-void init_flash_helper(void)
+void decrementer_handler(void)
 
 {
-  init_flash_ctrl();
   return;
 }
 
 
 
-void init_siu(void)
+void dsi_handler(void)
+
+{
+  flash_ecc_fault_erase_and_reset();
+  return;
+}
+
+
+
+void init_siu_pcr_io_pins(void)
 
 {
   siu_pcr[0x7e] = 0x100;
@@ -13002,11 +12999,11 @@ void copyCAL2RAM(void)
     target_addr = puVar3 + 2;
   } while (lVar4 != 0);
   puVar3[3] = puVar2[3];
-  init_intc_1();
+  install_boot_exception_vectors();
   flash_erase_pending_flags = flash_erase_pending_flags | 0b00000010;
   copyCOD2RAM();
   flash_erase_pending_flags = flash_erase_pending_flags & 0b11111101;
-  set_spr_IVOR2();
+  remove_boot_exception_vectors();
   calibration_verification_number =
        CRC16(&CAL_ecu_data_base,*(short *)(mpc5534_reserved + (int)(puVar1 + 2)) + -34);
   if ((((CAL_ecu_unlock_magic[0] == 'W') && (CAL_ecu_unlock_magic[1] == 'T')) &&
@@ -13044,12 +13041,12 @@ void init_devices(void)
   copyCAL2RAM();
   init_gear_cal();
   init_obd_ii_config();
-  init_intc_1();
+  install_boot_exception_vectors();
   flash_erase_pending_flags = flash_erase_pending_flags | 1;
   EEPROM_load();
   flash_erase_pending_flags = flash_erase_pending_flags & 0xfe;
-  set_spr_IVOR2();
-  init_siu();
+  remove_boot_exception_vectors();
+  init_siu_pcr_io_pins();
   init_eDMA();
   init_eDMA2_2();
   init_eqADC();
@@ -13082,7 +13079,7 @@ void init_devices(void)
   init_emios1();
   init_ips_speed_matching_controller(&ips_shift_state);
   throttle_actuator_init();
-  clear_can_logging_buffer();
+  ccp_state_clear();
   init_intc();
   return;
 }
@@ -13423,52 +13420,52 @@ void interrupt_timer_2000hz(void)
     if ((flexcan_timeslot_timer[0] != '\0') &&
        (flexcan_timeslot_timer[0] = flexcan_timeslot_timer[0] + 0xff,
        flexcan_timeslot_timer[0] == '\0')) {
-      flexcan_counters_scheduler_tick(0);
+      ccp_daq_event_tick(0);
     }
     if ((flexcan_timeslot_timer[1] != '\0') &&
        (flexcan_timeslot_timer[1] = flexcan_timeslot_timer[1] + 0xff,
        flexcan_timeslot_timer[1] == '\0')) {
-      flexcan_counters_scheduler_tick(1);
+      ccp_daq_event_tick(1);
     }
     if ((flexcan_timeslot_timer[2] != '\0') &&
        (flexcan_timeslot_timer[2] = flexcan_timeslot_timer[2] + 0xff,
        flexcan_timeslot_timer[2] == '\0')) {
-      flexcan_counters_scheduler_tick(2);
+      ccp_daq_event_tick(2);
     }
     if ((flexcan_timeslot_timer[3] != '\0') &&
        (flexcan_timeslot_timer[3] = flexcan_timeslot_timer[3] + 0xff,
        flexcan_timeslot_timer[3] == '\0')) {
-      flexcan_counters_scheduler_tick(3);
+      ccp_daq_event_tick(3);
     }
     if ((flexcan_timeslot_timer[4] != '\0') &&
        (flexcan_timeslot_timer[4] = flexcan_timeslot_timer[4] + 0xff,
        flexcan_timeslot_timer[4] == '\0')) {
-      flexcan_counters_scheduler_tick(4);
+      ccp_daq_event_tick(4);
     }
     if ((flexcan_timeslot_timer[5] != '\0') &&
        (flexcan_timeslot_timer[5] = flexcan_timeslot_timer[5] + 0xff,
        flexcan_timeslot_timer[5] == '\0')) {
-      flexcan_counters_scheduler_tick(5);
+      ccp_daq_event_tick(5);
     }
     if ((flexcan_timeslot_timer[6] != '\0') &&
        (flexcan_timeslot_timer[6] = flexcan_timeslot_timer[6] + 0xff,
        flexcan_timeslot_timer[6] == '\0')) {
-      flexcan_counters_scheduler_tick(6);
+      ccp_daq_event_tick(6);
     }
     if ((flexcan_timeslot_timer[7] != '\0') &&
        (flexcan_timeslot_timer[7] = flexcan_timeslot_timer[7] + 0xff,
        flexcan_timeslot_timer[7] == '\0')) {
-      flexcan_counters_scheduler_tick(7);
+      ccp_daq_event_tick(7);
     }
     if ((flexcan_timeslot_timer[8] != '\0') &&
        (flexcan_timeslot_timer[8] = flexcan_timeslot_timer[8] + 0xff,
        flexcan_timeslot_timer[8] == '\0')) {
-      flexcan_counters_scheduler_tick(8);
+      ccp_daq_event_tick(8);
     }
     if ((flexcan_timeslot_timer[9] != '\0') &&
        (flexcan_timeslot_timer[9] = flexcan_timeslot_timer[9] + 0xff,
        flexcan_timeslot_timer[9] == '\0')) {
-      flexcan_counters_scheduler_tick(9);
+      ccp_daq_event_tick(9);
     }
   }
   if (runtime_since_start != 0) {
@@ -13596,7 +13593,7 @@ void interrupt_timer_2000hz(void)
         }
         flexcan_a_tx_d2_100hz
                   (tps_8bit,revlimit_state_flags & 1,paddle_shift_flags,
-                   ((ulonglong)CAL_ips_request_msg_id_nibble & 0xf) << 4 | 6,
+                   ((ulonglong)CAL_ips_compatibility_id & 0xf) << 4 | 6,
                    cruise_speed_target / 100 & 0xff,ips_cruise_status_flags,
                    revlimit_hard_exit_rpm & 0xff,(int)(uint)revlimit_hard_exit_rpm >> 8);
       }
@@ -16893,7 +16890,7 @@ void watchdog_retrigger(void)
 
 
 
-void set_spr154_6c54(void)
+void tcr_watchdog_normal(void)
 
 {
   return;
@@ -16901,7 +16898,7 @@ void set_spr154_6c54(void)
 
 
 
-void set_spr154_2c52(void)
+void tcr_watchdog_flash_mode(void)
 
 {
   return;
@@ -21141,7 +21138,7 @@ void EEPROM_write_learned_data(byte *data,size_t size)
   uint uVar3;
   byte local_20 [32];
   
-  set_spr154_2c52();
+  tcr_watchdog_flash_mode();
   uVar1 = size & 0xfff8;
   uVar3 = size & 7;
   watchdog_retrigger();
@@ -21161,7 +21158,7 @@ void EEPROM_write_learned_data(byte *data,size_t size)
   }
   init_flash_cr();
   watchdog_serviced_delay();
-  set_spr154_6c54();
+  tcr_watchdog_normal();
   return;
 }
 
@@ -21191,12 +21188,12 @@ int load_saved_LEA(char *param,int size)
 
 
 
-void init_flash_ctrl(void)
+void flash_ecc_fault_erase_and_reset(void)
 
 {
   uint uVar1;
   
-  set_spr154_2c52();
+  tcr_watchdog_flash_mode();
   uVar1 = FLASH_MCR;
   FLASH_MCR = uVar1 | 0x8000;
   if ((flash_erase_pending_flags & 1) != 0) {
@@ -21209,7 +21206,7 @@ void init_flash_ctrl(void)
   }
   watchdog_retrigger();
   init_flash_cr();
-  set_spr154_6c54();
+  tcr_watchdog_normal();
   do {
                     // WARNING: Do nothing block with infinite loop
   } while( true );
@@ -21220,9 +21217,9 @@ void init_flash_ctrl(void)
 void EEPROM_erase_coding(void)
 
 {
-  set_spr154_2c52();
+  tcr_watchdog_flash_mode();
   flash_erase(0,0,FLASH_SEG_COD);
-  set_spr154_6c54();
+  tcr_watchdog_normal();
   return;
 }
 
@@ -21236,7 +21233,7 @@ void flash_write_cod_data(uint param_1,int param_2,uint param_3)
   uint i;
   undefined1 local_20 [32];
   
-  set_spr154_2c52();
+  tcr_watchdog_flash_mode();
   uVar1 = param_1 & 0xfffffff8;
   if (((0x1bfff < param_1) && (param_1 < 0x20000)) && (param_1 == uVar1)) {
     WriteExternalEnableImmediate(0);
@@ -21259,7 +21256,7 @@ void flash_write_cod_data(uint param_1,int param_2,uint param_3)
     init_flash_cr();
     WriteExternalEnableImmediate(1);
   }
-  set_spr154_6c54();
+  tcr_watchdog_normal();
   return;
 }
 
@@ -25243,7 +25240,7 @@ void obd_ii_update_states(void)
     }
   }
   else if ((obd_ii_montior_passes_bitfield & 2) == 0) {
-    if ((((COD_base.COD[0] >> 0xd & 7) == 1) && ((DAT_40001a8e & 1) != 0)) ||
+    if ((((COD_base.COD[0] >> 0xd & 7) == 1) && ((ips_obd_monitor_inhibit_flags & 1) != 0)) ||
        ((obd_ii_montior_passes_bitfield & 1) != 0)) {
       uVar7 = obd_ii_montior_passes_bitfield | 8;
     }
@@ -25269,7 +25266,7 @@ void obd_ii_update_states(void)
     }
   }
   obd_ii_montior_passes_bitfield = uVar7;
-  if ((((COD_base.COD[0] >> 0xd & 7) == 1) && ((DAT_40001a8e & 2) != 0)) ||
+  if ((((COD_base.COD[0] >> 0xd & 7) == 1) && ((ips_obd_monitor_inhibit_flags & 2) != 0)) ||
      (((obd_ii_montior_passes_bitfield & 0x20) != 0 && (DAT_40001a9a != 0)))) {
     obd_ii_montior_passes_bitfield = obd_ii_montior_passes_bitfield | 0x40;
   }
@@ -45832,7 +45829,7 @@ void flexcan_c_tx_351(byte *param_1)
 void flexcan_c_tx_351_redirect2(void)
 
 {
-  flexcan_c_tx_351_redirect(&DAT_40006520);
+  ccp_send_crm(&ccp_crm_frame);
   return;
 }
 
@@ -45877,7 +45874,7 @@ bool flexcan_build_telemetry_message(byte *data)
 
 
 
-undefined8 diag_stream_write(uint param_1,char param_2,undefined1 *param_3)
+undefined8 ccp_mta_download(uint param_1,char param_2,undefined1 *param_3)
 
 {
   bool bVar1;
@@ -45895,7 +45892,7 @@ undefined8 diag_stream_write(uint param_1,char param_2,undefined1 *param_3)
 
 
 
-undefined8 diag_stream_write(uint param_1,char param_2,undefined1 *param_3)
+undefined8 ccp_mta_download(uint param_1,char param_2,undefined1 *param_3)
 
 {
   bool bVar1;
@@ -45913,7 +45910,7 @@ undefined8 diag_stream_write(uint param_1,char param_2,undefined1 *param_3)
 
 
 
-void diag_stream_read(uint param_1,char param_2,undefined1 *param_3)
+void ccp_mta_upload(uint param_1,char param_2,undefined1 *param_3)
 
 {
   bool bVar1;
@@ -45931,7 +45928,7 @@ void diag_stream_read(uint param_1,char param_2,undefined1 *param_3)
 
 
 
-void diag_stream_read(uint param_1,char param_2,undefined1 *param_3)
+void ccp_mta_upload(uint param_1,char param_2,undefined1 *param_3)
 
 {
   bool bVar1;
@@ -45949,15 +45946,15 @@ void diag_stream_read(uint param_1,char param_2,undefined1 *param_3)
 
 
 
-undefined8 chlog_group_init(byte param_1)
+undefined8 ccp_daq_list_init(uint8_t daq_size)
 
 {
   undefined8 uVar1;
   undefined1 *puVar2;
   
-  if (param_1 < 10) {
-    for (puVar2 = &DAT_400068fc + (uint)param_1 * 0x2a8;
-        puVar2 < (undefined1 *)((uint)param_1 * 0x2a8 + 0x40006ba4); puVar2 = puVar2 + 1) {
+  if (daq_size < 10) {
+    for (puVar2 = &ccp_daq_lists + (uint)daq_size * 0x2a8;
+        puVar2 < (undefined1 *)((uint)daq_size * 0x2a8 + 0x40006ba4); puVar2 = puVar2 + 1) {
       *puVar2 = 0;
     }
     flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 2;
@@ -45972,7 +45969,7 @@ undefined8 chlog_group_init(byte param_1)
 
 
 
-undefined8 chlog_group_set_timing(byte param_1,undefined1 param_2,undefined1 param_3,short param_4)
+undefined8 ccp_daq_list_configure(byte param_1,undefined1 param_2,undefined1 param_3,short param_4)
 
 {
   undefined8 uVar1;
@@ -46008,7 +46005,7 @@ bool chlog_group_arm(byte param_1)
 
 
 
-void chlog_start_all(void)
+void ccp_daq_start_all(void)
 
 {
   byte bVar1;
@@ -46024,7 +46021,7 @@ void chlog_start_all(void)
 
 
 
-void chlog_group_stop(byte param_1)
+void ccp_daq_list_stop(byte param_1)
 
 {
   byte bVar1;
@@ -46043,7 +46040,7 @@ void chlog_group_stop(byte param_1)
 
 
 
-void chlog_stop_all(void)
+void ccp_daq_stop_all(void)
 
 {
   byte i;
@@ -46057,7 +46054,7 @@ void chlog_stop_all(void)
 
 
 
-undefined8 flexcan_build_telemetry_message2(byte param_1,uint param_2,uint param_3)
+undefined8 ccp_build_dto(byte param_1,uint param_2,uint param_3)
 
 {
   undefined4 *puVar1;
@@ -46074,7 +46071,7 @@ undefined8 flexcan_build_telemetry_message2(byte param_1,uint param_2,uint param
   uVar7 = 1;
   iVar2 = (param_2 & 0xff) * 0x2a8 + (param_3 & 0xff) * 0x38;
   puVar5 = &local_1f;
-  for (piVar6 = (int *)(&DAT_400068fc + iVar2);
+  for (piVar6 = (int *)(&ccp_daq_lists + iVar2);
       ((puVar5 < auStack_18 && (piVar6 < (int *)(iVar2 + 0x4000693c))) && (*piVar6 != 0));
       piVar6 = piVar6 + 2) {
     puVar1 = (undefined4 *)*piVar6;
@@ -46103,7 +46100,7 @@ undefined8 flexcan_build_telemetry_message2(byte param_1,uint param_2,uint param
 
 
 
-void flexcan_counters_scheduler_tick(char param_1)
+void ccp_daq_event_tick(char param_1)
 
 {
   short sVar1;
@@ -46123,8 +46120,8 @@ void flexcan_counters_scheduler_tick(char param_1)
           (&DAT_40006b9e)[(uint)i * 0x154] = (&DAT_40006b9c)[(uint)i * 0x154];
           if ((int)(uint)(byte)(&DAT_40006ba1)[(uint)i * 0x2a8] < (int)(0x78 - (uint)queue_len)) {
             for (bVar3 = 0; bVar3 <= (byte)(&DAT_40006ba1)[(uint)i * 0x2a8]; bVar3 = bVar3 + 1) {
-              iVar2 = flexcan_build_telemetry_message2
-                                (cVar4 + bVar3 | (&DAT_40006ba2)[(uint)i * 0x2a8] & 0x80,i,bVar3);
+              iVar2 = ccp_build_dto(cVar4 + bVar3 | (&DAT_40006ba2)[(uint)i * 0x2a8] & 0x80,i,bVar3)
+              ;
               if (iVar2 == 0) {
                 (&DAT_40006ba2)[(uint)i * 0x2a8] = (&DAT_40006ba2)[(uint)i * 0x2a8] | 0x80;
               }
@@ -46142,7 +46139,7 @@ void flexcan_counters_scheduler_tick(char param_1)
     }
     if (((flexcan_tx_queue_state_flags & 8) == 0) && (queue_len != 0)) {
       flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 8;
-      flexcan_tx_from_queue_0x351();
+      ccp_dto_tx_next();
     }
   }
   return;
@@ -46150,7 +46147,7 @@ void flexcan_counters_scheduler_tick(char param_1)
 
 
 
-undefined8 diag_stream_tx_continue(void)
+undefined8 ccp_tx_continue(void)
 
 {
   ushort uVar1;
@@ -46180,7 +46177,7 @@ undefined8 diag_stream_tx_continue(void)
 
 
 
-void chlog_command_dispatch(byte *data)
+void ccp_cro_dispatch(byte *data)
 
 {
   uint _addr1;
@@ -46198,12 +46195,12 @@ void chlog_command_dispatch(byte *data)
     if (*data == 1) {
       if (((flexcan_tx_queue_state_flags & 0x20) == 0) &&
          ((flexcan_tx_queue_state_flags & 0x10) == 0)) {
-        chlog_stop_all();
+        ccp_daq_stop_all();
         DAT_40006529 = 0;
       }
       flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags & 0xef | 0x20;
     }
-    DAT_40006520 = 0xff;
+    ccp_crm_frame = 0xff;
     DAT_40006521 = 0;
     DAT_40006522 = data[1];
     DAT_40006523 = 0xfe;
@@ -46213,7 +46210,7 @@ void chlog_command_dispatch(byte *data)
     if ((flexcan_tx_queue_state_flags & 0x20) == 0) {
       return;
     }
-    DAT_40006520 = 0xff;
+    ccp_crm_frame = 0xff;
     DAT_40006521 = 0;
     DAT_40006522 = data[1];
     switch(*data) {
@@ -46230,7 +46227,7 @@ void chlog_command_dispatch(byte *data)
       }
       break;
     case 3:
-      cVar2 = diag_stream_write(0,data[2],(longlong)(int)data + 3);
+      cVar2 = ccp_mta_download(0,data[2],(longlong)(int)data + 3);
       if (cVar2 == '\x02') {
         return;
       }
@@ -46239,21 +46236,21 @@ void chlog_command_dispatch(byte *data)
       }
       break;
     case 4:
-      diag_stream_read(0,data[2],&DAT_40006523);
+      ccp_mta_upload(0,data[2],&DAT_40006523);
       break;
     case 6:
       if ((flexcan_tx_queue_state_flags & 2) == 0) {
         DAT_40006521 = 0x22;
       }
       else if (data[2] == 0) {
-        chlog_group_stop(data[3]);
+        ccp_daq_list_stop(data[3]);
       }
       else if (data[2] == 1) {
-        chlog_group_set_timing(data[3],data[4],data[5],*(undefined2 *)(data + 6));
+        ccp_daq_list_configure(data[3],data[4],data[5],*(undefined2 *)(data + 6));
         chlog_group_arm(data[3]);
       }
       else if (data[2] == 2) {
-        chlog_group_set_timing(data[3],data[4],data[5],*(undefined2 *)(data + 6));
+        ccp_daq_list_configure(data[3],data[4],data[5],*(undefined2 *)(data + 6));
       }
       else {
         DAT_40006521 = 0x31;
@@ -46265,7 +46262,7 @@ void chlog_command_dispatch(byte *data)
         flexcan_tx_queue_state_flags = flexcan_tx_queue_state_flags | 0x10;
       }
       else {
-        chlog_stop_all();
+        ccp_daq_stop_all();
       }
       break;
     case 8:
@@ -46273,10 +46270,10 @@ void chlog_command_dispatch(byte *data)
         DAT_40006521 = 0x22;
       }
       else if (data[2] == 0) {
-        chlog_stop_all();
+        ccp_daq_stop_all();
       }
       else if (data[2] == 1) {
-        chlog_start_all();
+        ccp_daq_start_all();
       }
       else {
         DAT_40006521 = 0x31;
@@ -46287,7 +46284,7 @@ void chlog_command_dispatch(byte *data)
       DAT_40006524 = DAT_400016d8;
       break;
     case 0xe:
-      DAT_40006520 = 0xff;
+      ccp_crm_frame = 0xff;
       DAT_40006521 = 0;
       DAT_40006523 = 2;
       DAT_40006524 = 0;
@@ -46296,20 +46293,20 @@ void chlog_command_dispatch(byte *data)
       return;
     case 0xf:
       DAT_40006530 = (undefined1 *)extract_address(data[3],*(undefined4 *)(data + 4));
-      diag_stream_read(1,data[2],&DAT_40006523);
+      ccp_mta_upload(1,data[2],&DAT_40006523);
       break;
     case 0x11:
       diag_set_base_ptr(DAT_4000652c);
       break;
     case 0x14:
-      chlog_group_stop(data[2]);
-      DAT_40006523 = chlog_group_init(data[2]);
+      ccp_daq_list_stop(data[2]);
+      DAT_40006523 = ccp_daq_list_init(data[2]);
       DAT_40006524 = CONCAT13(data[2] * '\f',DAT_40006524._1_3_);
       break;
     case 0x15:
       if (((data[2] < 10) && (data[3] < 0xc)) && (data[4] < 8)) {
         DAT_400068f8 = (undefined4 *)
-                       (&DAT_400068fc +
+                       (&ccp_daq_lists +
                        (uint)data[2] * 0x2a8 + (uint)data[3] * 0x38 + (uint)data[4] * 8);
       }
       else {
@@ -46340,7 +46337,7 @@ void chlog_command_dispatch(byte *data)
       DAT_40006524 = CONCAT13(1,DAT_40006524._1_3_);
       break;
     case 0x23:
-      cVar2 = diag_stream_write(0,6,(longlong)(int)data + 2);
+      cVar2 = ccp_mta_download(0,6,(longlong)(int)data + 2);
       if (cVar2 == '\x02') {
         return;
       }
@@ -46355,12 +46352,12 @@ void chlog_command_dispatch(byte *data)
 
 
 
-void clear_can_logging_buffer(void)
+void ccp_state_clear(void)
 
 {
   uint16_t *p;
   
-  for (p = (uint16_t *)&DAT_40006520; p < tpms_module_dtcs; p = (uint16_t *)((int)p + 1)) {
+  for (p = (uint16_t *)&ccp_crm_frame; p < tpms_module_dtcs; p = (uint16_t *)((int)p + 1)) {
     *(undefined1 *)p = 0;
   }
   return;
@@ -46368,7 +46365,7 @@ void clear_can_logging_buffer(void)
 
 
 
-void flexcan_tx_from_queue_0x351(void)
+void ccp_dto_tx_next(void)
 
 {
   if (((flexcan_tx_queue_state_flags & 0x80) != 0) && (queue_len != 0)) {
@@ -46406,7 +46403,7 @@ undefined8 flexcan_tx_from_queue_helper(undefined *data)
 
 
 
-undefined8 flexcan_c_tx_351_redirect(void)
+undefined8 ccp_send_crm(void)
 
 {
   flexcan_c_tx_351();
@@ -46435,7 +46432,7 @@ void flexcan_diagnostics_tx(void)
 
 {
   DAT_40002268 = DAT_40002268 + 1;
-  diag_stream_tx_continue();
+  ccp_tx_continue();
   return;
 }
 
@@ -47937,10 +47934,10 @@ void flexcan_a_rx_250(void)
         }
         bVar2 = (local_10 & 0x1000000) == 0;
         if (bVar2) {
-          DAT_40001510 = 0xff;
+          ips_speed_limit = 0xff;
         }
         else {
-          DAT_40001510 = local_10._1_1_;
+          ips_speed_limit = local_10._1_1_;
         }
         ips_enforce_speed_limit = !bVar2;
         bVar2 = (local_10 & 0x2000000) == 0;
@@ -47950,36 +47947,36 @@ void flexcan_a_rx_250(void)
         else {
           engine_state_failure_flags = engine_state_failure_flags | 0x800;
         }
-        DAT_400024e9 = !bVar2;
+        ips_fault_active = !bVar2;
         ips_throttle_restrict = (uint8_t)((-((ulonglong)local_10._0_1_ & 4) & 0xffffffff) >> 0x1f);
-        DAT_40001a8e = local_10._2_1_;
+        ips_obd_monitor_inhibit_flags = local_10._2_1_;
         uVar1 = main_diagnostic_flags & 0xffdf;
         main_diagnostic_flags = main_diagnostic_flags | 0x20;
         if ((local_10 & 0x400) == 0) {
           main_diagnostic_flags = uVar1;
         }
         ips_shift_light_flags = (undefined1)local_10;
-        DAT_40002525 = local_c._0_1_;
-        DAT_40002526 = 1;
+        ips_software_compat_id = local_c._0_1_;
+        ips_compat_id_received = true;
         obd_ii_oil_temp_ips = local_c._1_1_;
         if (local_c._2_1_ < 0x80) {
-          DAT_400014d6 = 0xff;
+          ips_cruise_torque_divisor = 0xff;
         }
         else {
-          DAT_400014d6 = local_c._2_1_;
+          ips_cruise_torque_divisor = local_c._2_1_;
         }
       }
       else {
         ips_enforce_speed_limit = false;
-        DAT_40001510 = 0xff;
-        DAT_400024e9 = 0;
+        ips_speed_limit = 0xff;
+        ips_fault_active = false;
         engine_state_failure_flags = engine_state_failure_flags & 0xfffff7ff;
         ips_throttle_restrict = '\0';
-        DAT_40001a8e = 0;
+        ips_obd_monitor_inhibit_flags = '\0';
         main_diagnostic_flags = main_diagnostic_flags & 0xffdf;
         ips_shift_light_flags = 0;
-        DAT_40002525 = 0;
-        DAT_400014d6 = 0x80;
+        ips_software_compat_id = '\0';
+        ips_cruise_torque_divisor = 0x80;
       }
     }
   }
@@ -48372,7 +48369,7 @@ void flexcan_a_rx_350(void)
         fca_buffer[0xc].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
         uVar1 = flexcan_a_timer;
         can_rx_msg_timestamp = (undefined2)uVar1;
-        chlog_command_dispatch(message_350a_buf);
+        ccp_cro_dispatch(message_350a_buf);
       }
       else {
         uVar2 = fca_buffer[0xc].code_and_timestamp;
@@ -48539,15 +48536,15 @@ void flexcan_a_rx_wheelspeeds(void)
         uVar1 = fca_buffer[0xe].arb_id;
         if ((uVar1 >> 0x12 & 0x7ff) == 0xa4) {
           uVar2 = fca_buffer[0xe].code_and_timestamp;
-          DAT_400022b0 = (byte)(uVar2 >> 0x10) & 0xf;
-          for (i = 0; i < DAT_400022b0; i = i + 1) {
+          can_a4_dlc = (byte)(uVar2 >> 0x10) & 0xf;
+          for (i = 0; i < can_a4_dlc; i = i + 1) {
             buffer[i] = fca_buffer[0xe].data[i];
           }
-          if (DAT_400022b0 == 8) {
+          if (can_a4_dlc == 8) {
             DAT_400022b2 = buffer[6];
             DAT_400022b3 = buffer[7];
-            DAT_4000251c._1_1_ = buffer[6];
-            DAT_4000251c._0_1_ = buffer[7];
+            abs_config_word_rx._1_1_ = buffer[6];
+            abs_config_word_rx._0_1_ = buffer[7];
           }
           uVar2 = (buffer[1] & 0x3f) << 8 | (uint)buffer._0_4_ >> 0x18;
           if (uVar2 == 0x3fff) {
@@ -49303,7 +49300,7 @@ void flexcan_a_isr_mb16_31(void)
   uVar1 = flexcan_a_interrupt_reg_flag_low;
   flexcan_a_interrupt_reg_flag_low = uVar1 & 0xff7fffff | 0x800000;
   if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
-    flexcan_tx_from_queue_0x351();
+    ccp_dto_tx_next();
   }
   return;
 }
@@ -49558,7 +49555,7 @@ u8_temp_5_8_40c get_ambient_air_temp(void)
 bool can_a4_has_extended_data(void)
 
 {
-  return DAT_400022b0 == '\b';
+  return can_a4_dlc == '\b';
 }
 
 
@@ -50140,7 +50137,7 @@ void flexcan_c_rx_350(void)
         fcc_buffer[0xc].code_and_timestamp = uVar2 & 0xf0ffffff | 0x4000000;
         uVar1 = DAT_fffc8008;
         DAT_400022f8 = (undefined2)uVar1;
-        chlog_command_dispatch(&DAT_40002300);
+        ccp_cro_dispatch(&DAT_40002300);
       }
       else {
         uVar2 = fcc_buffer[0xc].code_and_timestamp;
@@ -50169,7 +50166,7 @@ void flexcan_c_interrupt(void)
   uVar1 = DAT_fffc8030;
   DAT_fffc8030 = uVar1 & 0xffffdfff | 0x2000;
   if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
-    flexcan_tx_from_queue_0x351();
+    ccp_dto_tx_next();
   }
   return;
 }
@@ -53181,7 +53178,8 @@ void torque_limit_request_arbitration(void)
       if (cruise_brake_standstill_timer == 0) {
         torque_cruise_request =
              (u16_torque_nm)
-             (((uint)CAL_tps_brake_wheeldecel_tps_cut_threshold << 8) / (uint)DAT_400014d6);
+             (((uint)CAL_tps_brake_wheeldecel_tps_cut_threshold << 8) /
+             (uint)ips_cruise_torque_divisor);
       }
       else {
         torque_cruise_request = (ushort)CAL_cruise_torque_request_braking << 1;
@@ -55803,26 +55801,26 @@ void cod_decode_flags_and_validate(void)
   byte bVar1;
   
   if ((COD_base.COD[0] >> 0xd & 7) == 0) {
-    bVar1 = DAT_40002518 & 0xf8 | 1;
+    bVar1 = vehicle_config_word_expected & 0xf8 | 1;
   }
   else {
-    bVar1 = DAT_40002518 & 0xfe | 1;
+    bVar1 = vehicle_config_word_expected & 0xfe | 1;
     if ((COD_base.COD[0] >> 0xd & 7) == 1) {
-      bVar1 = DAT_40002518 & 0xf8 | 3;
+      bVar1 = vehicle_config_word_expected & 0xf8 | 3;
     }
   }
-  DAT_40002518 = bVar1;
+  vehicle_config_word_expected = bVar1;
                     // The following chassis codes only apply to MY2009 and 2010 Evoras and Eliges
   if (vin_type == VT_2010-2011) {
                     // Vehicle type 111 is Elige Chassis
     if (((COD_base.vin[5] == '1') && (COD_base.vin[6] == '1')) && (COD_base.vin[7] == '1')) {
-      DAT_40002518 = DAT_40002518 & 199 | 8;
+      vehicle_config_word_expected = vehicle_config_word_expected & 199 | 8;
       main_diagnostic_flags = main_diagnostic_flags | 4;
     }
     else {
                     // Vehicle type 122 is Evora Chassis
       if (((COD_base.vin[5] == '1') && (COD_base.vin[6] == '2')) && (COD_base.vin[7] == '2')) {
-        DAT_40002518 = DAT_40002518 & 199;
+        vehicle_config_word_expected = vehicle_config_word_expected & 199;
       }
       else {
         main_diagnostic_flags = main_diagnostic_flags | 4;
@@ -55833,13 +55831,13 @@ void cod_decode_flags_and_validate(void)
                     // This is the VIN encoding for the 2011+ Evoras
     if (vin_type == VT_2011-2021) {
       if ((COD_base.vin[4] == 'H') || (COD_base.vin[4] == 'K')) {
-        DAT_40002518 = DAT_40002518 & 199 | 8;
+        vehicle_config_word_expected = vehicle_config_word_expected & 199 | 8;
         main_diagnostic_flags = main_diagnostic_flags | 4;
       }
       else {
                     // VIN[5:6] = MD is Evora
         if (COD_base.vin[4] == 'M') {
-          DAT_40002518 = DAT_40002518 & 199;
+          vehicle_config_word_expected = vehicle_config_word_expected & 199;
         }
         else {
           main_diagnostic_flags = main_diagnostic_flags | 4;
@@ -55850,7 +55848,7 @@ void cod_decode_flags_and_validate(void)
       main_diagnostic_flags = main_diagnostic_flags | 4;
     }
   }
-  DAT_40002518 = DAT_40002518 & 0xbf;
+  vehicle_config_word_expected = vehicle_config_word_expected & 0xbf;
   if ((COD_base.COD[0] >> 0x16 & 7) == 1) {
     DAT_40002519 = DAT_40002519 & 0xf0;
   }
@@ -55902,24 +55900,24 @@ void cod_decode_flags_and_validate(void)
 
 // WARNING: Globals starting with '_' overlap smaller symbols at the same address
 
-void p0316_eval_tc_request_state(void)
+void obd_ii_U0316_state(void)
 
 {
   bool bVar2;
   short sVar1;
   enum_p0316_eval_tc_request_state _state;
   
-  _state = p0316_eval_tc_request_state;
+  _state = obd_ii_U0316_eval_vdc_compat;
   if ((abs_esp_can_torque_request_flags & 8) != 0) {
     bVar2 = can_a4_has_extended_data();
     if (bVar2) {
-      if (_DAT_40002518 == DAT_4000251c) {
-        p0316_eval_tc_request_state = P0316_TC_STATE_PASS;
-        _state = p0316_eval_tc_request_state;
+      if (_vehicle_config_word_expected == abs_config_word_rx) {
+        obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_PASS;
+        _state = obd_ii_U0316_eval_vdc_compat;
       }
       else {
-        p0316_eval_tc_request_state = P0316_TC_STATE_FAIL;
-        _state = p0316_eval_tc_request_state;
+        obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_FAIL;
+        _state = obd_ii_U0316_eval_vdc_compat;
       }
     }
     else if (((COD_base.COD[0] >> 0xd & 7) == 0) &&
@@ -55927,7 +55925,7 @@ void p0316_eval_tc_request_state(void)
               && ((COD_base.vin[7] == '2' && (COD_base.vin[3] == 'T')))) ||
              ((vin_type == VT_2011-2021 && ((COD_base.vin[4] == 'M' && (COD_base.vin[6] == 'T'))))))
             )) {
-      _state = p0316_eval_tc_request_state;
+      _state = obd_ii_U0316_eval_vdc_compat;
       if ((abs_esp_can_torque_request_flags & 0x80) != 0) {
                     // COD_base.COD[0] >> 22 & 7 is traction control type.
                     // 0: none
@@ -55937,39 +55935,39 @@ void p0316_eval_tc_request_state(void)
         if (((COD_base.COD[0] >> 22 & 7) == 2) || ((COD_base.COD[0] >> 22 & 7) == 3)) {
           sVar1 = get_torque_request2();
           if (sVar1 == 2047) {
-            p0316_eval_tc_request_state = P0316_TC_STATE_PASS;
+            obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_PASS;
           }
           else {
-            p0316_eval_tc_request_state = P0316_TC_STATE_FAIL;
+            obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_FAIL;
           }
         }
         else if ((COD_base.COD[0] >> 0x16 & 7) == 1) {
           sVar1 = get_torque_request2();
           if (sVar1 == 4094) {
-            p0316_eval_tc_request_state = P0316_TC_STATE_PASS;
+            obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_PASS;
           }
           else {
-            p0316_eval_tc_request_state = P0316_TC_STATE_FAIL;
+            obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_FAIL;
           }
         }
         else {
-          p0316_eval_tc_request_state = P0316_TC_STATE_PASS;
+          obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_PASS;
         }
-        _state = p0316_eval_tc_request_state;
+        _state = obd_ii_U0316_eval_vdc_compat;
         if (tc_torque_limit_use_slow_path != false) {
-          p0316_eval_tc_request_state = P0316_TC_STATE_FAIL;
-          _state = p0316_eval_tc_request_state;
+          obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_FAIL;
+          _state = obd_ii_U0316_eval_vdc_compat;
         }
       }
     }
     else {
       _state = P0316_TC_STATE_FAIL;
       if (vin_type == VT_NONE) {
-        _state = p0316_eval_tc_request_state;
+        _state = obd_ii_U0316_eval_vdc_compat;
       }
     }
   }
-  p0316_eval_tc_request_state = _state;
+  obd_ii_U0316_eval_vdc_compat = _state;
   return;
 }
 
@@ -56059,9 +56057,9 @@ void obd_ii_network_comm_monitors(void)
   }
   if ((((COD_base.COD[0] >> 0xd & 7) == 1) && ((CAL_obd_ii_U0302 & 7) != 0)) &&
      ((ignition_on_flags & 1) != 0)) {
-    if ((((tcu_can_status_flags & 0x80) == 0) || (DAT_40002526 == '\0')) ||
-       (DAT_40002525 == (byte)(CAL_ips_request_msg_id_nibble << 4 | 6))) {
-      if (DAT_40002525 == (byte)(CAL_ips_request_msg_id_nibble << 4 | 6)) {
+    if ((((tcu_can_status_flags & 0x80) == 0) || (ips_compat_id_received == false)) ||
+       (ips_software_compat_id == (byte)(CAL_ips_compatibility_id << 4 | 6))) {
+      if (ips_software_compat_id == (byte)(CAL_ips_compatibility_id << 4 | 6)) {
         obd_ii_monitor_pass(&CAL_obd_ii_U0302,&LEA_obd_ii_U0302_flags);
         if (obd_ii_U0302_debounce_counter < CAL_obd_ii_U0302_debounce_count) {
           obd_ii_U0302_debounce_counter = obd_ii_U0302_debounce_counter + '\x01';
@@ -56078,13 +56076,13 @@ void obd_ii_network_comm_monitors(void)
   }
   if (((COD_base.COD[1] >> 9 & 1) != 0) && ((CAL_obd_ii_U0316 & 7) != 0)) {
     if ((ignition_on_flags & 1) == 0) {
-      p0316_eval_tc_request_state = P0316_TC_STATE_INIT;
+      obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_INIT;
       DAT_4000252b = CAL_obd_ii_U0316_debounce_count;
     }
-    else if ((((p0316_eval_tc_request_state == P0316_TC_STATE_INIT) && (engine_speed_16bit == 0)) &&
-             (car_speed_u8 == '\0')) || (bVar1 = can_a4_has_extended_data(), bVar1)) {
-      p0316_eval_tc_request_state();
-      if (p0316_eval_tc_request_state == P0316_TC_STATE_FAIL) {
+    else if ((((obd_ii_U0316_eval_vdc_compat == P0316_TC_STATE_INIT) && (engine_speed_16bit == 0))
+             && (car_speed_u8 == '\0')) || (bVar1 = can_a4_has_extended_data(), bVar1)) {
+      obd_ii_U0316_state();
+      if (obd_ii_U0316_eval_vdc_compat == P0316_TC_STATE_FAIL) {
         if (DAT_4000252b != 0) {
           DAT_4000252b = DAT_4000252b - 1;
           if (DAT_4000252b == 0) {
@@ -56095,12 +56093,12 @@ void obd_ii_network_comm_monitors(void)
           else {
             bVar1 = can_a4_has_extended_data();
             if (!bVar1) {
-              p0316_eval_tc_request_state = P0316_TC_STATE_INIT;
+              obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_INIT;
             }
           }
         }
       }
-      else if ((p0316_eval_tc_request_state == P0316_TC_STATE_PASS) &&
+      else if ((obd_ii_U0316_eval_vdc_compat == P0316_TC_STATE_PASS) &&
               (obd_ii_monitor_pass(&CAL_obd_ii_U0316,&LEA_obd_ii_U0316_flags),
               DAT_4000252b < CAL_obd_ii_U0316_debounce_count)) {
         DAT_4000252b = DAT_4000252b + 1;
@@ -56163,15 +56161,15 @@ void ips_data_zero(void)
 
 {
   ips_enforce_speed_limit = false;
-  DAT_40001510 = 0xff;
-  DAT_400024e9 = 0;
+  ips_speed_limit = 0xff;
+  ips_fault_active = false;
   engine_state_failure_flags = engine_state_failure_flags & 0xfffff7ff;
   ips_throttle_restrict = '\0';
-  DAT_40001a8e = 0;
+  ips_obd_monitor_inhibit_flags = '\0';
   main_diagnostic_flags = main_diagnostic_flags & 0xffdf;
   ips_shift_light_flags = 0;
-  DAT_40002525 = 0;
-  DAT_400014d6 = 0xff;
+  ips_software_compat_id = '\0';
+  ips_cruise_torque_divisor = 0xff;
   obd_ii_oil_temp_ips = 0;
   DAT_4000151b = 0;
   return;
@@ -56260,8 +56258,8 @@ void obd_ii_network_monitors_reset(void)
   DAT_4000252b = CAL_obd_ii_U0316_debounce_count;
   obd_ii_U0416_debounce_counter = CAL_obd_ii_U0416_debounce_count;
   obd_ii_U0513_debounce_counter = CAL_obd_ii_U0513_debounce_count;
-  DAT_40002525 = 0;
-  DAT_40002526 = 0;
+  ips_software_compat_id = '\0';
+  ips_compat_id_received = false;
   yaw_sensor_can_status_flags = 2;
   DAT_4000151c = 10;
   DAT_4000151d = 10;
@@ -56274,7 +56272,7 @@ void obd_ii_network_monitors_reset(void)
   DAT_40002530 = CAL_can_yaw_data_timeout;
   DAT_40002532 = (ushort)CAL_can_lat_accel_standstill_timeout * 0x14;
   steering_angle_rate = 10;
-  p0316_eval_tc_request_state = P0316_TC_STATE_INIT;
+  obd_ii_U0316_eval_vdc_compat = P0316_TC_STATE_INIT;
   obd_set_new_DTC(&CAL_obd_ii_U0101,&LEA_obd_ii_U0101_flags,0x101,3);
   obd_set_new_DTC(&CAL_obd_ii_U0122,&LEA_obd_ii_U0122_flags,0x122,3);
   obd_set_new_DTC(&CAL_obd_ii_U0123,&LEA_obd_ii_U0123_flags,0x123,3);
@@ -57807,6 +57805,66 @@ LAB_000c27cc:
   }
                     // WARNING: Bad instruction - Truncating control flow here
   halt_baddata();
+}
+
+
+
+undefined4 ivor2_dsi_stub(undefined4 param_1)
+
+{
+  undefined8 in_MSR;
+  uint in_SRR1;
+  
+  WriteExternalEnableImmediate(1);
+  dsi_handler();
+  WriteExternalEnableImmediate(0);
+  returnFromInterrupt(in_MSR,(ulonglong)in_SRR1);
+  return param_1;
+}
+
+
+
+undefined4 ivor10_dec_stub(undefined4 param_1)
+
+{
+  undefined8 in_MSR;
+  uint in_SRR1;
+  
+  WriteExternalEnableImmediate(1);
+  decrementer_handler();
+  WriteExternalEnableImmediate(0);
+  returnFromInterrupt(in_MSR,(ulonglong)in_SRR1);
+  return param_1;
+}
+
+
+
+undefined4 ivor12_wdt_stub(undefined4 param_1)
+
+{
+  undefined8 in_MSR;
+  uint in_CSRR1;
+  
+  WriteExternalEnableImmediate(1);
+  watchdog_critical_handler();
+  WriteExternalEnableImmediate(0);
+  returnFromCriticalInterrupt(in_MSR,(ulonglong)in_CSRR1);
+  return param_1;
+}
+
+
+
+undefined4 ivor_default_stub(undefined4 param_1)
+
+{
+  undefined8 in_MSR;
+  uint in_SRR1;
+  
+  WriteExternalEnableImmediate(1);
+  exception_default_handler();
+  WriteExternalEnableImmediate(0);
+  returnFromInterrupt(in_MSR,(ulonglong)in_SRR1);
+  return param_1;
 }
 
 
