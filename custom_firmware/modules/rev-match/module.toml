@@ -1,0 +1,127 @@
+id = "rev-match"
+version = 1
+description = "Rev-matched downshifts under hard braking. v1 is log only: it decides when a rev match would fire and logs it, without moving the throttle"
+targets = ["C132E0278"]
+sources = ["rev_match.S"]
+cal = "cal.inc.S"
+#
+# v1 changes no firmware variable and has no sites. It runs at 200 Hz and
+# fills rev_match_log (address in symbols.txt) for dev-mode CAN / CCP logging,
+# so the thresholds can be checked on the car before a version that blips.
+#
+# Speeds. Engine speed is compared with the driven-wheel speed, the mean of
+# wheel_speeds LR and RR (0.01 km/h), not with car_speed_x100: under braking
+# the rear wheels turn slower than the car, and the engine turns with them.
+# Deceleration and the arming speed use car_speed_x100 (ESP vehicle speed).
+#
+# When a rev match fires:
+#  1. Armed: brake on (the switch with no P0571 fault, or the ESP's valid
+#     brake bit), accelerator released (accel_pedal_latched <= pedal_max),
+#     car_speed_x100 >= arm_speed_min, and deceleration >= decel_arm for
+#     arm_time. It stays armed while the brake is on and arm_hold after; the
+#     accelerator or any inhibit disarms it.
+#  2. The gear is known. Each tick the gear matched now is the lowest gear g
+#     with engine rpm within gear_tol percent of gear_ratio[g] x driven-wheel
+#     speed (none if no gear matches). While the clutch is engaged
+#     (clutch_pos_voltage < clutch_engaged), a match (or none) that holds for
+#     gear_stable becomes the confirmed gear of that engaged period: a short
+#     mismatch keeps the gear, neutral drops it. A new engaged period starts
+#     with none. When the clutch leaves engaged, the confirmed gear is
+#     latched; if there is none (clutch up too briefly, neutral, slipping),
+#     nothing fires on this press. car_current_gear is not used: its windows
+#     are wide and use the vehicle speed.
+#  3. The clutch is down: at or above clutch_fire for fire_delay. The count
+#     holds between clutch_end and clutch_fire and resets below clutch_end,
+#     which ends the press. At most one rev match per press, and only from
+#     fire_delay to fire_delay + fire_window: arming later in the press
+#     (clutch first, then brake) fires nothing.
+#  4. In that window it fires unless (RM_REASON, first found):
+#     8 the rev limiter's airflow limiter is active (revlimit_state_flags bit 0)
+#     2 no gear latched
+#     3 latched - 1 is below min_target_gear
+#     4 the target rpm, driven-wheel speed x gear_ratio[latched - 1], is
+#       above the ceiling
+#     5 the target is below target_min
+#     6 the target is less than min_rise above engine speed (no blip needed)
+#     7 engine speed is not at least decouple_drop below driven-wheel speed x
+#       gear_ratio[latched]: the engine still turns with the wheels, so the
+#       clutch sensor may be wrong
+#     Not firing is retried every tick of the window.
+#  5. Active, the target follows the driven-wheel speed every tick. Ends
+#     (RM_REASON): 32 clutch below clutch_end (normal end), 33 accelerator
+#     pressed, 34 max_time, 38 airflow limiter active, 35 target above the
+#     ceiling, 36 engine speed at or above the ceiling, 37 target below
+#     target_min, or an inhibit (16-25).
+#
+# Ceiling: min(revlimit_hard, revlimit_soft_target) - ceiling_margin, with
+# both limits read live (coolant, cold start, speed limiter) and the lower of
+# this tick's and the last tick's values used. revlimit() runs in the main
+# loop and stores each limit before lowering it, so this interrupt can read
+# the value before the lowering; one tick later it reads the final one.
+#
+# Inhibits (RM_INHIBIT, also disarm and end), first found: 16 not a manual
+# with an analog clutch sensor (COD[0] bits 13-15, COD[1] bits 21-22),
+# 17 clutch sensor fault (clutch_pos_sensor bit 3), 22 any wheel speed is
+# invalid (tc_inhibit_flags 0xF0: the ESP sends 0x3FFF for a failed wheel
+# sensor), 24 ABS/ESP communication, 25 ABS/ESP fault, 18 engine not running,
+# 19 coolant below coolant_min, 20 engine_state_failure_flags, TPS fault,
+# accelerator pedal fault or degraded, 23 rev limit limp mode,
+# 21 left-foot-brake throttle cut active.
+#
+# ABS/ESP (the ECU sees only what the ESP sends on CAN; these are the
+# conditions the firmware's own traction control, dpm_system_state_manager,
+# and the drive-mode logic act on):
+#   24 communication: abs_esp_can_torque_request_flags is missing an alive
+#      bit (0x02 front wheels 0xA2, 0x08 rear wheels 0xA4, 0x20 status 0xA8,
+#      0x80 torque 0xB7; each drops within 50-100 ms of its frame stopping),
+#      or tc_enable_condition_1 (U0122 health) is 0, or U0122 is active
+#      (dtc state bit 2).
+#   25 fault: tc_enable_condition_2 (U0416 health: ESP status consistent
+#      with the drive mode) is 0, or U0416 or U0316 is active, or the ESP
+#      reports itself off (abs_esp_flags 0x10) while vehicle_mode is not
+#      TC off (the case where the firmware forces Tour).
+# An internal ABS fault that the ESP shows only on the cluster lamp, without
+# changing these, is not visible to the ECU.
+#
+# Deceleration: car_speed_x100 sampled every 25 ms, over 200 ms. The
+# firmware's accel_front_wheels updates every 200 ms through a filter (about
+# 0.7 s lag), too slow to arm on.
+#
+# Cal (patch cal block): see cal.inc.S.
+#  - Keep clutch_engaged <= clutch_end <= clutch_fire.
+#  - gear_ratio defaults to CAL_slip_gear_speed_ratios_cr (close ratio). A
+#    car coded for the long gear set (COD[0] bit 16) needs the other set, or
+#    no gear matches and nothing fires. Check it against RM_RATIO_NOW in a
+#    steady gear: a ratio more than gear_tol off never matches.
+#
+# Not covered in v1 (see the log before trusting it): coming to a stop with
+# the clutch held can fire within the window if the target is still above
+# target_min; the deceleration lags by up to 200 ms; any
+# engine_state_failure_flags bit inhibits.
+#
+# rev_match_log, the logged part (big-endian):
+#   +0  u8  flags: 0x01 brake, 0x02 hard braking now, 0x04 armed,
+#           0x08 clutch engaged, 0x10 clutch down, 0x20 active (would blip),
+#           0x40 fired this press, 0x80 inhibited
+#   +1  u8  RM_REASON (above; 1 = fired)
+#   +2  u8  gear latched when the clutch last left engaged (0 = none)
+#   +3  u8  target gear: reference gear - 1 (reference = the latched gear
+#           during a press or a rev match, else the confirmed gear while
+#           engaged, else the latched gear; 0 = none)
+#   +4  s16 deceleration, 0.01 g (positive = slowing)
+#   +6  u16 target rpm
+#   +8  u16 ceiling rpm (0 if negative)
+#   +10 u16 rpm in the reference gear at the driven-wheel speed
+#   +12 u16 clutch down time, 5 ms ticks
+#   +14 u16 rev match time (current or last), 5 ms ticks
+#   +16 u16 rev matches fired
+#   +18 u8  gear confirmed in the current engaged period (0 = none)
+#   +19 u8  RM_INHIBIT
+#   +20 u16 driven-wheel speed, (LR + RR) / 2, 0.01 km/h
+#   +22 u16 RM_RATIO_NOW: engine rpm per driven-wheel km/h, x10 (0 = stopped)
+#   +24 u16[6] RM_RATIO_MEAS: measured ratio per gear, x160 (RM_RATIO_NOW
+#           filtered while that gear is confirmed; 0 = gear not seen)
+# Bytes +36 to +67 are internal state.
+
+[hooks]
+tick_5ms = "rev_match_5ms"

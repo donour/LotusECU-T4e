@@ -1,0 +1,5 @@
+# gt430-federal-drive-mode-memory plus rev-match v1 (log only): logs when a
+# rev-matched downshift would fire, without moving the throttle.
+target = "C132E0278"
+modules = ["federal-gt", "torque-4nm", "hc08-tps", "drive-mode-memory", "rev-match"]
+cal = "../../patch/C132E0278_TAB.20260628-93octane.cpt"

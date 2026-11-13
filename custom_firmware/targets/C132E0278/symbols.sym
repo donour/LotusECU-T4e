@@ -3479,3 +3479,10 @@ calc_tps_for_torque_limit_no_limit = 0xbd5a0;     /* cmplwi r0,510: a limit >= 5
 LEA_core_reserved = 0x400040d5;       /* uint8_t[1605], LEA offset 0xFED: saved with LEA, zeroed by EEPROM_load */
 eeprom_load_reserved_clear_limit = 0x5498c;   /* cmplwi r0,1605: EEPROM_load's LEA_core_reserved clear loop */
 vehicle_mode_dispatch = 0x4cc34;      /* lbz r0,vehicle_mode: set_driver_input_and_vehicle_mode_100hz normal path, button event in r3 */
+
+/* rev-match */
+revlimit_soft_target = 0x400027dc;    /* = revlimit_current: revlimit_soft - 2*trim_per_gear, or the speed-limit rpm (airflow limiter target) */
+rev_per_km = 0x40001a88;              /* u32, rpm per km/h x10 (gear_determination, when car_speed_x100 != 0) */
+accel_pedal_state_degraded = 0x4000250c;  /* bool: accel_pedal_system_state == 1 */
+accel_pedal_fault_active = 0x40002513;    /* bool: accel_pedal_system_state == 2 */
+abs_esp_can_torque_request_flags = 0x40002818;  /* u16: ESP frame received (0x01 A2, 0x04 A4, 0x10 A8, 0x40 B7) and alive (0x02/0x08/0x20/0x80) bits */

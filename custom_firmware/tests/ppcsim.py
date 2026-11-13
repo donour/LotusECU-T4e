@@ -100,6 +100,10 @@ class CPU:
 			self.wr32(ea, r[D])
 			if(op == 37): r[A] = ea
 		elif(op == 44): self.wr16(ea, r[D] & 0xFFFF)                # sth
+		elif(op == 46):                                             # lmw
+			for i in range(D, 32): r[i] = self.rd32((ea + 4 * (i - D)) & M32)
+		elif(op == 47):                                             # stmw
+			for i in range(D, 32): self.wr32((ea + 4 * (i - D)) & M32, r[i])
 		elif(op == 34): r[D] = self.mem.get(ea, 0)                  # lbz
 		elif(op == 38): self.mem[ea] = r[D] & 0xFF                  # stb
 		elif(op == 28 or op == 29):                                 # andi., andis.
@@ -125,11 +129,21 @@ class CPU:
 		elif(op == 31):
 			xo = (ins >> 1) & 0x3FF
 			spr = ((B << 5) | A) if xo in (339, 467) else None
+			xea = ((0 if A == 0 else r[A]) + r[B]) & M32              # indexed EA
 			if(xo == 824): r[A] = (s32(r[D]) >> B) & M32             # srawi
 			elif(xo == 0): self._cmp(D >> 2, s32(r[A]), s32(r[B]))   # cmpw
 			elif(xo == 32): self._cmp(D >> 2, r[A], r[B])            # cmplw
 			elif(xo == 235): r[D] = (s32(r[A]) * s32(r[B])) & M32    # mullw
 			elif(xo == 266): r[D] = (r[A] + r[B]) & M32              # add
+			elif(xo == 40): r[D] = (r[B] - r[A]) & M32               # subf
+			elif(xo == 459):                                         # divwu
+				if(r[B] == 0): raise NotImplementedError(f"divwu by 0 at 0x{pc:X}")
+				r[D] = r[A] // r[B]
+			elif(xo == 444):                                         # or, mr, or., mr.
+				r[A] = r[D] | r[B]
+				if(ins & 1): self._cmp(0, s32(r[A]), 0)
+			elif(xo == 279): r[D] = self.rd16(xea)                   # lhzx
+			elif(xo == 407): self.wr16(xea, r[D] & 0xFFFF)           # sthx
 			elif(xo == 339 and spr == 8): r[D] = self.lr             # mflr
 			elif(xo == 467 and spr == 8): self.lr = r[D]             # mtlr
 			else: raise NotImplementedError(f"{ins:08X} (op 31, xo {xo}) at 0x{pc:X}")
