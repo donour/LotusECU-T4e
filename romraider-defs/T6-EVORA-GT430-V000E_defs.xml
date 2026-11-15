@@ -18080,16 +18080,6 @@ Unit is x / 4.83 mpg</description>
    </table>
    <description>Learned off-idle injector pulse offset (us), bank 2. Was LEA_fuel_learn_lean_time_bank2. (0091)</description>
   </table>
-  <table category="load" endian="big" name="load: alphaN maf error correction" sizex="20" sizey="20" storageaddress="0x0200" storagetype="uint8" type="3D" userlevel="1">
-   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
-   <table endian="big" name="rpm" sizex="20" storageaddress="0x01D8" storagetype="uint8" type="X Axis">
-    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
-   </table>
-   <table endian="big" name="load" sizey="20" storageaddress="0x01EC" storagetype="uint8" type="Y Axis">
-    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4" format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
-   </table>
-   <description>Learned/adaptive value: torque torque to throttle position scaling (val/100; 400-element array).</description>
-  </table>
   <table category="load" endian="big" name="load: alphaN trim factor" sizex="20" sizey="20" storageaddress="0x0048" storagetype="uint8" type="3D" userlevel="1">
    <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
    <table endian="big" name="rpm" sizex="20" storageaddress="0x0020" storagetype="uint8" type="X Axis">
@@ -18099,6 +18089,16 @@ Unit is x / 4.83 mpg</description>
     <scaling category="Percent" coarseincrement="5" expression="x*100/255" fineincrement="1" format="0.0" to_byte="x*255/100" units="%"/>
    </table>
    <description>Learned/adaptive value: load alphaN learned trim (val/255; 400-element array).</description>
+  </table>
+  <table category="load" endian="big" name="load: to tps trim factor" sizex="20" sizey="20" storageaddress="0x0200" storagetype="uint8" type="3D" userlevel="1">
+   <scaling category="Percent" coarseincrement="5" expression="x" fineincrement="1" format="0" to_byte="x" units="%"/>
+   <table endian="big" name="rpm" sizex="20" storageaddress="0x01D8" storagetype="uint8" type="X Axis">
+    <scaling category="RPM" coarseincrement="100" expression="(x*125/4)+500" fineincrement="32" format="0" to_byte="(x-500)*4/125" units="rpm"/>
+   </table>
+   <table endian="big" name="load" sizey="20" storageaddress="0x01EC" storagetype="uint8" type="Y Axis">
+    <scaling category="Milligram/Stroke" coarseincrement="20" expression="x*1173/255" fineincrement="4" format="0.0" to_byte="x*255/1173" units="mg/stroke"/>
+   </table>
+   <description>Learned/adaptive value: torque torque to throttle position scaling (val/100; 400-element array).</description>
   </table>
   <table category="low" endian="big" name="low: oil pressure event1 car speed" sizex="1" storageaddress="0x0F9D" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="km/h" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="km/h"/>
