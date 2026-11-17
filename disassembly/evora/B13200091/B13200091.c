@@ -867,6 +867,8 @@ typedef uint8_t u8_angle_1/4-64deg;
 
 typedef uint8_t u8_load_2mg/stroke;
 
+typedef uint32_t u32_mass_mg;
+
 typedef uint16_t u16_distance_mm_div2;
 
 typedef uint8_t u8_time_250ms;
@@ -1512,15 +1514,15 @@ undefined1 flash_erase_pending_flags;
 char[4] CAL_ecu_unlock_magic;
 struct_variant_coding_t6e COD_base;
 undefined ips_shift_state;
-enum_flexcan_bus_select CAL_logger_high_speed_logger_enable;
+enum_flexcan_bus_select CAL_ccp_enable;
 undefined1 eeprom_update_flags;
 undefined2 main_diagnostic_flags;
 undefined4 siu_rsr;
 undefined4 timer_main_start1;
-undefined4 loop_duration_main_pretask_ticks_max;
+u32_time_100ns loop_duration_main_pretask_ticks_max;
 undefined4 timer_main_start2;
 undefined4 timer_main;
-undefined4 loop_duration_main_pretask_ticks;
+u32_time_100ns loop_duration_main_pretask_ticks;
 undefined4 loop_duration_main_ticks_unknown;
 undefined4 loop_duration_main_ticks_unknown2;
 undefined4 timer_main3;
@@ -1592,7 +1594,7 @@ u16_mass_mg CAL_load_learning_min_maf_accumulated;
 uint16_t CAL_tps_delta_neg_threshold;
 undefined2 cooling_recirc_pump_stopped_dwell_timer;
 u16_factor_1/255 CAL_load_learning_tps_rate_max;
-uint32_t[12] etpu_timestamp_prev_array;
+uint32_t[12] task_start_timestamps;
 undefined2 fan_engine_bay_stationary_timer;
 undefined2 fan_engine_bay_off_duration_timer;
 u16_time_100ms fan_engine_bay_run_duration_timer;
@@ -1671,7 +1673,7 @@ u32_load_mg/stroke load_mass_per_stroke_raw;
 u32_time_5ms obd_ii_ecu_shutdown_timer;
 undefined2 obd_monitor_task_scheduler_token;
 u16_time_5ms ign_dfco_recovery_hold_timer;
-undefined4 obd_ii_accumulated_mass_air;
+u32_mass_mg obd_ii_accumulated_mass_air;
 u8_time_5ms CAL_dfco_pedal_ramp_step_interval;
 u16_factor_1/1023[14] tps_target_history;
 uint16_t engine_operating_state_flags;
@@ -13115,7 +13117,7 @@ void main(void)
     watchdog_retrigger();
     read_serial_peripherals();
     timer_main_start1 = etpu_mcr_addr[9];
-    if (CAL_logger_high_speed_logger_enable != CANBUS_DISABLE) {
+    if (CAL_ccp_enable != CANBUS_DISABLE) {
       flexcan_diagnostics_tx();
     }
     timer_main_start2 = etpu_mcr_addr[9];
@@ -13176,7 +13178,7 @@ void main(void)
     }
     loop_duration_main_pretask_ticks = timer_main_start2 + iVar2;
     diag_flags = &timer_main_start1;
-    if (loop_duration_main_pretask_ticks_max < loop_duration_main_pretask_ticks) {
+    if ((int)loop_duration_main_pretask_ticks_max < (int)loop_duration_main_pretask_ticks) {
       loop_duration_main_pretask_ticks_max = loop_duration_main_pretask_ticks;
     }
   } while( true );
@@ -13391,13 +13393,13 @@ void interrupt_timer_2000hz(void)
   byte task_num__;
   int iVar8;
   
-  etpu_timestamp_prev_array[0] = etpu_mcr_addr[9];
+  task_start_timestamps[0] = etpu_mcr_addr[9];
   task_end_timestamps[0xb] = etpu_mcr_addr[9];
-  if ((int)task_end_timestamps[0xb] < (int)etpu_timestamp_prev_array[0xb]) {
-    iVar8 = 0xffffff - etpu_timestamp_prev_array[0xb];
+  if ((int)task_end_timestamps[0xb] < (int)task_start_timestamps[0xb]) {
+    iVar8 = 0xffffff - task_start_timestamps[0xb];
   }
   else {
-    iVar8 = -etpu_timestamp_prev_array[0xb];
+    iVar8 = -task_start_timestamps[0xb];
   }
   task_last_execution_time[0xb] = task_end_timestamps[0xb] + iVar8;
   if ((int)task_max_execution_time[0xb] < (int)task_last_execution_time[0xb]) {
@@ -13415,8 +13417,8 @@ void interrupt_timer_2000hz(void)
   else {
     etpu_task_timing_capture_holdoff = etpu_task_timing_capture_holdoff + -1;
   }
-  etpu_timestamp_prev_array[0xb] = etpu_mcr_addr[9];
-  if (CAL_logger_high_speed_logger_enable != CANBUS_DISABLE) {
+  task_start_timestamps[0xb] = etpu_mcr_addr[9];
+  if (CAL_ccp_enable != CANBUS_DISABLE) {
     if ((flexcan_timeslot_timer[0] != '\0') &&
        (flexcan_timeslot_timer[0] = flexcan_timeslot_timer[0] + 0xff,
        flexcan_timeslot_timer[0] == '\0')) {
@@ -13473,7 +13475,7 @@ void interrupt_timer_2000hz(void)
   }
   event_timer_1000hz = event_timer_1000hz + -1;
   if (event_timer_1000hz == 0) {
-    etpu_timestamp_prev_array[1] = etpu_mcr_addr[9];
+    task_start_timestamps[1] = etpu_mcr_addr[9];
     event_timer_1000hz = 2;
     tps_control_1000hz();
     ips_shift_state_mgmt_1000hz(&ips_shift_state);
@@ -13482,7 +13484,7 @@ void interrupt_timer_2000hz(void)
   }
   event_timer_200hz = event_timer_200hz + -1;
   if (event_timer_200hz == 0) {
-    etpu_timestamp_prev_array[2] = etpu_mcr_addr[9];
+    task_start_timestamps[2] = etpu_mcr_addr[9];
     event_timer_200hz = 10;
     engine_roughness_200hz();
     wheel_speed_front_accel_update_200hz();
@@ -13553,7 +13555,7 @@ void interrupt_timer_2000hz(void)
     }
     event_timer_100hz = event_timer_100hz + -1;
     if (event_timer_100hz == 0) {
-      etpu_timestamp_prev_array[3] = etpu_mcr_addr[9];
+      task_start_timestamps[3] = etpu_mcr_addr[9];
       event_timer_100hz = 2;
       flexcan_timeslot_timer[0] = 2;
       flexcan_timeslot_timer[1] = 4;
@@ -13603,7 +13605,7 @@ void interrupt_timer_2000hz(void)
     }
     event_timer_50hz = event_timer_50hz + -1;
     if (event_timer_50hz == 0) {
-      etpu_timestamp_prev_array[4] = etpu_mcr_addr[9];
+      task_start_timestamps[4] = etpu_mcr_addr[9];
       event_timer_50hz = 4;
       flexcan_timeslot_timer[2] = 6;
       flexcan_timeslot_timer[3] = '\b';
@@ -13611,7 +13613,7 @@ void interrupt_timer_2000hz(void)
     }
     event_timer_20hz = event_timer_20hz + -1;
     if (event_timer_20hz == 0) {
-      etpu_timestamp_prev_array[5] = etpu_mcr_addr[9];
+      task_start_timestamps[5] = etpu_mcr_addr[9];
       event_timer_20hz = 10;
       flexcan_timeslot_timer[4] = '\f';
       flexcan_timeslot_timer[5] = '\x0e';
@@ -13619,7 +13621,7 @@ void interrupt_timer_2000hz(void)
     }
     event_timer_10hz = event_timer_10hz + -1;
     if (event_timer_10hz < 1) {
-      etpu_timestamp_prev_array[6] = etpu_mcr_addr[9];
+      task_start_timestamps[6] = etpu_mcr_addr[9];
       event_timer_10hz = 20;
       flexcan_timeslot_timer[6] = 26;
       flexcan_timeslot_timer[7] = '\x1c';
@@ -13673,14 +13675,14 @@ void interrupt_timer_2000hz(void)
       event_timer_5hz = event_timer_5hz + -1;
       DAT_40001a9a = i;
       if (event_timer_5hz == 0) {
-        etpu_timestamp_prev_array[7] = etpu_mcr_addr[9];
+        task_start_timestamps[7] = etpu_mcr_addr[9];
         event_timer_5hz = 2;
         o2_sensors_fault_detection_all();
         task_end_timestamps[7] = etpu_mcr_addr[9];
       }
       event_timer_3p33hz = event_timer_3p33hz + -1;
       if (event_timer_3p33hz == 0) {
-        etpu_timestamp_prev_array[8] = etpu_mcr_addr[9];
+        task_start_timestamps[8] = etpu_mcr_addr[9];
         event_timer_3p33hz = 3;
         watchdog_emios0_sensor_333ms();
         ac_compressor_speed_timeout_333ms();
@@ -13689,14 +13691,14 @@ void interrupt_timer_2000hz(void)
       }
       event_timer_2hz = event_timer_2hz + -1;
       if (event_timer_2hz == 0) {
-        etpu_timestamp_prev_array[9] = etpu_mcr_addr[9];
+        task_start_timestamps[9] = etpu_mcr_addr[9];
         event_timer_2hz = 5;
         flexcan_timeslot_timer[8] = '$';
         task_end_timestamps[9] = etpu_mcr_addr[9];
       }
       event_timer_1s = event_timer_1s + -1;
       if (event_timer_1s == 0) {
-        etpu_timestamp_prev_array[10] = etpu_mcr_addr[9];
+        task_start_timestamps[10] = etpu_mcr_addr[9];
         event_timer_1s = 10;
         flexcan_timeslot_timer[9] = '&';
         task_end_timestamps[10] = etpu_mcr_addr[9];
@@ -14051,18 +14053,18 @@ void interrupt_timer_2000hz(void)
   task_end_timestamps[0] = etpu_mcr_addr[9];
   for (task_num__ = 0; uVar5 = ccp_tx_watchdog_timer, task_num__ < 11; task_num__ = task_num__ + 1)
   {
-    if ((int)task_end_timestamps[task_num__] < (int)etpu_timestamp_prev_array[task_num__]) {
-      uVar6 = (0xffffff - etpu_timestamp_prev_array[task_num__]) + task_end_timestamps[task_num__];
+    if ((int)task_end_timestamps[task_num__] < (int)task_start_timestamps[task_num__]) {
+      uVar6 = (0xffffff - task_start_timestamps[task_num__]) + task_end_timestamps[task_num__];
     }
     else {
-      uVar6 = task_end_timestamps[task_num__] - etpu_timestamp_prev_array[task_num__];
+      uVar6 = task_end_timestamps[task_num__] - task_start_timestamps[task_num__];
     }
     if ((int)task_max_execution_time[task_num__] < (int)uVar6) {
       task_max_execution_time[task_num__] = uVar6;
     }
     if (task_num__ != 0xb) {
       task_end_timestamps[task_num__] = 0;
-      etpu_timestamp_prev_array[task_num__] = 0;
+      task_start_timestamps[task_num__] = 0;
     }
     if (uVar6 != 0) {
       task_last_execution_time[task_num__] = uVar6;
@@ -14240,7 +14242,7 @@ void init_performance_profiling_arrays(void)
   byte i;
   
   for (i = 0; i < 12; i = i + 1) {
-    etpu_timestamp_prev_array[i] = 0;
+    task_start_timestamps[i] = 0;
     task_end_timestamps[i] = 0;
     task_max_execution_time[i] = 0;
   }
@@ -21987,7 +21989,7 @@ void cluster_send_data(void)
     cluster_flags = _cluster_flags & 0b11101110;
   }
                     // TODO decode TPMS values
-  if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_logger_high_speed_logger_enable == CANBUS_B)) {
+  if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_ccp_enable == CANBUS_B)) {
     cluster_indicator_flags = cluster_indicator_flags & 0xfd;
     main_diagnostic_flags = main_diagnostic_flags & 0xffbf;
   }
@@ -22109,7 +22111,7 @@ void cluster_send_data(void)
   dash_data_CAN400.field6 = unused_cluster_cod_config_flags;
   dash_data_CAN400.cluster_flags = cluster_flags;
   cluster_indicator_flags = dash_data_CAN400.cluster_indicator_flags;
-  if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_logger_high_speed_logger_enable == CANBUS_B)) {
+  if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_ccp_enable == CANBUS_B)) {
     for (i = 0; i < 4; i = i + 1) {
       tpms_output[i] = 0xff;
     }
@@ -22313,7 +22315,7 @@ void cluster_and_exhaust_flaps_100ms(void)
     }
   }
   cluster_send_data();
-  if (((COD_base.COD[1] >> 0xd & 1) != 0) && (CAL_logger_high_speed_logger_enable != CANBUS_B)) {
+  if (((COD_base.COD[1] >> 0xd & 1) != 0) && (CAL_ccp_enable != CANBUS_B)) {
     flexcan_c_tx_460();
     tpms_init_handshake_state_machine();
     uVar2 = tpms_tx_7a0_divider + '\x01';
@@ -25367,8 +25369,7 @@ void obd_ii_update_states(void)
             obd_ii_vvt_cam_timing_monitors_update();
             obd_ii_accel_pedal_monitors();
             obd_ii_tps_and_airflow_plausibility_monitor();
-            if (((COD_base.COD[1] >> 0xd & 1) != 0) &&
-               (CAL_logger_high_speed_logger_enable != CANBUS_B)) {
+            if (((COD_base.COD[1] >> 0xd & 1) != 0) && (CAL_ccp_enable != CANBUS_B)) {
               obd_ii_U0127_tpms_comm_monitor();
             }
             if (1 < (COD_base.COD[0] >> 0x1c & 7)) {
@@ -32350,7 +32351,7 @@ void obd_ii_set_mode22_supported_pids(void)
   DAT_40001d5d = 0;
   DAT_40001d5e = 0;
   DAT_40001d5f = 0;
-  if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_logger_high_speed_logger_enable == CANBUS_B)) {
+  if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_ccp_enable == CANBUS_B)) {
     obd_ii_mode22_supported_pids_0_20[2] = 0xf3;
   }
   obd_ii_mode22_supported_pids_60_80[0] = 0xb0;
@@ -32627,8 +32628,8 @@ void obd_ii_mode22_processing(void)
     obd_resp[3] = coolant_temp_engine_stopped;
     break;
   case 0x228:
-    obd_resp[3] = (byte)((uint)obd_ii_accumulated_mass_air >> 0x18);
-    obd_resp[4] = (byte)((uint)obd_ii_accumulated_mass_air >> 0x10);
+    obd_resp[3] = (byte)(obd_ii_accumulated_mass_air >> 0x18);
+    obd_resp[4] = (byte)(obd_ii_accumulated_mass_air >> 0x10);
     mesg_len = 7;
     obd_resp._5_2_ = (undefined2)obd_ii_accumulated_mass_air;
     break;
@@ -34738,7 +34739,7 @@ void obd_ii_send_mode13_data(void)
 
 {
   if (obd_ii_mode13_enable) {
-    if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_logger_high_speed_logger_enable == CANBUS_B)) {
+    if (((COD_base.COD[1] >> 0xd & 1) == 0) || (CAL_ccp_enable == CANBUS_B)) {
       obd_ii_mode13_enable = true;
     }
     else {
@@ -45739,7 +45740,7 @@ void flexcan_c_tx_351_mb14(undefined *data)
   byte i;
   byte *can_buffer;
   
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     can_buffer = fcc_buffer[0xd].data;
     uVar2 = fcc_buffer[0xd].code_and_timestamp;
     fcc_buffer[0xd].code_and_timestamp = uVar2 & 0xf0ffffff | 0x8000000;
@@ -45756,7 +45757,7 @@ void flexcan_c_tx_351_mb14(undefined *data)
     uVar2 = fcc_buffer[0xd].code_and_timestamp;
     fcc_buffer[0xd].code_and_timestamp = uVar2 & 0xf0ffffff | 0xc000000;
   }
-  else if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  else if (CAL_ccp_enable == CANBUS_A_OBDII) {
     can_buffer = fca_buffer[0x17].data;
     uVar2 = fca_buffer[0x17].code_and_timestamp;
     fca_buffer[0x17].code_and_timestamp = uVar2 & 0xf0ffffff | 0x8000000;
@@ -45787,7 +45788,7 @@ void flexcan_c_tx_351(byte *param_1)
   byte i;
   byte *pbVar4;
   
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     pbVar4 = fcc_buffer[0xe].data;
     uVar2 = fcc_buffer[0xe].code_and_timestamp;
     fcc_buffer[0xe].code_and_timestamp = uVar2 & 0xf0ffffff | 0x8000000;
@@ -45804,7 +45805,7 @@ void flexcan_c_tx_351(byte *param_1)
     uVar2 = fcc_buffer[0xe].code_and_timestamp;
     fcc_buffer[0xe].code_and_timestamp = uVar2 & 0xf0ffffff | 0xc000000;
   }
-  else if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  else if (CAL_ccp_enable == CANBUS_A_OBDII) {
     pbVar4 = fca_buffer[0x18].data;
     uVar2 = fca_buffer[0x18].code_and_timestamp;
     fca_buffer[0x18].code_and_timestamp = uVar2 & 0xf0ffffff | 0x8000000;
@@ -47307,7 +47308,7 @@ void init_flexcan_a(void)
   uVar3 = fca_buffer[0xb].code_and_timestamp;
   fca_buffer[0xb].code_and_timestamp = uVar3 & 0xffff0000;
   fca_buffer[0xc].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  if (CAL_ccp_enable == CANBUS_A_OBDII) {
     uVar3 = fca_buffer[0xc].code_and_timestamp;
     fca_buffer[0xc].code_and_timestamp = uVar3 & 0xf0ffffff | 0x4000000;
     fca_buffer[0xc].arb_id = 0xd400000;
@@ -47370,7 +47371,7 @@ void init_flexcan_a(void)
   uVar3 = fca_buffer[0x16].code_and_timestamp;
   fca_buffer[0x16].code_and_timestamp = uVar3 & 0xffff0000;
   fca_buffer[0x17].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  if (CAL_ccp_enable == CANBUS_A_OBDII) {
     uVar3 = fca_buffer[0x17].code_and_timestamp;
     fca_buffer[0x17].code_and_timestamp = uVar3 & 0xf0ffffff | 0x8000000;
     fca_buffer[0x17].arb_id = 0xd440000;
@@ -47378,7 +47379,7 @@ void init_flexcan_a(void)
     fca_buffer[0x17].code_and_timestamp = uVar3 & 0xffff0000;
   }
   fca_buffer[0x18].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  if (CAL_ccp_enable == CANBUS_A_OBDII) {
     uVar3 = fca_buffer[0x18].code_and_timestamp;
     fca_buffer[0x18].code_and_timestamp = uVar3 & 0xf0ffffff | 0x8000000;
     fca_buffer[0x18].arb_id = 0xd440000;
@@ -47414,7 +47415,7 @@ void init_flexcan_a(void)
   DAT_fffc0028 = uVar3 & 0xfffffbff | 0x400;
   uVar3 = DAT_fffc0028;
   DAT_fffc0028 = uVar3 & 0xfffff7ff | 0x800;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  if (CAL_ccp_enable == CANBUS_A_OBDII) {
     uVar3 = DAT_fffc0028;
     DAT_fffc0028 = uVar3 & 0xffffefff | 0x1000;
     uVar3 = DAT_fffc0028;
@@ -48355,8 +48356,7 @@ void flexcan_a_rx_350(void)
     uVar2 = fca_buffer[0xc].code_and_timestamp;
     if ((uVar2 >> 0x18 & 2) == 2) {
       uVar1 = fca_buffer[0xc].arb_id;
-      if (((uVar1 >> 0x12 & 0x7ff) == 0x350) &&
-         (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII)) {
+      if (((uVar1 >> 0x12 & 0x7ff) == 0x350) && (CAL_ccp_enable == CANBUS_A_OBDII)) {
         message_350a_buf[0] = fca_buffer[0xc].data[0];
         message_350a_buf[1] = fca_buffer[0xc].data[1];
         message_350a_buf[2] = fca_buffer[0xc].data[2];
@@ -49299,7 +49299,7 @@ void flexcan_a_isr_mb16_31(void)
   
   uVar1 = flexcan_a_interrupt_reg_flag_low;
   flexcan_a_interrupt_reg_flag_low = uVar1 & 0xff7fffff | 0x800000;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_A_OBDII) {
+  if (CAL_ccp_enable == CANBUS_A_OBDII) {
     ccp_dto_tx_next();
   }
   return;
@@ -49643,7 +49643,7 @@ void init_flexcan_filters(void)
   do {
     uVar3 = DAT_fffc8000;
   } while ((uVar3 & 0x9000000) != 0x9000000);
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     DAT_fffc8004 = 0x510001;
   }
   else {
@@ -49660,7 +49660,7 @@ void init_flexcan_filters(void)
   fcc_buffer[3].code_and_timestamp = 0;
   fcc_buffer[4].code_and_timestamp = 0;
   fcc_buffer[5].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable != CANBUS_B) {
+  if (CAL_ccp_enable != CANBUS_B) {
     uVar3 = fcc_buffer[5].code_and_timestamp;
     fcc_buffer[5].code_and_timestamp = uVar3 & 0xf0ffffff | 0x4000000;
     fcc_buffer[5].arb_id = 0x15000000;
@@ -49669,7 +49669,7 @@ void init_flexcan_filters(void)
   }
   fcc_buffer[6].code_and_timestamp = 0;
   fcc_buffer[7].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable != CANBUS_B) {
+  if (CAL_ccp_enable != CANBUS_B) {
     uVar3 = fcc_buffer[7].code_and_timestamp;
     fcc_buffer[7].code_and_timestamp = uVar3 & 0xf0ffffff | 0x4000000;
     fcc_buffer[7].arb_id = 0x9580000;
@@ -49678,7 +49678,7 @@ void init_flexcan_filters(void)
   }
   fcc_buffer[8].code_and_timestamp = 0;
   fcc_buffer[9].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable != CANBUS_B) {
+  if (CAL_ccp_enable != CANBUS_B) {
     uVar3 = fcc_buffer[9].code_and_timestamp;
     fcc_buffer[9].code_and_timestamp = uVar3 & 0xf0ffffff | 0x4000000;
     fcc_buffer[9].arb_id = 0x157c0000;
@@ -49688,7 +49688,7 @@ void init_flexcan_filters(void)
   fcc_buffer[10].code_and_timestamp = 0;
   fcc_buffer[0xb].code_and_timestamp = 0;
   fcc_buffer[0xc].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     uVar3 = fcc_buffer[0xc].code_and_timestamp;
     fcc_buffer[0xc].code_and_timestamp = uVar3 & 0xf0ffffff | 0x4000000;
     fcc_buffer[0xc].arb_id = 0xd400000;
@@ -49696,7 +49696,7 @@ void init_flexcan_filters(void)
     fcc_buffer[0xc].code_and_timestamp = uVar3 & 0xffff0000;
   }
   fcc_buffer[0xd].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     uVar3 = fcc_buffer[0xd].code_and_timestamp;
     fcc_buffer[0xd].code_and_timestamp = uVar3 & 0xf0ffffff | 0x8000000;
     fcc_buffer[0xd].arb_id = 0xd440000;
@@ -49704,7 +49704,7 @@ void init_flexcan_filters(void)
     fcc_buffer[0xd].code_and_timestamp = uVar3 & 0xffff0000;
   }
   fcc_buffer[0xe].code_and_timestamp = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     uVar3 = fcc_buffer[0xe].code_and_timestamp;
     fcc_buffer[0xe].code_and_timestamp = uVar3 & 0xf0ffffff | 0x8000000;
     fcc_buffer[0xe].arb_id = 0xd440000;
@@ -49717,7 +49717,7 @@ void init_flexcan_filters(void)
   DAT_fffc8018 = 0x1fffffff;
   DAT_fffc8024 = 0;
   DAT_fffc8028 = 0;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     uVar3 = DAT_fffc8028;
     DAT_fffc8028 = uVar3 & 0xffffefff | 0x1000;
     uVar3 = DAT_fffc8028;
@@ -49797,8 +49797,8 @@ void flexcan_c_rx_540(void)
     uVar4 = fcc_buffer[5].code_and_timestamp;
     if ((uVar4 >> 0x18 & 2) == 2) {
       uVar5 = fcc_buffer[5].arb_id;
-      if ((((uVar5 >> 0x12 & 0x7ff) == 0x540) && (CAL_logger_high_speed_logger_enable != CANBUS_B))
-         && ((COD_base.COD[1] >> 0xd & 1) != 0)) {
+      if ((((uVar5 >> 0x12 & 0x7ff) == 0x540) && (CAL_ccp_enable != CANBUS_B)) &&
+         ((COD_base.COD[1] >> 0xd & 1) != 0)) {
         iat_overtemp_monitor_lockout_timer = 0x32;
         bVar6 = fcc_buffer[5].data[0];
         uVar1 = obd_ii_tire_pressure_valid_and_error | 0x10;
@@ -49906,8 +49906,8 @@ void flexcan_c_rx_256(void)
     uVar4 = fcc_buffer[7].code_and_timestamp;
     if ((uVar4 >> 0x18 & 2) == 2) {
       uVar2 = fcc_buffer[7].arb_id;
-      if ((((uVar2 >> 0x12 & 0x7ff) == 0x256) && (CAL_logger_high_speed_logger_enable != CANBUS_B))
-         && ((COD_base.COD[1] >> 0xd & 1) != 0)) {
+      if ((((uVar2 >> 0x12 & 0x7ff) == 0x256) && (CAL_ccp_enable != CANBUS_B)) &&
+         ((COD_base.COD[1] >> 0xd & 1) != 0)) {
         bVar3 = fcc_buffer[7].data[0];
         if (((bVar3 & 0xf0) == 0xc0) && (bVar3 = fcc_buffer[7].data[0], (bVar3 & 0xf) != 0)) {
           for (bVar3 = 0; bVar3 < 6; bVar3 = bVar3 + 1) {
@@ -49989,8 +49989,8 @@ void flexcan_c_rx_55F(void)
     uVar3 = fcc_buffer[9].code_and_timestamp;
     if ((uVar3 >> 0x18 & 2) == 2) {
       uVar4 = fcc_buffer[9].arb_id;
-      if ((((uVar4 >> 0x12 & 0x7ff) == 0x55f) && (CAL_logger_high_speed_logger_enable != CANBUS_B))
-         && ((COD_base.COD[1] >> 0xd & 1) != 0)) {
+      if ((((uVar4 >> 0x12 & 0x7ff) == 0x55f) && (CAL_ccp_enable != CANBUS_B)) &&
+         ((COD_base.COD[1] >> 0xd & 1) != 0)) {
         bVar1 = fcc_buffer[9].data[0];
         if (bVar1 == 0x27) {
           bVar1 = fcc_buffer[9].data[1];
@@ -50124,7 +50124,7 @@ void flexcan_c_rx_350(void)
     uVar2 = fcc_buffer[0xc].code_and_timestamp;
     if ((uVar2 >> 0x18 & 2) == 2) {
       uVar3 = fcc_buffer[0xc].arb_id;
-      if (((uVar3 >> 0x12 & 0x7ff) == 0x350) && (CAL_logger_high_speed_logger_enable == CANBUS_B)) {
+      if (((uVar3 >> 0x12 & 0x7ff) == 0x350) && (CAL_ccp_enable == CANBUS_B)) {
         DAT_40002300 = fcc_buffer[0xc].data[0];
         DAT_40002301 = fcc_buffer[0xc].data[1];
         DAT_40002302 = fcc_buffer[0xc].data[2];
@@ -50165,7 +50165,7 @@ void flexcan_c_interrupt(void)
   
   uVar1 = DAT_fffc8030;
   DAT_fffc8030 = uVar1 & 0xffffdfff | 0x2000;
-  if (CAL_logger_high_speed_logger_enable == CANBUS_B) {
+  if (CAL_ccp_enable == CANBUS_B) {
     ccp_dto_tx_next();
   }
   return;
@@ -51059,7 +51059,7 @@ void obd_ii_mode3B_processing(void)
     flexcan_a_obd_send_messages();
   }
   else if (((obd_req[2] == 5) && ((COD_base.COD[1] >> 0xd & 1) != 0)) &&
-          (CAL_logger_high_speed_logger_enable != CANBUS_B)) {
+          (CAL_ccp_enable != CANBUS_B)) {
     DAT_40002274 = obd_req[3];
     tpms_sensor_relearn_state_machine();
     obd_resp[1] = obd_req[2];
@@ -53397,7 +53397,7 @@ void obd_ii_mode14_processing(void)
 
 {
   if ((obd_req[0] == 1) || (obd_req[2] == 0xff)) {
-    if (((COD_base.COD[1] >> 0xd & 1) != 0) && (CAL_logger_high_speed_logger_enable != CANBUS_B)) {
+    if (((COD_base.COD[1] >> 0xd & 1) != 0) && (CAL_ccp_enable != CANBUS_B)) {
       tpms_module_reset_and_wake();
       tpms_handshake_failed = false;
     }
