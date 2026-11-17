@@ -407,6 +407,13 @@
    </table>
    <description>Calibration: (0091 0x4000d3ce CAL_can_yaw_timeout)</description>
   </table>
+  <table category="ccp" name="ccp: enable" sizey="1" storageaddress="0x0298" type="Switch" userlevel="1">
+   <state data="00" name="Disabled"/>
+   <state data="01" name="FlexCAN A"/>
+   <state data="02" name="FlexCAN C"/>
+   <description>CCP (CAN Calibration Protocol) is an ASAM standard from the 1990s that lets a PC tool connect to an ECU over CAN, read and write its memory, and change calibration values live. In these Lotus ECUs it's Vector's CCP 2.1 driver (Ccp_T6, commands on 0x350 and responses on 0x351), which tools like CANape or INCA use for high-speed data logging, with CAL_ccp_enable choosing which CAN bus it runs on.
+</description>
+  </table>
   <table category="closedloop" endian="big" name="closedloop: activate air temp" sizex="1" storageaddress="0x0070" storagetype="uint8" type="2D" userlevel="1">
    <scaling category="Degree Celsius" coarseincrement="2" expression="(x*5/8)-40" fineincrement="0.625" format="0.0" to_byte="(x+40)*8/5" units="°C"/>
    <table name="" sizex="1" type="Static X Axis">
@@ -5451,16 +5458,6 @@ Unit is x / 4.83 mpg</description>
     <scaling category="Millibar" coarseincrement="50" expression="x" fineincrement="10" format="0" to_byte="x" units="mbar"/>
    </table>
    <description>There is a speed density calculation for exhaust flow estimation. It does not effect fueling targets</description>
-  </table>
-  <table category="logger" name="logger: high speed logger enable" sizey="1" storageaddress="0x0298" type="Switch" userlevel="1">
-   <state data="00" name="Disabled"/>
-   <state data="01" name="FlexCAN A"/>
-   <state data="02" name="FlexCAN C"/>
-   <description>To enable the built-in highspeed data logger, set this configuration option.
-
-0: disabled (factory defatult)
-1: FlexCAN A logging
-2: FlexCAN C logging</description>
   </table>
   <table category="misc" endian="big" name="misc: engine detection off" sizex="1" storageaddress="0x012C" storagetype="uint16" type="2D" userlevel="1">
    <scaling category="microseconds" coarseincrement="10" expression="x" fineincrement="1" format="0" to_byte="x" units="us"/>

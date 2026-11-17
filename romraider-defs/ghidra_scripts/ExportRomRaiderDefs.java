@@ -612,10 +612,11 @@ public class ExportRomRaiderDefs extends GhidraScript {
 		{"All Modes", "3"}
 	};
 
-	/* Selects which FlexCAN controller carries the diagnostic/telemetry frames.
-	 * 0 disables flexcan_diagnostics_tx() and the timeslot scheduler entirely,
-	 * 1 routes them through the FlexCAN A mailboxes, 2 through FlexCAN C.
-	 * Note that 2 also takes CAN C away from the TPMS module. */
+	/* CAL_ccp_enable (was CAL_logger_high_speed_logger_enable): selects which
+	 * FlexCAN controller the CCP 2.1 slave ("Ccp_T6", CRO 0x350 / DTO 0x351) uses.
+	 * 0 = CCP off (0x350 ignored, DAQ scheduler skipped), 1 = FlexCAN A (OBD bus),
+	 * 2 = FlexCAN C. Note that 2 also takes CAN C away from the TPMS module.
+	 * See documentation/CCP-support.md. */
 	private static final String[][] FLEXCAN_BUS_SELECT = {
 		{"Disabled", "00"},
 		{"FlexCAN A", "01"},
@@ -1062,7 +1063,7 @@ public class ExportRomRaiderDefs extends GhidraScript {
 				addXmlSwitch(doc, parent, s, OIL_PRESSURE_SENSOR_MODE);
 			else if (s.datatype.equals("enum_exhaust_stationary_override"))
 				addXmlSwitch(doc, parent, s, EXHAUST_VALVE_OVERRIDE_MODE);
-			else if (s.datatype.equals("enum_flexcan_bus_select"))
+			else if (s.datatype.equals("enum_flexcan_bus_select") || "CAL_ccp_enable".equals(s.name))
 				addXmlSwitch(doc, parent, s, FLEXCAN_BUS_SELECT);
 			else if (s.datatype.equals("enum_t6e_gear"))
 				addXmlSwitch(doc, parent, s, T6E_GEAR);
